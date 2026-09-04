@@ -22,7 +22,7 @@ interface Props {
   onHelpToggle?: () => void;
 }
 
-const BASE_OPTIONS = ['OpenStreetMap', 'Positron', 'Satellite'];
+const BASE_OPTIONS = ['OpenStreetMap', 'Satellite'];
 
 export default function ActionBar({
   uiMode,
