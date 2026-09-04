@@ -1,0 +1,786 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Heat Pump Integration — Classic Method &#8212; HeatTransPlan — Calculation Logic</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=707828e2" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=c73c0f3e"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=ccdb6887"></script>
+    <script>let toggleHintShow = 'Show implementation';</script>
+    <script>let toggleHintHide = 'Hide implementation';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=b8b12719"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'heat_pump_integration';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Heat Pump Optimization — Predictive ML Model &amp; Grid Search" href="heat_pump_optimization.html" />
+    <link rel="prev" title="Pinch Analysis" href="pinch_analysis.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HeatTransPlan — Calculation Logic</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="pinch_analysis.html">Pinch Analysis</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Heat Pump Integration — Classic Method</a></li>
+<li class="toctree-l1"><a class="reference internal" href="heat_pump_optimization.html">Heat Pump Optimization — Predictive ML Model &amp; Grid Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="temperature_pocket_deletion.html">Temperature Pocket Deletion</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/drzg15/HeatTransPlan" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/heat_pump_integration.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Heat Pump Integration — Classic Method</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#heat-pump-technologies-and-operating-windows">Heat Pump Technologies and Operating Windows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cop-correlations">COP Correlations</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#carnot-fallback">Carnot Fallback</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-available-cop-selection">Best-Available COP Selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-and-sink-profiles">Source and Sink Profiles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-walk-finding-the-operating-point">Integration Walk: Finding the Operating Point</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#at-each-source-temperature-t">At each source temperature <span class="math notranslate nohighlight">\(T\)</span>:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#convergence">Convergence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterative-sink-temperature-mode">Iterative sink temperature mode</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="heat-pump-integration-classic-method">
+<h1>Heat Pump Integration — Classic Method<a class="headerlink" href="#heat-pump-integration-classic-method" title="Link to this heading">#</a></h1>
+<p>Heat Pump Integration (HPI) determines the <strong>operating point</strong> for a heat pump placed on the Grand Composite Curve (GCC). It answers the key engineering questions: <em>At what source temperature should the heat pump extract waste heat? How much condenser duty can it deliver? And what is the resulting COP?</em></p>
+<p>The module supports both a <strong>best-available</strong> mode (picks whichever technology gives the highest COP at each operating point) and a <strong>technology-specific</strong> mode (evaluates one named heat pump type across its full operating window).</p>
+<hr class="docutils" />
+<section id="heat-pump-technologies-and-operating-windows">
+<h2>Heat Pump Technologies and Operating Windows<a class="headerlink" href="#heat-pump-technologies-and-operating-windows" title="Link to this heading">#</a></h2>
+<p>Each heat pump technology has a defined <strong>operating envelope</strong>: a sink temperature range it is built for, and a temperature lift it can deliver. These are hard limits from manufacturer data.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Technology</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(T_{sink,min}\)</span> (°C)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(T_{sink,max}\)</span> (°C)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\Delta T_{min}\)</span> (°C)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\Delta T_{max}\)</span> (°C)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Prototypical Stirling</p></td>
+<td><p>144</p></td>
+<td><p>212</p></td>
+<td><p>25</p></td>
+<td><p>190</p></td>
+</tr>
+<tr class="row-odd"><td><p>VHTHP (HFC/HFO)</p></td>
+<td><p>80</p></td>
+<td><p>160</p></td>
+<td><p>25</p></td>
+<td><p>95</p></td>
+</tr>
+<tr class="row-even"><td><p>SHP and HTHPs (HFC/HFO)</p></td>
+<td><p>25</p></td>
+<td><p>100</p></td>
+<td><p>10</p></td>
+<td><p>78</p></td>
+</tr>
+<tr class="row-odd"><td><p>SHP and HTHPs (R717)</p></td>
+<td><p>70</p></td>
+<td><p>85</p></td>
+<td><p>30</p></td>
+<td><p>75</p></td>
+</tr>
+<tr class="row-even"><td><p>Theoretical Carnot (<span class="math notranslate nohighlight">\(\times 0.5\)</span> efficiency)</p></td>
+<td><p><span class="math notranslate nohighlight">\(-\infty\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(+\infty\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(0\)</span></p></td>
+<td><p><span class="math notranslate nohighlight">\(+\infty\)</span></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A heat pump is only considered available when <strong>both</strong> the sink temperature and the temperature lift fall within its operating window.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (lines 10–42)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HP_OPERATING_WINDOWS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Prototypical Stirling&#39;</span><span class="p">:</span>   <span class="p">{</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">:</span> <span class="mi">144</span><span class="p">,</span> <span class="s1">&#39;t_sink_max&#39;</span><span class="p">:</span> <span class="mi">212</span><span class="p">,</span>
+                                <span class="s1">&#39;dt_min&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;dt_max&#39;</span><span class="p">:</span> <span class="mi">190</span><span class="p">},</span>
+    <span class="s1">&#39;VHTHP (HFC/HFO)&#39;</span><span class="p">:</span>        <span class="p">{</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>  <span class="s1">&#39;t_sink_max&#39;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span>
+                                <span class="s1">&#39;dt_min&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;dt_max&#39;</span><span class="p">:</span> <span class="mi">95</span><span class="p">},</span>
+    <span class="s1">&#39;SHP and HTHPs (HFC/HFO)&#39;</span><span class="p">:{</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>  <span class="s1">&#39;t_sink_max&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+                                <span class="s1">&#39;dt_min&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;dt_max&#39;</span><span class="p">:</span> <span class="mi">78</span><span class="p">},</span>
+    <span class="s1">&#39;SHP and HTHPs (R717)&#39;</span><span class="p">:</span>    <span class="p">{</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>  <span class="s1">&#39;t_sink_max&#39;</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span>
+                                <span class="s1">&#39;dt_min&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;dt_max&#39;</span><span class="p">:</span> <span class="mi">75</span><span class="p">},</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">in_operating_window</span><span class="p">(</span><span class="n">hp_type</span><span class="p">,</span> <span class="n">t_sink</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True when the technology is rated for this sink temperature and lift.&quot;&quot;&quot;</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">HP_OPERATING_WINDOWS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">hp_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">w</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">t_sink</span> <span class="o">&lt;=</span> <span class="n">w</span><span class="p">[</span><span class="s1">&#39;t_sink_max&#39;</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">w</span><span class="p">[</span><span class="s1">&#39;dt_min&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">dt</span> <span class="o">&lt;=</span> <span class="n">w</span><span class="p">[</span><span class="s1">&#39;dt_max&#39;</span><span class="p">])</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="cop-correlations">
+<h2>COP Correlations<a class="headerlink" href="#cop-correlations" title="Link to this heading">#</a></h2>
+<p>Each technology has a <strong>regression fit</strong> — a formula that takes the sink temperature <span class="math notranslate nohighlight">\(T_{sink}\)</span> (°C) and the temperature lift <span class="math notranslate nohighlight">\(\Delta T = T_{sink} - T_{source}\)</span> (°C) and returns the COP.</p>
+<p>These are empirical correlations, typically of the form:</p>
+<div class="math notranslate nohighlight">
+\[
+COP = a \cdot (\Delta T + 2c)^b \cdot (T_{sink} + 273 + c)^d
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(a, b, c, d\)</span> are fitted coefficients specific to each technology. The temperature is converted to Kelvin (<span class="math notranslate nohighlight">\(+273\)</span>) for the sink term.</p>
+<p>For example, the <strong>VHTHP (HFC/HFO)</strong> correlation is:</p>
+<div class="math notranslate nohighlight">
+\[
+COP_{VHTHP} = 1.9118 \cdot (\Delta T + 2 \times 0.04419)^{-0.89094} \cdot (T_{sink} + 273 + 0.04419)^{0.67895}
+\]</div>
+<section id="carnot-fallback">
+<h3>Carnot Fallback<a class="headerlink" href="#carnot-fallback" title="Link to this heading">#</a></h3>
+<p>When no named technology can operate at a given point, the system falls back to a <strong>generic Carnot COP</strong> at 50% efficiency:</p>
+<div class="math notranslate nohighlight">
+\[
+COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
+\]</div>
+<p>This represents “any theoretical heat pump” — it is not a real machine, but an upper bound for comparison.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (lines 19–33)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HP_COP_CORRELATIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Prototypical Stirling&#39;</span><span class="p">:</span>
+        <span class="k">lambda</span> <span class="n">t_sink</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.28792</span> <span class="o">*</span> <span class="p">(</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="mf">0.54103</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.37606</span><span class="p">)</span>
+                            <span class="o">*</span> <span class="p">(</span><span class="n">t_sink</span> <span class="o">+</span> <span class="mi">273</span> <span class="o">+</span> <span class="mf">0.54103</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.35992</span><span class="p">),</span>
+    <span class="s1">&#39;VHTHP (HFC/HFO)&#39;</span><span class="p">:</span>
+        <span class="k">lambda</span> <span class="n">t_sink</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="p">(</span><span class="mf">1.9118</span> <span class="o">*</span> <span class="p">(</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="mf">0.04419</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">0.89094</span><span class="p">)</span>
+                            <span class="o">*</span> <span class="p">(</span><span class="n">t_sink</span> <span class="o">+</span> <span class="mi">273</span> <span class="o">+</span> <span class="mf">0.04419</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.67895</span><span class="p">),</span>
+    <span class="s1">&#39;SHP and HTHPs (HFC/HFO)&#39;</span><span class="p">:</span>
+        <span class="k">lambda</span> <span class="n">t_sink</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="mf">1.4480</span> <span class="o">*</span> <span class="p">(</span><span class="mi">10</span> <span class="o">**</span> <span class="mi">12</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="mf">88.73</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">4.9469</span><span class="p">),</span>
+    <span class="s1">&#39;SHP and HTHPs (R717)&#39;</span><span class="p">:</span>
+        <span class="k">lambda</span> <span class="n">t_sink</span><span class="p">,</span> <span class="n">dt</span><span class="p">:</span> <span class="p">(</span><span class="mf">40.789</span> <span class="o">*</span> <span class="p">(</span><span class="n">dt</span> <span class="o">+</span> <span class="mi">2</span> <span class="o">*</span> <span class="mf">1.0305</span><span class="p">)</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mf">1.0489</span><span class="p">)</span>
+                            <span class="o">*</span> <span class="p">(</span><span class="n">t_sink</span> <span class="o">+</span> <span class="mi">273</span> <span class="o">+</span> <span class="mf">1.0305</span><span class="p">)</span> <span class="o">**</span> <span class="mf">0.29998</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">carnot_cop</span><span class="p">(</span><span class="n">t_sink</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Carnot COP at 50% efficiency — generic fallback.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">t_sink</span> <span class="o">+</span> <span class="mf">273.15</span><span class="p">)</span> <span class="o">/</span> <span class="n">dt</span> <span class="o">*</span> <span class="mf">0.5</span>
+</pre></div>
+</div>
+</details>
+</section>
+</section>
+<hr class="docutils" />
+<section id="best-available-cop-selection">
+<h2>Best-Available COP Selection<a class="headerlink" href="#best-available-cop-selection" title="Link to this heading">#</a></h2>
+<p>When asked for the COP at a source temperature <span class="math notranslate nohighlight">\(T_{source}\)</span>, the system:</p>
+<ol class="arabic simple">
+<li><p>Computes the temperature lift: <span class="math notranslate nohighlight">\(\Delta T = T_{sink} - T_{source}\)</span></p></li>
+<li><p>Checks which technologies have this point inside their operating window</p></li>
+<li><p>Evaluates the COP correlation for each valid technology</p></li>
+<li><p>Returns the <strong>highest COP</strong> among all candidates</p></li>
+</ol>
+<p>If no named technology applies, the Carnot fallback is returned.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (lines 98–118)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">COP</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">T</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Best COP available at source temperature T, across all technologies.&quot;&quot;&quot;</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_check_lift</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">delta_T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_sink_out</span> <span class="o">-</span> <span class="n">T</span>
+
+    <span class="n">candidates</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">(</span><span class="n">correlation</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t_sink_out</span><span class="p">,</span> <span class="n">delta_T</span><span class="p">),</span> <span class="n">hp_type</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">hp_type</span><span class="p">,</span> <span class="n">correlation</span> <span class="ow">in</span> <span class="n">HP_COP_CORRELATIONS</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">in_operating_window</span><span class="p">(</span><span class="n">hp_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_sink_out</span><span class="p">,</span> <span class="n">delta_T</span><span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">candidates</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">carnot_cop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t_sink_out</span><span class="p">,</span> <span class="n">delta_T</span><span class="p">),</span> <span class="s1">&#39;Carnot&#39;</span>
+    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="source-and-sink-profiles">
+<h2>Source and Sink Profiles<a class="headerlink" href="#source-and-sink-profiles" title="Link to this heading">#</a></h2>
+<p>Before integrating the heat pump, the Grand Composite Curve is split into a <strong>source profile</strong> (below the pinch — heat available for the evaporator) and a <strong>sink profile</strong> (above the pinch — heat demand for the condenser).</p>
+<p>The application supports three levels of heat-recovery credit:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Mode</p></th>
+<th class="head"><p>Recovery assumption</p></th>
+<th class="head"><p>What the heat pump sees</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>net_load</strong> (default)</p></td>
+<td><p>Full internal recovery credited (pocket-free GCC)</p></td>
+<td><p>Only the residual utility requirement</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>uncascaded</strong></p></td>
+<td><p>No cascading between intervals — heat stays in its interval</p></td>
+<td><p>Surplus from hot intervals + deficit from cold intervals</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>composite</strong></p></td>
+<td><p>No recovery at all — raw hot/cold composites</p></td>
+<td><p>Full stream duties</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The source profile has <strong>temperature descending, enthalpy rising</strong> (heat available above each temperature). The sink profile has <strong>temperature descending, enthalpy falling</strong> (heat still required below each temperature).</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/utility/heat_profiles.py</code> (lines 170–202)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">resolve_profiles</span><span class="p">(</span><span class="n">pinch</span><span class="p">,</span> <span class="n">hpi</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;net_load&quot;</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return (source, sink) profiles for the given mode.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;net_load&quot;</span><span class="p">:</span>
+        <span class="c1"># Standard: delete temperature pockets, then split GCC</span>
+        <span class="n">hpi</span><span class="o">.</span><span class="n">delete_temperature_pockets</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">hpi</span><span class="o">.</span><span class="n">split_hot_and_cold</span><span class="p">()</span>
+
+    <span class="c1"># Non-default modes use the problem table directly</span>
+    <span class="k">return</span> <span class="n">build_heat_profiles</span><span class="p">(</span><span class="n">pinch</span><span class="p">,</span> <span class="n">mode</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="integration-walk-finding-the-operating-point">
+<h2>Integration Walk: Finding the Operating Point<a class="headerlink" href="#integration-walk-finding-the-operating-point" title="Link to this heading">#</a></h2>
+<p>The integration walk is the core algorithm. Starting from the hottest point of the source profile, it steps downward in temperature and computes at each point:</p>
+<section id="at-each-source-temperature-t">
+<h3>At each source temperature <span class="math notranslate nohighlight">\(T\)</span>:<a class="headerlink" href="#at-each-source-temperature-t" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong>Evaporator duty</strong> <span class="math notranslate nohighlight">\(\dot{Q}_{ev}\)</span>: Read from the source profile by linear interpolation:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[
+\dot{Q}_{ev}(T) = \dot{Q}_{source}(T_i) + \frac{\dot{Q}_{source}(T_{i+1}) - \dot{Q}_{source}(T_i)}{T_{i+1} - T_i} \cdot (T - T_i)
+\]</div>
+<ol class="arabic simple" start="2">
+<li><p><strong>COP</strong>: Evaluated at the current source temperature using the selected correlation.</p></li>
+<li><p><strong>Condenser duty</strong> <span class="math notranslate nohighlight">\(\dot{Q}_{ko}\)</span>: Derived from the evaporator duty and COP using the first law:</p></li>
+</ol>
+<div class="math notranslate nohighlight">
+\[
+\dot{Q}_{ko} = \dot{Q}_{ev} \cdot \left(1 - \frac{1}{COP}\right)^{-1}
+\]</div>
+<p>This formula comes from the heat pump energy balance: <span class="math notranslate nohighlight">\(\dot{Q}_{ko} = \dot{Q}_{ev} + W_{el}\)</span>, where <span class="math notranslate nohighlight">\(W_{el} = \dot{Q}_{ko} / COP\)</span>.</p>
+</section>
+<section id="convergence">
+<h3>Convergence<a class="headerlink" href="#convergence" title="Link to this heading">#</a></h3>
+<p>The walk continues until the condenser duty meets the sink demand. When it gets close, the <strong>step size is refined</strong> (divided by 200) for precision. The iteration converges when <span class="math notranslate nohighlight">\(\dot{Q}_{ko}\)</span> matches the sink profile at the target sink temperature.</p>
+</section>
+<section id="iterative-sink-temperature-mode">
+<h3>Iterative sink temperature mode<a class="headerlink" href="#iterative-sink-temperature-mode" title="Link to this heading">#</a></h3>
+<p>When no sink temperature is specified, the system iterates: it starts at the top of the sink profile, computes <span class="math notranslate nohighlight">\(\dot{Q}_{ko}\)</span>, reads back what temperature that corresponds to on the sink curve, and repeats until the sink temperature converges within 1°C.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (lines 252–339)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">integrate_heat_pump</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Starting at the top of the source profile</span>
+    <span class="n">Quelle</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">step_size_temp</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">gcc_source</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">][</span><span class="n">Quelle</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcc_source</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">][</span><span class="n">Quelle</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+    <span class="p">)</span> <span class="o">/</span> <span class="mi">10</span>
+    <span class="n">T</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcc_source</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">][</span><span class="n">Quelle</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size_temp</span>
+
+    <span class="k">while</span> <span class="n">T</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcc_source</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="c1"># Move to next segment if needed</span>
+        <span class="k">if</span> <span class="n">T</span> <span class="o">&lt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcc_source</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">][</span><span class="n">Quelle</span><span class="o">+</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">Quelle</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="c1"># Skip points with no temperature lift</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_sink_out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">T</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_sink_out</span><span class="p">:</span>
+            <span class="n">T</span> <span class="o">-=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step_size_temp</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">COP</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">COP</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+        <span class="n">q_punkt_ev</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">q_punkt_ev</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">Quelle</span><span class="p">)</span>  <span class="c1"># interpolate on source</span>
+        <span class="n">q_punkt_ko</span> <span class="o">=</span> <span class="n">q_punkt_ev</span> <span class="o">*</span> <span class="p">((</span><span class="mi">1</span> <span class="o">-</span> <span class="p">(</span><span class="mi">1</span><span class="o">/</span><span class="n">COP</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span> <span class="o">**</span> <span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cop_werte</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">COP</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="mi">3</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ev_wp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">q_punkt_ev</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">ko_wp</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">round</span><span class="p">(</span><span class="n">q_punkt_ko</span><span class="p">))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cop_t</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">T</span><span class="p">)</span>
+
+        <span class="c1"># Refine step size near convergence</span>
+        <span class="k">if</span> <span class="n">q_punkt_ko</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcc_sink</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">Test</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">T</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size_temp</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">step_size_temp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">step_size_temp</span> <span class="o">/</span> <span class="mi">200</span>
+            <span class="n">Test</span> <span class="o">=</span> <span class="mi">1</span>
+        <span class="k">elif</span> <span class="n">q_punkt_ko</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">gcc_sink</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">Test</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">break</span>
+
+        <span class="n">T</span> <span class="o">-=</span> <span class="nb">max</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">step_size_temp</span><span class="p">,</span> <span class="mf">1e-6</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="pinch_analysis.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Pinch Analysis</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="heat_pump_optimization.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Heat Pump Optimization — Predictive ML Model &amp; Grid Search</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#heat-pump-technologies-and-operating-windows">Heat Pump Technologies and Operating Windows</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cop-correlations">COP Correlations</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#carnot-fallback">Carnot Fallback</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-available-cop-selection">Best-Available COP Selection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-and-sink-profiles">Source and Sink Profiles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-walk-finding-the-operating-point">Integration Walk: Finding the Operating Point</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#at-each-source-temperature-t">At each source temperature <span class="math notranslate nohighlight">\(T\)</span>:</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#convergence">Convergence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterative-sink-temperature-mode">Iterative sink temperature mode</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By HeatTransPlan Contributors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, HeatTransPlan Contributors.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1293 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Pinch Analysis &#8212; HeatTransPlan — Calculation Logic</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=707828e2" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=c73c0f3e"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=ccdb6887"></script>
+    <script>let toggleHintShow = 'Show implementation';</script>
+    <script>let toggleHintHide = 'Hide implementation';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=b8b12719"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'pinch_analysis';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Heat Pump Integration" href="heat_pump_integration.html" />
+    <link rel="prev" title="HeatTransPlan — Calculation Logic" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HeatTransPlan — Calculation Logic</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Pinch Analysis</a></li>
+<li class="toctree-l1"><a class="reference internal" href="heat_pump_integration.html">Heat Pump Integration</a></li>
+<li class="toctree-l1"><a class="reference internal" href="temperature_pocket_deletion.html">Temperature Pocket Deletion</a></li>
+<li class="toctree-l1"><a class="reference internal" href="total_site_profile.html">Total Site Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="issp.html">ISSP — Inter-Site Storage Profile</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/drzg15/HeatTransPlan" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/pinch_analysis.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Pinch Analysis</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-process-streams">Input: Process Streams</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-shift-temperatures-by-tmin-2">Step 1 — Shift Temperatures by ΔTmin/2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-construct-temperature-intervals">Step 2 — Construct Temperature Intervals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-build-the-problem-table">Step 3 — Build the Problem Table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-heat-cascade-and-pinch-point">Step 4 — Heat Cascade and Pinch Point</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pass-1-unfeasible-cascade-no-external-utility">Pass 1: Unfeasible Cascade (no external utility)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pass-2-feasible-cascade">Pass 2: Feasible Cascade</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-results">Key results</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-shifted-composite-diagram">Step 5 — Shifted Composite Diagram</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#construction">Construction</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-composite-diagram-actual-temperatures">Step 6 — Composite Diagram (Actual Temperatures)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-grand-composite-curve-gcc">Step 7 — Grand Composite Curve (GCC)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-summary">Pipeline Summary</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="pinch-analysis">
+<h1>Pinch Analysis<a class="headerlink" href="#pinch-analysis" title="Link to this heading">#</a></h1>
+<p>Pinch Analysis is the foundational calculation of HeatTransPlan. It determines the <strong>minimum heating and cooling utility</strong> requirements for a set of process streams, identifies the <strong>Pinch Temperature</strong>, and constructs the diagnostic curves (Composite Curves, Grand Composite Curve) that drive all downstream modules.</p>
+<p>The implementation follows the classic methodology from Linnhoff &amp; Hindmarsh (1983), extended to handle edge cases in multi-process industrial settings.</p>
+<hr class="docutils" />
+<section id="input-process-streams">
+<h2>Input: Process Streams<a class="headerlink" href="#input-process-streams" title="Link to this heading">#</a></h2>
+<p>Every stream is defined by three numbers:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Parameter</p></th>
+<th class="head"><p>Symbol</p></th>
+<th class="head"><p>Unit</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Heat capacity flow rate</p></td>
+<td><p><span class="math notranslate nohighlight">\(\dot{C}_P\)</span></p></td>
+<td><p>kW/°C</p></td>
+<td><p>Mass flow × specific heat capacity</p></td>
+</tr>
+<tr class="row-odd"><td><p>Supply temperature</p></td>
+<td><p><span class="math notranslate nohighlight">\(T_S\)</span></p></td>
+<td><p>°C</p></td>
+<td><p>Temperature the stream starts at</p></td>
+</tr>
+<tr class="row-even"><td><p>Target temperature</p></td>
+<td><p><span class="math notranslate nohighlight">\(T_T\)</span></p></td>
+<td><p>°C</p></td>
+<td><p>Temperature the stream must reach</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A stream is classified automatically:</p>
+<ul class="simple">
+<li><p><strong>Hot stream</strong>: <span class="math notranslate nohighlight">\(T_S &gt; T_T\)</span> — the stream needs to be cooled (releases heat).</p></li>
+<li><p><strong>Cold stream</strong>: <span class="math notranslate nohighlight">\(T_S &lt; T_T\)</span> — the stream needs to be heated (absorbs heat).</p></li>
+</ul>
+<p>The user also supplies a <strong>minimum approach temperature</strong> <span class="math notranslate nohighlight">\(\Delta T_{min}\)</span>, which is the smallest allowed temperature difference between a hot and a cold stream at any point of heat exchange.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch/streams.py</code></summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Classification logic in Streams.create_streams():</span>
+<span class="k">for</span> <span class="n">rawStream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_rawStreamsData</span><span class="p">[</span><span class="mi">2</span><span class="p">:]:</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">float</span><span class="p">(</span><span class="n">rawStream</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="o">&gt;</span> <span class="nb">float</span><span class="p">(</span><span class="n">rawStream</span><span class="p">[</span><span class="mi">2</span><span class="p">]):</span>
+        <span class="n">stream</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;HOT&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">stream</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;COLD&quot;</span>
+
+    <span class="n">stream</span><span class="p">[</span><span class="s2">&quot;cp&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rawStream</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">stream</span><span class="p">[</span><span class="s2">&quot;ts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rawStream</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">stream</span><span class="p">[</span><span class="s2">&quot;tt&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">rawStream</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">streamsData</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stream</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="step-1-shift-temperatures-by-tmin-2">
+<h2>Step 1 — Shift Temperatures by ΔTmin/2<a class="headerlink" href="#step-1-shift-temperatures-by-tmin-2" title="Link to this heading">#</a></h2>
+<p>To guarantee that the minimum approach temperature <span class="math notranslate nohighlight">\(\Delta T_{min}\)</span> is respected between hot and cold streams, we <strong>shift</strong> all stream temperatures before constructing any interval diagram:</p>
+<div class="math notranslate nohighlight">
+\[
+T_{shifted}^{hot} = T_{actual} - \frac{\Delta T_{min}}{2}
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+T_{shifted}^{cold} = T_{actual} + \frac{\Delta T_{min}}{2}
+\]</div>
+<p><strong>Why this works:</strong> After shifting, whenever a hot and cold stream share the same shifted temperature, their actual temperatures are exactly <span class="math notranslate nohighlight">\(\Delta T_{min}\)</span> apart. This guarantees feasible heat exchange without checking every pair.</p>
+<p>Both supply and target temperatures of each stream are shifted:</p>
+<ul class="simple">
+<li><p>A hot stream at 200°C → 150°C with <span class="math notranslate nohighlight">\(\Delta T_{min} = 10\)</span>°C becomes 195°C → 145°C.</p></li>
+<li><p>A cold stream at 50°C → 120°C becomes 55°C → 125°C.</p></li>
+</ul>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 62–69)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">shift_temperatures</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;HOT&#39;</span><span class="p">:</span>
+            <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;ss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;ts&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmin</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;st&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;tt&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmin</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;ss&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;ts&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmin</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;st&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;tt&#39;</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmin</span> <span class="o">/</span> <span class="mi">2</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="step-2-construct-temperature-intervals">
+<h2>Step 2 — Construct Temperature Intervals<a class="headerlink" href="#step-2-construct-temperature-intervals" title="Link to this heading">#</a></h2>
+<p>All unique shifted temperatures are collected and sorted in descending order. The gaps between consecutive temperatures form the <strong>temperature intervals</strong>.</p>
+<p>For each interval <span class="math notranslate nohighlight">\([T_i, T_{i+1}]\)</span>, we record which streams pass through it:</p>
+<ul class="simple">
+<li><p>A hot stream passes through the interval if its shifted supply temperature ≥ <span class="math notranslate nohighlight">\(T_i\)</span> <strong>and</strong> its shifted target temperature ≤ <span class="math notranslate nohighlight">\(T_{i+1}\)</span>.</p></li>
+<li><p>A cold stream passes through if its shifted target temperature ≥ <span class="math notranslate nohighlight">\(T_i\)</span> <strong>and</strong> its shifted supply temperature ≤ <span class="math notranslate nohighlight">\(T_{i+1}\)</span>.</p></li>
+</ul>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 78–129)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">construct_temperature_interval</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># Collect all shifted temperatures</span>
+    <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stream</span><span class="p">[</span><span class="s1">&#39;ss&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stream</span><span class="p">[</span><span class="s1">&#39;st&#39;</span><span class="p">])</span>
+
+    <span class="c1"># Remove duplicates and sort descending</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">))</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">reverse</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># For each interval, find which streams are active</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">t1</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+        <span class="n">t2</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+        <span class="n">interval</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;t1&#39;</span><span class="p">:</span> <span class="n">t1</span><span class="p">,</span> <span class="s1">&#39;t2&#39;</span><span class="p">:</span> <span class="n">t2</span><span class="p">,</span> <span class="s1">&#39;streamNumbers&#39;</span><span class="p">:</span> <span class="p">[]}</span>
+
+        <span class="n">j</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">stream</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;HOT&#39;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;ss&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">t1</span> <span class="ow">and</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;st&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">t2</span><span class="p">:</span>
+                    <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;streamNumbers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;st&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="n">t1</span> <span class="ow">and</span> <span class="n">stream</span><span class="p">[</span><span class="s1">&#39;ss&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">t2</span><span class="p">:</span>
+                    <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;streamNumbers&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">j</span><span class="p">)</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">temperatureInterval</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">interval</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="step-3-build-the-problem-table">
+<h2>Step 3 — Build the Problem Table<a class="headerlink" href="#step-3-build-the-problem-table" title="Link to this heading">#</a></h2>
+<p>For each temperature interval, we compute:</p>
+<ol class="arabic simple">
+<li><p><strong>Temperature span</strong>: <span class="math notranslate nohighlight">\(\Delta T_i = T_i - T_{i+1}\)</span></p></li>
+<li><p><strong>Net heat capacity</strong>: <span class="math notranslate nohighlight">\(\Delta \dot{C}_{P,i} = \sum \dot{C}_{P}^{hot} - \sum \dot{C}_{P}^{cold}\)</span> (summed over streams active in that interval)</p></li>
+<li><p><strong>Enthalpy change</strong>: <span class="math notranslate nohighlight">\(\Delta H_i = \Delta T_i \times \Delta \dot{C}_{P,i}\)</span></p></li>
+</ol>
+<p>The sign convention is:</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\Delta H_i &gt; 0\)</span>: the interval has a <strong>net surplus</strong> of heat (hot streams dominate).</p></li>
+<li><p><span class="math notranslate nohighlight">\(\Delta H_i &lt; 0\)</span>: the interval has a <strong>net deficit</strong> (cold streams dominate).</p></li>
+</ul>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 136–164)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">construct_problem_table</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureInterval</span><span class="p">:</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;deltaS&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;t1&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;t2&#39;</span><span class="p">]</span>
+        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;deltaCP&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;streamNumbers&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">streamsData</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;HOT&#39;</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s1">&#39;deltaCP&#39;</span><span class="p">]</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">streamsData</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;cp&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">row</span><span class="p">[</span><span class="s1">&#39;deltaCP&#39;</span><span class="p">]</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">streamsData</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;cp&#39;</span><span class="p">]</span>
+
+        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;deltaH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;deltaS&#39;</span><span class="p">]</span> <span class="o">*</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;deltaCP&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">problem_table</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="step-4-heat-cascade-and-pinch-point">
+<h2>Step 4 — Heat Cascade and Pinch Point<a class="headerlink" href="#step-4-heat-cascade-and-pinch-point" title="Link to this heading">#</a></h2>
+<p>The heat cascade is constructed in two passes:</p>
+<section id="pass-1-unfeasible-cascade-no-external-utility">
+<h3>Pass 1: Unfeasible Cascade (no external utility)<a class="headerlink" href="#pass-1-unfeasible-cascade-no-external-utility" title="Link to this heading">#</a></h3>
+<p>Starting from the top (hottest interval), we cascade heat downward by accumulating <span class="math notranslate nohighlight">\(\Delta H\)</span> values:</p>
+<div class="math notranslate nohighlight">
+\[
+\dot{Q}_{exit,i} = \dot{Q}_{exit,i-1} + \Delta H_i
+\]</div>
+<p>starting with <span class="math notranslate nohighlight">\(\dot{Q}_{exit,0} = 0\)</span> (no utility). If any <span class="math notranslate nohighlight">\(\dot{Q}_{exit,i}\)</span> goes negative, the cascade is <strong>infeasible</strong> — there is not enough heat available from above.</p>
+</section>
+<section id="pass-2-feasible-cascade">
+<h3>Pass 2: Feasible Cascade<a class="headerlink" href="#pass-2-feasible-cascade" title="Link to this heading">#</a></h3>
+<p>The minimum hot utility required is:</p>
+<div class="math notranslate nohighlight">
+\[
+\dot{Q}_{H,min} = -\min(\dot{Q}_{exit,i}^{unfeasible})
+\]</div>
+<p>We re-run the cascade starting with <span class="math notranslate nohighlight">\(\dot{Q}_{exit,0} = \dot{Q}_{H,min}\)</span> instead of zero. Now all exit enthalpies are ≥ 0.</p>
+</section>
+<section id="key-results">
+<h3>Key results<a class="headerlink" href="#key-results" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Result</p></th>
+<th class="head"><p>Formula</p></th>
+<th class="head"><p>Physical meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Pinch temperature</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(T_{pinch}\)</span> = bottom of the interval where <span class="math notranslate nohighlight">\(\dot{Q}_{exit} = 0\)</span></p></td>
+<td><p>Temperature where zero heat crosses — divides the problem into above-pinch (needs heating) and below-pinch (needs cooling)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Minimum hot utility</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(\dot{Q}_{H,min}\)</span></p></td>
+<td><p>External heating required (above the pinch)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Minimum cold utility</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(\dot{Q}_{C,min}\)</span> = final <span class="math notranslate nohighlight">\(\dot{Q}_{exit}\)</span></p></td>
+<td><p>External cooling required (below the pinch)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 167–223)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">construct_heat_cascade</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="c1"># --- Pass 1: unfeasible cascade (starting from 0) ---</span>
+    <span class="n">exitH</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">lowestExitH</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">pinchInterval</span> <span class="o">=</span> <span class="mi">0</span>
+
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">interval</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">problem_table</span><span class="p">):</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;deltaH&#39;</span><span class="p">:</span> <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;deltaH&#39;</span><span class="p">]}</span>
+        <span class="n">exitH</span> <span class="o">+=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;deltaH&#39;</span><span class="p">]</span>
+        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;exitH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exitH</span>
+        <span class="k">if</span> <span class="n">exitH</span> <span class="o">&lt;</span> <span class="n">lowestExitH</span><span class="p">:</span>
+            <span class="n">lowestExitH</span> <span class="o">=</span> <span class="n">exitH</span>
+            <span class="n">pinchInterval</span> <span class="o">=</span> <span class="n">i</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unfeasible_heat_cascade</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="c1"># --- Pass 2: feasible cascade (starting from Q_H,min) ---</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">hot_utility</span> <span class="o">=</span> <span class="o">-</span><span class="n">lowestExitH</span>
+    <span class="n">exitH</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">hot_utility</span>
+
+    <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">problem_table</span><span class="p">:</span>
+        <span class="n">row</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;deltaH&#39;</span><span class="p">:</span> <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;deltaH&#39;</span><span class="p">]}</span>
+        <span class="n">exitH</span> <span class="o">+=</span> <span class="n">row</span><span class="p">[</span><span class="s1">&#39;deltaH&#39;</span><span class="p">]</span>
+        <span class="n">row</span><span class="p">[</span><span class="s1">&#39;exitH&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">exitH</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">heat_cascade</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">row</span><span class="p">)</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">cold_utility</span> <span class="o">=</span> <span class="n">exitH</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">pinch_temperature</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureInterval</span><span class="p">[</span><span class="n">pinchInterval</span><span class="p">][</span><span class="s1">&#39;t2&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
+</details>
+</section>
+</section>
+<hr class="docutils" />
+<section id="step-5-shifted-composite-diagram">
+<h2>Step 5 — Shifted Composite Diagram<a class="headerlink" href="#step-5-shifted-composite-diagram" title="Link to this heading">#</a></h2>
+<p>The <strong>Shifted Composite Diagram</strong> plots the cumulative enthalpy of all hot streams and all cold streams separately, using shifted temperatures. Each composite curve is a piecewise-linear function <span class="math notranslate nohighlight">\(T\)</span> vs. <span class="math notranslate nohighlight">\(H\)</span>.</p>
+<section id="construction">
+<h3>Construction<a class="headerlink" href="#construction" title="Link to this heading">#</a></h3>
+<p>For each temperature interval, the total enthalpy released by hot streams and absorbed by cold streams is:</p>
+<div class="math notranslate nohighlight">
+\[
+\Delta H_i^{hot} = \sum_{j \in hot} \dot{C}_{P,j} \times (T_i - T_{i+1})
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+\Delta H_i^{cold} = \sum_{j \in cold} \dot{C}_{P,j} \times (T_i - T_{i+1})
+\]</div>
+<p>The <strong>hot composite</strong> is built by accumulating <span class="math notranslate nohighlight">\(\Delta H^{hot}\)</span> from the cold end upward (starting at <span class="math notranslate nohighlight">\(H = 0\)</span>).</p>
+<p>The <strong>cold composite</strong> is built by accumulating from the hot end downward, starting at the total cold enthalpy plus the cold utility.</p>
+<p>After construction, flat segments at the ends (where no streams are active) are trimmed off to produce clean curves.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 226–321)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">construct_shifted_composite_diagram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localisation</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">interval</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">temperatureInterval</span><span class="p">:</span>
+        <span class="n">hotH</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">coldH</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;streamNumbers&#39;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">streamsData</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;type&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;HOT&#39;</span><span class="p">:</span>
+                <span class="n">hotH</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">streamsData</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;cp&#39;</span><span class="p">]</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">coldH</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">streams</span><span class="o">.</span><span class="n">streamsData</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="s1">&#39;cp&#39;</span><span class="p">]</span>
+
+        <span class="n">hotH</span> <span class="o">=</span> <span class="n">hotH</span> <span class="o">*</span> <span class="p">(</span><span class="n">interval</span><span class="p">[</span><span class="s1">&#39;t1&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;t2&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_deltaHHot</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hotH</span><span class="p">)</span>
+        <span class="n">coldH</span> <span class="o">=</span> <span class="n">coldH</span> <span class="o">*</span> <span class="p">(</span><span class="n">interval</span><span class="p">[</span><span class="s1">&#39;t1&#39;</span><span class="p">]</span> <span class="o">-</span> <span class="n">interval</span><span class="p">[</span><span class="s1">&#39;t2&#39;</span><span class="p">])</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_deltaHCold</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coldH</span><span class="p">)</span>
+
+    <span class="c1"># Hot composite: accumulate from cold end</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">_deltaHHot</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">)):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deltaHHot</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">][</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">)</span><span class="o">-</span><span class="n">i</span><span class="p">]</span>
+        <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">][</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="c1"># Cold composite: start at total cold + cold utility</span>
+    <span class="n">coldgesamt</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cold_utility</span>
+    <span class="k">for</span> <span class="n">dH</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deltaHCold</span><span class="p">:</span>
+        <span class="n">coldgesamt</span> <span class="o">+=</span> <span class="n">dH</span>
+
+    <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;cold&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">coldgesamt</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;cold&#39;</span><span class="p">][</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">)):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;cold&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;cold&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">][</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_deltaHCold</span><span class="p">[</span><span class="n">i</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;cold&#39;</span><span class="p">][</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+
+    <span class="c1"># Trim flat ends off both curves (segments with no active streams)</span>
+</pre></div>
+</div>
+</details>
+</section>
+</section>
+<hr class="docutils" />
+<section id="step-6-composite-diagram-actual-temperatures">
+<h2>Step 6 — Composite Diagram (Actual Temperatures)<a class="headerlink" href="#step-6-composite-diagram-actual-temperatures" title="Link to this heading">#</a></h2>
+<p>The Composite Diagram is obtained by <strong>un-shifting</strong> the temperatures from the Shifted Composite Diagram:</p>
+<div class="math notranslate nohighlight">
+\[
+T_{actual}^{hot} = T_{shifted}^{hot} + \frac{\Delta T_{min}}{2}
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+T_{actual}^{cold} = T_{shifted}^{cold} - \frac{\Delta T_{min}}{2}
+\]</div>
+<p>The enthalpy values (<span class="math notranslate nohighlight">\(H\)</span>) remain the same — only the temperature axis changes. The horizontal gap between the two curves at the pinch equals exactly <span class="math notranslate nohighlight">\(\Delta T_{min}\)</span>.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 325–342)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">construct_composite_diagram</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localisation</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">composite_diagram</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">][</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">x</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmin</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">][</span><span class="s1">&#39;T&#39;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">composite_diagram</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;hot&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">composite_diagram</span><span class="p">[</span><span class="s1">&#39;cold&#39;</span><span class="p">][</span><span class="s1">&#39;T&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">x</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">tmin</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;cold&#39;</span><span class="p">][</span><span class="s1">&#39;T&#39;</span><span class="p">]</span>
+    <span class="p">]</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">composite_diagram</span><span class="p">[</span><span class="s1">&#39;cold&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">shifted_composite_diagram</span><span class="p">[</span><span class="s1">&#39;cold&#39;</span><span class="p">][</span><span class="s1">&#39;H&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="step-7-grand-composite-curve-gcc">
+<h2>Step 7 — Grand Composite Curve (GCC)<a class="headerlink" href="#step-7-grand-composite-curve-gcc" title="Link to this heading">#</a></h2>
+<p>The Grand Composite Curve plots the <strong>net heat surplus</strong> at each shifted temperature level. It is constructed directly from the feasible heat cascade:</p>
+<div class="math notranslate nohighlight">
+\[
+GCC(T_i) = \dot{Q}_{exit,i}
+\]</div>
+<p>where <span class="math notranslate nohighlight">\(T_i\)</span> are the shifted temperature interval boundaries and <span class="math notranslate nohighlight">\(\dot{Q}_{exit,i}\)</span> are the feasible cascade exit enthalpies computed in Step 4.</p>
+<p>The GCC starts at <span class="math notranslate nohighlight">\((\dot{Q}_{H,min},\ T_{max})\)</span> at the top and ends at <span class="math notranslate nohighlight">\((\dot{Q}_{C,min},\ T_{min})\)</span> at the bottom. It touches zero at the <strong>pinch temperature</strong> — this is the defining property of the pinch.</p>
+<p>The GCC is the main input for:</p>
+<ul class="simple">
+<li><p><strong>Heat pump integration</strong> (where does the heat pump source/sink sit?)</p></li>
+<li><p><strong>Temperature pocket deletion</strong> (where do infeasible pockets appear?)</p></li>
+<li><p><strong>Total site profiles</strong> (aggregation of multiple processes)</p></li>
+</ul>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 346–365)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">construct_grand_composite_curve</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localisation</span><span class="p">):</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">grand_composite_curve</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hot_utility</span><span class="p">)</span>
+    <span class="bp">self</span><span class="o">.</span><span class="n">grand_composite_curve</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">)):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grand_composite_curve</span><span class="p">[</span><span class="s1">&#39;H&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">heat_cascade</span><span class="p">[</span><span class="n">i</span> <span class="o">-</span> <span class="mi">1</span><span class="p">][</span><span class="s1">&#39;exitH&#39;</span><span class="p">]</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">grand_composite_curve</span><span class="p">[</span><span class="s1">&#39;T&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="pipeline-summary">
+<h2>Pipeline Summary<a class="headerlink" href="#pipeline-summary" title="Link to this heading">#</a></h2>
+<p>The full Pinch Analysis pipeline runs these steps in sequence:</p>
+<pre  class="mermaid">
+        flowchart TD
+    A[Input: Streams + ΔTmin] --&gt; B[Shift Temperatures ±ΔTmin/2]
+    B --&gt; C[Construct Temperature Intervals]
+    C --&gt; D[Build Problem Table]
+    D --&gt; E[Heat Cascade → Pinch Point]
+    E --&gt; F[Shifted Composite Diagram]
+    F --&gt; G[Composite Diagram]
+    E --&gt; H[Grand Composite Curve]
+    H --&gt; I[Heat Pump Integration]
+    H --&gt; J[Temperature Pocket Deletion]
+    H --&gt; K[Total Site Profile]
+    </pre><details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch_main.py</code></summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PinchMain</span><span class="p">():</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">solve_pinch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localisation</span><span class="o">=</span><span class="s1">&#39;DE&#39;</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">shift_temperatures</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_temperature_interval</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_problem_table</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_heat_cascade</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_shifted_composite_diagram</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_composite_diagram</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_grand_composite_curve</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">HeatTransPlan — Calculation Logic</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="heat_pump_integration.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Heat Pump Integration</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-process-streams">Input: Process Streams</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-shift-temperatures-by-tmin-2">Step 1 — Shift Temperatures by ΔTmin/2</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-construct-temperature-intervals">Step 2 — Construct Temperature Intervals</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-build-the-problem-table">Step 3 — Build the Problem Table</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-heat-cascade-and-pinch-point">Step 4 — Heat Cascade and Pinch Point</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pass-1-unfeasible-cascade-no-external-utility">Pass 1: Unfeasible Cascade (no external utility)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pass-2-feasible-cascade">Pass 2: Feasible Cascade</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#key-results">Key results</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-shifted-composite-diagram">Step 5 — Shifted Composite Diagram</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#construction">Construction</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-composite-diagram-actual-temperatures">Step 6 — Composite Diagram (Actual Temperatures)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-grand-composite-curve-gcc">Step 7 — Grand Composite Curve (GCC)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-summary">Pipeline Summary</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By HeatTransPlan Contributors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, HeatTransPlan Contributors.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
