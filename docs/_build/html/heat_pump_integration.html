@@ -205,7 +205,6 @@
 <li class="toctree-l1"><a class="reference internal" href="pinch_analysis.html">Pinch Analysis</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Heat Pump Integration — Classic Method</a></li>
 <li class="toctree-l1"><a class="reference internal" href="heat_pump_optimization.html">Heat Pump Optimization — Predictive ML Model &amp; Grid Search</a></li>
-<li class="toctree-l1"><a class="reference internal" href="temperature_pocket_deletion.html">Temperature Pocket Deletion</a></li>
 </ul>
 
     </div>
@@ -379,7 +378,10 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-available-cop-selection">Best-Available COP Selection</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-and-sink-profiles">Source and Sink Profiles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-and-sink-profiles-heat-recovery-modes">Source and Sink Profiles &amp; Heat Recovery Modes</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#detailed-mode-breakdown">Detailed Mode Breakdown</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-walk-finding-the-operating-point">Integration Walk: Finding the Operating Point</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#at-each-source-temperature-t">At each source temperature <span class="math notranslate nohighlight">\(T\)</span>:</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#convergence">Convergence</a></li>
@@ -551,34 +553,49 @@ COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
 </details>
 </section>
 <hr class="docutils" />
-<section id="source-and-sink-profiles">
-<h2>Source and Sink Profiles<a class="headerlink" href="#source-and-sink-profiles" title="Link to this heading">#</a></h2>
-<p>Before integrating the heat pump, the Grand Composite Curve is split into a <strong>source profile</strong> (below the pinch — heat available for the evaporator) and a <strong>sink profile</strong> (above the pinch — heat demand for the condenser).</p>
-<p>The application supports three levels of heat-recovery credit:</p>
+<section id="source-and-sink-profiles-heat-recovery-modes">
+<h2>Source and Sink Profiles &amp; Heat Recovery Modes<a class="headerlink" href="#source-and-sink-profiles-heat-recovery-modes" title="Link to this heading">#</a></h2>
+<p>Before integrating the heat pump, process heat curves are converted into a <strong>source profile</strong> (below the pinch — heat available for the evaporator) and a <strong>sink profile</strong> (above the pinch — heat demand for the condenser).</p>
+<p>The application supports <strong>two primary heat recovery modes</strong> depending on how much internal heat exchange is assumed to happen between process streams before placing the heat pump:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Mode</p></th>
-<th class="head"><p>Recovery assumption</p></th>
-<th class="head"><p>What the heat pump sees</p></th>
+<th class="head"><p>Heat Recovery Assumption</p></th>
+<th class="head"><p>What the Heat Pump Sees</p></th>
+<th class="head"><p>Engineering Use Case</p></th>
 </tr>
 </thead>
 <tbody>
 <tr class="row-even"><td><p><strong>net_load</strong> (default)</p></td>
-<td><p>Full internal recovery credited (pocket-free GCC)</p></td>
-<td><p>Only the residual utility requirement</p></td>
+<td><p><strong>Full recovery (100%)</strong></p></td>
+<td><p>Residual utility demand only (pocket-free GCC)</p></td>
+<td><p>Standard Pinch analysis — invest in heat pump only for net deficit remaining after internal exchangers</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>uncascaded</strong></p></td>
-<td><p>No cascading between intervals — heat stays in its interval</p></td>
-<td><p>Surplus from hot intervals + deficit from cold intervals</p></td>
-</tr>
-<tr class="row-even"><td><p><strong>composite</strong></p></td>
-<td><p>No recovery at all — raw hot/cold composites</p></td>
-<td><p>Full stream duties</p></td>
+<tr class="row-odd"><td><p><strong>composite</strong></p></td>
+<td><p><strong>No heat recovery (0%)</strong></p></td>
+<td><p>Full raw stream duties directly</p></td>
+<td><p>Used when streams cannot exchange heat with each other (e.g. distant buildings or contamination risks)</p></td>
 </tr>
 </tbody>
 </table>
 </div>
-<p>The source profile has <strong>temperature descending, enthalpy rising</strong> (heat available above each temperature). The sink profile has <strong>temperature descending, enthalpy falling</strong> (heat still required below each temperature).</p>
+<section id="detailed-mode-breakdown">
+<h3>Detailed Mode Breakdown<a class="headerlink" href="#detailed-mode-breakdown" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">net_load</span></code> (Full Heat Recovery - Default)</strong></p>
+<ul class="simple">
+<li><p>All internal process heat recovery takes place first. Temperature pockets are deleted.</p></li>
+<li><p>The heat pump only sees the <strong>residual net utility demand</strong> remaining above and below the pinch point.</p></li>
+</ul>
+</li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">composite</span></code> (No Heat Recovery - Raw Composite Curves)</strong></p>
+<ul class="simple">
+<li><p>Assumes <strong>zero internal heat exchange</strong> between streams.</p></li>
+<li><p>Every hot stream dumps 100% of its thermal duty into the heat pump evaporator (or cold utility).</p></li>
+<li><p>Every cold stream receives 100% of its thermal duty from the heat pump condenser (or hot utility).</p></li>
+</ul>
+</li>
+</ol>
 <details>
 <summary><b>Source code:</b> <code>backend/app/modules/utility/heat_profiles.py</code> (lines 170–202)</summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">resolve_profiles</span><span class="p">(</span><span class="n">pinch</span><span class="p">,</span> <span class="n">hpi</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;net_load&quot;</span><span class="p">):</span>
@@ -593,6 +610,7 @@ COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
 </pre></div>
 </div>
 </details>
+</section>
 </section>
 <hr class="docutils" />
 <section id="integration-walk-finding-the-operating-point">
@@ -722,7 +740,10 @@ COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#best-available-cop-selection">Best-Available COP Selection</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-and-sink-profiles">Source and Sink Profiles</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-and-sink-profiles-heat-recovery-modes">Source and Sink Profiles &amp; Heat Recovery Modes</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#detailed-mode-breakdown">Detailed Mode Breakdown</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#integration-walk-finding-the-operating-point">Integration Walk: Finding the Operating Point</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#at-each-source-temperature-t">At each source temperature <span class="math notranslate nohighlight">\(T\)</span>:</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#convergence">Convergence</a></li>

@@ -90,6 +90,9 @@ def _exclusion_reason(hp_type: str, t_sink: float | None, delta_t: float | None 
     # truth the COP correlations themselves are gated on.
     from app.modules.heat_pump_integration.heat_pump_integration import HP_OPERATING_WINDOWS
 
+    if hp_type == "Carnot":
+        return "Theoretical benchmark at 50% Carnot efficiency."
+
     c = HP_OPERATING_WINDOWS.get(hp_type)
     if c is None:
         return str(exc) if exc else "Heat pump type unknown."

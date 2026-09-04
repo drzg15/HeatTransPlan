@@ -38,6 +38,7 @@ const DEFAULT_HP_TYPES = [
   'VHTHP (HFC/HFO)',
   'SHP and HTHPs (HFC/HFO)',
   'SHP and HTHPs (R717)',
+  'Carnot',
 ];
 import AnalysisHelp from '../components/ui/AnalysisHelp';
 import ChartHelpButton from '../components/ui/ChartHelpButton';

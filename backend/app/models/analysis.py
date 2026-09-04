@@ -9,9 +9,8 @@ from pydantic import BaseModel, Field
 
 # How much internal heat recovery is credited before the heat pump is placed.
 #   net_load    pocket-free GCC split into source/sink (full recovery, default)
-#   uncascaded  per-interval net loads, no cascading between intervals
 #   composite   hot/cold composite curves, no recovery at all
-ProfileMode = Literal["net_load", "uncascaded", "composite"]
+ProfileMode = Literal["net_load", "composite"]
 
 
 # ---------------------------------------------------------------------------
@@ -83,6 +82,7 @@ class HPIRequest(BaseModel):
             "VHTHP (HFC/HFO)",
             "SHP and HTHPs (HFC/HFO)",
             "SHP and HTHPs (R717)",
+            "Carnot",
         ]
     )
     profile_mode: ProfileMode = "net_load"

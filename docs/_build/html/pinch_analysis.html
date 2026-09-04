@@ -417,7 +417,7 @@ window.runMermaid = runMermaid;</script>
     <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
-    <link rel="next" title="Heat Pump Integration" href="heat_pump_integration.html" />
+    <link rel="next" title="Heat Pump Integration — Classic Method" href="heat_pump_integration.html" />
     <link rel="prev" title="HeatTransPlan — Calculation Logic" href="index.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -561,10 +561,8 @@ window.runMermaid = runMermaid;</script>
         <p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul class="current nav bd-sidenav">
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Pinch Analysis</a></li>
-<li class="toctree-l1"><a class="reference internal" href="heat_pump_integration.html">Heat Pump Integration</a></li>
-<li class="toctree-l1"><a class="reference internal" href="temperature_pocket_deletion.html">Temperature Pocket Deletion</a></li>
-<li class="toctree-l1"><a class="reference internal" href="total_site_profile.html">Total Site Profile</a></li>
-<li class="toctree-l1"><a class="reference internal" href="issp.html">ISSP — Inter-Site Storage Profile</a></li>
+<li class="toctree-l1"><a class="reference internal" href="heat_pump_integration.html">Heat Pump Integration — Classic Method</a></li>
+<li class="toctree-l1"><a class="reference internal" href="heat_pump_optimization.html">Heat Pump Optimization — Predictive ML Model &amp; Grid Search</a></li>
 </ul>
 
     </div>
@@ -748,6 +746,10 @@ window.runMermaid = runMermaid;</script>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-composite-diagram-actual-temperatures">Step 6 — Composite Diagram (Actual Temperatures)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-grand-composite-curve-gcc">Step 7 — Grand Composite Curve (GCC)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-temperature-pocket-deletion">Step 8 — Temperature Pocket Deletion</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deletion-algorithm">Deletion Algorithm</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-summary">Pipeline Summary</a></li>
 </ul>
             </nav>
@@ -1140,6 +1142,48 @@ GCC(T_i) = \dot{Q}_{exit,i}
 </details>
 </section>
 <hr class="docutils" />
+<section id="step-8-temperature-pocket-deletion">
+<h2>Step 8 — Temperature Pocket Deletion<a class="headerlink" href="#step-8-temperature-pocket-deletion" title="Link to this heading">#</a></h2>
+<p>The Grand Composite Curve (GCC) can contain <strong>temperature pockets</strong> — regions where the curve doubles back on itself, creating a local surplus sandwiched between deficits (or vice versa). These pockets represent heat that can be exchanged internally within the process and do <strong>not</strong> need external utility.</p>
+<p>Before using the GCC for heat pump integration, these pockets are removed to obtain the <strong>pocket-free GCC</strong>, showing only the truly external utility requirement.</p>
+<section id="deletion-algorithm">
+<h3>Deletion Algorithm<a class="headerlink" href="#deletion-algorithm" title="Link to this heading">#</a></h3>
+<p>The algorithm walks through the heat cascade intervals and eliminates pockets by <strong>linear interpolation</strong>. Three cases arise when a surplus interval (<span class="math notranslate nohighlight">\(\Delta H &gt; 0\)</span>) is followed by a deficit (<span class="math notranslate nohighlight">\(\Delta H &lt; 0\)</span>):</p>
+<ol class="arabic simple">
+<li><p><strong>Deficit smaller than surplus:</strong> The deficit interval is fully absorbed by interpolating on the surplus interval’s temperature range:
+$<span class="math notranslate nohighlight">\(T_{new} = T_{i} + \frac{T_{i} - T_{i+1}}{H_{exit,i} - H_{exit,i+1}} \times H_{exit,i+2}\)</span>$</p></li>
+<li><p><strong>Surplus smaller than deficit:</strong> The surplus interval is fully absorbed by interpolating on the deficit interval:
+$<span class="math notranslate nohighlight">\(T_{new} = T_{i+2} + \frac{T_{i+1} - T_{i+2}}{H_{exit,i+1} - H_{exit,i+2}} \times (H_{exit,i} - H_{exit,i+2})\)</span>$</p></li>
+<li><p><strong>Equal magnitude:</strong> Both intervals cancel exactly and the intermediate temperature point is removed.</p></li>
+</ol>
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/utility/temperature_pocket_deletion.py</code></summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">TemperaturePocketDeletion</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">delete_temperature_pockets</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Walk from pinch downward, deleting pockets</span>
+        <span class="k">while</span> <span class="n">j</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heatCascadeexitH</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadedeltaH</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># surplus</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadedeltaH</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>  <span class="c1"># followed by deficit</span>
+                    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heatCascadedeltaH</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span> <span class="o">&lt;</span> <span class="nb">abs</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heatCascadedeltaH</span><span class="p">[</span><span class="n">j</span><span class="p">]):</span>
+                        <span class="c1"># Case 1: deficit smaller — absorb it</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                            <span class="o">+</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                            <span class="o">/</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">heatCascadeexitH</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadeexitH</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">])</span>
+                            <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadeexitH</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadedeltaH</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                            <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadeexitH</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadeexitH</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+                        <span class="p">)</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadeexitH</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadeexitH</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">2</span><span class="p">]</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">heatCascadedeltaH</span><span class="p">[</span><span class="n">j</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">=</span> <span class="mf">0.0</span>
+                        <span class="n">j</span> <span class="o">=</span> <span class="n">i</span>  <span class="c1"># restart from pinch</span>
+</pre></div>
+</div>
+</details>
+</section>
+</section>
+<hr class="docutils" />
 <section id="pipeline-summary">
 <h2>Pipeline Summary<a class="headerlink" href="#pipeline-summary" title="Link to this heading">#</a></h2>
 <p>The full Pinch Analysis pipeline runs these steps in sequence:</p>
@@ -1152,9 +1196,8 @@ GCC(T_i) = \dot{Q}_{exit,i}
     E --&gt; F[Shifted Composite Diagram]
     F --&gt; G[Composite Diagram]
     E --&gt; H[Grand Composite Curve]
-    H --&gt; I[Heat Pump Integration]
-    H --&gt; J[Temperature Pocket Deletion]
-    H --&gt; K[Total Site Profile]
+    H --&gt; I[Temperature Pocket Deletion]
+    I --&gt; J[Heat Pump Integration &amp; Optimization]
     </pre><details>
 <summary><b>Source code:</b> <code>backend/app/modules/pinch_main.py</code></summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PinchMain</span><span class="p">():</span>
@@ -1168,6 +1211,11 @@ GCC(T_i) = \dot{Q}_{exit,i}
         <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_grand_composite_curve</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
 </pre></div>
 </div>
+</details>
+        self.pinch_analyse.construct_shifted_composite_diagram(localisation)
+        self.pinch_analyse.construct_composite_diagram(localisation)
+        self.pinch_analyse.construct_grand_composite_curve(localisation)
+```
 </details>
 </section>
 </section>
@@ -1197,7 +1245,7 @@ GCC(T_i) = \dot{Q}_{exit,i}
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title">Heat Pump Integration</p>
+        <p class="prev-next-title">Heat Pump Integration — Classic Method</p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -1235,6 +1283,10 @@ GCC(T_i) = \dot{Q}_{exit,i}
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-6-composite-diagram-actual-temperatures">Step 6 — Composite Diagram (Actual Temperatures)</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-7-grand-composite-curve-gcc">Step 7 — Grand Composite Curve (GCC)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-8-temperature-pocket-deletion">Step 8 — Temperature Pocket Deletion</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deletion-algorithm">Deletion Algorithm</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-summary">Pipeline Summary</a></li>
 </ul>
   </nav></div>

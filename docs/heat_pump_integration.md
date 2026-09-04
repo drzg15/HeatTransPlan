@@ -138,19 +138,27 @@ def COP(self, T):
 
 ---
 
-## Source and Sink Profiles
+## Source and Sink Profiles & Heat Recovery Modes
 
-Before integrating the heat pump, the Grand Composite Curve is split into a **source profile** (below the pinch — heat available for the evaporator) and a **sink profile** (above the pinch — heat demand for the condenser).
+Before integrating the heat pump, process heat curves are converted into a **source profile** (below the pinch — heat available for the evaporator) and a **sink profile** (above the pinch — heat demand for the condenser).
 
-The application supports three levels of heat-recovery credit:
+The application supports **two primary heat recovery modes** depending on how much internal heat exchange is assumed to happen between process streams before placing the heat pump:
 
-| Mode | Recovery assumption | What the heat pump sees |
-|---|---|---|
-| **net_load** (default) | Full internal recovery credited (pocket-free GCC) | Only the residual utility requirement |
-| **uncascaded** | No cascading between intervals — heat stays in its interval | Surplus from hot intervals + deficit from cold intervals |
-| **composite** | No recovery at all — raw hot/cold composites | Full stream duties |
+| Mode | Heat Recovery Assumption | What the Heat Pump Sees | Engineering Use Case |
+|---|---|---|---|
+| **net_load** (default) | **Full recovery (100%)** | Residual utility demand only (pocket-free GCC) | Standard Pinch analysis — invest in heat pump only for net deficit remaining after internal exchangers |
+| **composite** | **No heat recovery (0%)** | Full raw stream duties directly | Used when streams cannot exchange heat with each other (e.g. distant buildings or contamination risks) |
 
-The source profile has **temperature descending, enthalpy rising** (heat available above each temperature). The sink profile has **temperature descending, enthalpy falling** (heat still required below each temperature).
+### Detailed Mode Breakdown
+
+1. **`net_load` (Full Heat Recovery - Default)**
+   - All internal process heat recovery takes place first. Temperature pockets are deleted.
+   - The heat pump only sees the **residual net utility demand** remaining above and below the pinch point.
+
+2. **`composite` (No Heat Recovery - Raw Composite Curves)**
+   - Assumes **zero internal heat exchange** between streams.
+   - Every hot stream dumps 100% of its thermal duty into the heat pump evaporator (or cold utility).
+   - Every cold stream receives 100% of its thermal duty from the heat pump condenser (or hot utility).
 
 <details>
 <summary><b>Source code:</b> <code>backend/app/modules/utility/heat_profiles.py</code> (lines 170–202)</summary>
