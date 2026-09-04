@@ -1,0 +1,26 @@
+/* Custom overrides for HeatTransPlan documentation */
+
+/* Make toggle buttons stand out a bit */
+.toggle-details summary {
+    font-weight: 600;
+    color: var(--pst-color-link);
+    cursor: pointer;
+}
+
+/* Subtle background for code blocks inside toggles */
+.toggle-details .highlight {
+    border-left: 3px solid var(--pst-color-link);
+}
+
+/* Better math display spacing */
+.math {
+    margin: 1em 0;
+}
+
+/* Callout for engineering notes */
+.admonition.note {
+    border-left-color: #2980b9;
+}
+.admonition.important {
+    border-left-color: #e74c3c;
+}
