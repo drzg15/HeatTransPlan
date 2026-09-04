@@ -28,17 +28,6 @@ export default function HeatRecoveryToggle() {
       description: t('analysis.recovery.explanation_with'),
     },
     {
-      mode: 'uncascaded',
-      label: 'Partial heat recovery',
-      short: 'Only within one temperature level',
-      description:
-        'Hot and cold streams exchange heat only where they overlap at the same temperature level. Nothing is ' +
-        'passed down from a hotter level to a colder one, even though that would be thermodynamically allowed. ' +
-        'The extra duty compared with full recovery is exactly the heat that would have to travel down through ' +
-        'the process. There is no pinch in this setting. Use it when heat cannot be moved across the plant — ' +
-        'long distances, or streams that never run at the same time.',
-    },
-    {
       mode: 'composite',
       label: t('analysis.recovery.no'),
       short: t('analysis.recovery.no_desc'),
@@ -88,7 +77,7 @@ export default function HeatRecoveryToggle() {
         aria-label="Heat recovery mode"
         style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}
       >
-        {MODES.filter((opt) => opt.mode !== 'uncascaded').map((opt) => {
+        {MODES.map((opt) => {
           const selected = opt.mode === profileMode;
           return (
             <button

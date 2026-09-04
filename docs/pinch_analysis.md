@@ -383,6 +383,54 @@ def construct_grand_composite_curve(self, localisation):
 
 ---
 
+## Step 8 — Temperature Pocket Deletion
+
+The Grand Composite Curve (GCC) can contain **temperature pockets** — regions where the curve doubles back on itself, creating a local surplus sandwiched between deficits (or vice versa). These pockets represent heat that can be exchanged internally within the process and do **not** need external utility.
+
+Before using the GCC for heat pump integration, these pockets are removed to obtain the **pocket-free GCC**, showing only the truly external utility requirement.
+
+### Deletion Algorithm
+
+The algorithm walks through the heat cascade intervals and eliminates pockets by **linear interpolation**. Three cases arise when a surplus interval ($\Delta H > 0$) is followed by a deficit ($\Delta H < 0$):
+
+1. **Deficit smaller than surplus:** The deficit interval is fully absorbed by interpolating on the surplus interval's temperature range:
+   $$T_{new} = T_{i} + \frac{T_{i} - T_{i+1}}{H_{exit,i} - H_{exit,i+1}} \times H_{exit,i+2}$$
+
+2. **Surplus smaller than deficit:** The surplus interval is fully absorbed by interpolating on the deficit interval:
+   $$T_{new} = T_{i+2} + \frac{T_{i+1} - T_{i+2}}{H_{exit,i+1} - H_{exit,i+2}} \times (H_{exit,i} - H_{exit,i+2})$$
+
+3. **Equal magnitude:** Both intervals cancel exactly and the intermediate temperature point is removed.
+
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/utility/temperature_pocket_deletion.py</code></summary>
+
+```python
+class TemperaturePocketDeletion:
+    def delete_temperature_pockets(self):
+        # Walk from pinch downward, deleting pockets
+        while j < len(self.heatCascadeexitH) - 1:
+            if self.heatCascadedeltaH[j] > 0:  # surplus
+                if self.heatCascadedeltaH[j + 1] < 0:  # followed by deficit
+                    if abs(self.heatCascadedeltaH[j+1]) < abs(self.heatCascadedeltaH[j]):
+                        # Case 1: deficit smaller — absorb it
+                        self._temperatures[j+1] = (
+                            self._temperatures[j]
+                            + (self._temperatures[j] - self._temperatures[j+1])
+                            / (self.heatCascadeexitH[j] - self.heatCascadeexitH[j+1])
+                            * self.heatCascadeexitH[j+2]
+                        )
+                        self.heatCascadedeltaH[j] = (
+                            self.heatCascadeexitH[j+2] - self.heatCascadeexitH[j]
+                        )
+                        self.heatCascadeexitH[j+1] = self.heatCascadeexitH[j+2]
+                        self.heatCascadedeltaH[j+1] = 0.0
+                        j = i  # restart from pinch
+```
+
+</details>
+
+---
+
 ## Pipeline Summary
 
 The full Pinch Analysis pipeline runs these steps in sequence:
@@ -396,9 +444,8 @@ flowchart TD
     E --> F[Shifted Composite Diagram]
     F --> G[Composite Diagram]
     E --> H[Grand Composite Curve]
-    H --> I[Heat Pump Integration]
-    H --> J[Temperature Pocket Deletion]
-    H --> K[Total Site Profile]
+    H --> I[Temperature Pocket Deletion]
+    I --> J[Heat Pump Integration & Optimization]
 ```
 
 <details>
@@ -411,6 +458,12 @@ class PinchMain():
         self.pinch_analyse.construct_temperature_interval()
         self.pinch_analyse.construct_problem_table()
         self.pinch_analyse.construct_heat_cascade()
+        self.pinch_analyse.construct_shifted_composite_diagram(localisation)
+        self.pinch_analyse.construct_composite_diagram(localisation)
+        self.pinch_analyse.construct_grand_composite_curve(localisation)
+```
+
+</details>
         self.pinch_analyse.construct_shifted_composite_diagram(localisation)
         self.pinch_analyse.construct_composite_diagram(localisation)
         self.pinch_analyse.construct_grand_composite_curve(localisation)

@@ -29,7 +29,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, List, Sequence, Tuple
 
-PROFILE_MODES = ("net_load", "uncascaded", "composite")
+PROFILE_MODES = ("net_load", "composite")
 
 Curve = Dict[str, List[float]]
 

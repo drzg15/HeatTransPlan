@@ -75,10 +75,9 @@ export interface HPIntegrationResult {
 /**
  * How much internal heat recovery is credited before the heat pump is placed.
  *   net_load    pocket-free GCC split into source/sink (full recovery, default)
- *   uncascaded  per-interval net loads, no cascading between intervals
  *   composite   hot/cold composite curves, no recovery at all
  */
-export type ProfileMode = 'net_load' | 'uncascaded' | 'composite';
+export type ProfileMode = 'net_load' | 'composite';
 
 export interface HPIRequest {
   pinch_result: PinchResult;
