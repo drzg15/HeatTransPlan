@@ -1,0 +1,17 @@
+# Keep the host's install out of the image — `COPY . .` runs after `npm ci`
+# and would otherwise overwrite the container's node_modules with whatever
+# happens to be on the build machine (wrong platform, stale deps).
+node_modules
+.vite
+dist
+dist-ssr
+
+# Build noise
+*.log
+npm-debug.log*
+.DS_Store
+.git
+.gitignore
+Dockerfile
+.dockerignore
+# NB: Caddyfile is deliberately NOT ignored — the serve stage COPYs it.

@@ -1,0 +1,337 @@
+{
+  "appshell": {
+    "title": "HeatTransPlan",
+    "nav": {
+      "home": "Startseite",
+      "data_collection": "Datenerfassung",
+      "potential_analysis": "Potenzialanalyse"
+    },
+    "theme": {
+      "light": "Hellmodus",
+      "dark": "Dunkelmodus"
+    },
+    "lang": {
+      "en": "English",
+      "de": "Deutsch"
+    },
+    "lang_select": "Sprache wählen"
+  },
+  "tutorial": {
+    "title": "Schnellstart-Anleitung",
+    "step1_title": "Standort finden",
+    "step1_desc": "Verwenden Sie die 🔍 Suchleiste im oberen Menü, um Ihre Anlage oder Ihren Standort zu finden.",
+    "step2_title": "Karte fixieren",
+    "step2_desc": "Wenn Sie Ihren Standort ausgerichtet haben, klicken Sie auf <strong>🔓 Karte fixieren</strong>. Dies aktiviert den Platzierungs- und Bearbeitungsmodus.",
+    "step3_title": "Prozesse hinzufügen",
+    "step3_desc": "Klicken Sie im oberen Menü auf <strong>⚙️ Prozess hinzufügen</strong>, um eine neue Prozessgruppe für Ihren Standort zu erstellen.",
+    "step4_title": "Georäumliche Platzierung",
+    "step4_desc": "Klicken Sie auf das <strong>📍 Symbol</strong> neben einem Prozessnamen in der linken Leiste und dann auf die Karte, um die Markierung zu platzieren.",
+    "step5_title": "Stromdaten eingeben",
+    "step5_desc": "Klappen Sie einen Prozess auf, um <strong>heiße/kalte Ströme</strong> hinzuzufügen. Geben Sie Temperaturen (°C) und CP (kW/K) ein, um die Wärmelasten zu erfassen.",
+    "step6_title": "Potenzial analysieren",
+    "step6_desc": "Wechseln Sie zur Seite <strong>Potenzialanalyse</strong> in der Seitenleiste, um Energieeinsparungen und Pinch-Integrationskurven zu sehen.",
+    "tip": "Tipp: Doppelklicken Sie auf Kartenblasen, um direkt zu den entsprechenden Bearbeitungselementen in der Seitenleiste zu springen."
+  },
+  "action_bar": {
+    "lock_map": "Karte fixieren",
+    "unlock_map": "Karte entsperren",
+    "add_process": "Prozess hinzufügen",
+    "save": "Speichern",
+    "load": "Laden",
+    "reset": "Zurücksetzen",
+    "measure": "Messen",
+    "export_csv": "CSV exportieren",
+    "search_placeholder": "Adresse oder Ort suchen...",
+    "lock_map_hint": "Karte fixieren, um zu beginnen",
+    "locked_map": "Fixierte Karte",
+    "reset_modal_title": "Projekt zurücksetzen?",
+    "reset_modal_desc": "Sind Sie sicher, dass Sie alle lokalen Daten löschen möchten? Ungespeicherte Fortschritte gehen dauerhaft verloren.",
+    "reset_modal_recommend": "Wir empfehlen dringend, Ihre aktuelle Projektdatei zuerst herunterzuladen!",
+    "download_project": "Projekt herunterladen",
+    "clear_anyway": "Trotzdem löschen"
+  },
+  "process": {
+    "done": "Fertig",
+    "place": "Platzieren",
+    "info": "Informationen",
+    "lat": "Breitengrad",
+    "lon": "Längengrad",
+    "hours": "Betriebsstunden",
+    "subprocesses": "Teilprozesse",
+    "hide_map": "Karte ausblenden",
+    "show_map": "Auf Karte zeigen",
+    "add": "Hinzufügen",
+    "empty_hint": "Noch keine Prozesse. Klicken Sie auf „Prozess hinzufügen“, um zu beginnen."
+  },
+  "subprocess": {
+    "next_processes": "Nachfolgende Prozesse (Klicken zum Verknüpfen)",
+    "no_other_processes": "Keine weiteren Prozesse verfügbar.",
+    "add_stream": "Strom hinzufügen",
+    "density": "Dichte (kg/m³)",
+    "pressure": "Druck (bar)",
+    "water_in": "Wassergehalt Ein (%)",
+    "water_out": "Wassergehalt Aus (%)",
+    "notes_placeholder": "Notizen zu diesem Teilprozess hinzufügen..."
+  },
+  "stream_table": {
+    "title": "Stromdaten",
+    "sort_hint": "— Zum Sortieren auf Überschrift klicken",
+    "export_csv": "📄 CSV mit erfassten Daten exportieren",
+    "further_exports": "Weitere Exporte ▼",
+    "export_manhattan": "Distanzen zwischen Strömen exportieren (Manhattan)",
+    "export_euclidean": "Distanzen zwischen Strömen exportieren (Euklidisch)",
+    "export_map_pic": "Kartenbild exportieren",
+    "no_data": "Keine Stromdaten gefunden",
+    "headers": {
+      "process": "Prozess",
+      "subprocess": "Teilprozess",
+      "stream": "Strom",
+      "type": "Typ",
+      "hours": "Stunden",
+      "water_in": "Wassergehalt Ein",
+      "water_out": "Wassergehalt Aus",
+      "density": "Dichte",
+      "pressure": "Druck",
+      "notes": "Notizen"
+    }
+  },
+  "home": {
+    "title": "Startseite",
+    "information": "Informationen",
+    "project_website": "Projekt-Website",
+    "app": "App",
+    "about_link": "Über <span class='notranslate'>HeatTransPlan</span>",
+    "about_title": "Über diese App",
+    "about_text": "<span class='notranslate'>HeatTransPlan</span> hilft bei der Erfassung von Energiedaten industrieller Prozesse und der Analyse des Wärmerückgewinnungspotenzials sowie der Integrationsmöglichkeiten von Wärmepumpen mittels Pinch-Analyse.",
+    "how_to_use": "So verwenden Sie die App",
+    "instruction_1": "Öffnen Sie <strong>Datenerfassung</strong>, um die Anlage zu lokalisieren, den Prozess zu beschreiben und Energiedaten hinzuzufügen.",
+    "instruction_2": "Fügen Sie Strominformationen hinzu und verfeinern Sie diese. Überprüfen Sie dann die Prozessdaten direkt in den Tabellen- und Kartenansichten.",
+    "instruction_3": "Exportieren Sie aufgezeichnete Daten und Analyseergebnisse.",
+    "examples": "Beispiele",
+    "load_example_1": "Beispiel 1 laden: Wärmeintegrationsbeispiel",
+    "loading": "Wird geladen...",
+    "example_success": "Beispiel geladen! Weiterleitung zur Datenerfassung...",
+    "example_error": "Fehler beim Laden des Beispiels"
+  },
+  "analysis": {
+    "title": "Potenzialanalyse",
+    "buttons": {
+      "save": "Speichern",
+      "load": "Laden",
+      "report": "Bericht",
+      "generating": "Wird erstellt..."
+    },
+    "messages": {
+      "no_processes": "Keine Prozesse gefunden. Bitte fügen Sie zuerst Prozesse auf der Seite Datenerfassung hinzu.",
+      "need_more_streams": "Wählen Sie mindestens 2 Ströme mit vollständigen Daten (Tin, Tout und entweder CP oder ṁ+cp) aus, um die Pinch-Analyse durchzuführen.",
+      "running": "Pinch-Analyse wird ausgeführt…",
+      "error": "Fehler:"
+    },
+    "controls": {
+      "show_shifted": "Verschobene Verbundkurve anzeigen"
+    },
+    "sections": {
+      "notes": "Notizen"
+    },
+    "placeholders": {
+      "scenario_name": "Szenario",
+      "notes": "Notizen zur Pinch-Analyse hier eingeben..."
+    },
+    "more_info": "Weitere Informationen",
+    "tables": {
+      "hp": "Wärmepumpe",
+      "cop": "Leistungszahl (COP)",
+      "t_source": "T_Quelle (°C)",
+      "t_sink": "T_Senke (°C)",
+      "q_source": "Q_Quelle (kW)",
+      "q_sink": "Q_Senke (kW)",
+      "integrable_hp": "Integrierbare Wärmepumpen",
+      "excluded_hp": "Wärmepumpen, die nicht integriert werden können",
+      "cannot_integrate": "Nicht integrierbar",
+      "hp_coverage": "Wärmepumpen-Abdeckung (%)",
+      "status_quo": {
+        "title": "📊 Vergleich von Status Quo und Vorschlag",
+        "desc": "Vergleichen Sie die aktuelle externe Energieversorgung mit der absolut minimalen externen Energie, die nach maximaler interner Wärmerückgewinnung (der Vorschlag) erforderlich ist. Einsparungen geben an, wie viel externe Versorgung vermieden wird.",
+        "type": "Art des Energiebedarfs",
+        "current": "Aktueller Status Quo (kW)",
+        "min": "Min. Bedarf nach Wärmerückgewinnung (kW)",
+        "savings_kw": "Einsparungen (kW)",
+        "savings_pct": "Einsparungen (%)",
+        "hp_cov_kw": "WP-Abdeckung (kW)",
+        "heating": "Wärmebedarf",
+        "cooling": "Kältebedarf",
+        "warning": "💡 Aktuelle Energieversorgungen sind erforderlich, um die Differenz zum Status Quo zu berechnen. Bitte konfigurieren Sie diese im Abschnitt \"Aktuelle Energieversorgung\" oben."
+      }
+    },
+    "charts": {
+      "heat_sinks": "Kalte Ströme (Wärmesenken)",
+      "heat_sources": "Heiße Ströme (Wärmequellen)",
+      "composite_curves": "Verbundkurve",
+      "shifted_composite_curves": "Verschobene Verbundkurve",
+      "gcc": "Großverbundkurve",
+      "hpi_title": "Wärmepumpen-Integrationsanalyse",
+      "hpi_gcc": "Wärmepumpenintegration - Großverbundkurve",
+      "hpi_partial": "Wärmepumpenintegration - Partielle Wärmerückgewinnung",
+      "hpi_none": "Wärmepumpenintegration - Keine Wärmerückgewinnung",
+      "hpi_optimization": "Optimierung - Realisierbare Wärmepumpenlösungen",
+      "select_hp": "WÄRMEPUMPENTYPEN ZUR VISUALISIERUNG AUSWÄHLEN:"
+    },
+    "recovery": {
+      "title": "Wärmerückgewinnung vor der Integration",
+      "with": "Mit Wärmerückgewinnung",
+      "with_desc": "Netto-Lastkurven (GCC)",
+      "no": "Keine Wärmerückgewinnung",
+      "no_desc": "Verbundkurve",
+      "explanation_with": "Netto-Lastkurven – die bereinigte Großverbundkurve, aufgeteilt in ein Quellen- und ein Senkenprofil. Wärme wird zurückgewonnen, wo immer die Temperaturen es zulassen, sodass die Wärmepumpe nur den verbleibenden Energiebedarf abdeckt. Dies ist Standardpraxis in der Pinch-Analyse und die empfohlene Einstellung.",
+      "explanation_no": "Verbundkurve – heiße und kalte Verbundkurven werden direkt als Quellen- und Senkenprofile verwendet. Interne Wärmerückgewinnung wird nicht angenommen, sodass die Wärmepumpe den gesamten Heiz- und Kühlbedarf dort deckt, wo es möglich ist."
+    }
+  },
+  "stream_selector": {
+    "title": "Stromauswahl",
+    "help_desc": "Wählen Sie aus, welche Ströme (Wärmequellen oder -senken) in die Pinch-Analyse einbezogen werden sollen. Deaktivieren Sie Ströme, die derzeit inaktiv sind oder ausgeschlossen werden sollen.",
+    "subprocess": "Sub",
+    "stream": "Ströme",
+    "incomplete": "(unvollständige Daten)"
+  },
+  "stream": {
+    "name_placeholder": "Stromname",
+    "delete_stream": "Strom löschen",
+    "types": {
+      "product": "Produkt",
+      "steam": "Dampf",
+      "air": "Luft",
+      "water": "Wasser"
+    },
+    "vars": {
+      "Tin": "Tin",
+      "Tout": "Tout",
+      "ṁ": "ṁ",
+      "cp": "cp",
+      "CP": "CP",
+      "Water Content In": "Wassergehalt Ein",
+      "Water Content Out": "Wassergehalt Aus",
+      "Density": "Dichte",
+      "Pressure": "Druck"
+    }
+  },
+  "energy_demands": {
+    "title": "Aktuelle Energieversorgung",
+    "help_desc": "Definieren Sie den Basisenergieverbrauch (Heizen und Kühlen) für die ausgewählten Ströme. Dies stellt den 'Status quo' vor der Wärmeintegration dar.",
+    "supply": "Versorgung",
+    "remove": "Versorgung entfernen",
+    "heat_kw": "Heizung (kW)",
+    "hot_selection": "Auswahl heißer Ströme",
+    "no_hot": "Keine heißen Ströme",
+    "cooling_kw": "Kühlung (kW)",
+    "cold_selection": "Auswahl kalter Ströme",
+    "no_cold": "Keine kalten Ströme",
+    "add_supply": "Versorgung hinzufügen"
+  },
+  "data_collection": {
+    "sub_short": "sub",
+    "streams": "Ströme",
+    "legend": "Legende",
+    "cold": "Kalt",
+    "hot": "Heiß",
+    "q_power": "= Q Leistung (kW)",
+    "project_notes": "Projektnotizen"
+  },
+  "optimization": {
+    "tooltip_refrigerant_type": "Klassifizierung des Kältemittels. Natürliche Kältemittel (wie Ammoniak, CO2) haben eine geringe Umweltbelastung (GWP), können aber Toxizitäts-/Entflammbarkeitsaspekte aufweisen. Synthetische Kältemittel (wie HFCs/HFOs) werden traditionell verwendet, unterliegen aber oft strengen Vorschriften aufgrund der Umweltbelastung.",
+    "tooltip_cop": "Leistungszahl (<span class='notranslate'>COP</span>): Das Verhältnis von bereitgestellter Nutz- oder Kühlwärme zur aufgewendeten (Energie-)Arbeit. Ein höherer <span class='notranslate'>COP</span> bedeutet eine höhere Effizienz.",
+    "tooltip_q_sink": "An die Senke abgegebene Wärmeleistung (die Wärmemenge, die die Wärmepumpe dem Prozess liefert).",
+    "tooltip_q_source": "Der Quelle entzogene Wärmeleistung (die Wärmemenge, die die Wärmepumpe aus dem Prozess oder der Umgebung aufnimmt).",
+    "tooltip_temp_sink": "Die Zieltemperatur, bei der die Wärme an die Senke abgegeben wird.",
+    "tooltip_temp_source": "Die Temperatur, bei der die Wärme aus der Quelle entzogen wird.",
+    "tooltip_refrigerant": "Das spezifische chemische Kältemittel, das im Wärmepumpenkreislauf verwendet wird.",
+    "tooltip_hp_stages": "Die Anzahl der Kompressionsstufen, die im Wärmepumpensystem verwendet werden. Mehr Stufen können die Effizienz bei großen Temperaturhüben verbessern.",
+    "panel": {
+      "title": "Integration in Wärmepumpenmodell und Optimierung",
+      "instruction": "Klicken Sie zum Sortieren auf eine Spaltenüberschrift. Klicken Sie auf einen Punkt im Diagramm, um Details anzuzeigen und ihn der Tabelle hinzuzufügen.",
+      "headers": {
+        "refrigerant_type": "KÄLTEMITTELTYP",
+        "medium_sink": "MEDIUM SENKE",
+        "cop": "COP",
+        "q_sink": "Q_SENKE (KW)",
+        "q_source": "Q_QUELLE (KW)",
+        "t_sink": "TEMP_SENKE (°C)",
+        "t_source": "TEMP_QUELLE (°C)",
+        "refrigerant": "KÄLTEMITTEL",
+        "hp_stages": "WP STUFEN"
+      },
+      "filters": {
+        "all": "Alle",
+        "select_all": "Alle auswählen",
+        "clear": "Auswahl aufheben",
+        "source_limited": "Quellenlimitierte Punkte plotten",
+        "source_limited_desc": "Diese decken nur einen Teil des Bedarfs über T_Senke, liegen also nicht auf der Senkenkurve.",
+        "demand_limited": "Bedarfslimitierte Punkte plotten",
+        "demand_limited_desc": "Diese decken den vollen Bedarf, lassen aber Abwärme bei T_Quelle ungenutzt, liegen also nicht auf der Quellenkurve.",
+        "feasible": "Realisierbare Kombinationen:",
+        "shown": "im Diagramm angezeigt:",
+        "medium_sink": "MEDIUM SENKE",
+        "refrigerant_type": "KÄLTEMITTELTYP",
+        "refrigerant": "KÄLTEMITTEL",
+        "hp_stages": "WP STUFEN",
+        "cop_source": "COP-QUELLE",
+        "custom_cop_btn": "Eigene COP-Formel verwenden",
+        "custom_cop_desc": "Fügen Sie eine eigene COP-Formel ein, um die Integration und Optimierung mit Ihrer eigenen Wärmepumpe durchzuführen."
+      }
+    }
+  },
+  "cop_modal": {
+    "title": "Eigene COP-Formel",
+    "close": "Schließen",
+    "name": "Name",
+    "name_placeholder": "Meine Wärmepumpe",
+    "cop_equals": "COP =",
+    "checking": "wird geprüft…",
+    "server_error": "Server konnte nicht erreicht werden.",
+    "enter_formula": "Geben Sie eine Formel ein.",
+    "preview_source": "Vorschau bei Quelle",
+    "preview_sink": "Senke",
+    "variables_title": "Variablen — zum Einfügen anklicken",
+    "functions": "Funktionen:",
+    "examples_title": "Mit Beispiel starten",
+    "validity_range": "Gültigkeitsbereich",
+    "validity_sub": " — wo diese Wärmepumpe eingesetzt werden darf",
+    "envelope": {
+      "source_min": "Quelle min °C",
+      "source_max": "Quelle max °C",
+      "sink_min": "Senke min °C",
+      "sink_max": "Senke max °C",
+      "cop_min": "COP min",
+      "cop_max": "COP max"
+    },
+    "remove": "Entfernen",
+    "cancel": "Abbrechen",
+    "apply": "Übernehmen",
+    "fix_formula_first": "Bitte zuerst die Formel korrigieren"
+  },
+  "help": {
+    "title": "Analyse-Leitfaden",
+    "smart_selection": "Intelligente Auswahl",
+    "smart_selection_desc": "Ziehen Sie einen Bereich auf der Karte auf, um mehrere Ströme gleichzeitig auszuwählen. Rote Blasen sind heiße Ströme (Abwärme), blaue Blasen sind kalte Ströme (Wärmebedarf).",
+    "scenarios": "Szenarien",
+    "scenarios_desc": "Speichern Sie verschiedene Projektversionen (z. B. „Nachtschicht“ vs. „Tagschicht“) als Szenarien, um deren Energieeffizienz nebeneinander zu vergleichen.",
+    "composite_curves": "Verbundkurve",
+    "composite_curves_desc": "Die horizontale Überlappung zwischen den heißen und kalten Linien stellt die zurückgewinnbare Wärme dar. Die verbleibenden Lücken zeigen die externe Energie, die zusätzlich benötigt wird.",
+    "grand_composite_curve": "Großverbundkurve",
+    "grand_composite_curve_desc": "Identifiziert den „Pinch-Punkt“ (den Engpass). Taschen in der Kurve zeigen, wo Wärme intern ohne Wärmepumpe übertragen werden kann.",
+    "hpi": "Wärmepumpen-Integration",
+    "hpi_desc": "Das System wählt automatisch die effizienteste Wärmepumpe für Ihre Temperaturen aus. Höhere COP-Werte bedeuten eine bessere Umwandlung von Strom in Wärme.",
+    "metrics": "Leistungskennzahlen",
+    "metrics_desc": "Heizeinsparungen: Der prozentuale Anteil der eingesparten Energie im Vergleich zum aktuellen Status Quo. Zielen Sie zuerst auf eine hohe Rückgewinnung ab!",
+    "tip": "Tipp: Verwenden Sie die Schaltfläche „Bericht“, um ein vollständiges PDF-fähiges Dashboard mit allen interaktiven Diagrammen zu erstellen."
+  },
+  "metrics": {
+    "min_heating": "Mindest-Heizbedarf",
+    "min_cooling": "Mindest-Kühlbedarf",
+    "pinch_temp": "Pinch-Temperatur",
+    "heat_recovery": "Wärmerückgewinnungspotenzial",
+    "min_heating_desc": "Der absolute minimale externe Wärmebedarf des Systems nach Ausschöpfung aller internen Wärmerückgewinnungsmöglichkeiten.",
+    "min_cooling_desc": "Der absolute minimale externe Kühlbedarf des Systems nach Ausschöpfung aller internen Wärmerückgewinnungsmöglichkeiten.",
+    "pinch_temp_desc": "Das Temperaturniveau, das das System in eine Senke (oberhalb des Pinch) und eine Quelle (unterhalb des Pinch) teilt. Es sollte keine Wärme über den Pinch übertragen werden.",
+    "heat_recovery_desc": "Die gesamte Wärmemenge, die intern durch Kopplung heißer und kalter Ströme zurückgewonnen werden kann."
+  }
+}

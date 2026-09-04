@@ -1,0 +1,59 @@
+
+services:
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: heattransplan-backend
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+    volumes:
+      # Only the trained model and its validity ranges — the modelling data
+      # stays off the server entirely.
+      - ./models:/app/models:ro
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        # Vite bakes VITE_* into the bundle at build time, so this is a build
+        # arg rather than a runtime environment variable. Empty means the
+        # browser calls /api on its own origin and the caddy service below
+        # routes it to the backend.
+        VITE_API_BASE: ""
+    container_name: heattransplan-frontend
+    depends_on:
+      - backend
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: heattransplan-caddy
+    depends_on:
+      - frontend
+      - backend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "500m"
+        max-file: "2"
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+volumes:
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,117 @@
+.sp-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 8px;
+  margin-bottom: 8px;
+  background: var(--surface);
+  transition: box-shadow 0.2s;
+}
+
+.sp-card:hover {
+  box-shadow: var(--shadow-sm);
+}
+
+.sp-header {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sp-name-input {
+  flex: 1;
+  min-width: 0;
+  font-size: 11px;
+  background: transparent !important;
+  border: 1px solid transparent !important;
+  font-weight: 600;
+}
+
+.sp-name-input:focus {
+  border-color: var(--border) !important;
+  background: var(--bg) !important;
+}
+
+.sp-body {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid var(--border);
+}
+
+.sp-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+  margin-bottom: 8px;
+  gap: 0;
+}
+
+.sp-tab {
+  padding: 4px 10px;
+  border: none;
+  background: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.sp-tab:hover {
+  color: var(--text-main);
+}
+
+.sp-tab.active {
+  color: var(--primary);
+  border-bottom-color: var(--primary);
+  font-weight: 600;
+}
+
+.sp-section {
+  padding: 4px 0;
+}
+
+.sp-section-title {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  /* Same reason as .pgl-group-header — the name must not be squeezed to a
+     few characters by the buttons beside it. */
+  .sp-header {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .sp-name-input {
+    flex: 1 1 60%;
+    min-width: 140px;
+  }
+
+  .sp-tabs {
+    overflow-x: auto;
+  }
+
+  .sp-tab {
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 13px;
+    white-space: nowrap;
+  }
+}
+
+/* Child cards - specifically for hierarchical views */
+.child-card {
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 6px;
+  margin-bottom: 6px;
+  background: var(--surface-hover);
+  border-left: 3px solid var(--primary);
+}

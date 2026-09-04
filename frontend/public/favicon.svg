@@ -1,0 +1,15 @@
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="gradient" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#1D4ED8" /> <!-- Blue-700 -->
+      <stop offset="45%" stop-color="#C026D3" /> <!-- Fuchsia-600 -->
+      <stop offset="100%" stop-color="#EF4444" /> <!-- Red-500 -->
+    </linearGradient>
+  </defs>
+  <!-- Black horizontal bar -->
+  <rect x="5" y="18" width="45" height="8" fill="#374151" rx="1" />
+  <!-- Main flow path -->
+  <path d="M50 120 V22 H105" fill="none" stroke="url(#gradient)" stroke-width="20" stroke-linejoin="miter" stroke-linecap="butt" />
+  <!-- Arrow tip -->
+  <path d="M102 2 L126 22 L102 42 Z" fill="#EF4444" />
+</svg>

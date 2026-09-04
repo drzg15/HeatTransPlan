@@ -1,0 +1,8 @@
+--- src/components/map/MapViewer.tsx
++++ src/components/map/MapViewer.tsx
+@@ -966,6 +966,7 @@
+         <Pane name="canvasPane" style={{ zIndex: 650 }}>
+           <SubprocessCanvasOverlay active={isCanvasActive} deps={isCanvasActive ? JSON.stringify({ subprocessMapExpanded, childMapExpanded }) : null} />
+         </Pane>
++        {isCanvasActive && <div style={{position: 'absolute', top: '50px', left: '50px', zIndex: 9999, background: 'red', color: 'white', padding: '10px', fontSize: '20px'}}>CANVAS IS ACTIVE</div>}
+ 

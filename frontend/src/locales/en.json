@@ -1,0 +1,337 @@
+{
+  "appshell": {
+    "title": "HeatTransPlan",
+    "nav": {
+      "home": "Home",
+      "data_collection": "Data Collection",
+      "potential_analysis": "Potential Analysis"
+    },
+    "theme": {
+      "light": "Light Mode",
+      "dark": "Dark Mode"
+    },
+    "lang": {
+      "en": "English",
+      "de": "Deutsch"
+    },
+    "lang_select": "Select Language"
+  },
+  "tutorial": {
+    "title": "Quick Start Tutorial",
+    "step1_title": "Locate your site",
+    "step1_desc": "Use the 🔍 search bar in the top menu to find your facility or site area.",
+    "step2_title": "Lock the Map",
+    "step2_desc": "When you've framed your site, click <strong>🔓 Lock Map</strong>. This enables the placement and editing mode.",
+    "step3_title": "Add Processes",
+    "step3_desc": "Click <strong>⚙️ Add Process</strong> in the top menu to create a new process group for your site.",
+    "step4_title": "Geospatial Placement",
+    "step4_desc": "Click the <strong>📍 icon</strong> next to a process name in the left panel, then click on the map to place its marker.",
+    "step5_title": "Enter Stream Data",
+    "step5_desc": "Expand a process to add <strong>Hot/Cold Streams</strong>. Enter Temperatures (°C) and CP (kW/K) to track heat loads.",
+    "step6_title": "Analyze Potential",
+    "step6_desc": "Switch to the <strong>Potential Analysis</strong> page in the sidebar to see energy savings and pinch integration curves.",
+    "tip": "Tip: Double-click map bubbles to jump to their data editing controls in the sidebar."
+  },
+  "action_bar": {
+    "lock_map": "Lock Map",
+    "unlock_map": "Unlock Map",
+    "add_process": "Add Process",
+    "save": "Save",
+    "load": "Load",
+    "reset": "Reset",
+    "measure": "Measure",
+    "export_csv": "Export CSV",
+    "search_placeholder": "Find address or location...",
+    "lock_map_hint": "Lock map to start working",
+    "locked_map": "Locked Map",
+    "reset_modal_title": "Reset Project?",
+    "reset_modal_desc": "Are you sure you want to completely clear the local data? All unsaved progress will be permanently lost.",
+    "reset_modal_recommend": "We highly recommend downloading your current project file first!",
+    "download_project": "Download Project",
+    "clear_anyway": "Clear Anyway"
+  },
+  "process": {
+    "done": "Done",
+    "place": "Place",
+    "info": "Information",
+    "lat": "Latitude",
+    "lon": "Longitude",
+    "hours": "Hours",
+    "subprocesses": "Subprocesses",
+    "hide_map": "Hide Map",
+    "show_map": "Show on Map",
+    "add": "Add",
+    "empty_hint": "No processes yet. Click Add Process to begin."
+  },
+  "subprocess": {
+    "next_processes": "Next Processes (Click to link)",
+    "no_other_processes": "No other processes available.",
+    "add_stream": "Add Stream",
+    "density": "Density (kg/m³)",
+    "pressure": "Pressure (bar)",
+    "water_in": "Water In (%)",
+    "water_out": "Water Out (%)",
+    "notes_placeholder": "Add notes about this subprocess..."
+  },
+  "stream_table": {
+    "title": "Stream Data",
+    "sort_hint": "— Click header to sort",
+    "export_csv": "📄 Export CSV with collected data",
+    "further_exports": "Further exports ▼",
+    "export_manhattan": "Export distances between streams (Manhattan)",
+    "export_euclidean": "Export distances between streams (Euclidean)",
+    "export_map_pic": "Export Map Picture",
+    "no_data": "No stream data found",
+    "headers": {
+      "process": "Process",
+      "subprocess": "Subprocess",
+      "stream": "Stream",
+      "type": "Type",
+      "hours": "Hours",
+      "water_in": "Water In",
+      "water_out": "Water Out",
+      "density": "Density",
+      "pressure": "Pressure",
+      "notes": "Notes"
+    }
+  },
+  "home": {
+    "title": "Home Page",
+    "information": "Information",
+    "project_website": "Project website",
+    "app": "App",
+    "about_link": "About <span class='notranslate'>HeatTransPlan</span>",
+    "about_title": "About this app",
+    "about_text": "<span class='notranslate'>HeatTransPlan</span> helps collect industrial process energy data and analyze heat recovery potential and heat pump integration opportunities using pinch analysis.",
+    "how_to_use": "How to use",
+    "instruction_1": "Open <strong>Energy Data Collection</strong> to locate the facility, describe the process and add energy data.",
+    "instruction_2": "Add and refine stream information, then review process data directly in the table and map views.",
+    "instruction_3": "Export recorded data and analysis results.",
+    "examples": "Examples",
+    "load_example_1": "Load Example 1: Heat integration example",
+    "loading": "Loading...",
+    "example_success": "Example loaded! Redirecting to Data Collection...",
+    "example_error": "Failed to load example"
+  },
+  "analysis": {
+    "title": "Potential Analysis",
+    "buttons": {
+      "save": "Save",
+      "load": "Load",
+      "report": "Report",
+      "generating": "Generating..."
+    },
+    "messages": {
+      "no_processes": "No processes found. Please add processes in the Data Collection page first.",
+      "need_more_streams": "Select at least 2 streams with complete data (Tin, Tout, and either CP or ṁ+cp) to run pinch analysis.",
+      "running": "Running pinch analysis…",
+      "error": "Error:"
+    },
+    "controls": {
+      "show_shifted": "Show Shifted Composite Curves"
+    },
+    "sections": {
+      "notes": "Notes"
+    },
+    "placeholders": {
+      "scenario_name": "Scenario",
+      "notes": "Add notes about the pinch analysis here..."
+    },
+    "more_info": "More information",
+    "tables": {
+      "hp": "Heat Pump",
+      "cop": "COP",
+      "t_source": "T_source (°C)",
+      "t_sink": "T_sink (°C)",
+      "q_source": "Q_source (kW)",
+      "q_sink": "Q_sink (kW)",
+      "integrable_hp": "Integrable heat pumps",
+      "excluded_hp": "Heat pumps that cannot be integrated",
+      "cannot_integrate": "Cannot be integrated",
+      "hp_coverage": "Heat Pump Coverage (%)",
+      "status_quo": {
+        "title": "📊 Comparison of Status Quo and Proposal",
+        "desc": "Compare the current external energy supply with the absolute minimum external energy required after maximal internal heat recovery (the proposal). Savings indicate how much external utility is avoided.",
+        "type": "Type of Energy Demand",
+        "current": "Current Status Quo (kW)",
+        "min": "Min. Demands after Heat Recovery (kW)",
+        "savings_kw": "Savings (kW)",
+        "savings_pct": "Savings (%)",
+        "hp_cov_kw": "HP Coverage (kW)",
+        "heating": "Heating Demand",
+        "cooling": "Cooling Demand",
+        "warning": "💡 Current energy supplies are required to calculate the difference to status quo. Please configure them in the \"Current energy supply\" section above."
+      }
+    },
+    "charts": {
+      "heat_sinks": "Cold streams (Heat sinks)",
+      "heat_sources": "Hot streams (Heat sources)",
+      "composite_curves": "Composite Curves",
+      "shifted_composite_curves": "Shifted Composite Curves",
+      "gcc": "Grand Composite Curve",
+      "hpi_title": "Heat Pump Integration Analysis",
+      "hpi_gcc": "Heat Pump Integration - Grand Composite Curve",
+      "hpi_partial": "Heat Pump Integration - Partial Heat Recovery",
+      "hpi_none": "Heat Pump Integration - No Heat Recovery",
+      "hpi_optimization": "Optimization - Feasible Heat Pump Solutions",
+      "select_hp": "SELECT HEAT PUMP TYPES TO VISUALIZE:"
+    },
+    "recovery": {
+      "title": "Heat recovery before integration",
+      "with": "With heat recovery",
+      "with_desc": "Net load curves (GCC)",
+      "no": "No heat recovery",
+      "no_desc": "Composite curves",
+      "explanation_with": "Net load curves — the pocket-free Grand Composite Curve split into a source and a sink profile. Heat is recovered wherever the temperatures allow it, so the heat pump only covers the utility demand that is left over. This is standard pinch practice and the recommended default.",
+      "explanation_no": "Composite curves — hot and cold composite curves used directly as source and sink profiles. Internal heat recovery is not assumed, so the heat pump meets the full heating and cooling demands where possible."
+    }
+  },
+  "stream_selector": {
+    "title": "Streams Selection",
+    "help_desc": "Select which streams (heat sources or sinks) to include in the pinch analysis. Deselect streams that are currently inactive or should be excluded.",
+    "subprocess": "Sub",
+    "stream": "Stream",
+    "incomplete": "(incomplete data)"
+  },
+  "stream": {
+    "name_placeholder": "Stream name",
+    "delete_stream": "Delete stream",
+    "types": {
+      "product": "Product",
+      "steam": "Steam",
+      "air": "Air",
+      "water": "Water"
+    },
+    "vars": {
+      "Tin": "Tin",
+      "Tout": "Tout",
+      "ṁ": "ṁ",
+      "cp": "cp",
+      "CP": "CP",
+      "Water Content In": "Water Content In",
+      "Water Content Out": "Water Content Out",
+      "Density": "Density",
+      "Pressure": "Pressure"
+    }
+  },
+  "energy_demands": {
+    "title": "Current energy supply",
+    "help_desc": "Define the baseline energy consumption (heating and cooling) for the selected streams. This represents the 'status quo' before heat integration.",
+    "supply": "Supply",
+    "remove": "Remove supply",
+    "heat_kw": "Heat (kW)",
+    "hot_selection": "Hot streams selection",
+    "no_hot": "No hot streams",
+    "cooling_kw": "Cooling (kW)",
+    "cold_selection": "Cold streams selection",
+    "no_cold": "No cold streams",
+    "add_supply": "Add Supply"
+  },
+  "data_collection": {
+    "sub_short": "sub",
+    "streams": "Streams",
+    "legend": "Legend",
+    "cold": "Cold",
+    "hot": "Hot",
+    "q_power": "= Q power (kW)",
+    "project_notes": "Project Notes"
+  },
+  "optimization": {
+    "tooltip_refrigerant_type": "Classification of the refrigerant. Natural refrigerants (like Ammonia, CO2) have low environmental impact (GWP) but may have toxicity/flammability considerations. Synthetic refrigerants (like HFCs/HFOs) are traditionally used but often face strict regulations due to environmental impact.",
+    "tooltip_cop": "Coefficient of Performance (<span class='notranslate'>COP</span>): The ratio of useful heating or cooling provided to work (energy) required. Higher <span class='notranslate'>COP</span> means greater efficiency.",
+    "tooltip_q_sink": "Heat capacity delivered to the sink (the amount of heat the heat pump provides to the process).",
+    "tooltip_q_source": "Heat capacity extracted from the source (the amount of heat the heat pump absorbs from the process or environment).",
+    "tooltip_temp_sink": "The target temperature at which heat is delivered to the sink.",
+    "tooltip_temp_source": "The temperature at which heat is extracted from the source.",
+    "tooltip_refrigerant": "The specific chemical refrigerant used in the heat pump cycle.",
+    "tooltip_hp_stages": "The number of compression stages used in the heat pump system. More stages can improve efficiency across large temperature lifts.",
+    "panel": {
+      "title": "Integration with Heat Pump model and optimization",
+      "instruction": "Click on any column header to sort. Click on any point in the chart to inspect its details and add it to the table.",
+      "headers": {
+        "refrigerant_type": "REFRIGERANT TYPE",
+        "medium_sink": "MEDIUM SINK",
+        "cop": "COP",
+        "q_sink": "Q_SINK (KW)",
+        "q_source": "Q_SOURCE (KW)",
+        "t_sink": "TEMP_SINK (°C)",
+        "t_source": "TEMP_SOURCE (°C)",
+        "refrigerant": "REFRIGERANT",
+        "hp_stages": "HP STAGES"
+      },
+      "filters": {
+        "all": "All",
+        "select_all": "Select All",
+        "clear": "Clear Selection",
+        "source_limited": "Plot source-limited points",
+        "source_limited_desc": "These cover only part of the demand above T_sink, so they lie off the sink profile.",
+        "demand_limited": "Plot demand-limited points",
+        "demand_limited_desc": "These cover the full demand but leave waste heat unused at T_source, so they lie off the source profile.",
+        "feasible": "Feasible Combinations:",
+        "shown": "shown in chart:",
+        "medium_sink": "MEDIUM SINK",
+        "refrigerant_type": "REFRIGERANT TYPE",
+        "refrigerant": "REFRIGERANT",
+        "hp_stages": "HP STAGES",
+        "cop_source": "COP SOURCE",
+        "custom_cop_btn": "Use my own COP formula",
+        "custom_cop_desc": "Paste a custom COP to perform integration and optimization with your own heat pump."
+      }
+    }
+  },
+  "cop_modal": {
+    "title": "Custom COP formula",
+    "close": "Close",
+    "name": "Name",
+    "name_placeholder": "My heat pump",
+    "cop_equals": "COP =",
+    "checking": "checking…",
+    "server_error": "Could not reach the server.",
+    "enter_formula": "Enter a formula.",
+    "preview_source": "Preview at source",
+    "preview_sink": "sink",
+    "variables_title": "Variables — click to insert",
+    "functions": "Functions:",
+    "examples_title": "Start from an example",
+    "validity_range": "Validity range",
+    "validity_sub": " — where this heat pump may be used",
+    "envelope": {
+      "source_min": "Source min °C",
+      "source_max": "Source max °C",
+      "sink_min": "Sink min °C",
+      "sink_max": "Sink max °C",
+      "cop_min": "COP min",
+      "cop_max": "COP max"
+    },
+    "remove": "Remove",
+    "cancel": "Cancel",
+    "apply": "Apply",
+    "fix_formula_first": "Fix the formula first"
+  },
+  "help": {
+    "title": "Analysis Guide",
+    "smart_selection": "Smart Selection",
+    "smart_selection_desc": "Drag an area on the map to batch select streams. Red bubbles are Hot streams (waste heat), Blue bubbles are Cold streams (heat demand).",
+    "scenarios": "Scenarios",
+    "scenarios_desc": "Save different project versions (e.g., \"Night Shift\" vs \"Day Shift\") as Scenarios to compare their energy performance side-by-side.",
+    "composite_curves": "Composite Curves",
+    "composite_curves_desc": "The horizontal overlap between the Hot and Cold lines represents the heat we can recover. The remaining gaps show the external energy we still need to pay for.",
+    "grand_composite_curve": "Grand Composite Curve",
+    "grand_composite_curve_desc": "Identifies the \"Pinch Point\" (the bottleneck). Pockets in the curve show where heat can be swapped internally without needing a heat pump.",
+    "hpi": "Heat Pump Integration",
+    "hpi_desc": "The system automatically selects the highest-efficiency heat pump for your temperatures. Higher COP values mean better electricity-to-heat conversion.",
+    "metrics": "Performance Metrics",
+    "metrics_desc": "Heating Savings: The percentage of energy saved compared to your current status quo. Aim for high recovery first!",
+    "tip": "Tip: Use the \"Report\" button to generate a full PDF-ready dashboard with all your interactive charts."
+  },
+  "metrics": {
+    "min_heating": "Minimum Heating Demand",
+    "min_cooling": "Minimum Cooling Demand",
+    "pinch_temp": "Pinch Temperature",
+    "heat_recovery": "Heat Recovery Potential",
+    "min_heating_desc": "The absolute minimum external heat required by the system to reach target temperatures after all possible internal heat recovery is utilized.",
+    "min_cooling_desc": "The absolute minimum external cooling required by the system after all possible internal heat recovery is utilized.",
+    "pinch_temp_desc": "The temperature level dividing the system into a heat sink (above pinch) and a heat source (below pinch). No heat should be transferred across the pinch.",
+    "heat_recovery_desc": "The total amount of heat that can be recovered internally by matching hot and cold streams."
+  }
+}

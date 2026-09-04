@@ -1,0 +1,119 @@
+.action-bar {
+  height: 42px;
+  padding: 0 12px;
+  flex-shrink: 0;
+}
+
+.ab-status {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ab-load-label {
+  cursor: pointer;
+}
+
+.ab-base-select {
+  font-size: 11px;
+  padding: 3px 8px;
+  width: 100px;
+  min-width: 0;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.ab-search {
+  /* Prefers 350px but gives it up rather than overflowing a narrow bar. */
+  flex: 1 1 350px;
+  max-width: 350px;
+  min-width: 0;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1px 4px;
+}
+
+.ab-search-input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 11px;
+  padding: 4px;
+}
+
+.ab-search-btn {
+  border: none;
+  background: transparent;
+  padding: 0 8px;
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 1024px) {
+  .action-bar {
+    /* Wrap into as many rows as the buttons need instead of overflowing. */
+    height: auto;
+    flex-wrap: wrap;
+    row-gap: 6px;
+    padding: 8px 10px;
+  }
+
+  .ab-group {
+    min-width: 0;
+  }
+
+  .ab-group-center {
+    /* Search + status take their own row once the buttons fill the first. */
+    order: 3;
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+
+  .ab-search {
+    max-width: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .action-bar {
+    justify-content: flex-start;
+  }
+
+  .ab-group-primary {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .ab-group-right {
+    flex: 1 1 100%;
+    justify-content: flex-start;
+  }
+
+  .ab-search-input {
+    /* Matches the global anti-zoom rule for touch inputs. */
+    font-size: 16px;
+  }
+
+  .ab-base-select {
+    width: auto;
+    flex: 1 1 auto;
+    max-width: 180px;
+    /* The class-level 3px padding out-specifies the global touch rule. */
+    min-height: 38px;
+    padding: 6px 10px;
+  }
+
+  .ab-status {
+    white-space: normal;
+    font-size: 12px;
+  }
+}

@@ -1,0 +1,806 @@
+/* ==============================
+   Potential Analysis Page Styles  
+   ============================== */
+
+.pa-page {
+  padding: 12px 16px;
+  width: 100%;
+  min-width: 0;
+}
+
+/* Header bar. These declarations used to live inline on the element, which
+   made them unoverridable from a media query — they belong here. */
+.pa-header-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 20px;
+  padding: 12px 20px;
+  background: var(--surface);
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+}
+
+.pa-scenario-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pa-scenario-pills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  padding-bottom: 2px;
+}
+
+.pa-scenario-save {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+  background: var(--bg);
+  padding: 4px;
+  border-radius: 8px;
+  margin-left: 8px;
+}
+
+.pa-scenario-input {
+  width: 120px;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  padding: 2px 6px;
+  font-size: 0.8rem;
+  outline: none;
+}
+
+.pa-scenario-delete {
+  border: none;
+  background: none;
+  padding: 0 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pa-scenario-save-btn {
+  background: var(--success);
+  color: var(--text-on-primary);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.pa-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pa-title {
+  font-size: 1.25rem;
+  margin: 0;
+  white-space: nowrap;
+}
+
+.pa-btn-save {
+  padding: 8px 16px;
+  background: #27ae60;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.pa-btn-save:hover {
+  background: #219150;
+}
+.pa-btn-saving {
+  background: #16a085;
+}
+
+.pa-btn-report {
+  padding: 8px 18px;
+  background: var(--surface-active);
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-strong);
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-sm);
+}
+.pa-btn-report:hover {
+  background: var(--surface-hover);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+.pa-btn-report:active {
+  transform: translateY(0);
+}
+.pa-btn-report:disabled {
+  background: var(--border);
+  color: var(--text-muted) !important;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Toggles for panels */
+.pa-panel-toggle:hover {
+  color: #3498db;
+}
+.pa-panel-closed {
+  max-height: 48px;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+}
+
+/* ---------- Top Row ---------- */
+.pa-top-row {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+  flex-wrap: wrap;
+}
+/* Desktop proportions are unchanged. The min-widths would force the row wider
+   than a phone, but the row switches to a single column at 1024px (below),
+   well before they can bite. */
+.pa-col-streams {
+  flex: 1;
+  min-width: 300px;
+}
+.pa-col-demands {
+  flex: 0.5;
+  min-width: 250px;
+}
+.pa-col-map {
+  flex: 1.5;
+  min-width: 0;
+}
+
+/* ---------- Panels ---------- */
+.pa-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px;
+  max-height: 420px;
+  overflow-y: auto;
+}
+.pa-panel-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin: 0 0 8px;
+}
+
+/* ---------- Stream list ---------- */
+.pa-stream-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pa-stream-group-title {
+  font-weight: 600;
+  font-size: 0.8rem;
+  margin-top: 4px;
+}
+.pa-stream-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 2px 0;
+}
+.pa-stream-item input[type='checkbox'] {
+  margin: 0;
+  flex-shrink: 0;
+}
+.pa-stream-name {
+  font-weight: 500;
+  white-space: nowrap;
+}
+.pa-stream-info {
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------- Energy Demands ---------- */
+.pa-demand-card {
+  margin-bottom: 4px;
+}
+.pa-demand-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.8rem;
+}
+.pa-input-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  margin: 4px 0;
+}
+.pa-number-input {
+  width: 80px;
+  padding: 3px 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--text-main);
+  border-radius: 4px;
+  font-size: 0.75rem;
+}
+.pa-multi-select {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+}
+.pa-multi-option {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.72rem;
+  cursor: pointer;
+}
+.pa-muted {
+  color: var(--text-muted);
+  font-size: 0.72rem;
+}
+
+.pa-details {
+  font-size: 0.75rem;
+}
+.pa-details summary {
+  cursor: pointer;
+  font-weight: 500;
+  padding: 2px 0;
+}
+
+/* ---------- Buttons ---------- */
+.pa-btn {
+  padding: 4px 12px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface-active);
+  color: var(--text-main);
+  cursor: pointer;
+  font-size: 0.75rem;
+}
+.pa-btn:hover {
+  background: var(--surface-hover);
+}
+.pa-btn-icon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 0;
+}
+.pa-btn-text {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.75rem;
+  color: var(--text-link, #1976d2);
+  padding: 4px 0;
+  text-align: left;
+}
+
+/* ---------- HPI optimization panel ---------- */
+.pa-opt-row {
+  display: flex;
+  flex-direction: row;
+}
+.pa-opt-filters {
+  display: flex;
+  flex-direction: column;
+  min-width: 200px;
+}
+.pa-opt-chart {
+  min-width: 0;
+  /* Filters keep their natural width on the left; the slack falls between. */
+  flex: 0 0 auto;
+  /* Right-aligned so this plot lines up with the GCC chart of the HPI block
+     above. That chart's column is 65% - 16px wide, but it spends 220px of it
+     on a left gutter for its legend against this one's 60px axis margin, so
+     the box here is a further 160px narrower and the two plotting areas end
+     up exactly the same width and in the same place. */
+  width: calc(65% - 176px);
+  margin-left: auto;
+}
+
+/* ---------- Map ---------- */
+.pa-map-img {
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+}
+
+/* ---------- Divider ---------- */
+.pa-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 16px 0;
+}
+.pa-hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 6px 0;
+}
+
+/* ---------- Info / warnings ---------- */
+.pa-info-box {
+  background: var(--primary-light);
+  color: var(--text-main);
+  padding: 12px 16px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+.pa-loading {
+  font-size: 0.8rem;
+  color: var(--text-muted, #888);
+  padding: 8px 0;
+}
+.pa-error {
+  background: #ffebee;
+  color: #c62828;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+.pa-warning {
+  background: #fff3e0;
+  color: #e65100;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+}
+.pa-data-status {
+  margin-top: 8px;
+}
+.pa-missing {
+  color: #e65100;
+  font-size: 0.75rem;
+}
+.pa-complete {
+  color: #2e7d32;
+  font-size: 0.75rem;
+}
+
+/* ---------- Controls row ---------- */
+.pa-controls-row {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+.pa-toggle-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+.pa-tmin-label {
+  font-weight: 500;
+}
+.pa-tmin-input {
+  width: 60px;
+}
+
+/* ---------- Metrics ---------- */
+.pa-metrics-row {
+  display: flex;
+  gap: 16px;
+  margin: 12px 0;
+  flex-wrap: wrap;
+}
+.pa-metric-card {
+  flex: 1;
+  min-width: 140px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 10px 14px;
+  text-align: center;
+}
+.pa-metric-hot,
+.pa-metric-cold,
+.pa-metric-pinch,
+.pa-metric-recovery {
+  background: var(--surface) !important;
+  border: 1px solid var(--border) !important;
+}
+.pa-metric-label {
+  font-size: 0.65rem;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 2px;
+}
+.pa-metric-value {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: var(--text-main);
+}
+
+/* ---------- Charts ---------- */
+.pa-charts-row {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.pa-charts-row > .pa-chart {
+  flex: 1;
+  min-width: 0;
+}
+.pa-chart {
+  width: 100%;
+}
+
+/* ---------- HPI Layout ---------- */
+.pa-hpi-layout {
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+.pa-hpi-table-col {
+  flex: 0 0 35%;
+  max-width: 35%;
+}
+.pa-hpi-chart-col {
+  flex: 1;
+  min-width: 0;
+}
+.pa-hp-select {
+  margin-bottom: 8px;
+}
+.pa-hp-select > label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+/* ---------- Tables ---------- */
+.pa-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.75rem;
+  margin: 8px 0;
+}
+.pa-table th,
+.pa-table td {
+  border: 1px solid var(--border);
+  padding: 6px 8px;
+  text-align: left;
+}
+.pa-table th {
+  background: var(--primary);
+  color: var(--text-on-primary);
+  font-weight: 600;
+}
+.pa-table tr:nth-child(even) {
+  background: var(--bg);
+}
+.pa-table tr:hover {
+  background: var(--surface-hover);
+}
+
+.pa-hp-table-wrap {
+  margin: 8px 0;
+  /* The heat-pump table has more columns than a phone is wide — it scrolls
+     inside this box rather than widening the page. */
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Section labels above each HP group */
+.pa-hp-section-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  margin: 8px 0 4px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Excluded HP section */
+.pa-excluded-hp {
+  margin-top: 12px;
+}
+
+.pa-excluded-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0;
+}
+
+/* Each excluded HP is a warning card */
+.pa-excluded-card {
+  border: 1px solid var(--warning);
+  border-left: 4px solid var(--brand-red);
+  border-radius: 5px;
+  padding: 8px 10px;
+  background: var(--surface);
+  font-size: 0.75rem;
+}
+.dark .pa-excluded-card {
+  background: #2a2010;
+  border-color: #7a5010;
+  border-left-color: #e67e22;
+}
+
+.pa-excluded-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.pa-excluded-name {
+  font-weight: 700;
+  color: var(--text-main);
+}
+.pa-excluded-badge {
+  font-size: 0.65rem;
+  font-weight: 600;
+  background: #e67e22;
+  color: #fff;
+  border-radius: 3px;
+  padding: 1px 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+.pa-excluded-reason {
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+.dark .pa-excluded-reason {
+  color: #b0a090;
+}
+
+/* ---------- Notes ---------- */
+.pa-notes-textarea {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-main);
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-family: inherit;
+  resize: vertical;
+}
+
+/* ---------- More info ---------- */
+.pa-more-info {
+  margin-top: 12px;
+}
+.pa-more-info summary {
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 0;
+}
+
+/* ---------- Section ---------- */
+.pa-section {
+  margin: 12px 0;
+}
+.pa-section h3 {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+}
+
+/* ---------- Dark mode overrides ---------- */
+.dark .pa-title,
+.dark .pa-panel-title,
+.dark .pa-section h3 {
+  color: #ffffff;
+}
+
+.dark .pa-metric-label {
+  color: #ffffff;
+  opacity: 0.9;
+}
+
+.dark .pa-hp-section-label {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.dark .pa-stream-info,
+.dark .pa-muted,
+.dark .pa-excluded-reason {
+  color: #cbd5e1; /* Light slate/gray-white */
+}
+
+.dark .pa-metric-hot {
+  border-color: #ef4444 !important;
+  background: rgba(239, 68, 68, 0.15) !important;
+}
+.dark .pa-metric-cold {
+  border-color: #3b82f6 !important;
+  background: rgba(59, 130, 246, 0.15) !important;
+}
+.dark .pa-metric-pinch {
+  border-color: #a855f7 !important;
+  background: rgba(168, 85, 247, 0.15) !important;
+}
+.dark .pa-metric-recovery {
+  border-color: #22c55e !important;
+  background: rgba(34, 197, 94, 0.15) !important;
+}
+
+/* ══════════════════════════════════════════════════════════
+   Responsive
+   ══════════════════════════════════════════════════════════ */
+
+/* Below ~1024px there is no longer room for streams | demands | map side by
+   side, nor for two composite-curve charts in a row. */
+@media (max-width: 1024px) {
+  .pa-top-row,
+  .pa-charts-row,
+  .pa-hpi-layout {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .pa-col-streams,
+  .pa-col-demands,
+  .pa-col-map,
+  .pa-charts-row > .pa-chart {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* Both columns must be told to fill the width. The parent is
+     align-items:flex-start, so a stacked child otherwise shrinks to its own
+     content — which left the chart column only 215px wide and the curve
+     squeezed to nothing. */
+  .pa-hpi-table-col,
+  .pa-hpi-chart-col {
+    flex: 1 1 auto;
+    max-width: 100%;
+    width: 100%;
+  }
+
+  .pa-opt-row {
+    flex-direction: column;
+  }
+
+  .pa-opt-filters {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .pa-opt-chart {
+    /* Stacked: back to full width, no alignment gutter. */
+    flex: 1 1 auto;
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .pa-panel {
+    /* Stacked panels don't need to be tall; a short scroller keeps the page
+       navigable. */
+    max-height: 320px;
+  }
+}
+
+@media (max-width: 768px) {
+  .pa-page {
+    padding: 8px 0;
+  }
+
+  .pa-header-row {
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 10px 12px;
+    margin-bottom: 12px;
+  }
+
+  .pa-title {
+    font-size: 1.1rem;
+    flex: 1 1 100%;
+  }
+
+  .pa-scenario-bar {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+    /* Was hidden to clip the desktop pill row; wrapped rows must not clip. */
+    overflow: visible;
+  }
+
+  .pa-scenario-pills {
+    max-width: 100%;
+  }
+
+  .pa-scenario-save {
+    margin-left: 0;
+    flex: 1 1 auto;
+  }
+
+  .pa-scenario-save-btn {
+    min-height: 36px;
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+
+  .pa-scenario-delete {
+    /* Was a 12px SVG with no padding — nowhere near a thumb-sized target. */
+    min-width: 34px;
+    min-height: 34px;
+    margin-right: -6px;
+  }
+
+  .pa-scenario-input {
+    width: auto;
+    flex: 1 1 auto;
+  }
+
+  .pa-header-actions {
+    flex: 1 1 100%;
+    flex-wrap: wrap;
+  }
+
+  .pa-controls-row {
+    gap: 12px;
+  }
+
+  .pa-metrics-row {
+    gap: 8px;
+  }
+
+  .pa-metric-card {
+    /* Two per row on a phone rather than one giant card each. */
+    flex: 1 1 calc(50% - 8px);
+    min-width: 0;
+    padding: 8px 10px;
+  }
+
+  /* The desktop design leans on 0.65–0.75rem, which lands around 9px on a
+     phone. Floor the smallest text at something legible. */
+  .pa-stream-item,
+  .pa-stream-info,
+  .pa-muted,
+  .pa-multi-option,
+  .pa-metric-label,
+  .pa-excluded-card,
+  .pa-table {
+    font-size: 12px;
+  }
+
+  /* These labels wrap their checkbox, so the whole row is the tap target —
+     giving them a real height is what makes the checkboxes usable. */
+  .pa-stream-item,
+  .pa-multi-option,
+  .pa-toggle-label {
+    min-height: 34px;
+    padding: 4px 0;
+  }
+}

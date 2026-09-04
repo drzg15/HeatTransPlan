@@ -1,0 +1,24 @@
+# Static file server for the built frontend, inside the frontend container.
+#
+# This is NOT the public-facing Caddy — that one lives at the repo root, holds
+# the TLS certificate for heattransplan.uni-paderborn.de, and reverse-proxies
+# /api/* to the backend and everything else to this server on port 5173.
+:5173 {
+	root * /srv
+	encode gzip zstd
+
+	# Hashed build output. Kept out of the SPA fallback below so a missing or
+	# mistyped asset returns a real 404 instead of an HTML page the browser
+	# would then fail to parse as JavaScript.
+	handle /assets/* {
+		header Cache-Control "public, max-age=31536000, immutable"
+		file_server
+	}
+
+	# Everything else: the router owns /data-collection and /potential-analysis,
+	# so a path that isn't a real file has to return index.html, not 404.
+	handle {
+		try_files {path} /index.html
+		file_server
+	}
+}

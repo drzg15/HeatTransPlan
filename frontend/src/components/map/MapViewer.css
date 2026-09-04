@@ -1,0 +1,112 @@
+.map-viewer {
+  position: relative;
+  height: 650px;
+  flex: none;
+  min-height: 0;
+  border-radius: var(--radius);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  background: var(--bg);
+}
+
+.map-viewer.fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 10001;
+  border-radius: 0;
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+@supports (height: 100dvh) {
+  /* vh leaves the map running under the mobile URL bar. */
+  .map-viewer.fullscreen {
+    height: 100dvh !important;
+  }
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 768px) {
+  .map-fullscreen-btn,
+  .map-viewer-controls .pa-btn {
+    /* Map controls sit under a thumb — 32px is too small to hit reliably. */
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  /* Leaflet's own zoom buttons default to 26px. */
+  .leaflet-touch .leaflet-bar a {
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+  }
+}
+
+.map-viewer.fullscreen .leaflet-container {
+  border-radius: 0 !important;
+  border: none !important;
+}
+
+.map-fullscreen-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 10002;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface, #ffffff);
+  border: 1px solid var(--border, #edebe9);
+  border-radius: var(--radius-sm, 2px);
+  color: var(--text-main, #201f1e);
+  cursor: pointer;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+  font-size: 16px;
+  transition: all 0.2s;
+}
+
+.map-fullscreen-btn:hover {
+  background: var(--surface-hover, #f8f8f8);
+  transform: scale(1.05);
+}
+
+.custom-marker {
+  background: transparent !important;
+  border: none !important;
+  pointer-events: auto !important;
+  cursor: grab !important;
+}
+
+.custom-marker:active {
+  cursor: grabbing !important;
+}
+
+.pa-selection-active .leaflet-container {
+  cursor: crosshair !important;
+}
+
+.pa-selection-active .leaflet-marker-icon,
+.pa-selection-active .stream-bubble {
+  cursor: crosshair !important;
+}
+
+.pa-selection-toast {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translate(-50%, -20px);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+}

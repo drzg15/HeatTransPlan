@@ -1,0 +1,43 @@
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node / JS
+node_modules/
+.vite/
+frontend/.vite/
+dist/
+build/
+.env
+
+# Virtual env
+venv/
+env/
+.venv/
+
+# Python packaging artefacts
+*.egg-info/
+
+# OS files
+.DS_Store
+
+# COP modelling data and notebooks — stay local, never committed.
+# The deployment needs only the trained model and its validity ranges:
+#   models/cop/best_model.joblib
+#   models/cop/cop_ranges.json   (regenerate: cop_analysis/export_cop_ranges.py)
+data/cop_modelling*/
+cop_modelling_V0/
+cop_modelling/
+*.parquet
+*.xlsx
+
+# Ignore the analysis workspace, but keep the range exporter the backend depends on.
+# (Must exclude the contents, not the directory — git will not descend into an
+# ignored directory, so a negation inside it would never be reached.)
+cop_analysis/*
+!cop_analysis/export_cop_ranges.py
+pinch-tool-main/
+test_company/
+scratch/
+
+test.json

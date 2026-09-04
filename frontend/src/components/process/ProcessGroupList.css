@@ -1,0 +1,151 @@
+.pgl {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.pgl-group {
+  padding: 4px;
+}
+
+.pgl-group-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.pgl-toggle {
+  background: none;
+  border: none;
+  padding: 2px 4px;
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.pgl-name-input {
+  flex: 1;
+  min-width: 0;
+  font-weight: 600;
+  font-size: 12px;
+  color: var(--text-main);
+  background: transparent !important;
+  border: 1px solid transparent !important;
+}
+
+.pgl-name-input:focus {
+  border-color: var(--border) !important;
+  background: var(--bg) !important;
+}
+
+.pgl-scale {
+  width: 60px;
+}
+.pgl-scale input[type='range'] {
+  width: 100%;
+  height: 4px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.pgl-badge {
+  font-size: 10px;
+  background: var(--primary-light);
+  color: var(--primary);
+  padding: 1px 6px;
+  border-radius: 10px;
+  white-space: nowrap;
+}
+
+.pgl-confirm {
+  display: flex;
+  gap: 2px;
+}
+
+.pgl-group-body {
+  margin-top: 4px;
+  padding-left: 4px;
+}
+
+.pgl-section {
+  margin-bottom: 4px;
+}
+
+.pgl-section-header {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  padding: 4px 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+  border-radius: var(--radius-sm);
+}
+
+.pgl-section-header:hover {
+  background: var(--surface-hover);
+  color: var(--text-main);
+}
+
+.pgl-info-grid {
+  display: grid;
+  /* Three across when there's room, fewer when there isn't. */
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
+  gap: 6px;
+  padding: 8px;
+  background: var(--surface-active);
+  border-radius: var(--radius-sm);
+  margin-bottom: 8px;
+}
+
+.pgl-info-grid label {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 9px;
+  color: var(--text-muted);
+}
+
+.pgl-info-grid input {
+  width: 100%;
+  background: var(--surface) !important;
+}
+
+.pgl-empty {
+  text-align: center;
+  padding: 24px;
+  color: var(--text-muted);
+  font-size: 12px;
+}
+
+/* ── Responsive ───────────────────────────────────────── */
+@media (max-width: 900px), (hover: none) and (pointer: coarse) {
+  .pgl-toggle {
+    /* The expand arrow is the main way into a group — 16px is not hittable. */
+    min-width: 34px;
+    min-height: 34px;
+    font-size: 13px;
+  }
+
+  /* Toggle + name + slider + Place + badge + close don't fit one phone row;
+     let them wrap so the name field keeps a readable width. */
+  .pgl-group-header {
+    flex-wrap: wrap;
+    row-gap: 6px;
+  }
+
+  .pgl-name-input {
+    flex: 1 1 60%;
+    min-width: 140px;
+  }
+
+  .pgl-scale {
+    width: 90px;
+  }
+
+  /* More specific than the global input[type=range] rule, so it needs
+     restating here rather than relying on the base. */
+  .pgl-scale input[type='range'] {
+    height: 32px;
+  }
+}

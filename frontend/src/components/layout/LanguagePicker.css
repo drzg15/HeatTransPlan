@@ -1,0 +1,152 @@
+.lang-picker {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.lang-trigger {
+  /* Inherits the .theme-toggle chrome so it matches the buttons beside it. */
+  padding: 0;
+}
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  width: 260px;
+  max-width: calc(100vw - 24px);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  z-index: 1100;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.lang-search-row {
+  padding: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.lang-search {
+  width: 100%;
+  padding: 6px 8px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  outline: none;
+}
+.lang-search:focus {
+  border-color: var(--primary);
+}
+
+.lang-group {
+  padding: 8px 12px 4px;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-muted);
+}
+
+/* Only the full list scrolls, so the suggested block stays put. */
+.lang-list {
+  max-height: 260px;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.lang-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  color: var(--text-main);
+  font-size: 0.85rem;
+  text-align: left;
+  cursor: pointer;
+}
+.lang-item:hover {
+  background: var(--surface-hover);
+}
+.lang-item.active {
+  color: var(--primary);
+  font-weight: 600;
+  background: var(--primary-light);
+}
+.lang-item > span:first-child {
+  flex: 1;
+}
+
+.lang-note {
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.lang-tick {
+  color: var(--primary);
+}
+
+.lang-empty {
+  padding: 12px;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.lang-footer {
+  padding: 8px 12px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-soft);
+  font-size: 0.68rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+/* Google injects a banner iframe and pushes the body down; the sticky header
+   ends up detached from the top. Neutralise that. */
+body {
+  top: 0 !important;
+}
+.skiptranslate iframe {
+  display: none !important;
+}
+
+@media (max-width: 768px) {
+  .lang-menu {
+    /* Anchor to the header rather than the button, so a 260px menu cannot be
+       pushed off the edge of a narrow screen. */
+    position: fixed;
+    top: calc(var(--header-height) + 6px);
+    left: 8px;
+    right: 8px;
+    width: auto;
+    max-width: none;
+  }
+  .lang-list {
+    max-height: 50vh;
+  }
+  .lang-item {
+    min-height: 44px;
+  }
+  .lang-search {
+    font-size: 16px;
+  } /* stops iOS zooming on focus */
+}
+
+/* English name beside the native one, so the list is scannable either way. */
+.lang-english {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 45%;
+}
