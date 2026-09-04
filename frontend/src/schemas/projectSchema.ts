@@ -24,8 +24,8 @@ export const streamSchema = z.object({
   type: streamTypeSchema,
   properties: streamPropertiesSchema.optional(),
   values: streamValuesSchema.optional(),
-  stream_values: z.record(z.string()).optional(),
-  stream_units: z.record(z.string()).optional(),
+  stream_values: z.record(z.string(), z.string()).optional(),
+  stream_units: z.record(z.string(), z.string()).optional(),
   display_vars: z.array(z.string()).nullable().optional(),
   mdot: z.string().optional(),
   temp_in: z.string().optional(),
@@ -61,7 +61,7 @@ export const processParamsSchema = z.object({
   thermal_power: z.union([z.string(), z.number(), z.null()]).optional(),
 });
 
-export const processNodeSchema: z.ZodType<ProcessNode> = z.lazy(() =>
+export const processNodeSchema: z.ZodType<ProcessNode, ProcessNode> = z.lazy(() =>
   z.object({
     name: z.string(),
     level: z.number().optional(),
@@ -104,12 +104,12 @@ export const projectStateSchema = z.object({
   proc_groups: z.array(z.array(z.number())),
   proc_group_names: z.array(z.string()),
   proc_group_expanded: z.array(z.boolean()).optional(),
-  proc_group_coordinates: z.record(groupCoordinatesSchema),
+  proc_group_coordinates: z.record(z.string(), groupCoordinatesSchema),
   proc_group_info_expanded: z.array(z.boolean()).optional(),
   project_notes: z.string().optional(),
   pinch_notes: z.string().optional(),
-  map_snapshots_encoded: z.record(z.string()).optional(),
-  selected_streams: z.record(z.boolean()).optional(),
+  map_snapshots_encoded: z.record(z.string(), z.string()).optional(),
+  selected_streams: z.record(z.string(), z.boolean()).optional(),
   energy_demands: z.array(z.any()).optional(),
   t_min: z.number().optional(),
 });

@@ -73,7 +73,7 @@ export default function ActionBar({
 
         if (!parsed.success) {
           // If validation fails, extract a readable error message
-          const firstError = parsed.error.errors[0];
+          const firstError = parsed.error.issues[0];
           const path = firstError.path.join('.');
           alert(`Invalid Project File.\n\nError at '${path}': ${firstError.message}`);
           return;
