@@ -58,7 +58,7 @@ export default function AppShell({ children }: Props) {
       <header className="top-nav">
         <div className="nav-brand">
           <span className="brand-text notranslate">HeatTransPlan</span>
-          <span className="brand-version notranslate">v2.2.0</span>
+          <span className="brand-version notranslate">v2.3.0</span>
         </div>
 
         <nav id="app-nav" className={`nav-links ${menuOpen ? 'open' : ''}`}>
