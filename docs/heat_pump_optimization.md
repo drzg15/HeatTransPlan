@@ -1,6 +1,6 @@
 # Heat Pump Optimization — Predictive ML Model & Grid Search
 
-While classic Heat Pump Integration uses empirical manufacturer correlations for a few standard technologies, **Heat Pump Optimization** evaluates a wide spectrum of **refrigerants and multi-stage heat pump designs** using a **trained Machine Learning model** or custom COP mathematical expressions.
+While classic Heat Pump Integration uses empirical regressions of prototypical heat pumps, **Heat Pump Optimization** evaluates a wide spectrum of **refrigerants and multi-stage heat pump designs** using a **trained Machine Learning model** or custom COP mathematical expressions.
 
 It evaluates every candidate across a 2D mesh of $(T_{source}, T_{sink})$ operating points to discover the exact thermal matching conditions.
 

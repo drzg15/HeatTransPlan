@@ -17,7 +17,7 @@ interface Props {
 
 const DEFAULT_COP_FORMULA: CopFormulaSpec = {
   name: 'My heat pump',
-  expression: '0.45 * carnot',
+  expression: '0.5 * (T_sink + 273.15) / T_lift',
   enabled: true,
   T_source_min: 0,
   T_source_max: 200,
@@ -32,7 +32,11 @@ const DEFAULT_COP_FORMULA: CopFormulaSpec = {
 /** Starting points, so nobody faces an empty box. The last two are the app's
  *  own built-in correlations, which double as a syntax example. */
 const EXAMPLES: Array<{ label: string; expression: string }> = [
-  { label: 'Carnot × 45 %', expression: '0.45 * carnot' },
+  { label: 'Theoretical Carnot (50 %)', expression: '0.5 * (T_sink + 273.15) / T_lift' },
+  {
+    label: '2-Stage Interval HP (50 % / 40 % Carnot)',
+    expression: '(0.5 * (T_sink + 273.15) / T_lift) if T_sink <= 100 else (0.4 * (T_sink + 273.15) / T_lift)',
+  },
   { label: 'Linear in lift', expression: '6.5 - 0.045 * T_lift' },
   {
     label: 'VHTHP (HFC/HFO) fit',
@@ -156,7 +160,7 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
             spellCheck={false}
             maxLength={500}
             onChange={(e) => set('expression', e.target.value)}
-            placeholder="0.45 * carnot"
+            placeholder="0.5 * (T_sink + 273.15) / T_lift"
           />
 
           <div className={`cf-verdict ${check?.valid ? 'ok' : check ? 'bad' : ''}`}>
