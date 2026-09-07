@@ -1,16 +1,16 @@
 # Graph Report - HeatTransPlan  (2026-09-07)
 
 ## Corpus Check
-- 153 files · ~289,480 words
+- 153 files · ~289,801 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1440 nodes · 2814 edges · 92 communities (52 shown, 24 thin omitted)
+- 1440 nodes · 2817 edges · 91 communities (52 shown, 23 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 103 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `69ea7e33`
+- Built from commit: `7d5fdd76`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -26,7 +26,7 @@
 - ReportRequest
 - get_project
 - HeatPumpIntegration
-- types/analysis.ts
+- analysisStore.ts
 - models/analysis.py
 - io_routes.py
 - ProjectState
@@ -45,7 +45,7 @@
 - heat_profiles.py
 - Pinch Analysis
 - Pinch Analysis
-- useProjectStore
+- StreamEditor.tsx
 - routers/analysis.py
 - .hide
 - StreamDataTable.tsx
@@ -57,7 +57,6 @@
 - Ss
 - searchtools.js
 - io.ts
-- Qn
 - ISSP
 - map_service.py
 - Heat Pump Integration — Classic Method
@@ -95,7 +94,7 @@
 ## God Nodes (most connected - your core abstractions)
 1. `654()` - 55 edges
 2. `ps` - 40 edges
-3. `useAnalysisStore` - 31 edges
+3. `useAnalysisStore` - 33 edges
 4. `ci` - 29 edges
 5. `trigger()` - 27 edges
 6. `react` - 25 edges
@@ -119,14 +118,14 @@
 ## Import Cycles
 - None detected.
 
-## Communities (92 total, 24 thin omitted)
+## Communities (91 total, 23 thin omitted)
 
 ### Community 0 - "654"
 Cohesion: 0.06
 Nodes (55): d(), e(), h(), i(), m(), r(), v(), q() (+47 more)
 
 ### Community 1 - "bootstrap.js"
-Cohesion: 0.06
+Cohesion: 0.07
 Nodes (48): ae(), B(), ce(), ct(), D(), de(), dt(), _e() (+40 more)
 
 ### Community 2 - "Pinch"
@@ -142,12 +141,12 @@ Cohesion: 0.07
 Nodes (43): AST, HPIOptimizationDiagnostics, HPIOptimizationRequest, OptimizedIntegrationPoint, Why the optimization found little or nothing. Filled on every run, so an empty…, Input to the HPI optimization endpoint., heat_pump_integration_optimization(), Run data-driven heat pump integration optimization. (+35 more)
 
 ### Community 5 - "react"
-Cohesion: 0.12
-Nodes (21): getExample(), App(), DataCollectionPage, PotentialAnalysisPage, AppShell(), NAV_ITEMS, Props, Language (+13 more)
+Cohesion: 0.09
+Nodes (30): getExample(), App(), DataCollectionPage, ScenarioComparison(), ActionBar(), BASE_OPTIONS, Props, AppShell() (+22 more)
 
 ### Community 7 - "trigger"
-Cohesion: 0.14
-Nodes (3): remove(), Sn, trigger()
+Cohesion: 0.13
+Nodes (4): Qn, remove(), Sn, trigger()
 
 ### Community 8 - "ReportRequest"
 Cohesion: 0.12
@@ -161,9 +160,9 @@ Nodes (35): ProcessNode, A node in the process hierarchy. Exactly mirrors create
 Cohesion: 0.10
 Nodes (13): carnot_cop(), HeatPumpIntegration, in_operating_window(), ValueError, A heat pump needs a positive temperature lift. With the pocket-free GCC the…, Best COP available at source temperature T, across every technology rated for…, Returns list of all heat pump types with their COPs and availability status, COP of one named technology at source temperature T. Raises HeatPumpOutOfRange… (+5 more)
 
-### Community 11 - "types/analysis.ts"
-Cohesion: 0.10
-Nodes (30): validateCopFormula(), BUILTIN_FORMULAS, CopFormulaModal(), DEFAULT_COP_FORMULA, EXAMPLES, Props, HeatRecoveryToggle(), ModeOption (+22 more)
+### Community 11 - "analysisStore.ts"
+Cohesion: 0.11
+Nodes (28): validateCopFormula(), BUILTIN_FORMULAS, CopFormulaModal(), DEFAULT_COP_FORMULA, EXAMPLES, Props, ModeOption, AnalysisStore (+20 more)
 
 ### Community 12 - "models/analysis.py"
 Cohesion: 0.11
@@ -178,16 +177,16 @@ Cohesion: 0.10
 Nodes (27): GroupCoordinates, ProjectState, BaseModel, Project state model — exact mirror of save_app_state() / load_app_state() in…, Coordinates and metadata for a process group on the map., Complete project state. Matches save_app_state() output exactly. This is what…, create_project(), delete_project() (+19 more)
 
 ### Community 16 - "PotentialAnalysisPage.tsx"
-Cohesion: 0.20
-Nodes (15): generateReport(), runHPI(), runHPIOptimization(), runPinch(), runStatusQuo(), HeatPumpTable(), PinchMetrics(), ScenarioComparison() (+7 more)
+Cohesion: 0.17
+Nodes (21): generateReport(), runHPI(), runHPIOptimization(), runPinch(), runStatusQuo(), PotentialAnalysisPage, EnergyDemands(), HeatPumpTable() (+13 more)
 
 ### Community 17 - "package.json"
 Cohesion: 0.09
 Nodes (25): name, private, type, version, axios, eslint, @eslint/js, eslint-plugin-react-hooks (+17 more)
 
 ### Community 18 - "useUIStore"
-Cohesion: 0.15
-Nodes (17): CompositeCurvesChart(), GrandCompositeCurveChart(), HP_COLORS, HPIChart(), HPIOptimizationChart(), Props, HPIOptimizationPanel(), isSamePoint() (+9 more)
+Cohesion: 0.14
+Nodes (18): CompositeCurvesChart(), GrandCompositeCurveChart(), HeatRecoveryToggle(), HP_COLORS, HPIChart(), HPIOptimizationChart(), Props, HPIOptimizationPanel() (+10 more)
 
 ### Community 19 - "StreamModel"
 Cohesion: 0.13
@@ -206,8 +205,8 @@ Cohesion: 0.10
 Nodes (19): compilerOptions, allowImportingTsExtensions, erasableSyntaxOnly, lib, module, moduleDetection, moduleResolution, noEmit (+11 more)
 
 ### Community 26 - "MapViewer.tsx"
-Cohesion: 0.13
-Nodes (7): createDivIcon(), GroupCoords, StreamCirclesOverlay(), streamColor(), TILE_URLS, leaflet, react-leaflet
+Cohesion: 0.12
+Nodes (9): createDivIcon(), GroupCoords, Props, StreamCirclesOverlay(), StreamCirclesOverlayProps, streamColor(), TILE_URLS, leaflet (+1 more)
 
 ### Community 27 - "heat_profiles.py"
 Cohesion: 0.19
@@ -221,17 +220,17 @@ Nodes (16): Construction, Deletion Algorithm, Input: Process Streams, Key result
 Cohesion: 0.12
 Nodes (16): Construction, Deletion Algorithm, Input: Process Streams, Key results, Pass 1: Unfeasible Cascade (no external utility), Pass 2: Feasible Cascade, Pinch Analysis, Pipeline Summary (+8 more)
 
-### Community 30 - "useProjectStore"
-Cohesion: 0.22
-Nodes (11): EnergyDemands(), StreamSelector(), ChartHelpButton(), Props, ErrorBoundary(), Props, State, defaultState (+3 more)
+### Community 30 - "StreamEditor.tsx"
+Cohesion: 0.15
+Nodes (10): ALL_VARS, DEFAULT_VARS, Props, STREAM_TYPES, StreamEditor(), UNIT_OPTIONS, Stream, StreamProperties (+2 more)
 
 ### Community 31 - "routers/analysis.py"
 Cohesion: 0.12
 Nodes (22): CopFormulaValidateRequest, Check a formula (and preview one value) without running the optimisation., generate_report(), get_map_preview(), heat_pump_integration(), pinch_analysis(), post, Analysis router — pinch, HPI, status quo, report endpoints. (+14 more)
 
 ### Community 33 - "StreamDataTable.tsx"
-Cohesion: 0.20
-Nodes (15): Props, SortKey, StreamDataTable(), ActionBar(), BASE_OPTIONS, Props, projectStateSchema, exportDistanceMatrixToCsv() (+7 more)
+Cohesion: 0.30
+Nodes (11): Props, SortKey, StreamDataTable(), exportDistanceMatrixToCsv(), exportLiveMapSnapshot(), exportProjectToCsv(), haversineDistance(), manhattanSphericalDistance() (+3 more)
 
 ### Community 34 - "HeatTransPlan"
 Cohesion: 0.12
@@ -250,15 +249,15 @@ Cohesion: 0.13
 Nodes (15): dependencies, axios, html2canvas, i18next, leaflet, plotly.js, react, react-dom (+7 more)
 
 ### Community 38 - "ProcessNode"
-Cohesion: 0.12
-Nodes (22): Props, StreamCirclesOverlayProps, GroupCoords, ProcessGroupList(), Props, ALL_VARS, DEFAULT_VARS, Props (+14 more)
+Cohesion: 0.23
+Nodes (10): GroupCoords, ProcessGroupList(), Props, DEFAULT_STREAM, Props, SubprocessCard(), ExtraInfo, ProcessModelSelection (+2 more)
 
 ### Community 40 - "searchtools.js"
 Cohesion: 0.19
 Nodes (6): _displayItem(), _displayNextItem(), _escapeHTML(), _finishSearch(), Search, SearchResultKind
 
 ### Community 41 - "io.ts"
-Cohesion: 0.10
+Cohesion: 0.12
 Nodes (4): client, ProjectStore, GroupCoordinates, ProjectState
 
 ### Community 44 - "map_service.py"
@@ -274,8 +273,8 @@ Cohesion: 0.17
 Nodes (11): At each source temperature $T$:, Best-Available COP Selection, Carnot Fallback, Convergence, Detailed Mode Breakdown, Heat Pump Integration — Classic Method, Heat Pump Technologies and Operating Windows, Integration Walk: Finding the Operating Point (+3 more)
 
 ### Community 48 - "projectSchema.ts"
-Cohesion: 0.18
-Nodes (10): extraInfoSchema, groupCoordinatesSchema, processModelSelectionSchema, processNodeSchema, processParamsSchema, streamPropertiesSchema, streamSchema, streamTypeSchema (+2 more)
+Cohesion: 0.17
+Nodes (11): extraInfoSchema, groupCoordinatesSchema, processModelSelectionSchema, processNodeSchema, processParamsSchema, projectStateSchema, streamPropertiesSchema, streamSchema (+3 more)
 
 ### Community 49 - "export_cop_ranges.py"
 Cohesion: 0.24
@@ -332,14 +331,14 @@ Nodes (3): lint-staged, *.{css,md,json}, *.{ts,tsx}
 ## Knowledge Gaps
 - **232 isolated node(s):** `heattransplan-backend`, `messages`, `BLACKLISTED_KEY_CONTROL_ELEMENTS`, `Documentation`, `DOCUMENTATION_OPTIONS` (+227 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 615 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **24 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **23 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `de()` connect `bootstrap.js` to `react`?**
   _High betweenness centrality (0.111) - this node is a cross-community bridge._
-- **Why does `react-i18next` connect `react` to `StreamDataTable.tsx`, `ProcessNode`, `types/analysis.ts`, `PotentialAnalysisPage.tsx`, `package.json`, `useUIStore`, `useProjectStore`?**
+- **Why does `react-i18next` connect `react` to `StreamDataTable.tsx`, `ProcessNode`, `analysisStore.ts`, `PotentialAnalysisPage.tsx`, `package.json`, `useUIStore`, `StreamEditor.tsx`?**
   _High betweenness centrality (0.096) - this node is a cross-community bridge._
 - **Why does `654()` connect `654` to `bootstrap.js`?**
   _High betweenness centrality (0.024) - this node is a cross-community bridge._
@@ -350,4 +349,4 @@ _Questions this graph is uniquely positioned to answer:_
 - **Should `654` be split into smaller, more focused modules?**
   _Cohesion score 0.0640503517215846 - nodes in this community are weakly interconnected._
 - **Should `bootstrap.js` be split into smaller, more focused modules?**
-  _Cohesion score 0.0640503517215846 - nodes in this community are weakly interconnected._
+  _Cohesion score 0.0654490106544901 - nodes in this community are weakly interconnected._

@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIOptimizationPanel.tsx": {
-    "mtime": 1788785787.9318564,
-    "seen": 1788785972.808715,
-    "ast_hash": "e5437a5cbc5ea68ff6362849fe16bd0f",
+    "mtime": 1788795410.8219724,
+    "seen": 1788795421.073062,
+    "ast_hash": "5d5ae80d4b619b6b59894d0cdad41f93",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HeatPumpTable.tsx": {
@@ -576,9 +576,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/StreamDataTable.tsx": {
-    "mtime": 1788533192.467063,
-    "seen": 1788763628.601086,
-    "ast_hash": "7466154fbc6386f48a089e575bc21287",
+    "mtime": 1788789278.5859852,
+    "seen": 1788795421.073261,
+    "ast_hash": "c18d64dad1a2beabb834809ab156f2ce",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/StreamSelector.tsx": {
@@ -594,14 +594,14 @@
     "semantic_hash": ""
   },
   "frontend/src/components/io/ActionBar.tsx": {
-    "mtime": 1788785787.9344056,
-    "seen": 1788785972.8088489,
-    "ast_hash": "2e343946356e79fb383716a10ddbd2de",
+    "mtime": 1788790360.6406918,
+    "seen": 1788795421.0733619,
+    "ast_hash": "422e1e491cd1f8e10fb19a2a2c1c6249",
     "semantic_hash": ""
   },
   "frontend/src/components/layout/AppShell.tsx": {
-    "mtime": 1788787429.392103,
-    "seen": 1788787437.543361,
+    "mtime": 1788787454.7137153,
+    "seen": 1788795421.0733628,
     "ast_hash": "71b8a90de543293cda37b6f914b4b742",
     "semantic_hash": ""
   },
@@ -864,8 +864,8 @@
     "semantic_hash": ""
   },
   "docs/_build/html/_sources/index.md": {
-    "mtime": 1788785959.1055698,
-    "seen": 1788785972.8096309,
+    "mtime": 1788787454.709124,
+    "seen": 1788795421.0750778,
     "ast_hash": "f37b148cf2b158bd18ab9f995991abb2",
     "semantic_hash": ""
   },
@@ -900,38 +900,38 @@
     "semantic_hash": ""
   },
   "docs/_build/html/genindex.html": {
-    "mtime": 1788785965.1461377,
-    "seen": 1788785972.80964,
+    "mtime": 1788787454.7095835,
+    "seen": 1788795421.07535,
     "ast_hash": "20a351b599cb3e38a582d0b0a0256fca",
     "semantic_hash": ""
   },
   "docs/_build/html/heat_pump_integration.html": {
-    "mtime": 1788785955.083068,
-    "seen": 1788785972.809641,
+    "mtime": 1788787454.7103856,
+    "seen": 1788795421.075351,
     "ast_hash": "5c9a4f747085f4f50284378821c1b8e4",
     "semantic_hash": ""
   },
   "docs/_build/html/heat_pump_optimization.html": {
-    "mtime": 1788785955.1137292,
-    "seen": 1788785972.809642,
+    "mtime": 1788787454.710804,
+    "seen": 1788795421.075352,
     "ast_hash": "a35ff6587abf77a1ca6eaafd028b3e81",
     "semantic_hash": ""
   },
   "docs/_build/html/index.html": {
-    "mtime": 1788785965.125592,
-    "seen": 1788785972.809643,
+    "mtime": 1788787454.711067,
+    "seen": 1788795421.0753531,
     "ast_hash": "67b50b59522d1e1f8c0e69b8dfa81dd1",
     "semantic_hash": ""
   },
   "docs/_build/html/pinch_analysis.html": {
-    "mtime": 1788785955.1555474,
-    "seen": 1788785972.809644,
+    "mtime": 1788787454.7114553,
+    "seen": 1788795421.0753531,
     "ast_hash": "d5b21092dc77d27c394514a05e4bad02",
     "semantic_hash": ""
   },
   "docs/_build/html/search.html": {
-    "mtime": 1788785965.1658235,
-    "seen": 1788785972.809647,
+    "mtime": 1788787454.7130237,
+    "seen": 1788795421.0753548,
     "ast_hash": "52840fa6401f6d64e068fc616275b6ee",
     "semantic_hash": ""
   },
@@ -1074,8 +1074,8 @@
     "semantic_hash": ""
   },
   "docs/_build/html/refrigerant_limits.html": {
-    "mtime": 1788785955.1759062,
-    "seen": 1788785972.809645,
+    "mtime": 1788787454.7124643,
+    "seen": 1788795421.075354,
     "ast_hash": "01e2be12a55148c1884ef1246ff56943",
     "semantic_hash": ""
   },
