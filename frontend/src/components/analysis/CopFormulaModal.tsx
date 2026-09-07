@@ -31,21 +31,13 @@ const DEFAULT_COP_FORMULA: CopFormulaSpec = {
 
 /** Starting points, so nobody faces an empty box. The last two are the app's
  *  own built-in correlations, which double as a syntax example. */
-const EXAMPLES: Array<{ label: string; expression: string }> = [
-  { label: 'Theoretical Carnot (50 %)', expression: '0.5 * (T_sink + 273.15) / T_lift' },
-  {
-    label: '2-Stage Interval HP (50 % / 40 % Carnot)',
-    expression: '(0.5 * (T_sink + 273.15) / T_lift) if T_sink <= 100 else (0.4 * (T_sink + 273.15) / T_lift)',
-  },
-  { label: 'Linear in lift', expression: '6.5 - 0.045 * T_lift' },
-  {
-    label: 'VHTHP (HFC/HFO) fit',
-    expression: '1.9118 * (T_lift + 2*0.04419)**(-0.89094) * (T_sink + 273 + 0.04419)**0.67895',
-  },
-  {
-    label: 'R717 fit',
-    expression: '40.789 * (T_lift + 2*1.0305)**(-1.0489) * (T_sink + 273 + 1.0305)**0.29998',
-  },
+const EXAMPLES: Array<{ label: string; expression: string }> = [];
+
+const BUILTIN_FORMULAS: Array<{ label: string; expression: string; T_sink_min: number; T_sink_max: number }> = [
+  { label: 'Theoretical Carnot (50 %)', expression: '0.5 * (T_sink + 273.15) / T_lift', T_sink_min: 0, T_sink_max: 250 },
+  { label: 'Stirling Engine', expression: '1.28792 * (T_lift + 1.08206)**-0.37606 * (T_sink + 273.54103)**0.35992', T_sink_min: 144, T_sink_max: 212 },
+  { label: 'SHP (HFC/HFO)', expression: '1.9118 * (T_lift + 2*0.04419)**(-0.89094) * (T_sink + 273 + 0.04419)**0.67895', T_sink_min: 80, T_sink_max: 160 },
+  { label: 'SHP (R717)', expression: '40.789 * (T_lift + 2*1.0305)**(-1.0489) * (T_sink + 273 + 1.0305)**0.29998', T_sink_min: 70, T_sink_max: 85 },
 ];
 
 export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
@@ -215,15 +207,19 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
             <p className="cf-muted cf-funcs">{t('cop_modal.functions')} {check.functions.join(', ')}</p>
           ) : null}
 
-          <div className="cf-section-title">{t('cop_modal.examples_title')}</div>
+          <div className="cf-section-title">{t('cop_modal.built_in_title')}</div>
           <div className="cf-chips">
-            {EXAMPLES.map((ex) => (
+            {BUILTIN_FORMULAS.map((b) => (
               <button
-                key={ex.label}
+                key={b.label}
                 className="cf-chip cf-chip-example"
-                onClick={() => set('expression', ex.expression)}
+                onClick={() => {
+                  set('expression', b.expression);
+                  set('T_sink_min', b.T_sink_min);
+                  set('T_sink_max', b.T_sink_max);
+                }}
               >
-                {ex.label}
+                {b.label}
               </button>
             ))}
           </div>
