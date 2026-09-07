@@ -153,8 +153,6 @@ export default function ActionBar({
             />
           </label>
 
-          </label>
-
           {/* Mode-specific Primary Actions */}
           {uiMode === 'analyze' && (
             <>
