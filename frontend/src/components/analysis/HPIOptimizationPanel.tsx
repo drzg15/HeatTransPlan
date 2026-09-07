@@ -393,7 +393,7 @@ export default function HPIOptimizationPanel() {
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_sink')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
-                          Actual Sink (T*-{tMin/2}K) [°C]
+                          Actual Sink (T*+{tMin/2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
                               title="Actual Sink Temp"
@@ -418,7 +418,7 @@ export default function HPIOptimizationPanel() {
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_source')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
-                          Actual Source (T*+{tMin/2}K) [°C]
+                          Actual Source (T*-{tMin/2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
                               title="Actual Source Temp"
@@ -495,9 +495,9 @@ export default function HPIOptimizationPanel() {
                           </td>
                           <td>{((pt.Q_demand * (pt.COP - 1)) / pt.COP).toFixed(1)}</td>
                           <td>{pt.T_sink.toFixed(1)}</td>
-                          <td style={{ color: 'var(--text-muted)' }}>{(pt.T_sink - tMin/2).toFixed(1)}</td>
+                          <td style={{ color: 'var(--text-muted)' }}>{(pt.T_sink + tMin/2).toFixed(1)}</td>
                           <td>{pt.T_source.toFixed(1)}</td>
-                          <td style={{ color: 'var(--text-muted)' }}>{(pt.T_source + tMin/2).toFixed(1)}</td>
+                          <td style={{ color: 'var(--text-muted)' }}>{(pt.T_source - tMin/2).toFixed(1)}</td>
                           <td>{refName}</td>
                           <td>{pt.hp_level}</td>
                         </tr>
