@@ -829,9 +829,12 @@ export default function HPIOptimizationPanel() {
                           </li>
                         </ul>
                         <p>
-                          So a heat pump at 45 % of Carnot is simply <code>0.45 * carnot</code>.
-                          Temperatures are in °C; a correlation that needs Kelvin converts inline,
-                          as in <code>T_sink + 273.15</code>.
+                          So a heat pump at 50 % of Carnot is written as{' '}
+                          <code>0.5 * (T_sink + 273.15) / T_lift</code> (or <code>0.5 * carnot</code>).
+                        </p>
+                        <p>
+                          You can also write <strong>temperature interval conditions</strong>, for instance:{' '}
+                          <code>(0.5 * (T_sink + 273.15) / T_lift) if T_sink &lt;= 100 else (0.4 * (T_sink + 273.15) / T_lift)</code>.
                         </p>
                         <p>
                           The formula is checked as you type and previewed at one operating point.

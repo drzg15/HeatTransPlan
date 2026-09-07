@@ -111,6 +111,17 @@ def _check_pow(node: ast.BinOp) -> None:
         raise FormulaError(f"Exponents are limited to ±{MAX_EXPONENT}.")
 
 
+class _IfExpToWhere(ast.NodeTransformer):
+    """Transform `A if C else B` to `where(C, A, B)` for elementwise array evaluation."""
+    def visit_IfExp(self, node: ast.IfExp) -> ast.AST:
+        self.generic_visit(node)
+        return ast.Call(
+            func=ast.Name(id="where", ctx=ast.Load()),
+            args=[node.test, node.body, node.orelse],
+            keywords=[],
+        )
+
+
 def compile_formula(expression: str, variables: Iterable[str] = None):
     """Validate `expression` and return a compiled code object.
 
@@ -125,6 +136,8 @@ def compile_formula(expression: str, variables: Iterable[str] = None):
 
     try:
         tree = ast.parse(expression, mode="eval")
+        tree = _IfExpToWhere().visit(tree)
+        ast.fix_missing_locations(tree)
     except SyntaxError as exc:
         raise FormulaError(f"Syntax error: {exc.msg}.") from exc
 

@@ -52,3 +52,19 @@ def test_composite_profile_shifting(tmp_path):
     assert max(sink_profile["T"]) == 85.0
     assert min(sink_profile["T"]) == 25.0
 
+
+def test_cop_formula_conditional():
+    from app.utils.cop_formula import cop_from_formula
+
+    # Test ternary if/else expression: (0.5 * (T_sink + 273.15) / T_lift) if T_sink <= 100 else (0.4 * (T_sink + 273.15) / T_lift)
+    expr = "(0.5 * (T_sink + 273.15) / T_lift) if T_sink <= 100 else (0.4 * (T_sink + 273.15) / T_lift)"
+    
+    # At T_sink = 90 (<= 100), T_source = 40 (T_lift = 50): 0.5 * 363.15 / 50 = 3.6315
+    res1 = cop_from_formula(expr, [40.0], [90.0])
+    assert abs(res1[0] - 3.6315) < 1e-4
+
+    # At T_sink = 120 (> 100), T_source = 40 (T_lift = 80): 0.4 * 393.15 / 80 = 1.96575
+    res2 = cop_from_formula(expr, [40.0], [120.0])
+    assert abs(res2[0] - 1.96575) < 1e-4
+
+
