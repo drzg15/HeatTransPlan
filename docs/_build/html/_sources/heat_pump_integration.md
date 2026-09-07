@@ -49,24 +49,32 @@ def in_operating_window(hp_type, t_sink, dt):
 
 ---
 
-## COP Correlations
+## Regressions of Prototypical Heat Pumps
 
-Each technology has a **regression fit** — a formula that takes the sink temperature $T_{sink}$ (°C) and the temperature lift $\Delta T = T_{sink} - T_{source}$ (°C) and returns the COP.
+The COP models for classic heat pump integration are **empirical regressions of prototypical heat pump technologies** (fitted from manufacturer performance datasets and literature models), rather than theoretical thermodynamic correlations.
+
+Each prototypical technology model represents a specific heat pump architecture, refrigerant class, and temperature range:
+
+- **Prototypical Stirling**: Stirling cycle heat pump baseline for high-temperature lift process applications ($T_{sink}$: 144°C–212°C, $\Delta T$: 25–190 K).
+- **VHTHP (HFC/HFO)**: **Very High Temperature Heat Pump** utilizing low-GWP fluorinated refrigerants (HFC/HFO blends) for high-temperature process steam and hot water generation ($T_{sink}$: 80°C–160°C, $\Delta T$: 25–95 K).
+- **SHP and HTHPs (HFC/HFO)**: **Standard Heat Pumps (SHP) & High Temperature Heat Pumps (HTHP)** using synthetic HFC/HFO refrigerants ($T_{sink}$: 25°C–100°C, $\Delta T$: 10–78 K).
+- **SHP and HTHPs (R717)**: **Standard & High Temperature Heat Pumps** using natural Ammonia (R717) refrigerant ($T_{sink}$: 70°C–85°C, $\Delta T$: 30–75 K).
+- **Theoretical Carnot (50% Carnot / 0.5 Carnot)**: Theoretical Carnot baseline operating at 50% exergetic second-law efficiency factor ($\eta_{Carnot} = 0.5$).
 
 > [!IMPORTANT]
 > **Physical Lift and Shifted Temperatures**: The source and sink temperatures taken from the Grand Composite Curve are shifted temperatures ($T_{hot} - \Delta T_{min}/2$ and $T_{cold} + \Delta T_{min}/2$). Because of this opposite shift, the difference between them ($T_{sink} - T_{source}$) exactly equals the true physical temperature lift the heat pump must overcome ($T_{cold} - T_{hot} + \Delta T_{min}$). Therefore, no additional $\Delta T_{min}$ penalty is needed in the COP calculation; it is mathematically built into the curve.
 > 
 > **COP Limit**: To prevent mathematically unrealistic values when the temperature lift approaches zero, the final calculated COP is strictly capped at a maximum of **15.0**.
 
-These are empirical correlations, typically of the form:
+These regression formulas take the form:
 
 $$
 COP = a \cdot (\Delta T + 2c)^b \cdot (T_{sink} + 273 + c)^d
 $$
 
-where $a, b, c, d$ are fitted coefficients specific to each technology. The temperature is converted to Kelvin ($+273$) for the sink term.
+where $a, b, c, d$ are fitted regression coefficients specific to each prototypical technology. The temperature is converted to Kelvin ($+273$) for the sink term.
 
-For example, the **VHTHP (HFC/HFO)** correlation is:
+For example, the **VHTHP (HFC/HFO)** regression model is:
 
 $$
 COP_{VHTHP} = 1.9118 \cdot (\Delta T + 2 \times 0.04419)^{-0.89094} \cdot (T_{sink} + 273 + 0.04419)^{0.67895}
@@ -74,7 +82,7 @@ $$
 
 ### Carnot Fallback
 
-When no named technology can operate at a given point, the system falls back to a **generic Carnot COP** at 50% efficiency:
+When no named technology can operate at a given point, the system falls back to a **generic Carnot COP** at 50% efficiency factor ($\times 0.5$):
 
 $$
 COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5

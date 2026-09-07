@@ -375,6 +375,7 @@
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#refrigerant-data-schema">Refrigerant Data Schema</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refrigerant-operating-limits">Refrigerant Operating Limits</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temperature-approach-corrections">Temperature Approach Corrections</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-cop-formula-evaluation">Custom COP Formula Evaluation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-mesh-grid-search-algorithm">2D Mesh Grid Search Algorithm</a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -397,7 +398,7 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="heat-pump-optimization-predictive-ml-model-grid-search">
 <h1>Heat Pump Optimization — Predictive ML Model &amp; Grid Search<a class="headerlink" href="#heat-pump-optimization-predictive-ml-model-grid-search" title="Link to this heading">#</a></h1>
-<p>While classic Heat Pump Integration uses empirical manufacturer correlations for a few standard technologies, <strong>Heat Pump Optimization</strong> evaluates a wide spectrum of <strong>refrigerants and multi-stage heat pump designs</strong> using a <strong>trained Machine Learning model</strong> or custom COP mathematical expressions.</p>
+<p>While classic Heat Pump Integration uses empirical regressions of prototypical heat pumps, <strong>Heat Pump Optimization</strong> evaluates a wide spectrum of <strong>refrigerants and multi-stage heat pump designs</strong> using a <strong>trained Machine Learning model</strong> or custom COP mathematical expressions.</p>
 <p>It evaluates every candidate across a 2D mesh of <span class="math notranslate nohighlight">\((T_{source}, T_{sink})\)</span> operating points to discover the exact thermal matching conditions.</p>
 <hr class="docutils" />
 <section id="predictive-ml-model-refrigerant-alternatives">
@@ -443,6 +444,535 @@
 </tbody>
 </table>
 </div>
+</section>
+</section>
+<section id="refrigerant-operating-limits">
+<h2>Refrigerant Operating Limits<a class="headerlink" href="#refrigerant-operating-limits" title="Link to this heading">#</a></h2>
+<p>The following table lists the operating temperature ranges and COP bounds for all refrigerant alternatives used by the optimization engine.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Stage</p></th>
+<th class="head"><p>Medium Sink</p></th>
+<th class="head"><p>Refrigerant Type</p></th>
+<th class="head"><p>HP Level</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(T_{src\,min}\)</span> (°C)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(T_{src\,max}\)</span> (°C)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(T_{sink\,min}\)</span> (°C)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(T_{sink\,max}\)</span> (°C)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(COP_{min}\)</span></p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(COP_{max}\)</span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Butane_1</p></td>
+<td><p>1</p></td>
+<td><p>Steam</p></td>
+<td><p>Natural</p></td>
+<td><p>1</p></td>
+<td><p>40.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>135.0</p></td>
+<td><p>2.615</p></td>
+<td><p>4.806</p></td>
+</tr>
+<tr class="row-odd"><td><p>Butane_1</p></td>
+<td><p>1</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>1</p></td>
+<td><p>25.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>140.0</p></td>
+<td><p>0.909</p></td>
+<td><p>8.439</p></td>
+</tr>
+<tr class="row-even"><td><p>Butane_2</p></td>
+<td><p>2</p></td>
+<td><p>Steam</p></td>
+<td><p>Natural</p></td>
+<td><p>2</p></td>
+<td><p>40.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>135.0</p></td>
+<td><p>2.664</p></td>
+<td><p>4.938</p></td>
+</tr>
+<tr class="row-odd"><td><p>Butane_2</p></td>
+<td><p>2</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>2</p></td>
+<td><p>25.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>140.0</p></td>
+<td><p>0.909</p></td>
+<td><p>8.915</p></td>
+</tr>
+<tr class="row-even"><td><p>Butane_3</p></td>
+<td><p>3</p></td>
+<td><p>Steam</p></td>
+<td><p>Natural</p></td>
+<td><p>3</p></td>
+<td><p>40.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>135.0</p></td>
+<td><p>2.678</p></td>
+<td><p>4.975</p></td>
+</tr>
+<tr class="row-odd"><td><p>Butane_3</p></td>
+<td><p>3</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>3</p></td>
+<td><p>25.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>140.0</p></td>
+<td><p>0.909</p></td>
+<td><p>8.439</p></td>
+</tr>
+<tr class="row-even"><td><p>Isobutane_1</p></td>
+<td><p>1</p></td>
+<td><p>Steam</p></td>
+<td><p>Natural</p></td>
+<td><p>1</p></td>
+<td><p>40.0</p></td>
+<td><p>75.0</p></td>
+<td><p>105.0</p></td>
+<td><p>115.0</p></td>
+<td><p>2.672</p></td>
+<td><p>4.203</p></td>
+</tr>
+<tr class="row-odd"><td><p>Isobutane_1</p></td>
+<td><p>1</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>1</p></td>
+<td><p>20.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>120.0</p></td>
+<td><p>0.986</p></td>
+<td><p>6.775</p></td>
+</tr>
+<tr class="row-even"><td><p>Isobutane_2</p></td>
+<td><p>2</p></td>
+<td><p>Steam</p></td>
+<td><p>Natural</p></td>
+<td><p>2</p></td>
+<td><p>40.0</p></td>
+<td><p>75.0</p></td>
+<td><p>105.0</p></td>
+<td><p>115.0</p></td>
+<td><p>2.759</p></td>
+<td><p>4.203</p></td>
+</tr>
+<tr class="row-odd"><td><p>Isobutane_2</p></td>
+<td><p>2</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>2</p></td>
+<td><p>20.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>120.0</p></td>
+<td><p>0.986</p></td>
+<td><p>6.775</p></td>
+</tr>
+<tr class="row-even"><td><p>Isobutane_3</p></td>
+<td><p>3</p></td>
+<td><p>Steam</p></td>
+<td><p>Natural</p></td>
+<td><p>3</p></td>
+<td><p>40.0</p></td>
+<td><p>75.0</p></td>
+<td><p>105.0</p></td>
+<td><p>115.0</p></td>
+<td><p>2.789</p></td>
+<td><p>4.203</p></td>
+</tr>
+<tr class="row-odd"><td><p>Isobutane_3</p></td>
+<td><p>3</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>3</p></td>
+<td><p>20.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>120.0</p></td>
+<td><p>0.986</p></td>
+<td><p>6.775</p></td>
+</tr>
+<tr class="row-even"><td><p>Isopentane_1</p></td>
+<td><p>1</p></td>
+<td><p>Steam</p></td>
+<td><p>Natural</p></td>
+<td><p>1</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>165.0</p></td>
+<td><p>2.776</p></td>
+<td><p>5.027</p></td>
+</tr>
+<tr class="row-odd"><td><p>Isopentane_1</p></td>
+<td><p>1</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>1</p></td>
+<td><p>40.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>160.0</p></td>
+<td><p>0.799</p></td>
+<td><p>8.492</p></td>
+</tr>
+<tr class="row-even"><td><p>Isopentane_2</p></td>
+<td><p>2</p></td>
+<td><p>Steam</p></td>
+<td><p>Natural</p></td>
+<td><p>2</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>165.0</p></td>
+<td><p>2.831</p></td>
+<td><p>5.179</p></td>
+</tr>
+<tr class="row-odd"><td><p>Isopentane_2</p></td>
+<td><p>2</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>2</p></td>
+<td><p>40.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>160.0</p></td>
+<td><p>0.799</p></td>
+<td><p>9.255</p></td>
+</tr>
+<tr class="row-even"><td><p>Isopentane_3</p></td>
+<td><p>3</p></td>
+<td><p>Steam</p></td>
+<td><p>Natural</p></td>
+<td><p>3</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>165.0</p></td>
+<td><p>2.846</p></td>
+<td><p>5.222</p></td>
+</tr>
+<tr class="row-odd"><td><p>Isopentane_3</p></td>
+<td><p>3</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>3</p></td>
+<td><p>40.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>160.0</p></td>
+<td><p>0.799</p></td>
+<td><p>8.492</p></td>
+</tr>
+<tr class="row-even"><td><p>Propane_1</p></td>
+<td><p>1</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>1</p></td>
+<td><p>20.0</p></td>
+<td><p>40.0</p></td>
+<td><p>80.0</p></td>
+<td><p>80.0</p></td>
+<td><p>3.335</p></td>
+<td><p>3.660</p></td>
+</tr>
+<tr class="row-odd"><td><p>Propane_2</p></td>
+<td><p>2</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>2</p></td>
+<td><p>20.0</p></td>
+<td><p>40.0</p></td>
+<td><p>80.0</p></td>
+<td><p>80.0</p></td>
+<td><p>3.372</p></td>
+<td><p>3.660</p></td>
+</tr>
+<tr class="row-even"><td><p>Propane_3</p></td>
+<td><p>3</p></td>
+<td><p>Water</p></td>
+<td><p>Natural</p></td>
+<td><p>3</p></td>
+<td><p>20.0</p></td>
+<td><p>40.0</p></td>
+<td><p>80.0</p></td>
+<td><p>80.0</p></td>
+<td><p>3.335</p></td>
+<td><p>3.660</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1224yd_1</p></td>
+<td><p>1</p></td>
+<td><p>Steam</p></td>
+<td><p>Synthetic</p></td>
+<td><p>1</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>145.0</p></td>
+<td><p>2.762</p></td>
+<td><p>4.865</p></td>
+</tr>
+<tr class="row-even"><td><p>R1224yd_1</p></td>
+<td><p>1</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>1</p></td>
+<td><p>35.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>150.0</p></td>
+<td><p>0.889</p></td>
+<td><p>8.731</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1224yd_2</p></td>
+<td><p>2</p></td>
+<td><p>Steam</p></td>
+<td><p>Synthetic</p></td>
+<td><p>2</p></td>
+<td><p>55.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>145.0</p></td>
+<td><p>3.002</p></td>
+<td><p>4.962</p></td>
+</tr>
+<tr class="row-even"><td><p>R1224yd_2</p></td>
+<td><p>2</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>2</p></td>
+<td><p>35.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>150.0</p></td>
+<td><p>0.889</p></td>
+<td><p>9.584</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1224yd_3</p></td>
+<td><p>3</p></td>
+<td><p>Steam</p></td>
+<td><p>Synthetic</p></td>
+<td><p>3</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>145.0</p></td>
+<td><p>2.884</p></td>
+<td><p>4.995</p></td>
+</tr>
+<tr class="row-even"><td><p>R1224yd_3</p></td>
+<td><p>3</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>3</p></td>
+<td><p>35.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>150.0</p></td>
+<td><p>0.889</p></td>
+<td><p>8.731</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1233zd_1</p></td>
+<td><p>1</p></td>
+<td><p>Steam</p></td>
+<td><p>Synthetic</p></td>
+<td><p>1</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>145.0</p></td>
+<td><p>2.820</p></td>
+<td><p>4.906</p></td>
+</tr>
+<tr class="row-even"><td><p>R1233zd_1</p></td>
+<td><p>1</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>1</p></td>
+<td><p>40.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>150.0</p></td>
+<td><p>0.892</p></td>
+<td><p>8.769</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1233zd_2</p></td>
+<td><p>2</p></td>
+<td><p>Steam</p></td>
+<td><p>Synthetic</p></td>
+<td><p>2</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>145.0</p></td>
+<td><p>2.915</p></td>
+<td><p>5.061</p></td>
+</tr>
+<tr class="row-even"><td><p>R1233zd_2</p></td>
+<td><p>2</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>2</p></td>
+<td><p>40.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>150.0</p></td>
+<td><p>0.892</p></td>
+<td><p>9.594</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1233zd_3</p></td>
+<td><p>3</p></td>
+<td><p>Steam</p></td>
+<td><p>Synthetic</p></td>
+<td><p>3</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>145.0</p></td>
+<td><p>2.948</p></td>
+<td><p>5.102</p></td>
+</tr>
+<tr class="row-even"><td><p>R1233zd_3</p></td>
+<td><p>3</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>3</p></td>
+<td><p>40.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>150.0</p></td>
+<td><p>0.892</p></td>
+<td><p>8.769</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1234ZEE_1</p></td>
+<td><p>1</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>1</p></td>
+<td><p>20.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>100.0</p></td>
+<td><p>1.176</p></td>
+<td><p>5.864</p></td>
+</tr>
+<tr class="row-even"><td><p>R1234ZEE_2</p></td>
+<td><p>2</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>2</p></td>
+<td><p>20.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>100.0</p></td>
+<td><p>1.176</p></td>
+<td><p>5.864</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1234ZEE_3</p></td>
+<td><p>3</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>3</p></td>
+<td><p>20.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>100.0</p></td>
+<td><p>1.176</p></td>
+<td><p>5.864</p></td>
+</tr>
+<tr class="row-even"><td><p>R1336mzzZ_1</p></td>
+<td><p>1</p></td>
+<td><p>Steam</p></td>
+<td><p>Synthetic</p></td>
+<td><p>1</p></td>
+<td><p>60.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>155.0</p></td>
+<td><p>3.011</p></td>
+<td><p>4.849</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1336mzzZ_1</p></td>
+<td><p>1</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>1</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>160.0</p></td>
+<td><p>0.879</p></td>
+<td><p>8.876</p></td>
+</tr>
+<tr class="row-even"><td><p>R1336mzzZ_2</p></td>
+<td><p>2</p></td>
+<td><p>Steam</p></td>
+<td><p>Synthetic</p></td>
+<td><p>2</p></td>
+<td><p>60.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>155.0</p></td>
+<td><p>3.077</p></td>
+<td><p>5.010</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1336mzzZ_2</p></td>
+<td><p>2</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>2</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>160.0</p></td>
+<td><p>0.879</p></td>
+<td><p>9.574</p></td>
+</tr>
+<tr class="row-even"><td><p>R1336mzzZ_3</p></td>
+<td><p>3</p></td>
+<td><p>Steam</p></td>
+<td><p>Synthetic</p></td>
+<td><p>3</p></td>
+<td><p>60.0</p></td>
+<td><p>85.0</p></td>
+<td><p>105.0</p></td>
+<td><p>155.0</p></td>
+<td><p>3.096</p></td>
+<td><p>5.057</p></td>
+</tr>
+<tr class="row-odd"><td><p>R1336mzzZ_3</p></td>
+<td><p>3</p></td>
+<td><p>Water</p></td>
+<td><p>Synthetic</p></td>
+<td><p>3</p></td>
+<td><p>50.0</p></td>
+<td><p>85.0</p></td>
+<td><p>80.0</p></td>
+<td><p>160.0</p></td>
+<td><p>0.879</p></td>
+<td><p>8.876</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><em>All temperatures are in degrees °C. COP bounds are dimensionless.</em></p>
 <details>
 <summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 36–90)</summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_load_model_and_data</span><span class="p">():</span>
@@ -475,7 +1005,6 @@
 </pre></div>
 </div>
 </details>
-</section>
 </section>
 <hr class="docutils" />
 <section id="temperature-approach-corrections">
@@ -671,6 +1200,7 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#refrigerant-data-schema">Refrigerant Data Schema</a></li>
 </ul>
 </li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refrigerant-operating-limits">Refrigerant Operating Limits</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temperature-approach-corrections">Temperature Approach Corrections</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-cop-formula-evaluation">Custom COP Formula Evaluation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-mesh-grid-search-algorithm">2D Mesh Grid Search Algorithm</a><ul class="pst-show_toc_level nav section-nav flex-column">
