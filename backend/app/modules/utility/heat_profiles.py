@@ -110,17 +110,29 @@ def _uncascaded_profiles(pinch: Any) -> Tuple[Curve, Curve]:
     return _profiles_from_interval_loads(T, surplus, deficit)
 
 
-def _composite_curve(streams_data: Sequence[Dict[str, Any]], stream_type: str) -> Tuple[List[float], List[float]]:
+def _composite_curve(
+    streams_data: Sequence[Dict[str, Any]],
+    stream_type: str,
+    tmin: float = 0.0,
+) -> Tuple[List[float], List[float]]:
     """
-    Build one composite curve from the actual stream temperatures.
+    Build one composite curve using shifted temperatures.
 
     Returns (T ascending, H cumulative from the cold end).
     """
     segments: List[Tuple[float, float, float]] = []
+    dt_shift = float(tmin) / 2.0
     for s in streams_data:
         if s.get("type") != stream_type:
             continue
-        ts, tt = float(s["ts"]), float(s["tt"])
+        if "ss" in s and "st" in s and s["ss"] is not None and s["st"] is not None:
+            ts, tt = float(s["ss"]), float(s["st"])
+        else:
+            ts_raw, tt_raw = float(s["ts"]), float(s["tt"])
+            if stream_type == "HOT":
+                ts, tt = ts_raw - dt_shift, tt_raw - dt_shift
+            else:
+                ts, tt = ts_raw + dt_shift, tt_raw + dt_shift
         lo, hi = min(ts, tt), max(ts, tt)
         if hi > lo:
             segments.append((lo, hi, float(s["cp"])))
@@ -142,11 +154,15 @@ def _composite_curve(streams_data: Sequence[Dict[str, Any]], stream_type: str) -
 def _composite_profiles(pinch: Any) -> Tuple[Curve, Curve]:
     """
     Hot and cold composite curves as source/sink profiles — no recovery at all.
+
+    All profiles use shifted temperatures (shifted down by Tmin/2 for HOT streams
+    and shifted up by Tmin/2 for COLD streams).
     """
     streams_data = pinch.streams.streamsData
+    tmin = float(getattr(pinch, "tmin", 0.0))
 
-    hot_T, hot_H = _composite_curve(streams_data, "HOT")
-    cold_T, cold_H = _composite_curve(streams_data, "COLD")
+    hot_T, hot_H = _composite_curve(streams_data, "HOT", tmin=tmin)
+    cold_T, cold_H = _composite_curve(streams_data, "COLD", tmin=tmin)
 
     if not hot_T or not cold_T:
         raise ValueError(
