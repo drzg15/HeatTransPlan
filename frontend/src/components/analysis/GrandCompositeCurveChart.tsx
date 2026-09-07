@@ -42,13 +42,15 @@ export default function GrandCompositeCurveChart() {
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     xaxis: {
-      title: 'Net ΔH (kW)',
+      title: { text: 'Net Enthalpy flow in kW' },
+      automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     yaxis: {
-      title: 'Shifted Temperature (°C)',
+      title: { text: 'Shifted Temperature in °C' },
+      automargin: true,
       rangemode: 'tozero',
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
@@ -57,7 +59,7 @@ export default function GrandCompositeCurveChart() {
     height: 400,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { l: 60, r: 20, t: 40, b: 50 },
+    margin: { l: 80, r: 30, t: 40, b: 80 },
     hovermode: 'closest' as const,
     shapes: [
       {

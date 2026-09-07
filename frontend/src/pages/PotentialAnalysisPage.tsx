@@ -323,10 +323,15 @@ export default function PotentialAnalysisPage() {
           profile_mode: profileMode,
         });
         setHPIResult(result);
-        // Auto-select first available HP
-        const firstAvail = result.heat_pumps.find((hp: any) => hp.available);
-        if (firstAvail && selectedHPTypes.length === 0) {
-          setSelectedHPTypes([firstAvail.name]);
+        // Auto-select first available HP if current selection is invalid or empty
+        const currentSelection = useAnalysisStore.getState().selectedHPTypes;
+        const availableNames = result.heat_pumps.filter((hp: any) => hp.available).map((hp: any) => hp.name);
+        const validSelection = currentSelection.filter(name => availableNames.includes(name));
+        
+        if (validSelection.length === 0 && availableNames.length > 0) {
+          setSelectedHPTypes([availableNames[0]]);
+        } else if (validSelection.length !== currentSelection.length) {
+          setSelectedHPTypes(validSelection);
         }
       } catch (err: unknown) {
         const msg = err instanceof Error ? err.message : 'HPI analysis failed';
