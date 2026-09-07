@@ -384,7 +384,7 @@ export default function HPIOptimizationPanel() {
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
                               title="Actual Sink Temp"
-                              description="The physical condensation temperature of the heat pump. This is the real temperature used to calculate the COP."
+                              description="The physical condensation temperature of the heat pump. (Note: In some specific pocket configurations, this physical temperature may align with the integration temperature)."
                               inline={true}
                             />
                           </span>
@@ -397,7 +397,7 @@ export default function HPIOptimizationPanel() {
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
                               title="Shifted Sink Temp"
-                              description="The shifted temperature on the Grand Composite Curve (Actual + ΔTmin/2). Represents the pinch pocket temperature."
+                              description="The shifted temperature on the Grand Composite Curve (Actual + ΔTmin/2). This is the temperature used for the COP calculation."
                               inline={true}
                             />
                           </span>
@@ -409,7 +409,7 @@ export default function HPIOptimizationPanel() {
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
                               title="Actual Source Temp"
-                              description="The physical evaporation temperature of the heat pump. This is the real temperature used to calculate the COP."
+                              description="The physical evaporation temperature of the heat pump. (Note: In some specific pocket configurations, this physical temperature may align with the integration temperature)."
                               inline={true}
                             />
                           </span>
@@ -422,7 +422,7 @@ export default function HPIOptimizationPanel() {
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
                               title="Shifted Source Temp"
-                              description="The shifted temperature on the Grand Composite Curve (Actual - ΔTmin/2). Represents the pinch pocket temperature."
+                              description="The shifted temperature on the Grand Composite Curve (Actual - ΔTmin/2). This is the temperature used for the COP calculation."
                               inline={true}
                             />
                           </span>
