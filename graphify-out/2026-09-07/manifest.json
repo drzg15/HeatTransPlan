@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "backend/app/utils/cop_formula.py": {
-    "mtime": 1788533185.3272233,
-    "seen": 1788763628.601065,
-    "ast_hash": "de91cd1bb946d5853cb4c1858f365bf7",
+    "mtime": 1788767843.7197452,
+    "seen": 1788767904.299961,
+    "ast_hash": "c1c8b402484994a953762d321019b88c",
     "semantic_hash": ""
   },
   "backend/app/utils/geo_utils.py": {
@@ -318,9 +318,9 @@
     "semantic_hash": ""
   },
   "backend/tests/test_analysis.py": {
-    "mtime": 1788767372.1393673,
-    "seen": 1788767382.14043,
-    "ast_hash": "ebe6b166765ec7643281dde00d4fee4a",
+    "mtime": 1788767856.6917803,
+    "seen": 1788767904.300159,
+    "ast_hash": "39bc13c82a7739d40c061c99b6ae4df7",
     "semantic_hash": ""
   },
   "backend/tests/test_api.py": {
@@ -504,15 +504,15 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/CompositeCurvesChart.tsx": {
-    "mtime": 1788767590.83224,
-    "seen": 1788767642.617285,
-    "ast_hash": "8ebcaa3696a0bdb37084300f7dc085dd",
+    "mtime": 1788767893.0175352,
+    "seen": 1788767904.300781,
+    "ast_hash": "d6214b7dfcb1df29b7d4f89c67482b57",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/CopFormulaModal.tsx": {
-    "mtime": 1788767604.7191582,
-    "seen": 1788767642.617286,
-    "ast_hash": "51b4c654b2ca43a05b7c191a8118436f",
+    "mtime": 1788767874.0940568,
+    "seen": 1788767904.300781,
+    "ast_hash": "632acb5ff9710e0ddb25f4f6d51d9e21",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/EnergyDemands.tsx": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIOptimizationPanel.tsx": {
-    "mtime": 1788767609.689048,
-    "seen": 1788767642.61742,
-    "ast_hash": "255c6455190e7498fe7f3d146758e8a1",
+    "mtime": 1788767881.6387324,
+    "seen": 1788767904.300861,
+    "ast_hash": "e5437a5cbc5ea68ff6362849fe16bd0f",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HeatPumpTable.tsx": {

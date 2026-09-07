@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "backend/app/modules/heat_pump_integration/heat_pump_integration.py": {
-    "mtime": 1788766229.0108557,
-    "seen": 1788766251.785068,
-    "ast_hash": "43220de7446638a94c75bc10075da3ee",
+    "mtime": 1788784733.58379,
+    "seen": 1788785775.1366808,
+    "ast_hash": "94ae59b144d179fe810faeb306d521b1",
     "semantic_hash": ""
   },
   "backend/app/modules/heat_pump_integration/hpi_plot.py": {
@@ -354,8 +354,8 @@
     "semantic_hash": ""
   },
   "docs/_build/html/_static/copybutton.js": {
-    "mtime": 1788765283.8810236,
-    "seen": 1788765286.7652302,
+    "mtime": 1788776724.0703921,
+    "seen": 1788785775.1375291,
     "ast_hash": "d30804f1ff44631ea5eae8761735dc3e",
     "semantic_hash": ""
   },
@@ -372,8 +372,8 @@
     "semantic_hash": ""
   },
   "docs/_build/html/_static/documentation_options.js": {
-    "mtime": 1788765283.8211772,
-    "seen": 1788765286.765269,
+    "mtime": 1788776724.034865,
+    "seen": 1788785775.137571,
     "ast_hash": "0da1482c3d6bf58d06562a746dacb484",
     "semantic_hash": ""
   },
@@ -384,8 +384,8 @@
     "semantic_hash": ""
   },
   "docs/_build/html/_static/language_data.js": {
-    "mtime": 1788765283.8186984,
-    "seen": 1788765286.765289,
+    "mtime": 1788776724.0325334,
+    "seen": 1788785775.137592,
     "ast_hash": "cb1a43fcbbfdeb8ae54224cbf61f3ba1",
     "semantic_hash": ""
   },
@@ -432,9 +432,9 @@
     "semantic_hash": ""
   },
   "docs/_build/html/searchindex.js": {
-    "mtime": 1788765284.0214777,
-    "seen": 1788765286.76543,
-    "ast_hash": "7975698d44714179f43926b49ef1961f",
+    "mtime": 1788776724.15447,
+    "seen": 1788785775.137741,
+    "ast_hash": "f810a9cfc01fcaf2a5f6bcaccb104019",
     "semantic_hash": ""
   },
   "docs/conf.py": {
@@ -510,9 +510,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/CopFormulaModal.tsx": {
-    "mtime": 1788767874.0940568,
-    "seen": 1788767904.300781,
-    "ast_hash": "632acb5ff9710e0ddb25f4f6d51d9e21",
+    "mtime": 1788784510.6084158,
+    "seen": 1788785775.137963,
+    "ast_hash": "060c9b1b742131c890f02ade5778934b",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/EnergyDemands.tsx": {
@@ -534,9 +534,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIOptimizationChart.tsx": {
-    "mtime": 1788766905.2960064,
-    "seen": 1788767364.27777,
-    "ast_hash": "9844edd5338d2bdd7e96bcef7a113e57",
+    "mtime": 1788783434.971686,
+    "seen": 1788785775.138022,
+    "ast_hash": "2cf70cdb4db49b9dabc52c6fb8337e01",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIOptimizationPanel.tsx": {
@@ -594,15 +594,15 @@
     "semantic_hash": ""
   },
   "frontend/src/components/io/ActionBar.tsx": {
-    "mtime": 1788535640.3590403,
-    "seen": 1788763628.601087,
-    "ast_hash": "e1117c94f34476ddabfd62bbbd3517cb",
+    "mtime": 1788784425.368386,
+    "seen": 1788785775.138203,
+    "ast_hash": "2e343946356e79fb383716a10ddbd2de",
     "semantic_hash": ""
   },
   "frontend/src/components/layout/AppShell.tsx": {
-    "mtime": 1788535640.3593361,
-    "seen": 1788763628.601088,
-    "ast_hash": "0b4c6c2f94f2874d315accf206847bbc",
+    "mtime": 1788785163.165061,
+    "seen": 1788785775.138203,
+    "ast_hash": "1804be2d1d085466cb7b6a32448fd6a3",
     "semantic_hash": ""
   },
   "frontend/src/components/layout/LanguagePicker.tsx": {
@@ -642,9 +642,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/ui/ChartHelpButton.tsx": {
-    "mtime": 1788533192.4743328,
-    "seen": 1788763628.60109,
-    "ast_hash": "64afe9373cff4ccc22882940e5a2910e",
+    "mtime": 1788783334.7362707,
+    "seen": 1788785775.138329,
+    "ast_hash": "803e9e22d53f864c5000ceb8a61ef3d0",
     "semantic_hash": ""
   },
   "frontend/src/components/ui/ErrorBoundary.tsx": {
@@ -852,15 +852,15 @@
     "semantic_hash": ""
   },
   "docs/_build/html/_sources/heat_pump_integration.md": {
-    "mtime": 1788765275.0449474,
-    "seen": 1788765286.766614,
-    "ast_hash": "f18fa18ea1cbd954aadd613778df40a1",
+    "mtime": 1788767626.2377462,
+    "seen": 1788785775.138933,
+    "ast_hash": "2fab66503a45fa7c6d44b9e9535b74ce",
     "semantic_hash": ""
   },
   "docs/_build/html/_sources/heat_pump_optimization.md": {
-    "mtime": 1788537129.2476866,
-    "seen": 1788763628.601105,
-    "ast_hash": "5e1c56675fa73a72aacaa1fc29056624",
+    "mtime": 1788772723.1498675,
+    "seen": 1788785775.138934,
+    "ast_hash": "8be2c4bb32a50fe6d64a2b4aedd296b4",
     "semantic_hash": ""
   },
   "docs/_build/html/_sources/index.md": {
@@ -900,27 +900,27 @@
     "semantic_hash": ""
   },
   "docs/_build/html/genindex.html": {
-    "mtime": 1788765284.011688,
-    "seen": 1788765286.766751,
-    "ast_hash": "5e9a0fc618ed6087e3c2962ee98128a3",
+    "mtime": 1788776724.1444933,
+    "seen": 1788785775.139064,
+    "ast_hash": "90c515c7bc4fbcc7bc2dd68354ca9c60",
     "semantic_hash": ""
   },
   "docs/_build/html/heat_pump_integration.html": {
-    "mtime": 1788765283.9907954,
-    "seen": 1788765286.766751,
-    "ast_hash": "d61fdaccea880aef788e9d8992d01a14",
+    "mtime": 1788776040.916515,
+    "seen": 1788785775.139065,
+    "ast_hash": "01c5b59684673739b67784b82bc5e87f",
     "semantic_hash": ""
   },
   "docs/_build/html/heat_pump_optimization.html": {
-    "mtime": 1788764716.1677241,
-    "seen": 1788764818.7101939,
-    "ast_hash": "0d9bce37bd908050b8c2cfb75b73289c",
+    "mtime": 1788776040.9435103,
+    "seen": 1788785775.1390662,
+    "ast_hash": "9960c896289eb106368f992dac179303",
     "semantic_hash": ""
   },
   "docs/_build/html/index.html": {
-    "mtime": 1788765283.9995844,
-    "seen": 1788765286.766769,
-    "ast_hash": "3f1d30e3aab5119fbec2b8f174ac7190",
+    "mtime": 1788776040.950905,
+    "seen": 1788785775.139067,
+    "ast_hash": "16e22c36083bda469a1e726bc6d2f497",
     "semantic_hash": ""
   },
   "docs/_build/html/pinch_analysis.html": {
@@ -930,9 +930,9 @@
     "semantic_hash": ""
   },
   "docs/_build/html/search.html": {
-    "mtime": 1788765284.0205786,
-    "seen": 1788765286.766788,
-    "ast_hash": "21b88d8fe2f9e198ef43b41a69b49b52",
+    "mtime": 1788776724.1534193,
+    "seen": 1788785775.1390889,
+    "ast_hash": "83c4b5469c0ae68c87eb328c4770aa23",
     "semantic_hash": ""
   },
   "docs/heat_pump_integration.md": {
@@ -942,9 +942,9 @@
     "semantic_hash": ""
   },
   "docs/heat_pump_optimization.md": {
-    "mtime": 1788767629.958714,
-    "seen": 1788767642.618761,
-    "ast_hash": "fa33e3d402a12673a5fb7d6978e83da1",
+    "mtime": 1788772723.1498675,
+    "seen": 1788785775.139106,
+    "ast_hash": "8be2c4bb32a50fe6d64a2b4aedd296b4",
     "semantic_hash": ""
   },
   "docs/index.md": {
@@ -1059,6 +1059,30 @@
     "mtime": 1788533192.4620414,
     "seen": 1788763628.601119,
     "ast_hash": "f0402b67b6ce880f65666bb49e841696",
+    "semantic_hash": ""
+  },
+  ".github/workflows/docs.yml": {
+    "mtime": 1788785184.715048,
+    "seen": 1788785775.138885,
+    "ast_hash": "16ca0806f3fa61a10b5425a0a3dff03a",
+    "semantic_hash": ""
+  },
+  "docs/_build/html/_sources/refrigerant_limits.md": {
+    "mtime": 1788772695.13657,
+    "seen": 1788785775.138977,
+    "ast_hash": "bd4527a6e7b497e637dd9b618972fabd",
+    "semantic_hash": ""
+  },
+  "docs/_build/html/refrigerant_limits.html": {
+    "mtime": 1788776040.965306,
+    "seen": 1788785775.139088,
+    "ast_hash": "94035a84681fd1cf35932a10240f5a3a",
+    "semantic_hash": ""
+  },
+  "docs/refrigerant_limits.md": {
+    "mtime": 1788772695.13657,
+    "seen": 1788785775.139137,
+    "ast_hash": "bd4527a6e7b497e637dd9b618972fabd",
     "semantic_hash": ""
   }
 }
