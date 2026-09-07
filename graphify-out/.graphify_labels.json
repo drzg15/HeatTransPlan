@@ -17,7 +17,7 @@
   "15": "ci",
   "16": "PotentialAnalysisPage.tsx",
   "17": "package.json",
-  "18": "useUIStore",
+  "18": "DataCollectionPage.tsx",
   "19": "StreamModel",
   "20": "compilerOptions",
   "21": "Ai",
@@ -37,7 +37,7 @@
   "35": "english-stemmer.js",
   "36": "pydata-sphinx-theme.js",
   "37": "dependencies",
-  "38": "SubprocessCard.tsx",
+  "38": "process.ts",
   "39": "Ss",
   "40": "searchtools.js",
   "41": "projects.ts",
@@ -65,7 +65,7 @@
   "63": "doctools.js",
   "64": "sphinx_highlight.js",
   "65": "React + TypeScript + Vite",
-  "66": "ErrorBoundaryClass",
+  "66": "Qn",
   "67": "react-plotly.d.ts",
   "68": "config_optimization.py",
   "69": "HeatTransPlan — Calculation Logic",
@@ -94,5 +94,6 @@
   "92": "._getConfig",
   "93": "tn",
   "94": "ve",
-  "95": "HPIChart.tsx"
+  "95": "useProjectStore",
+  "96": "ErrorBoundaryClass"
 }

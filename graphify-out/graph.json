@@ -69,6 +69,19 @@
       "source_location": "L12"
     },
     {
+      "id": "frontend_src_components_analysis_heatrecoverytoggle_modeoption",
+      "label": "ModeOption",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "types/analysis.ts",
+      "file_type": "code",
+      "norm_label": "modeoption",
+      "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
+      "source_location": "L7"
+    },
+    {
       "id": "frontend_src_store_analysisstore_analysisstore",
       "label": "AnalysisStore",
       "_callable": true,
@@ -277,6 +290,19 @@
       "source_location": "L7"
     },
     {
+      "id": "frontend_src_types_analysis_profilemode",
+      "label": "ProfileMode",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "types/analysis.ts",
+      "file_type": "code",
+      "norm_label": "profilemode",
+      "source_file": "frontend/src/types/analysis.ts",
+      "source_location": "L80"
+    },
+    {
       "id": "frontend_src_types_analysis_statusquorequest",
       "label": "StatusQuoRequest",
       "_callable": true,
@@ -301,19 +327,6 @@
       "norm_label": "statusquoresult",
       "source_file": "frontend/src/types/analysis.ts",
       "source_location": "L114"
-    },
-    {
-      "id": "frontend_src_types_analysis_streaminfo",
-      "label": "StreamInfo",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "types/analysis.ts",
-      "file_type": "code",
-      "norm_label": "streaminfo",
-      "source_file": "frontend/src/types/analysis.ts",
-      "source_location": "L222"
     },
     {
       "id": "backend_app_models_analysis_compositediagramdata",
@@ -498,7 +511,7 @@
       "source_location": "L2"
     },
     {
-      "id": "frontend_src_components_ui_analysishelp_props",
+      "id": "frontend_src_components_ui_charthelpbutton_props",
       "label": "Props",
       "_callable": true,
       "_callable_class": true,
@@ -507,21 +520,8 @@
       "community_name": "PotentialAnalysisPage.tsx",
       "file_type": "code",
       "norm_label": "props",
-      "source_file": "frontend/src/components/ui/AnalysisHelp.tsx",
+      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
       "source_location": "L5"
-    },
-    {
-      "id": "frontend_src_components_analysis_heatrecoverytoggle_modeoption",
-      "label": "ModeOption",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "useUIStore",
-      "file_type": "code",
-      "norm_label": "modeoption",
-      "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
-      "source_location": "L7"
     },
     {
       "id": "frontend_src_components_analysis_hpioptimizationchart_props",
@@ -530,7 +530,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "props",
       "source_file": "frontend/src/components/analysis/HPIOptimizationChart.tsx",
@@ -543,23 +543,23 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "sortkey",
       "source_file": "frontend/src/components/analysis/HPIOptimizationPanel.tsx",
       "source_location": "L10"
     },
     {
-      "id": "frontend_src_components_ui_charthelpbutton_props",
+      "id": "frontend_src_components_ui_tutorialpanel_props",
       "label": "Props",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "props",
-      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
+      "source_file": "frontend/src/components/ui/TutorialPanel.tsx",
       "source_location": "L5"
     },
     {
@@ -569,7 +569,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "uistore",
       "source_file": "frontend/src/store/uiStore.ts",
@@ -582,24 +582,11 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "optimizedintegrationpoint",
       "source_file": "frontend/src/types/analysis.ts",
       "source_location": "L129"
-    },
-    {
-      "id": "frontend_src_types_analysis_profilemode",
-      "label": "ProfileMode",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "useUIStore",
-      "file_type": "code",
-      "norm_label": "profilemode",
-      "source_file": "frontend/src/types/analysis.ts",
-      "source_location": "L80"
     },
     {
       "id": "backend_app_models_stream_streammodel",
@@ -836,19 +823,6 @@
       "source_location": "L38"
     },
     {
-      "id": "frontend_src_components_map_mapviewer_streamcirclesoverlayprops",
-      "label": "StreamCirclesOverlayProps",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 26,
-      "community_name": "MapViewer.tsx",
-      "file_type": "code",
-      "norm_label": "streamcirclesoverlayprops",
-      "source_file": "frontend/src/components/map/MapViewer.tsx",
-      "source_location": "L358"
-    },
-    {
       "id": "docs_build_html_static_scripts_bootstrap_is",
       "label": "is",
       "_callable": true,
@@ -860,6 +834,19 @@
       "norm_label": "is",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
+    },
+    {
+      "id": "frontend_src_components_map_mapviewer_streamcirclesoverlayprops",
+      "label": "StreamCirclesOverlayProps",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "ProcessNode",
+      "file_type": "code",
+      "norm_label": "streamcirclesoverlayprops",
+      "source_file": "frontend/src/components/map/MapViewer.tsx",
+      "source_location": "L358"
     },
     {
       "id": "frontend_src_components_process_processgrouplist_groupcoords",
@@ -888,6 +875,19 @@
       "source_location": "L14"
     },
     {
+      "id": "frontend_src_components_process_subprocesscard_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "ProcessNode",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "frontend/src/components/process/SubprocessCard.tsx",
+      "source_location": "L9"
+    },
+    {
       "id": "frontend_src_store_projectstore_projectstore",
       "label": "ProjectStore",
       "_callable": true,
@@ -901,32 +901,6 @@
       "source_location": "L6"
     },
     {
-      "id": "frontend_src_types_process_extrainfo",
-      "label": "ExtraInfo",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "extrainfo",
-      "source_file": "frontend/src/types/process.ts",
-      "source_location": "L5"
-    },
-    {
-      "id": "frontend_src_types_process_processmodelselection",
-      "label": "ProcessModelSelection",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "processmodelselection",
-      "source_file": "frontend/src/types/process.ts",
-      "source_location": "L17"
-    },
-    {
       "id": "frontend_src_types_process_processnode",
       "label": "ProcessNode",
       "_callable": true,
@@ -938,19 +912,6 @@
       "norm_label": "processnode",
       "source_file": "frontend/src/types/process.ts",
       "source_location": "L31"
-    },
-    {
-      "id": "frontend_src_types_process_processparams",
-      "label": "ProcessParams",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "processparams",
-      "source_file": "frontend/src/types/process.ts",
-      "source_location": "L22"
     },
     {
       "id": "frontend_src_types_project_groupcoordinates",
@@ -1037,24 +998,50 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "props",
       "source_file": "frontend/src/components/process/StreamEditor.tsx",
       "source_location": "L5"
     },
     {
-      "id": "frontend_src_components_process_subprocesscard_props",
-      "label": "Props",
+      "id": "frontend_src_types_process_extrainfo",
+      "label": "ExtraInfo",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
-      "norm_label": "props",
-      "source_file": "frontend/src/components/process/SubprocessCard.tsx",
-      "source_location": "L9"
+      "norm_label": "extrainfo",
+      "source_file": "frontend/src/types/process.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "frontend_src_types_process_processmodelselection",
+      "label": "ProcessModelSelection",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "process.ts",
+      "file_type": "code",
+      "norm_label": "processmodelselection",
+      "source_file": "frontend/src/types/process.ts",
+      "source_location": "L17"
+    },
+    {
+      "id": "frontend_src_types_process_processparams",
+      "label": "ProcessParams",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "process.ts",
+      "file_type": "code",
+      "norm_label": "processparams",
+      "source_file": "frontend/src/types/process.ts",
+      "source_location": "L22"
     },
     {
       "id": "frontend_src_types_stream_stream",
@@ -1063,7 +1050,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "stream",
       "source_file": "frontend/src/types/stream.ts",
@@ -1076,7 +1063,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "streamproperties",
       "source_file": "frontend/src/types/stream.ts",
@@ -1089,7 +1076,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "streamtype",
       "source_file": "frontend/src/types/stream.ts",
@@ -1102,7 +1089,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "streamvalues",
       "source_file": "frontend/src/types/stream.ts",
@@ -1265,19 +1252,6 @@
       "source_location": "L2"
     },
     {
-      "id": "frontend_src_components_io_actionbar_props",
-      "label": "Props",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "props",
-      "source_file": "frontend/src/components/io/ActionBar.tsx",
-      "source_location": "L8"
-    },
-    {
       "id": "frontend_src_components_layout_appshell_props",
       "label": "Props",
       "_callable": true,
@@ -1304,6 +1278,19 @@
       "source_location": "L13"
     },
     {
+      "id": "frontend_src_components_ui_analysishelp_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "frontend/src/components/ui/AnalysisHelp.tsx",
+      "source_location": "L5"
+    },
+    {
       "id": "frontend_src_components_ui_errorboundary_props",
       "label": "Props",
       "_callable": true,
@@ -1328,19 +1315,6 @@
       "norm_label": "state",
       "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
       "source_location": "L10"
-    },
-    {
-      "id": "frontend_src_components_ui_tutorialpanel_props",
-      "label": "Props",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "props",
-      "source_file": "frontend/src/components/ui/TutorialPanel.tsx",
-      "source_location": "L5"
     },
     {
       "id": "docs_build_html_static_scripts_bootstrap_fn",
@@ -1434,17 +1408,17 @@
       "source_location": "L2"
     },
     {
-      "id": "frontend_src_components_ui_errorboundary_errorboundaryclass",
-      "label": "ErrorBoundaryClass",
+      "id": "docs_build_html_static_scripts_bootstrap_qn",
+      "label": "Qn",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 66,
-      "community_name": "ErrorBoundaryClass",
+      "community_name": "Qn",
       "file_type": "code",
-      "norm_label": "errorboundaryclass",
-      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
-      "source_location": "L15"
+      "norm_label": "qn",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
     },
     {
       "id": "frontend_src_types_react_plotly_d_plotprops",
@@ -1458,19 +1432,6 @@
       "norm_label": "plotprops",
       "source_file": "frontend/src/types/react-plotly.d.ts",
       "source_location": "L5"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn",
-      "label": "Qn",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": "qn",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
     },
     {
       "id": "docs_build_html_static_scripts_bootstrap_sn",
@@ -1653,6 +1614,45 @@
       "norm_label": "ve",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
+    },
+    {
+      "id": "frontend_src_components_io_actionbar_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "frontend/src/components/io/ActionBar.tsx",
+      "source_location": "L8"
+    },
+    {
+      "id": "frontend_src_types_analysis_streaminfo",
+      "label": "StreamInfo",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "streaminfo",
+      "source_file": "frontend/src/types/analysis.ts",
+      "source_location": "L222"
+    },
+    {
+      "id": "frontend_src_components_ui_errorboundary_errorboundaryclass",
+      "label": "ErrorBoundaryClass",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 96,
+      "community_name": "ErrorBoundaryClass",
+      "file_type": "code",
+      "norm_label": "errorboundaryclass",
+      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
+      "source_location": "L15"
     },
     {
       "id": "docs_build_html_static_clipboard_min_a",
@@ -3011,6 +3011,18 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_one",
+      "label": "one()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 1,
+      "community_name": "bootstrap.js",
+      "file_type": "code",
+      "norm_label": "one()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_ot",
       "label": "Ot()",
       "_callable": true,
@@ -3635,6 +3647,18 @@
       "source_location": "L47"
     },
     {
+      "id": "frontend_src_components_analysis_heatrecoverytoggle_heatrecoverytoggle",
+      "label": "HeatRecoveryToggle()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "types/analysis.ts",
+      "file_type": "code",
+      "norm_label": "heatrecoverytoggle()",
+      "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
+      "source_location": "L14"
+    },
+    {
       "id": "frontend_src_utils_id_newid",
       "label": "newId()",
       "_callable": true,
@@ -4235,18 +4259,6 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_one",
-      "label": "one()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 15,
-      "community_name": "ci",
-      "file_type": "code",
-      "norm_label": "one()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "frontend_src_api_analysis_generatereport",
       "label": "generateReport()",
       "_callable": true,
@@ -4307,16 +4319,28 @@
       "source_location": "L47"
     },
     {
-      "id": "frontend_src_components_analysis_energydemands_energydemands",
-      "label": "EnergyDemands()",
+      "id": "frontend_src_components_analysis_compositecurveschart_compositecurveschart",
+      "label": "CompositeCurvesChart()",
       "_callable": true,
       "_origin": "ast",
       "community": 16,
       "community_name": "PotentialAnalysisPage.tsx",
       "file_type": "code",
-      "norm_label": "energydemands()",
-      "source_file": "frontend/src/components/analysis/EnergyDemands.tsx",
-      "source_location": "L10"
+      "norm_label": "compositecurveschart()",
+      "source_file": "frontend/src/components/analysis/CompositeCurvesChart.tsx",
+      "source_location": "L9"
+    },
+    {
+      "id": "frontend_src_components_analysis_grandcompositecurvechart_grandcompositecurvechart",
+      "label": "GrandCompositeCurveChart()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "grandcompositecurvechart()",
+      "source_file": "frontend/src/components/analysis/GrandCompositeCurveChart.tsx",
+      "source_location": "L8"
     },
     {
       "id": "frontend_src_components_analysis_heatpumptable_heatpumptable",
@@ -4328,7 +4352,7 @@
       "file_type": "code",
       "norm_label": "heatpumptable()",
       "source_file": "frontend/src/components/analysis/HeatPumpTable.tsx",
-      "source_location": "L7"
+      "source_location": "L8"
     },
     {
       "id": "frontend_src_components_analysis_pinchmetrics_pinchmetrics",
@@ -4341,6 +4365,18 @@
       "norm_label": "pinchmetrics()",
       "source_file": "frontend/src/components/analysis/PinchMetrics.tsx",
       "source_location": "L7"
+    },
+    {
+      "id": "frontend_src_components_analysis_scenariocomparison_scenariocomparison",
+      "label": "ScenarioComparison()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "scenariocomparison()",
+      "source_file": "frontend/src/components/analysis/ScenarioComparison.tsx",
+      "source_location": "L8"
     },
     {
       "id": "frontend_src_components_analysis_statusquocomparison_getbesthp",
@@ -4367,18 +4403,6 @@
       "source_location": "L8"
     },
     {
-      "id": "frontend_src_components_analysis_streamselector_streamselector",
-      "label": "StreamSelector()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "PotentialAnalysisPage.tsx",
-      "file_type": "code",
-      "norm_label": "streamselector()",
-      "source_file": "frontend/src/components/analysis/StreamSelector.tsx",
-      "source_location": "L11"
-    },
-    {
       "id": "frontend_src_components_analysis_temperatureintervaldiagram_temperatureintervaldiagram",
       "label": "TemperatureIntervalDiagram()",
       "_callable": true,
@@ -4391,16 +4415,28 @@
       "source_location": "L6"
     },
     {
-      "id": "frontend_src_components_ui_analysishelp_analysishelp",
-      "label": "AnalysisHelp()",
+      "id": "frontend_src_components_map_mapviewer_mapviewer",
+      "label": "MapViewer()",
       "_callable": true,
       "_origin": "ast",
       "community": 16,
       "community_name": "PotentialAnalysisPage.tsx",
       "file_type": "code",
-      "norm_label": "analysishelp()",
-      "source_file": "frontend/src/components/ui/AnalysisHelp.tsx",
-      "source_location": "L10"
+      "norm_label": "mapviewer()",
+      "source_file": "frontend/src/components/map/MapViewer.tsx",
+      "source_location": "L829"
+    },
+    {
+      "id": "frontend_src_components_ui_charthelpbutton_charthelpbutton",
+      "label": "ChartHelpButton()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "charthelpbutton()",
+      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
+      "source_location": "L11"
     },
     {
       "id": "frontend_src_pages_potentialanalysispage_potentialanalysispage",
@@ -4427,64 +4463,16 @@
       "source_location": "L92"
     },
     {
-      "id": "frontend_src_utils_streamutils_getstreaminfo",
-      "label": "getStreamInfo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "PotentialAnalysisPage.tsx",
-      "file_type": "code",
-      "norm_label": "getstreaminfo()",
-      "source_file": "frontend/src/utils/streamUtils.ts",
-      "source_location": "L15"
-    },
-    {
-      "id": "frontend_src_utils_streamutils_tofloat",
-      "label": "toFloat()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "PotentialAnalysisPage.tsx",
-      "file_type": "code",
-      "norm_label": "tofloat()",
-      "source_file": "frontend/src/utils/streamUtils.ts",
-      "source_location": "L9"
-    },
-    {
-      "id": "frontend_src_components_analysis_compositecurveschart_compositecurveschart",
-      "label": "CompositeCurvesChart()",
+      "id": "frontend_src_components_analysis_hpichart_hpichart",
+      "label": "HPIChart()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
-      "norm_label": "compositecurveschart()",
-      "source_file": "frontend/src/components/analysis/CompositeCurvesChart.tsx",
-      "source_location": "L9"
-    },
-    {
-      "id": "frontend_src_components_analysis_grandcompositecurvechart_grandcompositecurvechart",
-      "label": "GrandCompositeCurveChart()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "useUIStore",
-      "file_type": "code",
-      "norm_label": "grandcompositecurvechart()",
-      "source_file": "frontend/src/components/analysis/GrandCompositeCurveChart.tsx",
-      "source_location": "L8"
-    },
-    {
-      "id": "frontend_src_components_analysis_heatrecoverytoggle_heatrecoverytoggle",
-      "label": "HeatRecoveryToggle()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "useUIStore",
-      "file_type": "code",
-      "norm_label": "heatrecoverytoggle()",
-      "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
-      "source_location": "L14"
+      "norm_label": "hpichart()",
+      "source_file": "frontend/src/components/analysis/HPIChart.tsx",
+      "source_location": "L21"
     },
     {
       "id": "frontend_src_components_analysis_hpioptimizationchart_hpioptimizationchart",
@@ -4492,7 +4480,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "hpioptimizationchart()",
       "source_file": "frontend/src/components/analysis/HPIOptimizationChart.tsx",
@@ -4504,7 +4492,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "hpioptimizationpanel()",
       "source_file": "frontend/src/components/analysis/HPIOptimizationPanel.tsx",
@@ -4516,7 +4504,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "handleclickoutside()",
       "source_file": "frontend/src/components/analysis/HPIOptimizationPanel.tsx",
@@ -4528,23 +4516,59 @@
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "issamepoint()",
       "source_file": "frontend/src/components/analysis/HPIOptimizationPanel.tsx",
       "source_location": "L24"
     },
     {
-      "id": "frontend_src_components_ui_charthelpbutton_charthelpbutton",
-      "label": "ChartHelpButton()",
+      "id": "frontend_src_components_ui_tutorialpanel_tutorialpanel",
+      "label": "TutorialPanel()",
       "_callable": true,
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
-      "norm_label": "charthelpbutton()",
-      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
-      "source_location": "L11"
+      "norm_label": "tutorialpanel()",
+      "source_file": "frontend/src/components/ui/TutorialPanel.tsx",
+      "source_location": "L10"
+    },
+    {
+      "id": "frontend_src_hooks_usemediaquery_useismobile",
+      "label": "useIsMobile()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "DataCollectionPage.tsx",
+      "file_type": "code",
+      "norm_label": "useismobile()",
+      "source_file": "frontend/src/hooks/useMediaQuery.ts",
+      "source_location": "L29"
+    },
+    {
+      "id": "frontend_src_hooks_usemediaquery_usemediaquery",
+      "label": "useMediaQuery()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "DataCollectionPage.tsx",
+      "file_type": "code",
+      "norm_label": "usemediaquery()",
+      "source_file": "frontend/src/hooks/useMediaQuery.ts",
+      "source_location": "L13"
+    },
+    {
+      "id": "frontend_src_pages_datacollectionpage_datacollectionpage",
+      "label": "DataCollectionPage()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "DataCollectionPage.tsx",
+      "file_type": "code",
+      "norm_label": "datacollectionpage()",
+      "source_file": "frontend/src/pages/DataCollectionPage.tsx",
+      "source_location": "L15"
     },
     {
       "id": "backend_app_routers_streams_add_child_stream",
@@ -5133,6 +5157,18 @@
       "norm_label": ".__init__()",
       "source_file": "backend/app/modules/utility/temperature_pocket_deletion.py",
       "source_location": "L4"
+    },
+    {
+      "id": "backend_tests_test_analysis_test_composite_profile_shifting",
+      "label": "test_composite_profile_shifting()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 2,
+      "community_name": "Pinch",
+      "file_type": "code",
+      "norm_label": "test_composite_profile_shifting()",
+      "source_file": "backend/tests/test_analysis.py",
+      "source_location": "L29"
     },
     {
       "id": "docs_build_html_static_scripts_bootstrap_ai_addariaandcollapsedclass",
@@ -5912,7 +5948,7 @@
       "file_type": "code",
       "norm_label": "build_heat_profiles()",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L170"
+      "source_location": "L186"
     },
     {
       "id": "backend_app_modules_utility_heat_profiles_composite_curve",
@@ -5936,7 +5972,7 @@
       "file_type": "code",
       "norm_label": "_composite_profiles()",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L142"
+      "source_location": "L154"
     },
     {
       "id": "backend_app_modules_utility_heat_profiles_curve",
@@ -6131,6 +6167,18 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_gettemplatefactory",
+      "label": "._getTemplateFactory()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "is",
+      "file_type": "code",
+      "norm_label": "._gettemplatefactory()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_resolvepossiblefunction",
       "label": "._resolvePossibleFunction()",
       "_callable": true,
@@ -6319,6 +6367,18 @@
       "community_name": "mo",
       "file_type": "code",
       "norm_label": ".isshown()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_mo_jqueryinterface",
+      "label": ".jQueryInterface()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 32,
+      "community_name": "mo",
+      "file_type": "code",
+      "norm_label": ".jqueryinterface()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -6856,7 +6916,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "streameditor()",
       "source_file": "frontend/src/components/process/StreamEditor.tsx",
@@ -7028,7 +7088,7 @@
       "file_type": "code",
       "norm_label": "resolve_profiles()",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L186"
+      "source_location": "L202"
     },
     {
       "id": "backend_app_routers_analysis_heat_pump_integration_optimization",
@@ -7667,18 +7727,6 @@
       "source_location": "L22"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_mo_jqueryinterface",
-      "label": ".jQueryInterface()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 46,
-      "community_name": "ye",
-      "file_type": "code",
-      "norm_label": ".jqueryinterface()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_jqueryinterface",
       "label": ".jQueryInterface()",
       "_callable": true,
@@ -7859,30 +7907,6 @@
       "source_location": "L13"
     },
     {
-      "id": "frontend_src_components_analysis_scenariocomparison_scenariocomparison",
-      "label": "ScenarioComparison()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "scenariocomparison()",
-      "source_file": "frontend/src/components/analysis/ScenarioComparison.tsx",
-      "source_location": "L8"
-    },
-    {
-      "id": "frontend_src_components_io_actionbar_actionbar",
-      "label": "ActionBar()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "actionbar()",
-      "source_file": "frontend/src/components/io/ActionBar.tsx",
-      "source_location": "L27"
-    },
-    {
       "id": "frontend_src_components_layout_appshell_appshell",
       "label": "AppShell()",
       "_callable": true,
@@ -7907,16 +7931,16 @@
       "source_location": "L28"
     },
     {
-      "id": "frontend_src_components_map_mapviewer_mapviewer",
-      "label": "MapViewer()",
+      "id": "frontend_src_components_ui_analysishelp_analysishelp",
+      "label": "AnalysisHelp()",
       "_callable": true,
       "_origin": "ast",
       "community": 5,
       "community_name": "react",
       "file_type": "code",
-      "norm_label": "mapviewer()",
-      "source_file": "frontend/src/components/map/MapViewer.tsx",
-      "source_location": "L829"
+      "norm_label": "analysishelp()",
+      "source_file": "frontend/src/components/ui/AnalysisHelp.tsx",
+      "source_location": "L10"
     },
     {
       "id": "frontend_src_components_ui_errorboundary_errorboundary",
@@ -7929,30 +7953,6 @@
       "norm_label": "errorboundary()",
       "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
       "source_location": "L119"
-    },
-    {
-      "id": "frontend_src_components_ui_tutorialpanel_tutorialpanel",
-      "label": "TutorialPanel()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "tutorialpanel()",
-      "source_file": "frontend/src/components/ui/TutorialPanel.tsx",
-      "source_location": "L10"
-    },
-    {
-      "id": "frontend_src_pages_datacollectionpage_datacollectionpage",
-      "label": "DataCollectionPage()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "datacollectionpage()",
-      "source_file": "frontend/src/pages/DataCollectionPage.tsx",
-      "source_location": "L15"
     },
     {
       "id": "frontend_src_pages_homepage_homepage",
@@ -8651,18 +8651,6 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_gettemplatefactory",
-      "label": "._getTemplateFactory()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 6,
-      "community_name": "ps",
-      "file_type": "code",
-      "norm_label": "._gettemplatefactory()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_gettipelement",
       "label": "._getTipElement()",
       "_callable": true,
@@ -8839,6 +8827,18 @@
       "community_name": "ps",
       "file_type": "code",
       "norm_label": "._createpopper()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_sn_initializebackdrop",
+      "label": "._initializeBackDrop()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._initializebackdrop()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -9143,40 +9143,124 @@
       "source_location": "L58"
     },
     {
-      "id": "frontend_src_components_ui_errorboundary_errorboundaryclass_componentdidcatch",
-      "label": ".componentDidCatch()",
+      "id": "docs_build_html_static_scripts_bootstrap_qn_addeventlisteners",
+      "label": "._addEventListeners()",
       "_callable": true,
       "_origin": "ast",
       "community": 66,
-      "community_name": "ErrorBoundaryClass",
+      "community_name": "Qn",
       "file_type": "code",
-      "norm_label": ".componentdidcatch()",
-      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
-      "source_location": "L25"
+      "norm_label": "._addeventlisteners()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
     },
     {
-      "id": "frontend_src_components_ui_errorboundary_errorboundaryclass_getderivedstatefromerror",
-      "label": ".getDerivedStateFromError()",
+      "id": "docs_build_html_static_scripts_bootstrap_qn_constructor",
+      "label": ".constructor()",
       "_callable": true,
       "_origin": "ast",
       "community": 66,
-      "community_name": "ErrorBoundaryClass",
+      "community_name": "Qn",
       "file_type": "code",
-      "norm_label": ".getderivedstatefromerror()",
-      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
-      "source_location": "L21"
+      "norm_label": ".constructor()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
     },
     {
-      "id": "frontend_src_components_ui_errorboundary_errorboundaryclass_render",
-      "label": ".render()",
+      "id": "docs_build_html_static_scripts_bootstrap_qn_default",
+      "label": ".Default()",
       "_callable": true,
       "_origin": "ast",
       "community": 66,
-      "community_name": "ErrorBoundaryClass",
+      "community_name": "Qn",
       "file_type": "code",
-      "norm_label": ".render()",
-      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
-      "source_location": "L29"
+      "norm_label": ".default()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_defaulttype",
+      "label": ".DefaultType()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "Qn",
+      "file_type": "code",
+      "norm_label": ".defaulttype()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_hide",
+      "label": ".hide()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "Qn",
+      "file_type": "code",
+      "norm_label": ".hide()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_initializebackdrop",
+      "label": "._initializeBackDrop()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "Qn",
+      "file_type": "code",
+      "norm_label": "._initializebackdrop()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_initializefocustrap",
+      "label": "._initializeFocusTrap()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "Qn",
+      "file_type": "code",
+      "norm_label": "._initializefocustrap()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_jqueryinterface",
+      "label": ".jQueryInterface()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "Qn",
+      "file_type": "code",
+      "norm_label": ".jqueryinterface()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_name",
+      "label": ".NAME()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "Qn",
+      "file_type": "code",
+      "norm_label": ".name()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_sn_constructor",
+      "label": ".constructor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 66,
+      "community_name": "Qn",
+      "file_type": "code",
+      "norm_label": ".constructor()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
     },
     {
       "id": "backend_app_config_optimization_resolve",
@@ -9239,114 +9323,6 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_addeventlisteners",
-      "label": "._addEventListeners()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": "._addeventlisteners()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_constructor",
-      "label": ".constructor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": ".constructor()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_default",
-      "label": ".Default()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": ".default()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_defaulttype",
-      "label": ".DefaultType()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": ".defaulttype()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_hide",
-      "label": ".hide()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": ".hide()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_initializebackdrop",
-      "label": "._initializeBackDrop()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": "._initializebackdrop()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_initializefocustrap",
-      "label": "._initializeFocusTrap()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": "._initializefocustrap()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_jqueryinterface",
-      "label": ".jQueryInterface()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": ".jqueryinterface()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_name",
-      "label": ".NAME()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": ".name()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "docs_build_html_static_scripts_bootstrap_qn_show",
       "label": ".show()",
       "_callable": true,
@@ -9403,18 +9379,6 @@
       "community_name": "trigger",
       "file_type": "code",
       "norm_label": "._adjustdialog()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_sn_constructor",
-      "label": ".constructor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": ".constructor()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -10031,18 +9995,6 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_sn_initializebackdrop",
-      "label": "._initializeBackDrop()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 93,
-      "community_name": "tn",
-      "file_type": "code",
-      "norm_label": "._initializebackdrop()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "docs_build_html_static_scripts_bootstrap_tn_append",
       "label": "._append()",
       "_callable": true,
@@ -10223,40 +10175,100 @@
       "source_location": "L2"
     },
     {
-      "id": "frontend_src_components_analysis_hpichart_hpichart",
-      "label": "HPIChart()",
+      "id": "frontend_src_components_analysis_energydemands_energydemands",
+      "label": "EnergyDemands()",
       "_callable": true,
       "_origin": "ast",
       "community": 95,
-      "community_name": "HPIChart.tsx",
+      "community_name": "useProjectStore",
       "file_type": "code",
-      "norm_label": "hpichart()",
-      "source_file": "frontend/src/components/analysis/HPIChart.tsx",
+      "norm_label": "energydemands()",
+      "source_file": "frontend/src/components/analysis/EnergyDemands.tsx",
+      "source_location": "L10"
+    },
+    {
+      "id": "frontend_src_components_analysis_streamselector_streamselector",
+      "label": "StreamSelector()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "streamselector()",
+      "source_file": "frontend/src/components/analysis/StreamSelector.tsx",
+      "source_location": "L11"
+    },
+    {
+      "id": "frontend_src_components_io_actionbar_actionbar",
+      "label": "ActionBar()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "actionbar()",
+      "source_file": "frontend/src/components/io/ActionBar.tsx",
+      "source_location": "L27"
+    },
+    {
+      "id": "frontend_src_utils_streamutils_getstreaminfo",
+      "label": "getStreamInfo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "getstreaminfo()",
+      "source_file": "frontend/src/utils/streamUtils.ts",
+      "source_location": "L15"
+    },
+    {
+      "id": "frontend_src_utils_streamutils_tofloat",
+      "label": "toFloat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "tofloat()",
+      "source_file": "frontend/src/utils/streamUtils.ts",
+      "source_location": "L9"
+    },
+    {
+      "id": "frontend_src_components_ui_errorboundary_errorboundaryclass_componentdidcatch",
+      "label": ".componentDidCatch()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 96,
+      "community_name": "ErrorBoundaryClass",
+      "file_type": "code",
+      "norm_label": ".componentdidcatch()",
+      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
+      "source_location": "L25"
+    },
+    {
+      "id": "frontend_src_components_ui_errorboundary_errorboundaryclass_getderivedstatefromerror",
+      "label": ".getDerivedStateFromError()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 96,
+      "community_name": "ErrorBoundaryClass",
+      "file_type": "code",
+      "norm_label": ".getderivedstatefromerror()",
+      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
       "source_location": "L21"
     },
     {
-      "id": "frontend_src_hooks_usemediaquery_useismobile",
-      "label": "useIsMobile()",
+      "id": "frontend_src_components_ui_errorboundary_errorboundaryclass_render",
+      "label": ".render()",
       "_callable": true,
       "_origin": "ast",
-      "community": 95,
-      "community_name": "HPIChart.tsx",
+      "community": 96,
+      "community_name": "ErrorBoundaryClass",
       "file_type": "code",
-      "norm_label": "useismobile()",
-      "source_file": "frontend/src/hooks/useMediaQuery.ts",
+      "norm_label": ".render()",
+      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
       "source_location": "L29"
-    },
-    {
-      "id": "frontend_src_hooks_usemediaquery_usemediaquery",
-      "label": "useMediaQuery()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 95,
-      "community_name": "HPIChart.tsx",
-      "file_type": "code",
-      "norm_label": "usemediaquery()",
-      "source_file": "frontend/src/hooks/useMediaQuery.ts",
-      "source_location": "L13"
     },
     {
       "id": "docs_build_html_static_clipboard_min",
@@ -10479,6 +10491,17 @@
       "source_location": "L34"
     },
     {
+      "id": "frontend_src_components_analysis_heatrecoverytoggle",
+      "label": "HeatRecoveryToggle.tsx",
+      "_origin": "ast",
+      "community": 11,
+      "community_name": "types/analysis.ts",
+      "file_type": "code",
+      "norm_label": "heatrecoverytoggle.tsx",
+      "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
+      "source_location": "L1"
+    },
+    {
       "id": "frontend_src_store_analysisstore",
       "label": "analysisStore.ts",
       "_origin": "ast",
@@ -10510,17 +10533,6 @@
       "norm_label": "id.ts",
       "source_file": "frontend/src/utils/id.ts",
       "source_location": "L1"
-    },
-    {
-      "id": "ref_zustand",
-      "label": "zustand",
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "types/analysis.ts",
-      "file_type": "concept",
-      "norm_label": "zustand",
-      "source_file": "frontend/package.json",
-      "source_location": "L28"
     },
     {
       "id": "backend_app_models_analysis",
@@ -11161,14 +11173,25 @@
       "source_location": "L61"
     },
     {
-      "id": "frontend_src_components_analysis_energydemands",
-      "label": "EnergyDemands.tsx",
+      "id": "frontend_src_components_analysis_compositecurveschart",
+      "label": "CompositeCurvesChart.tsx",
       "_origin": "ast",
       "community": 16,
       "community_name": "PotentialAnalysisPage.tsx",
       "file_type": "code",
-      "norm_label": "energydemands.tsx",
-      "source_file": "frontend/src/components/analysis/EnergyDemands.tsx",
+      "norm_label": "compositecurveschart.tsx",
+      "source_file": "frontend/src/components/analysis/CompositeCurvesChart.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_components_analysis_grandcompositecurvechart",
+      "label": "GrandCompositeCurveChart.tsx",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "grandcompositecurvechart.tsx",
+      "source_file": "frontend/src/components/analysis/GrandCompositeCurveChart.tsx",
       "source_location": "L1"
     },
     {
@@ -11194,6 +11217,17 @@
       "source_location": "L1"
     },
     {
+      "id": "frontend_src_components_analysis_scenariocomparison",
+      "label": "ScenarioComparison.tsx",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "scenariocomparison.tsx",
+      "source_file": "frontend/src/components/analysis/ScenarioComparison.tsx",
+      "source_location": "L1"
+    },
+    {
       "id": "frontend_src_components_analysis_statusquocomparison",
       "label": "StatusQuoComparison.tsx",
       "_origin": "ast",
@@ -11202,17 +11236,6 @@
       "file_type": "code",
       "norm_label": "statusquocomparison.tsx",
       "source_file": "frontend/src/components/analysis/StatusQuoComparison.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_analysis_streamselector",
-      "label": "StreamSelector.tsx",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "PotentialAnalysisPage.tsx",
-      "file_type": "code",
-      "norm_label": "streamselector.tsx",
-      "source_file": "frontend/src/components/analysis/StreamSelector.tsx",
       "source_location": "L1"
     },
     {
@@ -11227,14 +11250,14 @@
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_components_ui_analysishelp",
-      "label": "AnalysisHelp.tsx",
+      "id": "frontend_src_components_ui_charthelpbutton",
+      "label": "ChartHelpButton.tsx",
       "_origin": "ast",
       "community": 16,
       "community_name": "PotentialAnalysisPage.tsx",
       "file_type": "code",
-      "norm_label": "analysishelp.tsx",
-      "source_file": "frontend/src/components/ui/AnalysisHelp.tsx",
+      "norm_label": "charthelpbutton.tsx",
+      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
       "source_location": "L1"
     },
     {
@@ -11271,15 +11294,15 @@
       "source_location": "L116"
     },
     {
-      "id": "frontend_src_utils_streamutils",
-      "label": "streamUtils.ts",
+      "id": "ref_react_plotly_js",
+      "label": "react-plotly.js",
       "_origin": "ast",
       "community": 16,
       "community_name": "PotentialAnalysisPage.tsx",
-      "file_type": "code",
-      "norm_label": "streamutils.ts",
-      "source_file": "frontend/src/utils/streamUtils.ts",
-      "source_location": "L1"
+      "file_type": "concept",
+      "norm_label": "react-plotly.js",
+      "source_file": "frontend/package.json",
+      "source_location": "L25"
     },
     {
       "id": "frontend_eslint_config",
@@ -11557,44 +11580,33 @@
       "source_location": "L49"
     },
     {
-      "id": "frontend_src_components_analysis_compositecurveschart",
-      "label": "CompositeCurvesChart.tsx",
+      "id": "frontend_src_components_analysis_hpichart",
+      "label": "HPIChart.tsx",
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
-      "norm_label": "compositecurveschart.tsx",
-      "source_file": "frontend/src/components/analysis/CompositeCurvesChart.tsx",
+      "norm_label": "hpichart.tsx",
+      "source_file": "frontend/src/components/analysis/HPIChart.tsx",
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_components_analysis_grandcompositecurvechart",
-      "label": "GrandCompositeCurveChart.tsx",
+      "id": "frontend_src_components_analysis_hpichart_hp_colors",
+      "label": "HP_COLORS",
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
-      "norm_label": "grandcompositecurvechart.tsx",
-      "source_file": "frontend/src/components/analysis/GrandCompositeCurveChart.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_analysis_heatrecoverytoggle",
-      "label": "HeatRecoveryToggle.tsx",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "useUIStore",
-      "file_type": "code",
-      "norm_label": "heatrecoverytoggle.tsx",
-      "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
-      "source_location": "L1"
+      "norm_label": "hp_colors",
+      "source_file": "frontend/src/components/analysis/HPIChart.tsx",
+      "source_location": "L10"
     },
     {
       "id": "frontend_src_components_analysis_hpioptimizationchart",
       "label": "HPIOptimizationChart.tsx",
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "hpioptimizationchart.tsx",
       "source_file": "frontend/src/components/analysis/HPIOptimizationChart.tsx",
@@ -11605,21 +11617,43 @@
       "label": "HPIOptimizationPanel.tsx",
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "hpioptimizationpanel.tsx",
       "source_file": "frontend/src/components/analysis/HPIOptimizationPanel.tsx",
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_components_ui_charthelpbutton",
-      "label": "ChartHelpButton.tsx",
+      "id": "frontend_src_components_ui_tutorialpanel",
+      "label": "TutorialPanel.tsx",
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
-      "norm_label": "charthelpbutton.tsx",
-      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
+      "norm_label": "tutorialpanel.tsx",
+      "source_file": "frontend/src/components/ui/TutorialPanel.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_hooks_usemediaquery",
+      "label": "useMediaQuery.ts",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "DataCollectionPage.tsx",
+      "file_type": "code",
+      "norm_label": "usemediaquery.ts",
+      "source_file": "frontend/src/hooks/useMediaQuery.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_pages_datacollectionpage",
+      "label": "DataCollectionPage.tsx",
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "DataCollectionPage.tsx",
+      "file_type": "code",
+      "norm_label": "datacollectionpage.tsx",
+      "source_file": "frontend/src/pages/DataCollectionPage.tsx",
       "source_location": "L1"
     },
     {
@@ -11627,7 +11661,7 @@
       "label": "uiStore.ts",
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "uistore.ts",
       "source_file": "frontend/src/store/uiStore.ts",
@@ -11638,22 +11672,11 @@
       "label": "useUIStore",
       "_origin": "ast",
       "community": 18,
-      "community_name": "useUIStore",
+      "community_name": "DataCollectionPage.tsx",
       "file_type": "code",
       "norm_label": "useuistore",
       "source_file": "frontend/src/store/uiStore.ts",
       "source_location": "L48"
-    },
-    {
-      "id": "ref_react_plotly_js",
-      "label": "react-plotly.js",
-      "_origin": "ast",
-      "community": 18,
-      "community_name": "useUIStore",
-      "file_type": "concept",
-      "norm_label": "react-plotly.js",
-      "source_file": "frontend/package.json",
-      "source_location": "L25"
     },
     {
       "id": "backend_app_models_stream",
@@ -12690,29 +12713,29 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_app_modules_utility_heat_profiles_rationale_114",
-      "label": "Build one composite curve from the actual stream temperatures. Returns (T\u2026",
+      "id": "backend_app_modules_utility_heat_profiles_rationale_118",
+      "label": "Build one composite curve using shifted temperatures. Returns (T ascending, H\u2026",
       "_origin": "ast",
       "community": 27,
       "community_name": "heat_profiles.py",
       "file_type": "rationale",
-      "norm_label": "build one composite curve from the actual stream temperatures. returns (t...",
+      "norm_label": "build one composite curve using shifted temperatures. returns (t ascending, h...",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L114"
+      "source_location": "L118"
     },
     {
-      "id": "backend_app_modules_utility_heat_profiles_rationale_143",
-      "label": "Hot and cold composite curves as source/sink profiles \u2014 no recovery at all.",
+      "id": "backend_app_modules_utility_heat_profiles_rationale_155",
+      "label": "Hot and cold composite curves as source/sink profiles \u2014 no recovery at all. All\u2026",
       "_origin": "ast",
       "community": 27,
       "community_name": "heat_profiles.py",
       "file_type": "rationale",
-      "norm_label": "hot and cold composite curves as source/sink profiles \u2014 no recovery at all.",
+      "norm_label": "hot and cold composite curves as source/sink profiles \u2014 no recovery at all. all...",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L143"
+      "source_location": "L155"
     },
     {
-      "id": "backend_app_modules_utility_heat_profiles_rationale_171",
+      "id": "backend_app_modules_utility_heat_profiles_rationale_187",
       "label": "Build (source, sink) profiles for one of the non-cascaded modes. `pinch` is a\u2026",
       "_origin": "ast",
       "community": 27,
@@ -12720,7 +12743,7 @@
       "file_type": "rationale",
       "norm_label": "build (source, sink) profiles for one of the non-cascaded modes. `pinch` is a...",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L171"
+      "source_location": "L187"
     },
     {
       "id": "backend_app_modules_utility_heat_profiles_rationale_38",
@@ -13183,50 +13206,6 @@
       "file_type": "code",
       "norm_label": "processgrouplist.tsx",
       "source_file": "frontend/src/components/process/ProcessGroupList.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_store_projectstore",
-      "label": "projectStore.ts",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "projectstore.ts",
-      "source_file": "frontend/src/store/projectStore.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_store_projectstore_defaultstate",
-      "label": "defaultState",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "defaultstate",
-      "source_file": "frontend/src/store/projectStore.ts",
-      "source_location": "L33"
-    },
-    {
-      "id": "frontend_src_store_projectstore_test",
-      "label": "projectStore.test.ts",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "projectstore.test.ts",
-      "source_file": "frontend/src/store/projectStore.test.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_types_process",
-      "label": "process.ts",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "process.ts",
-      "source_file": "frontend/src/types/process.ts",
       "source_location": "L1"
     },
     {
@@ -13789,7 +13768,7 @@
       "label": "StreamEditor.tsx",
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "streameditor.tsx",
       "source_file": "frontend/src/components/process/StreamEditor.tsx",
@@ -13800,7 +13779,7 @@
       "label": "ALL_VARS",
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "all_vars",
       "source_file": "frontend/src/components/process/StreamEditor.tsx",
@@ -13811,7 +13790,7 @@
       "label": "DEFAULT_VARS",
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "default_vars",
       "source_file": "frontend/src/components/process/StreamEditor.tsx",
@@ -13822,7 +13801,7 @@
       "label": "STREAM_TYPES",
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "stream_types",
       "source_file": "frontend/src/components/process/StreamEditor.tsx",
@@ -13833,7 +13812,7 @@
       "label": "UNIT_OPTIONS",
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "unit_options",
       "source_file": "frontend/src/components/process/StreamEditor.tsx",
@@ -13844,7 +13823,7 @@
       "label": "SubprocessCard.tsx",
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "subprocesscard.tsx",
       "source_file": "frontend/src/components/process/SubprocessCard.tsx",
@@ -13855,18 +13834,29 @@
       "label": "DEFAULT_STREAM",
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "default_stream",
       "source_file": "frontend/src/components/process/SubprocessCard.tsx",
       "source_location": "L21"
     },
     {
+      "id": "frontend_src_types_process",
+      "label": "process.ts",
+      "_origin": "ast",
+      "community": 38,
+      "community_name": "process.ts",
+      "file_type": "code",
+      "norm_label": "process.ts",
+      "source_file": "frontend/src/types/process.ts",
+      "source_location": "L1"
+    },
+    {
       "id": "frontend_src_types_stream",
       "label": "stream.ts",
       "_origin": "ast",
       "community": 38,
-      "community_name": "SubprocessCard.tsx",
+      "community_name": "process.ts",
       "file_type": "code",
       "norm_label": "stream.ts",
       "source_file": "frontend/src/types/stream.ts",
@@ -13983,7 +13973,7 @@
       "source_location": "L250"
     },
     {
-      "id": "backend_app_modules_utility_heat_profiles_rationale_187",
+      "id": "backend_app_modules_utility_heat_profiles_rationale_203",
       "label": "Return the (source, sink) profiles for `mode`. For 'net_load' this delegates to\u2026",
       "_origin": "ast",
       "community": 4,
@@ -13991,7 +13981,7 @@
       "file_type": "rationale",
       "norm_label": "return the (source, sink) profiles for `mode`. for 'net_load' this delegates to...",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L187"
+      "source_location": "L203"
     },
     {
       "id": "backend_app_routers_analysis_rationale_45",
@@ -14909,39 +14899,6 @@
       "source_location": "L11"
     },
     {
-      "id": "frontend_src_components_analysis_scenariocomparison",
-      "label": "ScenarioComparison.tsx",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "scenariocomparison.tsx",
-      "source_file": "frontend/src/components/analysis/ScenarioComparison.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_io_actionbar",
-      "label": "ActionBar.tsx",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "actionbar.tsx",
-      "source_file": "frontend/src/components/io/ActionBar.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_io_actionbar_base_options",
-      "label": "BASE_OPTIONS",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "base_options",
-      "source_file": "frontend/src/components/io/ActionBar.tsx",
-      "source_location": "L25"
-    },
-    {
       "id": "frontend_src_components_layout_appshell",
       "label": "AppShell.tsx",
       "_origin": "ast",
@@ -14986,6 +14943,17 @@
       "source_location": "L23"
     },
     {
+      "id": "frontend_src_components_ui_analysishelp",
+      "label": "AnalysisHelp.tsx",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "analysishelp.tsx",
+      "source_file": "frontend/src/components/ui/AnalysisHelp.tsx",
+      "source_location": "L1"
+    },
+    {
       "id": "frontend_src_components_ui_errorboundary",
       "label": "ErrorBoundary.tsx",
       "_origin": "ast",
@@ -14994,17 +14962,6 @@
       "file_type": "code",
       "norm_label": "errorboundary.tsx",
       "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_ui_tutorialpanel",
-      "label": "TutorialPanel.tsx",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "tutorialpanel.tsx",
-      "source_file": "frontend/src/components/ui/TutorialPanel.tsx",
       "source_location": "L1"
     },
     {
@@ -15041,17 +14998,6 @@
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_pages_datacollectionpage",
-      "label": "DataCollectionPage.tsx",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "datacollectionpage.tsx",
-      "source_file": "frontend/src/pages/DataCollectionPage.tsx",
-      "source_location": "L1"
-    },
-    {
       "id": "frontend_src_pages_homepage",
       "label": "HomePage.tsx",
       "_origin": "ast",
@@ -15061,17 +15007,6 @@
       "norm_label": "homepage.tsx",
       "source_file": "frontend/src/pages/HomePage.tsx",
       "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_store_projectstore_useprojectstore",
-      "label": "useProjectStore",
-      "_origin": "ast",
-      "community": 5,
-      "community_name": "react",
-      "file_type": "code",
-      "norm_label": "useprojectstore",
-      "source_file": "frontend/src/store/projectStore.ts",
-      "source_location": "L53"
     },
     {
       "id": "ref_i18next",
@@ -16750,37 +16685,114 @@
       "version": "1.0.0"
     },
     {
-      "id": "frontend_src_components_analysis_hpichart",
-      "label": "HPIChart.tsx",
+      "id": "frontend_src_components_analysis_energydemands",
+      "label": "EnergyDemands.tsx",
       "_origin": "ast",
       "community": 95,
-      "community_name": "HPIChart.tsx",
+      "community_name": "useProjectStore",
       "file_type": "code",
-      "norm_label": "hpichart.tsx",
-      "source_file": "frontend/src/components/analysis/HPIChart.tsx",
+      "norm_label": "energydemands.tsx",
+      "source_file": "frontend/src/components/analysis/EnergyDemands.tsx",
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_components_analysis_hpichart_hp_colors",
-      "label": "HP_COLORS",
+      "id": "frontend_src_components_analysis_streamselector",
+      "label": "StreamSelector.tsx",
       "_origin": "ast",
       "community": 95,
-      "community_name": "HPIChart.tsx",
+      "community_name": "useProjectStore",
       "file_type": "code",
-      "norm_label": "hp_colors",
-      "source_file": "frontend/src/components/analysis/HPIChart.tsx",
-      "source_location": "L10"
+      "norm_label": "streamselector.tsx",
+      "source_file": "frontend/src/components/analysis/StreamSelector.tsx",
+      "source_location": "L1"
     },
     {
-      "id": "frontend_src_hooks_usemediaquery",
-      "label": "useMediaQuery.ts",
+      "id": "frontend_src_components_io_actionbar",
+      "label": "ActionBar.tsx",
       "_origin": "ast",
       "community": 95,
-      "community_name": "HPIChart.tsx",
+      "community_name": "useProjectStore",
       "file_type": "code",
-      "norm_label": "usemediaquery.ts",
-      "source_file": "frontend/src/hooks/useMediaQuery.ts",
+      "norm_label": "actionbar.tsx",
+      "source_file": "frontend/src/components/io/ActionBar.tsx",
       "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_components_io_actionbar_base_options",
+      "label": "BASE_OPTIONS",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "base_options",
+      "source_file": "frontend/src/components/io/ActionBar.tsx",
+      "source_location": "L25"
+    },
+    {
+      "id": "frontend_src_store_projectstore",
+      "label": "projectStore.ts",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "projectstore.ts",
+      "source_file": "frontend/src/store/projectStore.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_store_projectstore_defaultstate",
+      "label": "defaultState",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "defaultstate",
+      "source_file": "frontend/src/store/projectStore.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "frontend_src_store_projectstore_test",
+      "label": "projectStore.test.ts",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "projectstore.test.ts",
+      "source_file": "frontend/src/store/projectStore.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_store_projectstore_useprojectstore",
+      "label": "useProjectStore",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "useprojectstore",
+      "source_file": "frontend/src/store/projectStore.ts",
+      "source_location": "L53"
+    },
+    {
+      "id": "frontend_src_utils_streamutils",
+      "label": "streamUtils.ts",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "code",
+      "norm_label": "streamutils.ts",
+      "source_file": "frontend/src/utils/streamUtils.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "ref_zustand",
+      "label": "zustand",
+      "_origin": "ast",
+      "community": 95,
+      "community_name": "useProjectStore",
+      "file_type": "concept",
+      "norm_label": "zustand",
+      "source_file": "frontend/package.json",
+      "source_location": "L28"
     }
   ],
   "links": [
@@ -17261,7 +17273,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L177",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -17273,7 +17285,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L179",
+      "source_location": "L195",
       "weight": 1.0
     },
     {
@@ -17285,7 +17297,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L148",
+      "source_location": "L164",
       "weight": 1.0
     },
     {
@@ -17297,7 +17309,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L167",
+      "source_location": "L183",
       "weight": 1.0
     },
     {
@@ -17333,7 +17345,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L202",
+      "source_location": "L218",
       "weight": 1.0
     },
     {
@@ -18713,6 +18725,30 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/utils/geo_utils.py",
+      "source_location": "L45",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_analysis_test_composite_profile_shifting",
+      "target": "backend_app_modules_pinch_main_pinchmain",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/tests/test_analysis.py",
+      "source_location": "L42",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_analysis_test_composite_profile_shifting",
+      "target": "backend_app_modules_utility_heat_profiles_build_heat_profiles",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "backend/tests/test_analysis.py",
       "source_location": "L45",
       "weight": 1.0
     },
@@ -25697,7 +25733,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/analysis/HeatPumpTable.tsx",
-      "source_location": "L9",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -26201,7 +26237,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/pages/PotentialAnalysisPage.tsx",
-      "source_location": "L349",
+      "source_location": "L354",
       "weight": 1.0
     },
     {
@@ -26213,7 +26249,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/pages/PotentialAnalysisPage.tsx",
-      "source_location": "L381",
+      "source_location": "L386",
       "weight": 1.0
     },
     {
@@ -26225,7 +26261,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/pages/PotentialAnalysisPage.tsx",
-      "source_location": "L464",
+      "source_location": "L469",
       "weight": 1.0
     },
     {
@@ -26249,7 +26285,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/pages/PotentialAnalysisPage.tsx",
-      "source_location": "L492",
+      "source_location": "L497",
       "weight": 1.0
     },
     {
@@ -27413,7 +27449,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L170",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -27437,7 +27473,7 @@
       "confidence_score": 1.0,
       "context": "generic_arg",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L186",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -28811,6 +28847,30 @@
       "weight": 1.0
     },
     {
+      "source": "backend_tests_test_analysis",
+      "target": "backend_app_modules_pinch_main_pinchmain",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/tests/test_analysis.py",
+      "source_location": "L31",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_analysis",
+      "target": "backend_app_modules_utility_heat_profiles_build_heat_profiles",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "backend/tests/test_analysis.py",
+      "source_location": "L32",
+      "weight": 1.0
+    },
+    {
       "source": "backend_tests_test_project",
       "target": "backend_app_models_project_projectstate",
       "relation": "imports",
@@ -29636,6 +29696,18 @@
       "context": "import",
       "source_file": "frontend/src/components/analysis/HeatPumpTable.tsx",
       "source_location": "L5",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_analysis_heatpumptable",
+      "target": "frontend_src_components_ui_charthelpbutton_charthelpbutton",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/analysis/HeatPumpTable.tsx",
+      "source_location": "L6",
       "weight": 1.0
     },
     {
@@ -32069,6 +32141,18 @@
       "weight": 1.0
     },
     {
+      "source": "frontend_src_components_analysis_heatpumptable",
+      "target": "frontend_src_components_ui_charthelpbutton",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/analysis/HeatPumpTable.tsx",
+      "source_location": "L6",
+      "weight": 1.0
+    },
+    {
       "source": "frontend_src_components_analysis_heatrecoverytoggle",
       "target": "ref_react_i18next",
       "relation": "imports_from",
@@ -33996,7 +34080,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L170",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -34008,7 +34092,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L142",
+      "source_location": "L154",
       "weight": 1.0
     },
     {
@@ -34020,7 +34104,7 @@
       "confidence_score": 1.0,
       "context": "parameter_type",
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L186",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -35180,7 +35264,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L142",
+      "source_location": "L154",
       "weight": 1.0
     },
     {
@@ -35191,7 +35275,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L170",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -35202,7 +35286,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L186",
+      "source_location": "L202",
       "weight": 1.0
     },
     {
@@ -36149,6 +36233,17 @@
       "confidence_score": 1.0,
       "source_file": "backend/tests/test_analysis.py",
       "source_location": "L17",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_tests_test_analysis",
+      "target": "backend_tests_test_analysis_test_composite_profile_shifting",
+      "relation": "contains",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/tests/test_analysis.py",
+      "source_location": "L29",
       "weight": 1.0
     },
     {
@@ -40075,7 +40170,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/analysis/HeatPumpTable.tsx",
-      "source_location": "L7",
+      "source_location": "L8",
       "weight": 1.0
     },
     {
@@ -46895,47 +46990,47 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_utility_heat_profiles_rationale_114",
+      "source": "backend_app_modules_utility_heat_profiles_rationale_118",
       "target": "backend_app_modules_utility_heat_profiles_composite_curve",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L114",
+      "source_location": "L118",
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_utility_heat_profiles_rationale_143",
+      "source": "backend_app_modules_utility_heat_profiles_rationale_155",
       "target": "backend_app_modules_utility_heat_profiles_composite_profiles",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L143",
+      "source_location": "L155",
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_utility_heat_profiles_rationale_171",
+      "source": "backend_app_modules_utility_heat_profiles_rationale_187",
       "target": "backend_app_modules_utility_heat_profiles_build_heat_profiles",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L171",
+      "source_location": "L187",
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_utility_heat_profiles_rationale_187",
+      "source": "backend_app_modules_utility_heat_profiles_rationale_203",
       "target": "backend_app_modules_utility_heat_profiles_resolve_profiles",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/utility/heat_profiles.py",
-      "source_location": "L187",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -49061,5 +49156,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "f4582b90a491e22d71e268260149f7a5b37f28eb"
+  "built_at_commit": "d66d86af7bbaefc6d660498554d8cc7a7dbbf838"
 }
