@@ -17,7 +17,7 @@ interface Props {
 
 const DEFAULT_COP_FORMULA: CopFormulaSpec = {
   name: 'My heat pump',
-  expression: '0.5 * (T_sink + 273.15) / T_lift',
+  expression: '0.5 * (T_sink + 273.15) / (T_sink - T_source)',
   enabled: true,
   T_source_min: 0,
   T_source_max: 200,
@@ -34,10 +34,10 @@ const DEFAULT_COP_FORMULA: CopFormulaSpec = {
 const EXAMPLES: Array<{ label: string; expression: string }> = [];
 
 const BUILTIN_FORMULAS: Array<{ label: string; expression: string; T_sink_min: number; T_sink_max: number }> = [
-  { label: 'Theoretical Carnot (50 %)', expression: '0.5 * (T_sink + 273.15) / T_lift', T_sink_min: 0, T_sink_max: 250 },
-  { label: 'Stirling Engine', expression: '1.28792 * (T_lift + 1.08206)**-0.37606 * (T_sink + 273.54103)**0.35992', T_sink_min: 144, T_sink_max: 212 },
-  { label: 'SHP (HFC/HFO)', expression: '1.9118 * (T_lift + 2*0.04419)**(-0.89094) * (T_sink + 273 + 0.04419)**0.67895', T_sink_min: 80, T_sink_max: 160 },
-  { label: 'SHP (R717)', expression: '40.789 * (T_lift + 2*1.0305)**(-1.0489) * (T_sink + 273 + 1.0305)**0.29998', T_sink_min: 70, T_sink_max: 85 },
+  { label: 'Theoretical Carnot (50 %)', expression: '0.5 * (T_sink + 273.15) / (T_sink - T_source)', T_sink_min: 0, T_sink_max: 250 },
+  { label: 'Stirling Engine', expression: '1.28792 * ((T_sink - T_source) + 1.08206)**-0.37606 * (T_sink + 273.54103)**0.35992', T_sink_min: 144, T_sink_max: 212 },
+  { label: 'SHP (HFC/HFO)', expression: '1.9118 * ((T_sink - T_source) + 2*0.04419)**(-0.89094) * (T_sink + 273 + 0.04419)**0.67895', T_sink_min: 80, T_sink_max: 160 },
+  { label: 'SHP (R717)', expression: '40.789 * ((T_sink - T_source) + 2*1.0305)**(-1.0489) * (T_sink + 273 + 1.0305)**0.29998', T_sink_min: 70, T_sink_max: 85 },
 ];
 
 export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
@@ -152,7 +152,7 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
             spellCheck={false}
             maxLength={500}
             onChange={(e) => set('expression', e.target.value)}
-            placeholder="0.5 * (T_sink + 273.15) / T_lift"
+            placeholder="0.5 * (T_sink + 273.15) / (T_sink - T_source)"
           />
 
           <div className={`cf-verdict ${check?.valid ? 'ok' : check ? 'bad' : ''}`}>
