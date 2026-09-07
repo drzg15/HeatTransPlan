@@ -24,3 +24,16 @@
 .admonition.important {
     border-left-color: #e74c3c;
 }
+
+/* Widen the main documentation content area */
+:root {
+    --pst-container-width: 100vw !important;
+}
+
+.bd-page-width {
+    max-width: 95% !important;
+}
+
+.bd-article-container, .bd-content {
+    max-width: 100% !important;
+}
