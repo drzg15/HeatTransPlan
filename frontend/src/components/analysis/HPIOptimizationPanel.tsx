@@ -33,6 +33,7 @@ function isSamePoint(a: OptimizedIntegrationPoint, b: OptimizedIntegrationPoint)
 export default function HPIOptimizationPanel() {
   const hpiOptimizationResult = useAnalysisStore((s) => s.hpiOptimizationResult);
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
+  const tMin = useAnalysisStore((s) => s.tMin);
   const theme = useUIStore((s) => s.theme);
   const isDark = theme === 'dark';
   const { t } = useTranslation();
@@ -377,30 +378,53 @@ export default function HPIOptimizationPanel() {
                           {renderSortIcon('Q_source')}
                         </div>
                       </th>
-                      <th style={thStyle} onClick={() => handleSort('T_sink')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          {t('optimization.panel.headers.t_sink')}
+                          {t('optimization.panel.headers.t_sink')} [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Temp_Sink"
-                              description={t('optimization.tooltip_temp_sink')}
+                              title="Shifted Sink Temp"
+                              description="The shifted temperature of the heat sink pocket on the GCC."
                               inline={true}
                             />
                           </span>
                           {renderSortIcon('T_sink')}
                         </div>
                       </th>
-                      <th style={thStyle} onClick={() => handleSort('T_source')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          {t('optimization.panel.headers.t_source')}
+                      <th style={thStyle} onClick={() => handleSort('T_sink')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
+                          Actual Sink (T*-{tMin/2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Temp_Source"
-                              description={t('optimization.tooltip_temp_source')}
+                              title="Actual Sink Temp"
+                              description="The actual physical temperature of the heat sink process."
+                              inline={true}
+                            />
+                          </span>
+                        </div>
+                      </th>
+                      <th style={thStyle} onClick={() => handleSort('T_source')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          {t('optimization.panel.headers.t_source')} [°C]
+                          <span onClick={(e) => e.stopPropagation()}>
+                            <ChartHelpButton
+                              title="Shifted Source Temp"
+                              description="The shifted temperature of the heat source pocket on the GCC."
                               inline={true}
                             />
                           </span>
                           {renderSortIcon('T_source')}
+                        </div>
+                      </th>
+                      <th style={thStyle} onClick={() => handleSort('T_source')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
+                          Actual Source (T*+{tMin/2}K) [°C]
+                          <span onClick={(e) => e.stopPropagation()}>
+                            <ChartHelpButton
+                              title="Actual Source Temp"
+                              description="The actual physical temperature of the heat source process."
+                              inline={true}
+                            />
+                          </span>
                         </div>
                       </th>
                       <th style={thStyle} onClick={() => handleSort('refrigerant')}>
@@ -470,7 +494,9 @@ export default function HPIOptimizationPanel() {
                           </td>
                           <td>{((pt.Q_demand * (pt.COP - 1)) / pt.COP).toFixed(1)}</td>
                           <td>{pt.T_sink.toFixed(1)}</td>
+                          <td style={{ color: 'var(--text-muted)' }}>{(pt.T_sink - tMin/2).toFixed(1)}</td>
                           <td>{pt.T_source.toFixed(1)}</td>
+                          <td style={{ color: 'var(--text-muted)' }}>{(pt.T_source + tMin/2).toFixed(1)}</td>
                           <td>{refName}</td>
                           <td>{pt.hp_level}</td>
                         </tr>
