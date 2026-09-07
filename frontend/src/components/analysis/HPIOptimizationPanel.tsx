@@ -378,6 +378,7 @@ export default function HPIOptimizationPanel() {
                           {renderSortIcon('Q_source')}
                         </div>
                       </th>
+                      <th style={thStyle} onClick={() => handleSort('T_sink')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                           {t('optimization.panel.headers.t_sink')} [°C]
                           <span onClick={(e) => e.stopPropagation()}>
