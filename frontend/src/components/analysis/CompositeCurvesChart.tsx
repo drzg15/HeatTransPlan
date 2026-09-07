@@ -42,14 +42,14 @@ export default function CompositeCurvesChart() {
   const layout: any = {
     title: { text: titleText, font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' } },
     xaxis: {
-      title: 'Enthalpy H (kW)',
-      rangemode: 'tozero',
+      title: { text: 'Enthalpy flow (kW)' },
+      automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     yaxis: {
-      title: 'Temperature T (°C)',
+      title: { text: 'Temperature T (°C)' },
       rangemode: 'tozero',
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
@@ -58,7 +58,7 @@ export default function CompositeCurvesChart() {
     height: 400,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { l: 60, r: 20, t: 40, b: 50 },
+    margin: { l: 80, r: 30, t: 40, b: 80 },
     legend: {
       x: 0.01,
       y: 0.99,

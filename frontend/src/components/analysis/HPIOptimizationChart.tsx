@@ -224,13 +224,15 @@ export default function HPIOptimizationChart({
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     xaxis: {
-      title: mirrored ? 'Q̇  ← source | sink →  (kW)' : 'Heat Capacity Q (kW)',
+      title: { text: mirrored ? 'Q̇  ← source | sink →  (kW)' : 'Net Enthalpy flow in kW' },
+      automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     yaxis: {
-      title: 'Temperature (°C)',
+      title: { text: 'Shifted Temperature in °C' },
+      automargin: true,
       rangemode: 'tozero',
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
@@ -240,11 +242,8 @@ export default function HPIOptimizationChart({
     height: 400,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    // Plain axis margin. This was l:200/r:0, reserving a gutter for a legend
-    // that does not exist (showlegend is false, just below). Inside the narrow
-    // right-hand column that left as little as 153px of actual plot on an iPad,
-    // jammed against the right edge.
-    margin: { l: 60, r: 20, t: 40, b: 50 },
+    // Plain axis margin.
+    margin: { l: 80, r: 20, t: 40, b: 80 },
     hovermode: 'closest' as const,
     showlegend: false,
     shapes: [
