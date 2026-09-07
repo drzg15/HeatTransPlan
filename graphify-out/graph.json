@@ -40,7 +40,7 @@
       "file_type": "code",
       "norm_label": "heatpumpintegration",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L68"
+      "source_location": "L82"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_hpi_plot_hpiplot",
@@ -339,7 +339,7 @@
       "file_type": "code",
       "norm_label": "copformulaspec",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L206"
+      "source_location": "L207"
     },
     {
       "id": "backend_app_models_analysis_copformulavalidaterequest",
@@ -352,7 +352,7 @@
       "file_type": "code",
       "norm_label": "copformulavalidaterequest",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L232"
+      "source_location": "L233"
     },
     {
       "id": "backend_app_models_analysis_copformulavalidateresult",
@@ -365,7 +365,7 @@
       "file_type": "code",
       "norm_label": "copformulavalidateresult",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L239"
+      "source_location": "L240"
     },
     {
       "id": "backend_app_models_analysis_energydemand",
@@ -378,7 +378,7 @@
       "file_type": "code",
       "norm_label": "energydemand",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L122"
+      "source_location": "L123"
     },
     {
       "id": "backend_app_models_analysis_hpintegrationresult",
@@ -391,7 +391,7 @@
       "file_type": "code",
       "norm_label": "hpintegrationresult",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L91"
+      "source_location": "L92"
     },
     {
       "id": "backend_app_models_analysis_hpirequest",
@@ -404,7 +404,7 @@
       "file_type": "code",
       "norm_label": "hpirequest",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L76"
+      "source_location": "L77"
     },
     {
       "id": "backend_app_models_analysis_hpiresult",
@@ -417,7 +417,7 @@
       "file_type": "code",
       "norm_label": "hpiresult",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L106"
+      "source_location": "L107"
     },
     {
       "id": "backend_app_models_analysis_statusquorequest",
@@ -430,7 +430,7 @@
       "file_type": "code",
       "norm_label": "statusquorequest",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L129"
+      "source_location": "L130"
     },
     {
       "id": "backend_app_models_analysis_statusquoresult",
@@ -443,7 +443,7 @@
       "file_type": "code",
       "norm_label": "statusquoresult",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L136"
+      "source_location": "L137"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpoutofrange",
@@ -456,7 +456,7 @@
       "file_type": "code",
       "norm_label": "heatpumpoutofrange",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L48"
+      "source_location": "L62"
     },
     {
       "id": "backend_app_models_project_groupcoordinates",
@@ -1132,7 +1132,7 @@
       "file_type": "code",
       "norm_label": "hpioptimizationdiagnostics",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L175"
+      "source_location": "L176"
     },
     {
       "id": "backend_app_models_analysis_hpioptimizationrequest",
@@ -1145,7 +1145,7 @@
       "file_type": "code",
       "norm_label": "hpioptimizationrequest",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L248"
+      "source_location": "L249"
     },
     {
       "id": "backend_app_models_analysis_optimizedintegrationpoint",
@@ -1158,7 +1158,7 @@
       "file_type": "code",
       "norm_label": "optimizedintegrationpoint",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L152"
+      "source_location": "L153"
     },
     {
       "id": "backend_app_utils_cop_formula_formulaerror",
@@ -1509,7 +1509,7 @@
       "file_type": "code",
       "norm_label": "hpioptimizationresult",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L257"
+      "source_location": "L258"
     },
     {
       "id": "backend_app_models_analysis_pinchresult",
@@ -3356,7 +3356,7 @@
       "file_type": "code",
       "norm_label": "carnot_cop()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L34"
+      "source_location": "L48"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_check_lift",
@@ -3368,7 +3368,7 @@
       "file_type": "code",
       "norm_label": "._check_lift()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L91"
+      "source_location": "L105"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_cop",
@@ -3380,7 +3380,7 @@
       "file_type": "code",
       "norm_label": ".cop()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L107"
+      "source_location": "L121"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_cop_specific",
@@ -3392,7 +3392,7 @@
       "file_type": "code",
       "norm_label": ".cop_specific()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L157"
+      "source_location": "L171"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_delete_temperature_pockets",
@@ -3404,7 +3404,7 @@
       "file_type": "code",
       "norm_label": ".delete_temperature_pockets()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L179"
+      "source_location": "L193"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_find_integration",
@@ -3416,7 +3416,7 @@
       "file_type": "code",
       "norm_label": ".find_integration()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L352"
+      "source_location": "L366"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_get_available_heat_pumps",
@@ -3428,7 +3428,7 @@
       "file_type": "code",
       "norm_label": ".get_available_heat_pumps()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L129"
+      "source_location": "L143"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_hpi",
@@ -3440,7 +3440,7 @@
       "file_type": "code",
       "norm_label": ".hpi()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L412"
+      "source_location": "L426"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_init",
@@ -3452,7 +3452,7 @@
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L69"
+      "source_location": "L83"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_integrate_heat_pump",
@@ -3464,7 +3464,7 @@
       "file_type": "code",
       "norm_label": ".integrate_heat_pump()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L257"
+      "source_location": "L271"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_integrate_heat_pump_specific",
@@ -3476,7 +3476,7 @@
       "file_type": "code",
       "norm_label": ".integrate_heat_pump_specific()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L382"
+      "source_location": "L396"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_q_punkt_ev",
@@ -3488,7 +3488,7 @@
       "file_type": "code",
       "norm_label": ".q_punkt_ev()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L248"
+      "source_location": "L262"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_q_punkt_ko",
@@ -3500,7 +3500,7 @@
       "file_type": "code",
       "norm_label": ".q_punkt_ko()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L251"
+      "source_location": "L265"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_solve_for_issp",
@@ -3512,7 +3512,7 @@
       "file_type": "code",
       "norm_label": ".solve_for_issp()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L405"
+      "source_location": "L419"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_split_hot_and_cold",
@@ -3524,7 +3524,7 @@
       "file_type": "code",
       "norm_label": ".split_hot_and_cold()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L191"
+      "source_location": "L205"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_t_ko",
@@ -3536,7 +3536,7 @@
       "file_type": "code",
       "norm_label": ".t_ko()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L254"
+      "source_location": "L268"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpoutofrange_init",
@@ -3548,7 +3548,7 @@
       "file_type": "code",
       "norm_label": ".__init__()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L57"
+      "source_location": "L71"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_in_operating_window",
@@ -3560,7 +3560,7 @@
       "file_type": "code",
       "norm_label": "in_operating_window()",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L39"
+      "source_location": "L53"
     },
     {
       "id": "backend_app_modules_heat_pump_integration_hpi_plot_hpiplot_draw_cop_ko",
@@ -6236,7 +6236,7 @@
       "file_type": "code",
       "norm_label": "run_status_quo()",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L271"
+      "source_location": "L279"
     },
     {
       "id": "docs_build_html_static_scripts_bootstrap_ci_dispose",
@@ -10347,84 +10347,7 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_108",
-      "label": "Best COP available at source temperature T, across every technology rated for\u2026",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "HeatPumpIntegration",
-      "file_type": "rationale",
-      "norm_label": "best cop available at source temperature t, across every technology rated for...",
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L108"
-    },
-    {
-      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_130",
-      "label": "Returns list of all heat pump types with their COPs and availability status",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "HeatPumpIntegration",
-      "file_type": "rationale",
-      "norm_label": "returns list of all heat pump types with their cops and availability status",
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L130"
-    },
-    {
-      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_158",
-      "label": "COP of one named technology at source temperature T. Raises HeatPumpOutOfRange\u2026",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "HeatPumpIntegration",
-      "file_type": "rationale",
-      "norm_label": "cop of one named technology at source temperature t. raises heatpumpoutofrange...",
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L158"
-    },
-    {
-      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_35",
-      "label": "Carnot COP at 50 % efficiency \u2014 the generic fallback for 'any heat pump'.",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "HeatPumpIntegration",
-      "file_type": "rationale",
-      "norm_label": "carnot cop at 50 % efficiency \u2014 the generic fallback for 'any heat pump'.",
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L35"
-    },
-    {
-      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_353",
-      "label": "Select the operating point to report from the walk in table_issp. If the very\u2026",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "HeatPumpIntegration",
-      "file_type": "rationale",
-      "norm_label": "select the operating point to report from the walk in table_issp. if the very...",
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L353"
-    },
-    {
-      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_383",
-      "label": "Same as integrate_heat_pump but pinned to one named technology. Propagates\u2026",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "HeatPumpIntegration",
-      "file_type": "rationale",
-      "norm_label": "same as integrate_heat_pump but pinned to one named technology. propagates...",
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L383"
-    },
-    {
-      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_40",
-      "label": "True when `hp_type` is rated for this sink temperature and lift.",
-      "_origin": "ast",
-      "community": 10,
-      "community_name": "HeatPumpIntegration",
-      "file_type": "rationale",
-      "norm_label": "true when `hp_type` is rated for this sink temperature and lift.",
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L40"
-    },
-    {
-      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_92",
+      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_106",
       "label": "A heat pump needs a positive temperature lift. With the pocket-free GCC the\u2026",
       "_origin": "ast",
       "community": 10,
@@ -10432,7 +10355,84 @@
       "file_type": "rationale",
       "norm_label": "a heat pump needs a positive temperature lift. with the pocket-free gcc the...",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L92"
+      "source_location": "L106"
+    },
+    {
+      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_122",
+      "label": "Best COP available at source temperature T, across every technology rated for\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "HeatPumpIntegration",
+      "file_type": "rationale",
+      "norm_label": "best cop available at source temperature t, across every technology rated for...",
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L122"
+    },
+    {
+      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_144",
+      "label": "Returns list of all heat pump types with their COPs and availability status",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "HeatPumpIntegration",
+      "file_type": "rationale",
+      "norm_label": "returns list of all heat pump types with their cops and availability status",
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L144"
+    },
+    {
+      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_172",
+      "label": "COP of one named technology at source temperature T. Raises HeatPumpOutOfRange\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "HeatPumpIntegration",
+      "file_type": "rationale",
+      "norm_label": "cop of one named technology at source temperature t. raises heatpumpoutofrange...",
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L172"
+    },
+    {
+      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_367",
+      "label": "Select the operating point to report from the walk in table_issp. If the very\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "HeatPumpIntegration",
+      "file_type": "rationale",
+      "norm_label": "select the operating point to report from the walk in table_issp. if the very...",
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L367"
+    },
+    {
+      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_397",
+      "label": "Same as integrate_heat_pump but pinned to one named technology. Propagates\u2026",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "HeatPumpIntegration",
+      "file_type": "rationale",
+      "norm_label": "same as integrate_heat_pump but pinned to one named technology. propagates...",
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L397"
+    },
+    {
+      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_49",
+      "label": "Carnot COP at 50 % efficiency \u2014 the generic fallback for 'any heat pump'.",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "HeatPumpIntegration",
+      "file_type": "rationale",
+      "norm_label": "carnot cop at 50 % efficiency \u2014 the generic fallback for 'any heat pump'.",
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L49"
+    },
+    {
+      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_54",
+      "label": "True when `hp_type` is rated for this sink temperature and lift.",
+      "_origin": "ast",
+      "community": 10,
+      "community_name": "HeatPumpIntegration",
+      "file_type": "rationale",
+      "norm_label": "true when `hp_type` is rated for this sink temperature and lift.",
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L54"
     },
     {
       "id": "frontend_src_api_analysis",
@@ -10589,7 +10589,7 @@
       "source_location": "L1"
     },
     {
-      "id": "backend_app_models_analysis_rationale_107",
+      "id": "backend_app_models_analysis_rationale_108",
       "label": "Output of HPI analysis \u2014 one entry per HP type evaluated.",
       "_origin": "ast",
       "community": 12,
@@ -10597,10 +10597,10 @@
       "file_type": "rationale",
       "norm_label": "output of hpi analysis \u2014 one entry per hp type evaluated.",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L107"
+      "source_location": "L108"
     },
     {
-      "id": "backend_app_models_analysis_rationale_123",
+      "id": "backend_app_models_analysis_rationale_124",
       "label": "Current energy demand for one stream (user-entered).",
       "_origin": "ast",
       "community": 12,
@@ -10608,10 +10608,10 @@
       "file_type": "rationale",
       "norm_label": "current energy demand for one stream (user-entered).",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L123"
+      "source_location": "L124"
     },
     {
-      "id": "backend_app_models_analysis_rationale_130",
+      "id": "backend_app_models_analysis_rationale_131",
       "label": "Input to the status quo comparison endpoint.",
       "_origin": "ast",
       "community": 12,
@@ -10619,10 +10619,10 @@
       "file_type": "rationale",
       "norm_label": "input to the status quo comparison endpoint.",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L130"
+      "source_location": "L131"
     },
     {
-      "id": "backend_app_models_analysis_rationale_137",
+      "id": "backend_app_models_analysis_rationale_138",
       "label": "Comparison of current vs pinch-optimal demands.",
       "_origin": "ast",
       "community": 12,
@@ -10630,10 +10630,10 @@
       "file_type": "rationale",
       "norm_label": "comparison of current vs pinch-optimal demands.",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L137"
+      "source_location": "L138"
     },
     {
-      "id": "backend_app_models_analysis_rationale_207",
+      "id": "backend_app_models_analysis_rationale_208",
       "label": "A COP correlation typed in by the user instead of read from the model. The\u2026",
       "_origin": "ast",
       "community": 12,
@@ -10641,10 +10641,10 @@
       "file_type": "rationale",
       "norm_label": "a cop correlation typed in by the user instead of read from the model. the...",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L207"
+      "source_location": "L208"
     },
     {
-      "id": "backend_app_models_analysis_rationale_233",
+      "id": "backend_app_models_analysis_rationale_234",
       "label": "Check a formula (and preview one value) without running the optimisation.",
       "_origin": "ast",
       "community": 12,
@@ -10652,7 +10652,7 @@
       "file_type": "rationale",
       "norm_label": "check a formula (and preview one value) without running the optimisation.",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L233"
+      "source_location": "L234"
     },
     {
       "id": "backend_app_models_analysis_rationale_35",
@@ -10666,7 +10666,7 @@
       "source_location": "L35"
     },
     {
-      "id": "backend_app_models_analysis_rationale_77",
+      "id": "backend_app_models_analysis_rationale_78",
       "label": "Input to the HPI endpoint.",
       "_origin": "ast",
       "community": 12,
@@ -10674,10 +10674,10 @@
       "file_type": "rationale",
       "norm_label": "input to the hpi endpoint.",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L77"
+      "source_location": "L78"
     },
     {
-      "id": "backend_app_models_analysis_rationale_92",
+      "id": "backend_app_models_analysis_rationale_93",
       "label": "Result for a single heat pump type.",
       "_origin": "ast",
       "community": 12,
@@ -10685,10 +10685,10 @@
       "file_type": "rationale",
       "norm_label": "result for a single heat pump type.",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L92"
+      "source_location": "L93"
     },
     {
-      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_49",
+      "id": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_63",
       "label": "A named heat pump technology was asked for a duty outside its rating. Raised\u2026",
       "_origin": "ast",
       "community": 12,
@@ -10696,7 +10696,7 @@
       "file_type": "rationale",
       "norm_label": "a named heat pump technology was asked for a duty outside its rating. raised...",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L49"
+      "source_location": "L63"
     },
     {
       "id": "backend_app_services_analysis_service_rationale_1",
@@ -13340,7 +13340,7 @@
       "source_location": "L88"
     },
     {
-      "id": "backend_app_services_analysis_service_rationale_272",
+      "id": "backend_app_services_analysis_service_rationale_280",
       "label": "Compare current energy demands against pinch-optimal values. Pure calculation \u2014\u2026",
       "_origin": "ast",
       "community": 31,
@@ -13348,7 +13348,7 @@
       "file_type": "rationale",
       "norm_label": "compare current energy demands against pinch-optimal values. pure calculation \u2014...",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L272"
+      "source_location": "L280"
     },
     {
       "id": "frontend_src_components_analysis_streamdatatable",
@@ -13961,7 +13961,7 @@
       "source_location": ""
     },
     {
-      "id": "backend_app_models_analysis_rationale_176",
+      "id": "backend_app_models_analysis_rationale_177",
       "label": "Why the optimization found little or nothing. Filled on every run, so an empty\u2026",
       "_origin": "ast",
       "community": 4,
@@ -13969,10 +13969,10 @@
       "file_type": "rationale",
       "norm_label": "why the optimization found little or nothing. filled on every run, so an empty...",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L176"
+      "source_location": "L177"
     },
     {
-      "id": "backend_app_models_analysis_rationale_249",
+      "id": "backend_app_models_analysis_rationale_250",
       "label": "Input to the HPI optimization endpoint.",
       "_origin": "ast",
       "community": 4,
@@ -13980,7 +13980,7 @@
       "file_type": "rationale",
       "norm_label": "input to the hpi optimization endpoint.",
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L249"
+      "source_location": "L250"
     },
     {
       "id": "backend_app_modules_utility_heat_profiles_rationale_187",
@@ -16793,7 +16793,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L102",
+      "source_location": "L116",
       "weight": 1.0
     },
     {
@@ -16805,7 +16805,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L116",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
@@ -16817,7 +16817,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L122",
+      "source_location": "L136",
       "weight": 1.0
     },
     {
@@ -16829,7 +16829,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L166",
+      "source_location": "L180",
       "weight": 1.0
     },
     {
@@ -16841,7 +16841,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L170",
+      "source_location": "L184",
       "weight": 1.0
     },
     {
@@ -16853,7 +16853,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L172",
+      "source_location": "L186",
       "weight": 1.0
     },
     {
@@ -16865,7 +16865,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L173",
+      "source_location": "L187",
       "weight": 1.0
     },
     {
@@ -16877,7 +16877,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L135",
+      "source_location": "L149",
       "weight": 1.0
     },
     {
@@ -16889,7 +16889,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L417",
+      "source_location": "L431",
       "weight": 1.0
     },
     {
@@ -16901,7 +16901,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L418",
+      "source_location": "L432",
       "weight": 1.0
     },
     {
@@ -16913,7 +16913,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L419",
+      "source_location": "L433",
       "weight": 1.0
     },
     {
@@ -16925,7 +16925,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L420",
+      "source_location": "L434",
       "weight": 1.0
     },
     {
@@ -16937,7 +16937,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L421",
+      "source_location": "L435",
       "weight": 1.0
     },
     {
@@ -16949,7 +16949,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L286",
+      "source_location": "L300",
       "weight": 1.0
     },
     {
@@ -16961,7 +16961,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L287",
+      "source_location": "L301",
       "weight": 1.0
     },
     {
@@ -16973,7 +16973,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L297",
+      "source_location": "L311",
       "weight": 1.0
     },
     {
@@ -16985,7 +16985,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L326",
+      "source_location": "L340",
       "weight": 1.0
     },
     {
@@ -16997,7 +16997,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L398",
+      "source_location": "L412",
       "weight": 1.0
     },
     {
@@ -17009,7 +17009,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L407",
+      "source_location": "L421",
       "weight": 1.0
     },
     {
@@ -17021,7 +17021,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L408",
+      "source_location": "L422",
       "weight": 1.0
     },
     {
@@ -17033,7 +17033,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L409",
+      "source_location": "L423",
       "weight": 1.0
     },
     {
@@ -17045,7 +17045,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L62",
+      "source_location": "L76",
       "weight": 1.0
     },
     {
@@ -17981,7 +17981,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L168",
+      "source_location": "L169",
       "weight": 1.0
     },
     {
@@ -17993,7 +17993,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L176",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
@@ -18005,7 +18005,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L180",
+      "source_location": "L181",
       "weight": 1.0
     },
     {
@@ -18017,7 +18017,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L202",
+      "source_location": "L203",
       "weight": 1.0
     },
     {
@@ -18029,7 +18029,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L216",
+      "source_location": "L223",
       "weight": 1.0
     },
     {
@@ -18041,7 +18041,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L228",
+      "source_location": "L236",
       "weight": 1.0
     },
     {
@@ -18053,7 +18053,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L258",
+      "source_location": "L266",
       "weight": 1.0
     },
     {
@@ -18065,7 +18065,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L258",
+      "source_location": "L266",
       "weight": 1.0
     },
     {
@@ -18125,7 +18125,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L285",
+      "source_location": "L293",
       "weight": 1.0
     },
     {
@@ -18137,7 +18137,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L285",
+      "source_location": "L293",
       "weight": 1.0
     },
     {
@@ -28495,7 +28495,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L146",
+      "source_location": "L147",
       "weight": 1.0
     },
     {
@@ -28507,7 +28507,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L147",
+      "source_location": "L148",
       "weight": 1.0
     },
     {
@@ -28519,7 +28519,7 @@
       "confidence_score": 1.0,
       "context": "import",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L167",
+      "source_location": "L168",
       "weight": 1.0
     },
     {
@@ -34663,7 +34663,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L106",
+      "source_location": "L107",
       "weight": 1.0
     },
     {
@@ -34674,7 +34674,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L122",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -34685,7 +34685,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L129",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
@@ -34696,7 +34696,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L136",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -34707,7 +34707,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L152",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -34718,7 +34718,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L175",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -34740,7 +34740,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L206",
+      "source_location": "L207",
       "weight": 1.0
     },
     {
@@ -34751,7 +34751,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L232",
+      "source_location": "L233",
       "weight": 1.0
     },
     {
@@ -34762,7 +34762,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L239",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -34773,7 +34773,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L248",
+      "source_location": "L249",
       "weight": 1.0
     },
     {
@@ -34784,7 +34784,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L257",
+      "source_location": "L258",
       "weight": 1.0
     },
     {
@@ -34839,7 +34839,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L76",
+      "source_location": "L77",
       "weight": 1.0
     },
     {
@@ -34850,7 +34850,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L91",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -35026,7 +35026,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L34",
+      "source_location": "L48",
       "weight": 1.0
     },
     {
@@ -35037,7 +35037,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L39",
+      "source_location": "L53",
       "weight": 1.0
     },
     {
@@ -35048,7 +35048,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L48",
+      "source_location": "L62",
       "weight": 1.0
     },
     {
@@ -35059,7 +35059,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L68",
+      "source_location": "L82",
       "weight": 1.0
     },
     {
@@ -35719,7 +35719,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L271",
+      "source_location": "L279",
       "weight": 1.0
     },
     {
@@ -42238,7 +42238,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L206",
+      "source_location": "L207",
       "weight": 1.0
     },
     {
@@ -42249,7 +42249,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L232",
+      "source_location": "L233",
       "weight": 1.0
     },
     {
@@ -42260,7 +42260,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L239",
+      "source_location": "L240",
       "weight": 1.0
     },
     {
@@ -42271,7 +42271,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L122",
+      "source_location": "L123",
       "weight": 1.0
     },
     {
@@ -42293,7 +42293,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L91",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -42304,7 +42304,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L175",
+      "source_location": "L176",
       "weight": 1.0
     },
     {
@@ -42315,7 +42315,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L248",
+      "source_location": "L249",
       "weight": 1.0
     },
     {
@@ -42326,7 +42326,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L257",
+      "source_location": "L258",
       "weight": 1.0
     },
     {
@@ -42337,7 +42337,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L76",
+      "source_location": "L77",
       "weight": 1.0
     },
     {
@@ -42348,7 +42348,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L106",
+      "source_location": "L107",
       "weight": 1.0
     },
     {
@@ -42359,7 +42359,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L152",
+      "source_location": "L153",
       "weight": 1.0
     },
     {
@@ -42403,7 +42403,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L129",
+      "source_location": "L130",
       "weight": 1.0
     },
     {
@@ -42414,7 +42414,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L136",
+      "source_location": "L137",
       "weight": 1.0
     },
     {
@@ -42601,7 +42601,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L48",
+      "source_location": "L62",
       "weight": 1.0
     },
     {
@@ -42639,13 +42639,24 @@
     },
     {
       "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration",
+      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_check_lift",
+      "relation": "method",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L105",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration",
       "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_cop",
       "relation": "method",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L107",
+      "source_location": "L121",
       "weight": 1.0
     },
     {
@@ -42656,7 +42667,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L129",
+      "source_location": "L143",
       "weight": 1.0
     },
     {
@@ -42667,7 +42678,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L157",
+      "source_location": "L171",
       "weight": 1.0
     },
     {
@@ -42678,7 +42689,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L179",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -42689,7 +42700,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L191",
+      "source_location": "L205",
       "weight": 1.0
     },
     {
@@ -42700,7 +42711,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L248",
+      "source_location": "L262",
       "weight": 1.0
     },
     {
@@ -42711,7 +42722,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L251",
+      "source_location": "L265",
       "weight": 1.0
     },
     {
@@ -42722,7 +42733,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L254",
+      "source_location": "L268",
       "weight": 1.0
     },
     {
@@ -42733,7 +42744,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L257",
+      "source_location": "L271",
       "weight": 1.0
     },
     {
@@ -42744,7 +42755,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L352",
+      "source_location": "L366",
       "weight": 1.0
     },
     {
@@ -42755,7 +42766,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L382",
+      "source_location": "L396",
       "weight": 1.0
     },
     {
@@ -42766,7 +42777,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L405",
+      "source_location": "L419",
       "weight": 1.0
     },
     {
@@ -42777,7 +42788,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L412",
+      "source_location": "L426",
       "weight": 1.0
     },
     {
@@ -42788,18 +42799,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L69",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration",
-      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_check_lift",
-      "relation": "method",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L91",
+      "source_location": "L83",
       "weight": 1.0
     },
     {
@@ -42810,7 +42810,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L57",
+      "source_location": "L71",
       "weight": 1.0
     },
     {
@@ -46422,69 +46422,69 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_107",
+      "source": "backend_app_models_analysis_rationale_108",
       "target": "backend_app_models_analysis_hpiresult",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L107",
+      "source_location": "L108",
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_123",
+      "source": "backend_app_models_analysis_rationale_124",
       "target": "backend_app_models_analysis_energydemand",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L123",
+      "source_location": "L124",
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_130",
+      "source": "backend_app_models_analysis_rationale_131",
       "target": "backend_app_models_analysis_statusquorequest",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L130",
+      "source_location": "L131",
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_137",
+      "source": "backend_app_models_analysis_rationale_138",
       "target": "backend_app_models_analysis_statusquoresult",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L137",
+      "source_location": "L138",
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_176",
+      "source": "backend_app_models_analysis_rationale_177",
       "target": "backend_app_models_analysis_hpioptimizationdiagnostics",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L176",
+      "source_location": "L177",
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_207",
+      "source": "backend_app_models_analysis_rationale_208",
       "target": "backend_app_models_analysis_copformulaspec",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L207",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -46499,25 +46499,25 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_233",
+      "source": "backend_app_models_analysis_rationale_234",
       "target": "backend_app_models_analysis_copformulavalidaterequest",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L233",
+      "source_location": "L234",
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_249",
+      "source": "backend_app_models_analysis_rationale_250",
       "target": "backend_app_models_analysis_hpioptimizationrequest",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L249",
+      "source_location": "L250",
       "weight": 1.0
     },
     {
@@ -46565,25 +46565,25 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_77",
+      "source": "backend_app_models_analysis_rationale_78",
       "target": "backend_app_models_analysis_hpirequest",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L77",
+      "source_location": "L78",
       "weight": 1.0
     },
     {
-      "source": "backend_app_models_analysis_rationale_92",
+      "source": "backend_app_models_analysis_rationale_93",
       "target": "backend_app_models_analysis_hpintegrationresult",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/models/analysis.py",
-      "source_location": "L92",
+      "source_location": "L93",
       "weight": 1.0
     },
     {
@@ -46785,85 +46785,74 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_108",
+      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_106",
+      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_check_lift",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L106",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_122",
       "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_cop",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L108",
+      "source_location": "L122",
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_130",
+      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_144",
       "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_get_available_heat_pumps",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L130",
+      "source_location": "L144",
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_158",
+      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_172",
       "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_cop_specific",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L158",
+      "source_location": "L172",
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_35",
-      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_carnot_cop",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L35",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_353",
+      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_367",
       "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_find_integration",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L353",
+      "source_location": "L367",
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_383",
+      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_397",
       "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_integrate_heat_pump_specific",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L383",
-      "weight": 1.0
-    },
-    {
-      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_40",
-      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_in_operating_window",
-      "relation": "rationale_for",
-      "_origin": "ast",
-      "confidence": "EXTRACTED",
-      "confidence_score": 1.0,
-      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L40",
+      "source_location": "L397",
       "weight": 1.0
     },
     {
       "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_49",
-      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpoutofrange",
+      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_carnot_cop",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
@@ -46873,14 +46862,25 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_92",
-      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpintegration_check_lift",
+      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_54",
+      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_in_operating_window",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L92",
+      "source_location": "L54",
+      "weight": 1.0
+    },
+    {
+      "source": "backend_app_modules_heat_pump_integration_heat_pump_integration_rationale_63",
+      "target": "backend_app_modules_heat_pump_integration_heat_pump_integration_heatpumpoutofrange",
+      "relation": "rationale_for",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
+      "source_location": "L63",
       "weight": 1.0
     },
     {
@@ -47423,14 +47423,14 @@
       "weight": 1.0
     },
     {
-      "source": "backend_app_services_analysis_service_rationale_272",
+      "source": "backend_app_services_analysis_service_rationale_280",
       "target": "backend_app_services_analysis_service_run_status_quo",
       "relation": "rationale_for",
       "_origin": "ast",
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L272",
+      "source_location": "L280",
       "weight": 1.0
     },
     {
@@ -48664,7 +48664,7 @@
       "confidence_score": 0.95,
       "context": "parameter_type",
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L271",
+      "source_location": "L279",
       "weight": 0.8
     },
     {
@@ -48847,7 +48847,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L189",
+      "source_location": "L203",
       "weight": 0.8
     },
     {
@@ -48858,7 +48858,7 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "backend/app/modules/heat_pump_integration/heat_pump_integration.py",
-      "source_location": "L421",
+      "source_location": "L435",
       "weight": 0.8
     },
     {
@@ -49056,10 +49056,10 @@
       "confidence": "INFERRED",
       "confidence_score": 0.95,
       "source_file": "backend/app/services/analysis_service.py",
-      "source_location": "L234",
+      "source_location": "L242",
       "weight": 0.8
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "63f6d9924a442c4b9608ae21b4a73a9b41fce6f0"
+  "built_at_commit": "f4582b90a491e22d71e268260149f7a5b37f28eb"
 }

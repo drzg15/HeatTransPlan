@@ -142,6 +142,7 @@ def run_hpi(request: HPIRequest) -> HPIResult:
     from app.modules.heat_pump_integration.heat_pump_integration import (
         HeatPumpIntegration,
         HeatPumpOutOfRange,
+        HP_COP_FORMULAS,
     )
     from app.modules.utility.heat_profiles import resolve_profiles
     from app.models.analysis import HeatPumpEntry
@@ -212,6 +213,12 @@ def run_hpi(request: HPIRequest) -> HPIResult:
                     )
                     integrations.append(res)
 
+                    # Generate calculation details string
+                    delta_T = t_sink - int_temp
+                    calc_details = None
+                    if hp_type in HP_COP_FORMULAS:
+                        calc_details = HP_COP_FORMULAS[hp_type](t_sink, delta_T)
+
                     # Model 2: HeatPumpEntry (matching frontend table expectations)
                     heat_pumps.append(HeatPumpEntry(
                         name=hp_type,
@@ -220,7 +227,8 @@ def run_hpi(request: HPIRequest) -> HPIResult:
                         t_sink=t_sink,
                         q_source=int_qsource,
                         q_sink=int_qsink,
-                        available=True
+                        available=True,
+                        calculation_details=calc_details
                     ))
                 else:
                     # Build a meaningful reason from the HP type's known constraints

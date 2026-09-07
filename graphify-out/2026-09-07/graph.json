@@ -14400,7 +14400,7 @@
       "node_kind": "heading",
       "norm_label": "at each source temperature $t$:",
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L186"
+      "source_location": "L193"
     },
     {
       "id": "docs_build_html_sources_heat_pump_integration_best_available_cop_selection",
@@ -14412,7 +14412,7 @@
       "node_kind": "heading",
       "norm_label": "best-available cop selection",
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L107"
+      "source_location": "L112"
     },
     {
       "id": "docs_build_html_sources_heat_pump_integration_carnot_fallback",
@@ -14424,7 +14424,7 @@
       "node_kind": "heading",
       "norm_label": "carnot fallback",
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L70"
+      "source_location": "L75"
     },
     {
       "id": "docs_build_html_sources_heat_pump_integration_convergence",
@@ -14436,7 +14436,7 @@
       "node_kind": "heading",
       "norm_label": "convergence",
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L204"
+      "source_location": "L211"
     },
     {
       "id": "docs_build_html_sources_heat_pump_integration_cop_correlations",
@@ -14460,7 +14460,7 @@
       "node_kind": "heading",
       "norm_label": "detailed mode breakdown",
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L152"
+      "source_location": "L159"
     },
     {
       "id": "docs_build_html_sources_heat_pump_integration_heat_pump_integration_classic_method",
@@ -14496,7 +14496,7 @@
       "node_kind": "heading",
       "norm_label": "integration walk: finding the operating point",
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L182"
+      "source_location": "L189"
     },
     {
       "id": "docs_build_html_sources_heat_pump_integration_iterative_sink_temperature_mode",
@@ -14508,7 +14508,7 @@
       "node_kind": "heading",
       "norm_label": "iterative sink temperature mode",
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L208"
+      "source_location": "L215"
     },
     {
       "id": "docs_build_html_sources_heat_pump_integration_source_and_sink_profiles_heat_recovery_modes",
@@ -14520,7 +14520,7 @@
       "node_kind": "heading",
       "norm_label": "source and sink profiles & heat recovery modes",
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L141"
+      "source_location": "L148"
     },
     {
       "id": "docs_heat_pump_integration",
@@ -36258,7 +36258,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L70",
+      "source_location": "L75",
       "weight": 1.0
     },
     {
@@ -36269,7 +36269,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L107",
+      "source_location": "L112",
       "weight": 1.0
     },
     {
@@ -36280,7 +36280,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L141",
+      "source_location": "L148",
       "weight": 1.0
     },
     {
@@ -36291,7 +36291,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L182",
+      "source_location": "L189",
       "weight": 1.0
     },
     {
@@ -36324,7 +36324,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L186",
+      "source_location": "L193",
       "weight": 1.0
     },
     {
@@ -36335,7 +36335,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L204",
+      "source_location": "L211",
       "weight": 1.0
     },
     {
@@ -36346,7 +36346,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L208",
+      "source_location": "L215",
       "weight": 1.0
     },
     {
@@ -36357,7 +36357,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "docs/_build/html/_sources/heat_pump_integration.md",
-      "source_location": "L152",
+      "source_location": "L159",
       "weight": 1.0
     },
     {
@@ -49061,5 +49061,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "7ddd17e8ff043d1a727600a0282ae5b14fc6cfc8"
+  "built_at_commit": "63f6d9924a442c4b9608ae21b4a73a9b41fce6f0"
 }
