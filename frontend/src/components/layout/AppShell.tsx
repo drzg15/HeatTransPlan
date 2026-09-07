@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUIStore } from '../../store/uiStore';
+import { useProjectStore } from '../../store/projectStore';
 import LanguagePicker from './LanguagePicker';
 import './AppShell.css';
 
@@ -32,6 +33,22 @@ export default function AppShell({ children }: Props) {
 
   // Burger menu — only rendered/visible below 768px, see AppShell.css
   const [menuOpen, setMenuOpen] = useState(false);
+
+  const state = useProjectStore((s) => s.state);
+  const resetState = useProjectStore((s) => s.resetState);
+  const [showResetModal, setShowResetModal] = useState(false);
+
+  const handleSave = () => {
+    const blob = new Blob([JSON.stringify(state, null, 2)], {
+      type: 'application/json',
+    });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `heattransplan_state_${new Date().toISOString().slice(0, 10)}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
 
   // Sync dark mode class to HTML element
   useEffect(() => {
@@ -80,6 +97,14 @@ export default function AppShell({ children }: Props) {
         </nav>
 
         <div className="nav-actions">
+          <button
+            className="btn btn-sm"
+            onClick={() => setShowResetModal(true)}
+            title="Clear all data and reset project"
+            style={{ marginRight: '8px' }}
+          >
+            🔄 Reset all data
+          </button>
           <LanguagePicker />
           <button
             className="theme-toggle"
@@ -123,6 +148,60 @@ export default function AppShell({ children }: Props) {
 
       {/* Main content */}
       <main className="main-content">{children}</main>
+
+      {showResetModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 99999,
+            background: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
+          <div
+            className="card"
+            style={{
+              maxWidth: 400,
+              padding: '24px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+            }}
+          >
+            <h3 style={{ margin: 0, color: '#d32f2f' }}>{t('action_bar.reset_modal_title')}</h3>
+            <p style={{ margin: 0, lineHeight: 1.5 }}>
+              {t('action_bar.reset_modal_desc')}
+            </p>
+            <p style={{ margin: 0, fontSize: '0.9em', color: 'var(--text-muted)' }}>
+              {t('action_bar.reset_modal_recommend')}
+            </p>
+
+            <div
+              style={{ display: 'flex', gap: '8px', marginTop: '8px', justifyContent: 'flex-end' }}
+            >
+              <button className="btn" onClick={() => setShowResetModal(false)}>
+                {t('cop_modal.cancel') || 'Cancel'}
+              </button>
+              <button className="btn btn-primary" onClick={handleSave}>
+                💾 {t('action_bar.download_project')}
+              </button>
+              <button
+                className="btn"
+                style={{ background: '#d32f2f', color: '#fff', border: 'none' }}
+                onClick={() => {
+                  resetState();
+                  setShowResetModal(false);
+                }}
+              >
+                {t('action_bar.clear_anyway')}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
