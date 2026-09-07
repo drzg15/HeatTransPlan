@@ -46,8 +46,6 @@ export default function ActionBar({
   const resetState = useProjectStore((s) => s.resetState);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  const [showResetModal, setShowResetModal] = useState(false);
-
   const handleSave = () => {
     const blob = new Blob([JSON.stringify(state, null, 2)], {
       type: 'application/json',
@@ -155,14 +153,7 @@ export default function ActionBar({
             />
           </label>
 
-          <button
-            className="btn btn-sm"
-            onClick={() => setShowResetModal(true)}
-            title="Clear local data and reset project"
-            style={{ color: '#d32f2f' }}
-          >
-            🗑️ {t('action_bar.reset')}
-          </button>
+          </label>
 
           {/* Mode-specific Primary Actions */}
           {uiMode === 'analyze' && (
@@ -236,59 +227,6 @@ export default function ActionBar({
         </div>
       </div>
 
-      {showResetModal && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            zIndex: 99999,
-            background: 'rgba(0,0,0,0.5)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <div
-            className="card"
-            style={{
-              maxWidth: 400,
-              padding: '24px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '16px',
-            }}
-          >
-            <h3 style={{ margin: 0, color: '#d32f2f' }}>{t('action_bar.reset_modal_title')}</h3>
-            <p style={{ margin: 0, lineHeight: 1.5 }}>
-              {t('action_bar.reset_modal_desc')}
-            </p>
-            <p style={{ margin: 0, fontSize: '0.9em', color: 'var(--text-muted)' }}>
-              {t('action_bar.reset_modal_recommend')}
-            </p>
-
-            <div
-              style={{ display: 'flex', gap: '8px', marginTop: '8px', justifyContent: 'flex-end' }}
-            >
-              <button className="btn" onClick={() => setShowResetModal(false)}>
-                {t('cop_modal.cancel')}
-              </button>
-              <button className="btn btn-primary" onClick={handleSave}>
-                💾 {t('action_bar.download_project')}
-              </button>
-              <button
-                className="btn"
-                style={{ background: '#d32f2f', color: '#fff', border: 'none' }}
-                onClick={() => {
-                  resetState();
-                  setShowResetModal(false);
-                }}
-              >
-                {t('action_bar.clear_anyway')}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
