@@ -54,7 +54,7 @@ def in_operating_window(hp_type, t_sink, dt):
 Each technology has a **regression fit** — a formula that takes the sink temperature $T_{sink}$ (°C) and the temperature lift $\Delta T = T_{sink} - T_{source}$ (°C) and returns the COP.
 
 > [!IMPORTANT]
-> **Physical Lift and $\Delta T_{min}$**: The source and sink temperatures taken from the Grand Composite Curve are shifted temperatures. The real physical lift the heat pump must overcome includes the minimum approach temperature of the process. Therefore, the actual lift used for COP calculation is $\Delta T_{lift} = T_{sink} - T_{source} + \Delta T_{min}$.
+> **Physical Lift and Shifted Temperatures**: The source and sink temperatures taken from the Grand Composite Curve are shifted temperatures ($T_{hot} - \Delta T_{min}/2$ and $T_{cold} + \Delta T_{min}/2$). Because of this opposite shift, the difference between them ($T_{sink} - T_{source}$) exactly equals the true physical temperature lift the heat pump must overcome ($T_{cold} - T_{hot} + \Delta T_{min}$). Therefore, no additional $\Delta T_{min}$ penalty is needed in the COP calculation; it is mathematically built into the curve.
 > 
 > **COP Limit**: To prevent mathematically unrealistic values when the temperature lift approaches zero, the final calculated COP is strictly capped at a maximum of **15.0**.
 
@@ -127,7 +127,7 @@ If no named technology applies, the Carnot fallback is returned.
 def COP(self, T):
     """Best COP available at source temperature T, across all technologies."""
     self._check_lift(T)
-    delta_T = self.t_sink_out - T + self.tmin
+    delta_T = self.t_sink_out - T
 
     candidates = [
         (correlation(self.t_sink_out, delta_T), hp_type)
