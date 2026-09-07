@@ -8,6 +8,7 @@ import ChartHelpButton from '../ui/ChartHelpButton';
 export default function HeatPumpTable() {
   const { t } = useTranslation();
   const hpiResult = useAnalysisStore((s) => s.hpiResult);
+  const tMin = useAnalysisStore((s) => s.tMin);
   const [isExcludedOpen, setIsExcludedOpen] = useState(false);
   const [activeCalc, setActiveCalc] = useState<string | null>(null);
 
@@ -29,8 +30,38 @@ export default function HeatPumpTable() {
               <tr>
                 <th>{t('analysis.tables.hp')}</th>
                 <th>{t('analysis.tables.cop')}</th>
-                <th>{t('analysis.tables.t_source')}</th>
-                <th>{t('analysis.tables.t_sink')}</th>
+                <th>
+                  Actual Source [°C]
+                  <ChartHelpButton
+                    title="Actual Source Temp"
+                    description="The physical evaporation temperature of the heat pump. This is the real temperature used to calculate the COP."
+                    inline={true}
+                  />
+                </th>
+                <th>
+                  Shifted Source (T-{tMin/2}K) [°C]
+                  <ChartHelpButton
+                    title="Shifted Source Temp"
+                    description="The shifted temperature on the Grand Composite Curve (Actual - ΔTmin/2). Represents the pinch pocket temperature."
+                    inline={true}
+                  />
+                </th>
+                <th>
+                  Actual Sink [°C]
+                  <ChartHelpButton
+                    title="Actual Sink Temp"
+                    description="The physical condensation temperature of the heat pump. This is the real temperature used to calculate the COP."
+                    inline={true}
+                  />
+                </th>
+                <th>
+                  Shifted Sink (T+{tMin/2}K) [°C]
+                  <ChartHelpButton
+                    title="Shifted Sink Temp"
+                    description="The shifted temperature on the Grand Composite Curve (Actual + ΔTmin/2). Represents the pinch pocket temperature."
+                    inline={true}
+                  />
+                </th>
                 <th>{t('analysis.tables.q_source')}</th>
                 <th>{t('analysis.tables.q_sink')}</th>
               </tr>
@@ -58,7 +89,9 @@ export default function HeatPumpTable() {
                     </td>
                     <td>{hp.cop?.toFixed(2) ?? '—'}</td>
                     <td>{hp.t_source?.toFixed(1) ?? '—'}</td>
+                    <td>{hp.t_source != null ? (hp.t_source - tMin/2).toFixed(1) : '—'}</td>
                     <td>{hp.t_sink?.toFixed(1) ?? '—'}</td>
+                    <td>{hp.t_sink != null ? (hp.t_sink + tMin/2).toFixed(1) : '—'}</td>
                     <td>{hp.q_source?.toFixed(1) ?? '—'}</td>
                     <td>{hp.q_sink?.toFixed(1) ?? '—'}</td>
                   </tr>
