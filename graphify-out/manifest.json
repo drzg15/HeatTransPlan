@@ -600,9 +600,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/layout/AppShell.tsx": {
-    "mtime": 1788785787.9348037,
-    "seen": 1788785972.808851,
-    "ast_hash": "1804be2d1d085466cb7b6a32448fd6a3",
+    "mtime": 1788787429.392103,
+    "seen": 1788787437.543361,
+    "ast_hash": "71b8a90de543293cda37b6f914b4b742",
     "semantic_hash": ""
   },
   "frontend/src/components/layout/LanguagePicker.tsx": {
@@ -1062,8 +1062,8 @@
     "semantic_hash": ""
   },
   ".github/workflows/docs.yml": {
-    "mtime": 1788786068.2244499,
-    "seen": 1788786076.185426,
+    "mtime": 1788786078.194718,
+    "seen": 1788787437.544079,
     "ast_hash": "0cd4b54047a0ad027423bb3ac903e7c5",
     "semantic_hash": ""
   },
