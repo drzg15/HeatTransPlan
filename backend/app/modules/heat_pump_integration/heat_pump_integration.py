@@ -12,6 +12,7 @@ HP_OPERATING_WINDOWS = {
     'VHTHP (HFC/HFO)':         {'t_sink_min': 80,  't_sink_max': 160, 'dt_min': 25, 'dt_max': 95},
     'SHP and HTHPs (HFC/HFO)': {'t_sink_min': 25,  't_sink_max': 100, 'dt_min': 10, 'dt_max': 78},
     'SHP and HTHPs (R717)':    {'t_sink_min': 70,  't_sink_max': 85,  'dt_min': 30, 'dt_max': 75},
+    'Theoretical Carnot':      {'t_sink_min': -273, 't_sink_max': 10000, 'dt_min': 0, 'dt_max': 10000},
 }
 
 # Regression fits, one per technology. Each takes the sink temperature (°C) and
@@ -25,6 +26,8 @@ HP_COP_CORRELATIONS = {
         lambda t_sink, dt: 1.4480 * (10 ** 12) * (dt + 2 * 88.73) ** (-4.9469),
     'SHP and HTHPs (R717)':
         lambda t_sink, dt: 40.789 * (dt + 2 * 1.0305) ** (-1.0489) * (t_sink + 273 + 1.0305) ** 0.29998,
+    'Theoretical Carnot':
+        lambda t_sink, dt: carnot_cop(t_sink, dt),
 }
 
 
@@ -78,6 +81,12 @@ class HeatPumpIntegration():
         self.t_sink_out = t_sink_out
 
         self.pyPinch = pyPinch
+        if hasattr(pyPinch, 'pinch_analyse'):
+            self.tmin = pyPinch.pinch_analyse.tmin
+        elif hasattr(pyPinch, 'tmin'):
+            self.tmin = pyPinch.tmin
+        else:
+            self.tmin = 0
 
     def _check_lift(self, T):
         """
@@ -105,28 +114,28 @@ class HeatPumpIntegration():
         to belong to one named technology.
         """
         self._check_lift(T)
-        delta_T = self.t_sink_out - T
+        delta_T = self.t_sink_out - T + self.tmin
 
         candidates = [
             (correlation(self.t_sink_out, delta_T), hp_type)
             for hp_type, correlation in HP_COP_CORRELATIONS.items()
             if in_operating_window(hp_type, self.t_sink_out, delta_T)
         ]
-        if not candidates:
-            return carnot_cop(self.t_sink_out, delta_T), 'Carnot'
+        
         # key= so ties keep the first technology listed, as the original did
-        return max(candidates, key=lambda c: c[0])
+        cop, hp = max(candidates, key=lambda c: c[0])
+        return min(cop, 15.0), hp
 
     def get_available_heat_pumps(self, T):
         """Returns list of all heat pump types with their COPs and availability status"""
         hp_list = []
-        delta_T = self.t_sink_out - T
+        delta_T = self.t_sink_out - T + self.tmin
 
         for hp_type, correlation in HP_COP_CORRELATIONS.items():
             if in_operating_window(hp_type, self.t_sink_out, delta_T):
                 hp_list.append({
                     'name': hp_type,
-                    'cop': correlation(self.t_sink_out, delta_T),
+                    'cop': min(correlation(self.t_sink_out, delta_T), 15.0),
                     'available': True,
                     'reason': '',
                 })
@@ -143,10 +152,6 @@ class HeatPumpIntegration():
                     ),
                 })
 
-        # Carnot (always available)
-        hp_list.append({'name': 'Carnot', 'cop': carnot_cop(self.t_sink_out, delta_T),
-                        'available': True, 'reason': ''})
-
         return hp_list
 
     def COP_specific(self, T, hp_type):
@@ -159,10 +164,7 @@ class HeatPumpIntegration():
         was really just Carnot, and made several of them come out identical.
         """
         self._check_lift(T)
-        delta_T = self.t_sink_out - T
-
-        if hp_type == 'Carnot':
-            return carnot_cop(self.t_sink_out, delta_T)
+        delta_T = self.t_sink_out - T + self.tmin
 
         if hp_type not in HP_COP_CORRELATIONS:
             raise ValueError(f"Unknown heat pump type '{hp_type}'.")
@@ -170,11 +172,14 @@ class HeatPumpIntegration():
         if not in_operating_window(hp_type, self.t_sink_out, delta_T):
             raise HeatPumpOutOfRange(hp_type, self.t_sink_out, T)
 
-        return HP_COP_CORRELATIONS[hp_type](self.t_sink_out, delta_T)
+        cop = HP_COP_CORRELATIONS[hp_type](self.t_sink_out, delta_T)
+            
+        return min(cop, 15.0)
 
     def delete_temperature_pockets(self):
         self.pyPinch = self.pyPinch.pinch_analyse
         self.hot_utility = self.pyPinch.hot_utility
+        self.tmin = self.pyPinch.tmin
         # TPD rewrites the temperature list and the cascade in place when it cuts
         # a pocket. Hand it copies, otherwise the pinch object is destroyed for
         # every caller after the first one — evaluating a second heat pump type

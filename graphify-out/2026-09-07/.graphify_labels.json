@@ -59,7 +59,7 @@
   "57": "io.ts",
   "58": "list_projects",
   "59": "scripts",
-  "60": "fe",
+  "60": "StreamSelector.tsx",
   "61": "vite.config.ts",
   "62": "copybutton_funcs.js",
   "63": "doctools.js",
@@ -90,9 +90,5 @@
   "88": "base-stemmer.js",
   "89": "sphinx-book-theme.js",
   "90": "conf.py",
-  "91": "heattransplan-backend",
-  "92": "._getConfig",
-  "93": "tn",
-  "94": "ve",
-  "95": "HPIChart.tsx"
+  "91": "heattransplan-backend"
 }
