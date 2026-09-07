@@ -48,9 +48,9 @@
     "semantic_hash": ""
   },
   "backend/app/models/analysis.py": {
-    "mtime": 1788537725.9736226,
-    "seen": 1788763628.601047,
-    "ast_hash": "ca34133f75865220b0fa2e8adfe818a7",
+    "mtime": 1788765569.238289,
+    "seen": 1788765615.859215,
+    "ast_hash": "0c51a58726d100a19c5e1dc3cc055354",
     "semantic_hash": ""
   },
   "backend/app/models/process.py": {
@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "backend/app/modules/heat_pump_integration/heat_pump_integration.py": {
-    "mtime": 1788765252.322226,
-    "seen": 1788765286.764435,
-    "ast_hash": "0648bf02dc1c832e2457b494ad2cc33b",
+    "mtime": 1788766229.0108557,
+    "seen": 1788766251.785068,
+    "ast_hash": "43220de7446638a94c75bc10075da3ee",
     "semantic_hash": ""
   },
   "backend/app/modules/heat_pump_integration/hpi_plot.py": {
@@ -174,9 +174,9 @@
     "semantic_hash": ""
   },
   "backend/app/modules/utility/heat_profiles.py": {
-    "mtime": 1788537730.3497024,
-    "seen": 1788763628.601057,
-    "ast_hash": "1c95c20233aede8def54ec46cd9ef205",
+    "mtime": 1788767357.672226,
+    "seen": 1788767364.276791,
+    "ast_hash": "f143d75fcab98d72f1e8fe5514cebec3",
     "semantic_hash": ""
   },
   "backend/app/modules/utility/split_streams.py": {
@@ -246,9 +246,9 @@
     "semantic_hash": ""
   },
   "backend/app/services/analysis_service.py": {
-    "mtime": 1788537572.0447845,
-    "seen": 1788763628.6010618,
-    "ast_hash": "ea87f9631773e27622fd1e41c4c7b85e",
+    "mtime": 1788765595.8877666,
+    "seen": 1788765615.859814,
+    "ast_hash": "82a095c187eba68f7074956e10fea2f0",
     "semantic_hash": ""
   },
   "backend/app/services/map_service.py": {
@@ -504,9 +504,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/CompositeCurvesChart.tsx": {
-    "mtime": 1788533192.4625046,
-    "seen": 1788763628.6010811,
-    "ast_hash": "eb13e155a31f3c92bb53bfd80a032042",
+    "mtime": 1788766787.9972339,
+    "seen": 1788767364.27773,
+    "ast_hash": "cf5e8599f77b8a93efdd4a22f5141a41",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/CopFormulaModal.tsx": {
@@ -522,21 +522,21 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/GrandCompositeCurveChart.tsx": {
-    "mtime": 1788533192.4637113,
-    "seen": 1788763628.601082,
-    "ast_hash": "9356d18ab500e85d8d01498265567783",
+    "mtime": 1788766731.69735,
+    "seen": 1788767364.2777689,
+    "ast_hash": "bd4871a4684d211a2bccafcbdeb4f5e3",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIChart.tsx": {
-    "mtime": 1788533192.4639964,
-    "seen": 1788763628.6010828,
-    "ast_hash": "173cee4e2bb5f813baa12f518d003539",
+    "mtime": 1788766743.8707976,
+    "seen": 1788767364.27777,
+    "ast_hash": "0d1c67b612ab722944e66c38e988968e",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIOptimizationChart.tsx": {
-    "mtime": 1788533192.4644003,
-    "seen": 1788763628.6010828,
-    "ast_hash": "bef49e34fbede03e161f9a18a3ce6d26",
+    "mtime": 1788766905.2960064,
+    "seen": 1788767364.27777,
+    "ast_hash": "9844edd5338d2bdd7e96bcef7a113e57",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIOptimizationPanel.tsx": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HeatPumpTable.tsx": {
-    "mtime": 1788533192.4654765,
-    "seen": 1788763628.601084,
-    "ast_hash": "8ecf71b07224bff62f54115993934a14",
+    "mtime": 1788766365.7792876,
+    "seen": 1788767364.27779,
+    "ast_hash": "a612d7c486edb300f909a4aa4df6b0aa",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HeatRecoveryToggle.tsx": {
@@ -702,9 +702,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/PotentialAnalysisPage.tsx": {
-    "mtime": 1788537576.208077,
-    "seen": 1788763628.6010938,
-    "ast_hash": "fc8f0d1f33ef25dcef47e32911ec0c71",
+    "mtime": 1788767145.104936,
+    "seen": 1788767364.27823,
+    "ast_hash": "79a3293091c5a363db6abe1c86d0644a",
     "semantic_hash": ""
   },
   "frontend/src/schemas/projectSchema.ts": {
