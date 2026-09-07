@@ -22,4 +22,5 @@ It is written for engineers and researchers who understand energy recovery conce
 pinch_analysis
 heat_pump_integration
 heat_pump_optimization
+refrigerant_limits
 ```
