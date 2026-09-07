@@ -98,7 +98,7 @@ export default function AppShell({ children }: Props) {
 
         <div className="nav-actions">
           <a
-            href="https://davidzapata.github.io/HeatTransPlan/"
+            href="https://drzg15.github.io/HeatTransPlan/"
             target="_blank"
             rel="noopener noreferrer"
             className="btn btn-sm"
