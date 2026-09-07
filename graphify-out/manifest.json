@@ -90,9 +90,9 @@
     "semantic_hash": ""
   },
   "backend/app/modules/heat_pump_integration/heat_pump_integration.py": {
-    "mtime": 1788764449.7064004,
-    "seen": 1788764462.595375,
-    "ast_hash": "5e3fdfd685724a938aa864284258ba2b",
+    "mtime": 1788765252.322226,
+    "seen": 1788765286.764435,
+    "ast_hash": "0648bf02dc1c832e2457b494ad2cc33b",
     "semantic_hash": ""
   },
   "backend/app/modules/heat_pump_integration/hpi_plot.py": {
@@ -354,8 +354,8 @@
     "semantic_hash": ""
   },
   "docs/_build/html/_static/copybutton.js": {
-    "mtime": 1788537869.9595683,
-    "seen": 1788763628.6010702,
+    "mtime": 1788765283.8810236,
+    "seen": 1788765286.7652302,
     "ast_hash": "d30804f1ff44631ea5eae8761735dc3e",
     "semantic_hash": ""
   },
@@ -372,8 +372,8 @@
     "semantic_hash": ""
   },
   "docs/_build/html/_static/documentation_options.js": {
-    "mtime": 1788537869.91779,
-    "seen": 1788763628.601072,
+    "mtime": 1788765283.8211772,
+    "seen": 1788765286.765269,
     "ast_hash": "0da1482c3d6bf58d06562a746dacb484",
     "semantic_hash": ""
   },
@@ -384,8 +384,8 @@
     "semantic_hash": ""
   },
   "docs/_build/html/_static/language_data.js": {
-    "mtime": 1788537869.9159973,
-    "seen": 1788763628.601072,
+    "mtime": 1788765283.8186984,
+    "seen": 1788765286.765289,
     "ast_hash": "cb1a43fcbbfdeb8ae54224cbf61f3ba1",
     "semantic_hash": ""
   },
@@ -432,9 +432,9 @@
     "semantic_hash": ""
   },
   "docs/_build/html/searchindex.js": {
-    "mtime": 1788537870.1130335,
-    "seen": 1788763628.601076,
-    "ast_hash": "798ffde0e5933d5d8dfcf75a0145f326",
+    "mtime": 1788765284.0214777,
+    "seen": 1788765286.76543,
+    "ast_hash": "7975698d44714179f43926b49ef1961f",
     "semantic_hash": ""
   },
   "docs/conf.py": {
@@ -852,9 +852,9 @@
     "semantic_hash": ""
   },
   "docs/_build/html/_sources/heat_pump_integration.md": {
-    "mtime": 1788537699.5350738,
-    "seen": 1788763628.601105,
-    "ast_hash": "d93afdaf49a232840be65b349516ce98",
+    "mtime": 1788765275.0449474,
+    "seen": 1788765286.766614,
+    "ast_hash": "f18fa18ea1cbd954aadd613778df40a1",
     "semantic_hash": ""
   },
   "docs/_build/html/_sources/heat_pump_optimization.md": {
@@ -900,45 +900,45 @@
     "semantic_hash": ""
   },
   "docs/_build/html/genindex.html": {
-    "mtime": 1788537870.1021156,
-    "seen": 1788763628.601108,
+    "mtime": 1788765284.011688,
+    "seen": 1788765286.766751,
     "ast_hash": "5e9a0fc618ed6087e3c2962ee98128a3",
     "semantic_hash": ""
   },
   "docs/_build/html/heat_pump_integration.html": {
-    "mtime": 1788537870.0392933,
-    "seen": 1788763628.601108,
-    "ast_hash": "068301a008d8bec4e3f7c9a30c69d228",
+    "mtime": 1788765283.9907954,
+    "seen": 1788765286.766751,
+    "ast_hash": "d61fdaccea880aef788e9d8992d01a14",
     "semantic_hash": ""
   },
   "docs/_build/html/heat_pump_optimization.html": {
-    "mtime": 1788537870.0558376,
-    "seen": 1788763628.601109,
+    "mtime": 1788764716.1677241,
+    "seen": 1788764818.7101939,
     "ast_hash": "0d9bce37bd908050b8c2cfb75b73289c",
     "semantic_hash": ""
   },
   "docs/_build/html/index.html": {
-    "mtime": 1788537870.0636675,
-    "seen": 1788763628.601109,
+    "mtime": 1788765283.9995844,
+    "seen": 1788765286.766769,
     "ast_hash": "3f1d30e3aab5119fbec2b8f174ac7190",
     "semantic_hash": ""
   },
   "docs/_build/html/pinch_analysis.html": {
-    "mtime": 1788537870.091668,
-    "seen": 1788763628.601109,
+    "mtime": 1788764716.222753,
+    "seen": 1788764818.710197,
     "ast_hash": "e20347ec4f1356a46e9eb010a2e9991c",
     "semantic_hash": ""
   },
   "docs/_build/html/search.html": {
-    "mtime": 1788537870.112058,
-    "seen": 1788763628.60111,
+    "mtime": 1788765284.0205786,
+    "seen": 1788765286.766788,
     "ast_hash": "21b88d8fe2f9e198ef43b41a69b49b52",
     "semantic_hash": ""
   },
   "docs/heat_pump_integration.md": {
-    "mtime": 1788764280.035466,
-    "seen": 1788764294.698542,
-    "ast_hash": "26653ed11d7b2e570171ffa9fd55531f",
+    "mtime": 1788765275.0449474,
+    "seen": 1788765286.766788,
+    "ast_hash": "f18fa18ea1cbd954aadd613778df40a1",
     "semantic_hash": ""
   },
   "docs/heat_pump_optimization.md": {

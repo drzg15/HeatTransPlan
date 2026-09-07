@@ -479,6 +479,11 @@
 <section id="cop-correlations">
 <h2>COP Correlations<a class="headerlink" href="#cop-correlations" title="Link to this heading">#</a></h2>
 <p>Each technology has a <strong>regression fit</strong> — a formula that takes the sink temperature <span class="math notranslate nohighlight">\(T_{sink}\)</span> (°C) and the temperature lift <span class="math notranslate nohighlight">\(\Delta T = T_{sink} - T_{source}\)</span> (°C) and returns the COP.</p>
+<blockquote>
+<div><p>[!IMPORTANT]
+<strong>Physical Lift and Shifted Temperatures</strong>: The source and sink temperatures taken from the Grand Composite Curve are shifted temperatures (<span class="math notranslate nohighlight">\(T_{hot} - \Delta T_{min}/2\)</span> and <span class="math notranslate nohighlight">\(T_{cold} + \Delta T_{min}/2\)</span>). Because of this opposite shift, the difference between them (<span class="math notranslate nohighlight">\(T_{sink} - T_{source}\)</span>) exactly equals the true physical temperature lift the heat pump must overcome (<span class="math notranslate nohighlight">\(T_{cold} - T_{hot} + \Delta T_{min}\)</span>). Therefore, no additional <span class="math notranslate nohighlight">\(\Delta T_{min}\)</span> penalty is needed in the COP calculation; it is mathematically built into the curve.</p>
+<p><strong>COP Limit</strong>: To prevent mathematically unrealistic values when the temperature lift approaches zero, the final calculated COP is strictly capped at a maximum of <strong>15.0</strong>.</p>
+</div></blockquote>
 <p>These are empirical correlations, typically of the form:</p>
 <div class="math notranslate nohighlight">
 \[
@@ -546,8 +551,10 @@ COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
         <span class="k">if</span> <span class="n">in_operating_window</span><span class="p">(</span><span class="n">hp_type</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">t_sink_out</span><span class="p">,</span> <span class="n">delta_T</span><span class="p">)</span>
     <span class="p">]</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">candidates</span><span class="p">:</span>
-        <span class="k">return</span> <span class="n">carnot_cop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t_sink_out</span><span class="p">,</span> <span class="n">delta_T</span><span class="p">),</span> <span class="s1">&#39;Carnot&#39;</span>
-    <span class="k">return</span> <span class="nb">max</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+        <span class="n">cop</span><span class="p">,</span> <span class="n">hp</span> <span class="o">=</span> <span class="n">carnot_cop</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">t_sink_out</span><span class="p">,</span> <span class="n">delta_T</span><span class="p">),</span> <span class="s1">&#39;Carnot&#39;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">cop</span><span class="p">,</span> <span class="n">hp</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">candidates</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">c</span><span class="p">:</span> <span class="n">c</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">cop</span><span class="p">,</span> <span class="mf">15.0</span><span class="p">),</span> <span class="n">hp</span>
 </pre></div>
 </div>
 </details>
