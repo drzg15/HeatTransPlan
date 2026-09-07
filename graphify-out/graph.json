@@ -62,7 +62,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "props",
       "source_file": "frontend/src/components/analysis/CopFormulaModal.tsx",
@@ -75,7 +75,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "modeoption",
       "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
@@ -88,7 +88,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "analysisstore",
       "source_file": "frontend/src/store/analysisStore.ts",
@@ -101,7 +101,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "compositediagramdata",
       "source_file": "frontend/src/types/analysis.ts",
@@ -114,7 +114,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "copformulaspec",
       "source_file": "frontend/src/types/analysis.ts",
@@ -127,7 +127,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "copformulavalidateresult",
       "source_file": "frontend/src/types/analysis.ts",
@@ -140,7 +140,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "energydemandinput",
       "source_file": "frontend/src/types/analysis.ts",
@@ -153,7 +153,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "energydemandlocal",
       "source_file": "frontend/src/types/analysis.ts",
@@ -166,7 +166,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "heatpumpentry",
       "source_file": "frontend/src/types/analysis.ts",
@@ -179,7 +179,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "hpintegrationresult",
       "source_file": "frontend/src/types/analysis.ts",
@@ -192,7 +192,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "hpioptimizationdiagnostics",
       "source_file": "frontend/src/types/analysis.ts",
@@ -205,7 +205,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "hpioptimizationrequest",
       "source_file": "frontend/src/types/analysis.ts",
@@ -218,7 +218,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "hpioptimizationresult",
       "source_file": "frontend/src/types/analysis.ts",
@@ -231,7 +231,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "hpirequest",
       "source_file": "frontend/src/types/analysis.ts",
@@ -244,7 +244,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "hpiresult",
       "source_file": "frontend/src/types/analysis.ts",
@@ -257,7 +257,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "pinchrequest",
       "source_file": "frontend/src/types/analysis.ts",
@@ -270,7 +270,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "pinchresult",
       "source_file": "frontend/src/types/analysis.ts",
@@ -283,7 +283,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "pinchstream",
       "source_file": "frontend/src/types/analysis.ts",
@@ -296,7 +296,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "profilemode",
       "source_file": "frontend/src/types/analysis.ts",
@@ -309,7 +309,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "statusquorequest",
       "source_file": "frontend/src/types/analysis.ts",
@@ -322,7 +322,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "statusquoresult",
       "source_file": "frontend/src/types/analysis.ts",
@@ -335,7 +335,7 @@
       "_callable_class": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "streaminfo",
       "source_file": "frontend/src/types/analysis.ts",
@@ -535,6 +535,19 @@
       "norm_label": "ci",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
+    },
+    {
+      "id": "frontend_src_components_ui_charthelpbutton_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
+      "source_location": "L5"
     },
     {
       "id": "frontend_src_components_analysis_hpioptimizationchart_props",
@@ -810,6 +823,32 @@
       "source_location": "L31"
     },
     {
+      "id": "frontend_src_components_map_mapviewer_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "MapViewer.tsx",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "frontend/src/components/map/MapViewer.tsx",
+      "source_location": "L38"
+    },
+    {
+      "id": "frontend_src_components_map_mapviewer_streamcirclesoverlayprops",
+      "label": "StreamCirclesOverlayProps",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 26,
+      "community_name": "MapViewer.tsx",
+      "file_type": "code",
+      "norm_label": "streamcirclesoverlayprops",
+      "source_file": "frontend/src/components/map/MapViewer.tsx",
+      "source_location": "L358"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_fe",
       "label": "fe()",
       "_callable": true,
@@ -862,43 +901,69 @@
       "source_location": "L2"
     },
     {
-      "id": "frontend_src_components_ui_charthelpbutton_props",
+      "id": "frontend_src_components_process_streameditor_props",
       "label": "Props",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
       "norm_label": "props",
-      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
+      "source_file": "frontend/src/components/process/StreamEditor.tsx",
       "source_location": "L5"
     },
     {
-      "id": "frontend_src_components_ui_errorboundary_props",
-      "label": "Props",
+      "id": "frontend_src_types_stream_stream",
+      "label": "Stream",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "props",
-      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
-      "source_location": "L5"
+      "norm_label": "stream",
+      "source_file": "frontend/src/types/stream.ts",
+      "source_location": "L19"
     },
     {
-      "id": "frontend_src_components_ui_errorboundary_state",
-      "label": "State",
+      "id": "frontend_src_types_stream_streamproperties",
+      "label": "StreamProperties",
       "_callable": true,
       "_callable_class": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "state",
-      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
-      "source_location": "L10"
+      "norm_label": "streamproperties",
+      "source_file": "frontend/src/types/stream.ts",
+      "source_location": "L5"
+    },
+    {
+      "id": "frontend_src_types_stream_streamtype",
+      "label": "StreamType",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "StreamEditor.tsx",
+      "file_type": "code",
+      "norm_label": "streamtype",
+      "source_file": "frontend/src/types/stream.ts",
+      "source_location": "L3"
+    },
+    {
+      "id": "frontend_src_types_stream_streamvalues",
+      "label": "StreamValues",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "StreamEditor.tsx",
+      "file_type": "code",
+      "norm_label": "streamvalues",
+      "source_file": "frontend/src/types/stream.ts",
+      "source_location": "L12"
     },
     {
       "id": "backend_app_models_analysis_copformulavalidaterequest",
@@ -937,7 +1002,7 @@
       "file_type": "code",
       "norm_label": "props",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L11"
+      "source_location": "L12"
     },
     {
       "id": "frontend_src_components_analysis_streamdatatable_sortkey",
@@ -950,20 +1015,7 @@
       "file_type": "code",
       "norm_label": "sortkey",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L18"
-    },
-    {
-      "id": "frontend_src_components_io_actionbar_props",
-      "label": "Props",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "StreamDataTable.tsx",
-      "file_type": "code",
-      "norm_label": "props",
-      "source_file": "frontend/src/components/io/ActionBar.tsx",
-      "source_location": "L8"
+      "source_location": "L19"
     },
     {
       "id": "frontend_src_utils_streaminfo_streaminfo",
@@ -977,32 +1029,6 @@
       "norm_label": "streaminfo",
       "source_file": "frontend/src/utils/streamInfo.ts",
       "source_location": "L10"
-    },
-    {
-      "id": "frontend_src_components_map_mapviewer_props",
-      "label": "Props",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "props",
-      "source_file": "frontend/src/components/map/MapViewer.tsx",
-      "source_location": "L38"
-    },
-    {
-      "id": "frontend_src_components_map_mapviewer_streamcirclesoverlayprops",
-      "label": "StreamCirclesOverlayProps",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "streamcirclesoverlayprops",
-      "source_file": "frontend/src/components/map/MapViewer.tsx",
-      "source_location": "L358"
     },
     {
       "id": "frontend_src_components_process_processgrouplist_groupcoords",
@@ -1029,19 +1055,6 @@
       "norm_label": "props",
       "source_file": "frontend/src/components/process/ProcessGroupList.tsx",
       "source_location": "L14"
-    },
-    {
-      "id": "frontend_src_components_process_streameditor_props",
-      "label": "Props",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "props",
-      "source_file": "frontend/src/components/process/StreamEditor.tsx",
-      "source_location": "L5"
     },
     {
       "id": "frontend_src_components_process_subprocesscard_props",
@@ -1107,58 +1120,6 @@
       "norm_label": "processparams",
       "source_file": "frontend/src/types/process.ts",
       "source_location": "L22"
-    },
-    {
-      "id": "frontend_src_types_stream_stream",
-      "label": "Stream",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "stream",
-      "source_file": "frontend/src/types/stream.ts",
-      "source_location": "L19"
-    },
-    {
-      "id": "frontend_src_types_stream_streamproperties",
-      "label": "StreamProperties",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "streamproperties",
-      "source_file": "frontend/src/types/stream.ts",
-      "source_location": "L5"
-    },
-    {
-      "id": "frontend_src_types_stream_streamtype",
-      "label": "StreamType",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "streamtype",
-      "source_file": "frontend/src/types/stream.ts",
-      "source_location": "L3"
-    },
-    {
-      "id": "frontend_src_types_stream_streamvalues",
-      "label": "StreamValues",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "streamvalues",
-      "source_file": "frontend/src/types/stream.ts",
-      "source_location": "L12"
     },
     {
       "id": "docs_build_html_static_scripts_bootstrap_ss",
@@ -1291,19 +1252,6 @@
       "source_location": "L12"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_qn",
-      "label": "Qn",
-      "_callable": true,
-      "_callable_class": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": "qn",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "backend_app_modules_issp_issp_issp",
       "label": "ISSP",
       "_callable": true,
@@ -1356,6 +1304,19 @@
       "source_location": "L2"
     },
     {
+      "id": "frontend_src_components_io_actionbar_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "frontend/src/components/io/ActionBar.tsx",
+      "source_location": "L8"
+    },
+    {
       "id": "frontend_src_components_layout_appshell_props",
       "label": "Props",
       "_callable": true,
@@ -1393,6 +1354,32 @@
       "norm_label": "props",
       "source_file": "frontend/src/components/ui/AnalysisHelp.tsx",
       "source_location": "L5"
+    },
+    {
+      "id": "frontend_src_components_ui_errorboundary_props",
+      "label": "Props",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "props",
+      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
+      "source_location": "L5"
+    },
+    {
+      "id": "frontend_src_components_ui_errorboundary_state",
+      "label": "State",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "state",
+      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
+      "source_location": "L10"
     },
     {
       "id": "frontend_src_components_ui_tutorialpanel_props",
@@ -1497,6 +1484,19 @@
       "norm_label": "plotprops",
       "source_file": "frontend/src/types/react-plotly.d.ts",
       "source_location": "L5"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn",
+      "label": "Qn",
+      "_callable": true,
+      "_callable_class": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "trigger",
+      "file_type": "code",
+      "norm_label": "qn",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
     },
     {
       "id": "docs_build_html_static_scripts_bootstrap_sn",
@@ -2880,18 +2880,6 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_ln_constructor",
-      "label": ".constructor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 1,
-      "community_name": "bootstrap.js",
-      "file_type": "code",
-      "norm_label": ".constructor()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "docs_build_html_static_scripts_bootstrap_ln_deactivate",
       "label": ".deactivate()",
       "_callable": true,
@@ -3617,7 +3605,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "getmappreview()",
       "source_file": "frontend/src/api/analysis.ts",
@@ -3629,7 +3617,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "validatecopformula()",
       "source_file": "frontend/src/api/analysis.ts",
@@ -3641,35 +3629,11 @@
       "_callable": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "copformulamodal()",
       "source_file": "frontend/src/components/analysis/CopFormulaModal.tsx",
       "source_location": "L43"
-    },
-    {
-      "id": "frontend_src_components_analysis_heatrecoverytoggle_heatrecoverytoggle",
-      "label": "HeatRecoveryToggle()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "types/analysis.ts",
-      "file_type": "code",
-      "norm_label": "heatrecoverytoggle()",
-      "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
-      "source_location": "L14"
-    },
-    {
-      "id": "frontend_src_store_analysisstore_syncscenario",
-      "label": "syncScenario()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 11,
-      "community_name": "types/analysis.ts",
-      "file_type": "code",
-      "norm_label": "syncscenario()",
-      "source_file": "frontend/src/store/analysisStore.ts",
-      "source_location": "L92"
     },
     {
       "id": "frontend_src_utils_id_newid",
@@ -3677,7 +3641,7 @@
       "_callable": true,
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "newid()",
       "source_file": "frontend/src/utils/id.ts",
@@ -4380,6 +4344,18 @@
       "source_location": "L47"
     },
     {
+      "id": "frontend_src_components_analysis_energydemands_energydemands",
+      "label": "EnergyDemands()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "energydemands()",
+      "source_file": "frontend/src/components/analysis/EnergyDemands.tsx",
+      "source_location": "L10"
+    },
+    {
       "id": "frontend_src_components_analysis_heatpumptable_heatpumptable",
       "label": "HeatPumpTable()",
       "_callable": true,
@@ -4402,18 +4378,6 @@
       "norm_label": "pinchmetrics()",
       "source_file": "frontend/src/components/analysis/PinchMetrics.tsx",
       "source_location": "L7"
-    },
-    {
-      "id": "frontend_src_components_analysis_scenariocomparison_scenariocomparison",
-      "label": "ScenarioComparison()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "PotentialAnalysisPage.tsx",
-      "file_type": "code",
-      "norm_label": "scenariocomparison()",
-      "source_file": "frontend/src/components/analysis/ScenarioComparison.tsx",
-      "source_location": "L8"
     },
     {
       "id": "frontend_src_components_analysis_statusquocomparison_getbesthp",
@@ -4440,6 +4404,18 @@
       "source_location": "L8"
     },
     {
+      "id": "frontend_src_components_analysis_streamselector_streamselector",
+      "label": "StreamSelector()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "streamselector()",
+      "source_file": "frontend/src/components/analysis/StreamSelector.tsx",
+      "source_location": "L11"
+    },
+    {
       "id": "frontend_src_components_analysis_temperatureintervaldiagram_temperatureintervaldiagram",
       "label": "TemperatureIntervalDiagram()",
       "_callable": true,
@@ -4452,16 +4428,16 @@
       "source_location": "L6"
     },
     {
-      "id": "frontend_src_components_map_mapviewer_mapviewer",
-      "label": "MapViewer()",
+      "id": "frontend_src_components_ui_charthelpbutton_charthelpbutton",
+      "label": "ChartHelpButton()",
       "_callable": true,
       "_origin": "ast",
       "community": 16,
       "community_name": "PotentialAnalysisPage.tsx",
       "file_type": "code",
-      "norm_label": "mapviewer()",
-      "source_file": "frontend/src/components/map/MapViewer.tsx",
-      "source_location": "L829"
+      "norm_label": "charthelpbutton()",
+      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
+      "source_location": "L12"
     },
     {
       "id": "frontend_src_pages_potentialanalysispage_potentialanalysispage",
@@ -4474,6 +4450,42 @@
       "norm_label": "potentialanalysispage()",
       "source_file": "frontend/src/pages/PotentialAnalysisPage.tsx",
       "source_location": "L46"
+    },
+    {
+      "id": "frontend_src_store_analysisstore_syncscenario",
+      "label": "syncScenario()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "syncscenario()",
+      "source_file": "frontend/src/store/analysisStore.ts",
+      "source_location": "L92"
+    },
+    {
+      "id": "frontend_src_utils_streamutils_getstreaminfo",
+      "label": "getStreamInfo()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "getstreaminfo()",
+      "source_file": "frontend/src/utils/streamUtils.ts",
+      "source_location": "L15"
+    },
+    {
+      "id": "frontend_src_utils_streamutils_tofloat",
+      "label": "toFloat()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "tofloat()",
+      "source_file": "frontend/src/utils/streamUtils.ts",
+      "source_location": "L9"
     },
     {
       "id": "frontend_src_components_analysis_compositecurveschart_compositecurveschart",
@@ -4498,6 +4510,18 @@
       "norm_label": "grandcompositecurvechart()",
       "source_file": "frontend/src/components/analysis/GrandCompositeCurveChart.tsx",
       "source_location": "L8"
+    },
+    {
+      "id": "frontend_src_components_analysis_heatrecoverytoggle_heatrecoverytoggle",
+      "label": "HeatRecoveryToggle()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 18,
+      "community_name": "useUIStore",
+      "file_type": "code",
+      "norm_label": "heatrecoverytoggle()",
+      "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
+      "source_location": "L14"
     },
     {
       "id": "frontend_src_components_analysis_hpichart_hpichart",
@@ -4545,7 +4569,7 @@
       "file_type": "code",
       "norm_label": "handleclickoutside()",
       "source_file": "frontend/src/components/analysis/HPIOptimizationPanel.tsx",
-      "source_location": "L83"
+      "source_location": "L84"
     },
     {
       "id": "frontend_src_components_analysis_hpioptimizationpanel_issamepoint",
@@ -5280,6 +5304,18 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_ai_hide",
+      "label": ".hide()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "Ai",
+      "file_type": "code",
+      "norm_label": ".hide()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_ai_initializechildren",
       "label": "._initializeChildren()",
       "_callable": true,
@@ -5340,6 +5376,18 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_on",
+      "label": "on()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 21,
+      "community_name": "Ai",
+      "file_type": "code",
+      "norm_label": "on()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_enter",
       "label": "._enter()",
       "_callable": true,
@@ -5364,30 +5412,6 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_iswithactivetrigger",
-      "label": "._isWithActiveTrigger()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Ai",
-      "file_type": "code",
-      "norm_label": "._iswithactivetrigger()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_leave",
-      "label": "._leave()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Ai",
-      "file_type": "code",
-      "norm_label": "._leave()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_setlisteners",
       "label": "._setListeners()",
       "_callable": true,
@@ -5396,18 +5420,6 @@
       "community_name": "Ai",
       "file_type": "code",
       "norm_label": "._setlisteners()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_settimeout",
-      "label": "._setTimeout()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 21,
-      "community_name": "Ai",
-      "file_type": "code",
-      "norm_label": "._settimeout()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -5424,26 +5436,14 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_on",
-      "label": "on()",
+      "id": "docs_build_html_static_scripts_bootstrap_qi_show",
+      "label": ".show()",
       "_callable": true,
       "_origin": "ast",
-      "community": 24,
-      "community_name": "Qi",
+      "community": 21,
+      "community_name": "Ai",
       "file_type": "code",
-      "norm_label": "on()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_createpopper",
-      "label": "._createPopper()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "Qi",
-      "file_type": "code",
-      "norm_label": "._createpopper()",
+      "norm_label": ".show()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -5456,18 +5456,6 @@
       "community_name": "Qi",
       "file_type": "code",
       "norm_label": "._getoffset()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_getpopperconfig",
-      "label": "._getPopperConfig()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "Qi",
-      "file_type": "code",
-      "norm_label": "._getpopperconfig()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -5504,18 +5492,6 @@
       "community_name": "Qi",
       "file_type": "code",
       "norm_label": ".constructor()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qi_createpopper",
-      "label": "._createPopper()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "Qi",
-      "file_type": "code",
-      "norm_label": "._createpopper()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -5664,18 +5640,6 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_qi_show",
-      "label": ".show()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 24,
-      "community_name": "Qi",
-      "file_type": "code",
-      "norm_label": ".show()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "docs_build_html_static_scripts_bootstrap_qi_update",
       "label": ".update()",
       "_callable": true,
@@ -5688,6 +5652,18 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_zs_activate",
+      "label": "._activate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "Zs",
+      "file_type": "code",
+      "norm_label": "._activate()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_zs_constructor",
       "label": ".constructor()",
       "_callable": true,
@@ -5696,6 +5672,18 @@
       "community_name": "Zs",
       "file_type": "code",
       "norm_label": ".constructor()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_zs_deactivate",
+      "label": "._deactivate()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "Zs",
+      "file_type": "code",
+      "norm_label": "._deactivate()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -5852,6 +5840,18 @@
       "community_name": "Zs",
       "file_type": "code",
       "norm_label": ".show()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_zs_toggledropdown",
+      "label": "._toggleDropDown()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 25,
+      "community_name": "Zs",
+      "file_type": "code",
+      "norm_label": "._toggledropdown()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -6408,6 +6408,18 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_ln_constructor",
+      "label": ".constructor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 3,
+      "community_name": "is",
+      "file_type": "code",
+      "norm_label": ".constructor()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_getconfig",
       "label": "._getConfig()",
       "_callable": true,
@@ -6720,76 +6732,64 @@
       "source_location": "L2"
     },
     {
-      "id": "frontend_src_components_analysis_energydemands_energydemands",
-      "label": "EnergyDemands()",
+      "id": "frontend_src_api_streams_addchildstream",
+      "label": "addChildStream()",
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "energydemands()",
-      "source_file": "frontend/src/components/analysis/EnergyDemands.tsx",
-      "source_location": "L10"
+      "norm_label": "addchildstream()",
+      "source_file": "frontend/src/api/streams.ts",
+      "source_location": "L24"
     },
     {
-      "id": "frontend_src_components_analysis_streamselector_streamselector",
-      "label": "StreamSelector()",
+      "id": "frontend_src_api_streams_addstream",
+      "label": "addStream()",
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "streamselector()",
-      "source_file": "frontend/src/components/analysis/StreamSelector.tsx",
-      "source_location": "L11"
+      "norm_label": "addstream()",
+      "source_file": "frontend/src/api/streams.ts",
+      "source_location": "L4"
     },
     {
-      "id": "frontend_src_components_ui_charthelpbutton_charthelpbutton",
-      "label": "ChartHelpButton()",
+      "id": "frontend_src_api_streams_deletestream",
+      "label": "deleteStream()",
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "charthelpbutton()",
-      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
-      "source_location": "L12"
+      "norm_label": "deletestream()",
+      "source_file": "frontend/src/api/streams.ts",
+      "source_location": "L19"
     },
     {
-      "id": "frontend_src_components_ui_errorboundary_errorboundary",
-      "label": "ErrorBoundary()",
+      "id": "frontend_src_api_streams_updatestream",
+      "label": "updateStream()",
       "_callable": true,
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "errorboundary()",
-      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
-      "source_location": "L119"
-    },
-    {
-      "id": "frontend_src_utils_streamutils_getstreaminfo",
-      "label": "getStreamInfo()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "useProjectStore",
-      "file_type": "code",
-      "norm_label": "getstreaminfo()",
-      "source_file": "frontend/src/utils/streamUtils.ts",
-      "source_location": "L15"
-    },
-    {
-      "id": "frontend_src_utils_streamutils_tofloat",
-      "label": "toFloat()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "useProjectStore",
-      "file_type": "code",
-      "norm_label": "tofloat()",
-      "source_file": "frontend/src/utils/streamUtils.ts",
+      "norm_label": "updatestream()",
+      "source_file": "frontend/src/api/streams.ts",
       "source_location": "L9"
+    },
+    {
+      "id": "frontend_src_components_process_streameditor_streameditor",
+      "label": "StreamEditor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 30,
+      "community_name": "StreamEditor.tsx",
+      "file_type": "code",
+      "norm_label": "streameditor()",
+      "source_file": "frontend/src/components/process/StreamEditor.tsx",
+      "source_location": "L45"
     },
     {
       "id": "backend_app_routers_analysis_generate_report",
@@ -7080,6 +7080,18 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_dispose",
+      "label": ".dispose()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 32,
+      "community_name": ".hide",
+      "file_type": "code",
+      "norm_label": ".dispose()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_qn_toggle",
       "label": ".toggle()",
       "_callable": true,
@@ -7137,19 +7149,7 @@
       "file_type": "code",
       "norm_label": "streamdatatable()",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L38"
-    },
-    {
-      "id": "frontend_src_components_io_actionbar_actionbar",
-      "label": "ActionBar()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "StreamDataTable.tsx",
-      "file_type": "code",
-      "norm_label": "actionbar()",
-      "source_file": "frontend/src/components/io/ActionBar.tsx",
-      "source_location": "L27"
+      "source_location": "L39"
     },
     {
       "id": "frontend_src_utils_csvexport_exportdistancematrixtocsv",
@@ -7582,18 +7582,6 @@
       "norm_label": "processgrouplist()",
       "source_file": "frontend/src/components/process/ProcessGroupList.tsx",
       "source_location": "L32"
-    },
-    {
-      "id": "frontend_src_components_process_streameditor_streameditor",
-      "label": "StreamEditor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "streameditor()",
-      "source_file": "frontend/src/components/process/StreamEditor.tsx",
-      "source_location": "L45"
     },
     {
       "id": "frontend_src_components_process_subprocesscard_subprocesscard",
@@ -8244,174 +8232,6 @@
       "source_location": "L21"
     },
     {
-      "id": "frontend_src_api_streams_addchildstream",
-      "label": "addChildStream()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 41,
-      "community_name": "io.ts",
-      "file_type": "code",
-      "norm_label": "addchildstream()",
-      "source_file": "frontend/src/api/streams.ts",
-      "source_location": "L24"
-    },
-    {
-      "id": "frontend_src_api_streams_addstream",
-      "label": "addStream()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 41,
-      "community_name": "io.ts",
-      "file_type": "code",
-      "norm_label": "addstream()",
-      "source_file": "frontend/src/api/streams.ts",
-      "source_location": "L4"
-    },
-    {
-      "id": "frontend_src_api_streams_deletestream",
-      "label": "deleteStream()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 41,
-      "community_name": "io.ts",
-      "file_type": "code",
-      "norm_label": "deletestream()",
-      "source_file": "frontend/src/api/streams.ts",
-      "source_location": "L19"
-    },
-    {
-      "id": "frontend_src_api_streams_updatestream",
-      "label": "updateStream()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 41,
-      "community_name": "io.ts",
-      "file_type": "code",
-      "norm_label": "updatestream()",
-      "source_file": "frontend/src/api/streams.ts",
-      "source_location": "L9"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_addeventlisteners",
-      "label": "._addEventListeners()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": "._addeventlisteners()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_constructor",
-      "label": ".constructor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": ".constructor()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_default",
-      "label": ".Default()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": ".default()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_defaulttype",
-      "label": ".DefaultType()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": ".defaulttype()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_dispose",
-      "label": ".dispose()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": ".dispose()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_initializebackdrop",
-      "label": "._initializeBackDrop()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": "._initializebackdrop()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_initializefocustrap",
-      "label": "._initializeFocusTrap()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": "._initializefocustrap()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_jqueryinterface",
-      "label": ".jQueryInterface()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": ".jqueryinterface()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_qn_name",
-      "label": ".NAME()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": ".name()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_sn_constructor",
-      "label": ".constructor()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 42,
-      "community_name": "Qn",
-      "file_type": "code",
-      "norm_label": ".constructor()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "backend_app_modules_issp_issp_issp_cc_in_kwh",
       "label": ".cc_in_kwh()",
       "_callable": true,
@@ -8628,14 +8448,26 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_vs_jqueryinterface",
-      "label": ".jQueryInterface()",
+      "id": "docs_build_html_static_scripts_bootstrap_xe_close",
+      "label": ".close()",
       "_callable": true,
       "_origin": "ast",
       "community": 46,
       "community_name": "ye",
       "file_type": "code",
-      "norm_label": ".jqueryinterface()",
+      "norm_label": ".close()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_xe_destroyelement",
+      "label": "._destroyElement()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 46,
+      "community_name": "ye",
+      "file_type": "code",
+      "norm_label": "._destroyelement()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -8820,6 +8652,30 @@
       "source_location": "L13"
     },
     {
+      "id": "frontend_src_components_analysis_scenariocomparison_scenariocomparison",
+      "label": "ScenarioComparison()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "scenariocomparison()",
+      "source_file": "frontend/src/components/analysis/ScenarioComparison.tsx",
+      "source_location": "L8"
+    },
+    {
+      "id": "frontend_src_components_io_actionbar_actionbar",
+      "label": "ActionBar()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "actionbar()",
+      "source_file": "frontend/src/components/io/ActionBar.tsx",
+      "source_location": "L27"
+    },
+    {
       "id": "frontend_src_components_layout_appshell_appshell",
       "label": "AppShell()",
       "_callable": true,
@@ -8844,6 +8700,18 @@
       "source_location": "L28"
     },
     {
+      "id": "frontend_src_components_map_mapviewer_mapviewer",
+      "label": "MapViewer()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "mapviewer()",
+      "source_file": "frontend/src/components/map/MapViewer.tsx",
+      "source_location": "L829"
+    },
+    {
       "id": "frontend_src_components_ui_analysishelp_analysishelp",
       "label": "AnalysisHelp()",
       "_callable": true,
@@ -8854,6 +8722,18 @@
       "norm_label": "analysishelp()",
       "source_file": "frontend/src/components/ui/AnalysisHelp.tsx",
       "source_location": "L10"
+    },
+    {
+      "id": "frontend_src_components_ui_errorboundary_errorboundary",
+      "label": "ErrorBoundary()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "errorboundary()",
+      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
+      "source_location": "L119"
     },
     {
       "id": "frontend_src_components_ui_tutorialpanel_tutorialpanel",
@@ -9324,6 +9204,30 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_createpopper",
+      "label": "._createPopper()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._createpopper()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_createtipelement",
+      "label": "._createTipElement()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._createtipelement()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_default",
       "label": ".Default()",
       "_callable": true,
@@ -9432,6 +9336,30 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_getpopperconfig",
+      "label": "._getPopperConfig()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._getpopperconfig()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_gettipelement",
+      "label": "._getTipElement()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._gettipelement()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_gettitle",
       "label": "._getTitle()",
       "_callable": true,
@@ -9440,6 +9368,18 @@
       "community_name": "ps",
       "file_type": "code",
       "norm_label": "._gettitle()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_hide",
+      "label": ".hide()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": ".hide()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -9456,6 +9396,30 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_isanimated",
+      "label": "._isAnimated()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._isanimated()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_iswithactivetrigger",
+      "label": "._isWithActiveTrigger()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._iswithactivetrigger()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_iswithcontent",
       "label": "._isWithContent()",
       "_callable": true,
@@ -9464,6 +9428,18 @@
       "community_name": "ps",
       "file_type": "code",
       "norm_label": "._iswithcontent()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_leave",
+      "label": "._leave()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._leave()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -9492,6 +9468,30 @@
       "source_location": "L2"
     },
     {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_settimeout",
+      "label": "._setTimeout()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._settimeout()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_ps_show",
+      "label": ".show()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": ".show()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
       "id": "docs_build_html_static_scripts_bootstrap_ps_toggleenabled",
       "label": ".toggleEnabled()",
       "_callable": true,
@@ -9512,6 +9512,18 @@
       "community_name": "ps",
       "file_type": "code",
       "norm_label": ".update()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qi_createpopper",
+      "label": "._createPopper()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": "._createpopper()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -9572,6 +9584,18 @@
       "community_name": "ps",
       "file_type": "code",
       "norm_label": "._iswithcontent()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_vs_jqueryinterface",
+      "label": ".jQueryInterface()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 6,
+      "community_name": "ps",
+      "file_type": "code",
+      "norm_label": ".jqueryinterface()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -9672,74 +9696,50 @@
       "source_location": "L11"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_ai_hide",
-      "label": ".hide()",
+      "id": "docs_build_html_static_scripts_bootstrap_qn_addeventlisteners",
+      "label": "._addEventListeners()",
       "_callable": true,
       "_origin": "ast",
       "community": 7,
       "community_name": "trigger",
       "file_type": "code",
-      "norm_label": ".hide()",
+      "norm_label": "._addeventlisteners()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_createtipelement",
-      "label": "._createTipElement()",
+      "id": "docs_build_html_static_scripts_bootstrap_qn_constructor",
+      "label": ".constructor()",
       "_callable": true,
       "_origin": "ast",
       "community": 7,
       "community_name": "trigger",
       "file_type": "code",
-      "norm_label": "._createtipelement()",
+      "norm_label": ".constructor()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_gettipelement",
-      "label": "._getTipElement()",
+      "id": "docs_build_html_static_scripts_bootstrap_qn_default",
+      "label": ".Default()",
       "_callable": true,
       "_origin": "ast",
       "community": 7,
       "community_name": "trigger",
       "file_type": "code",
-      "norm_label": "._gettipelement()",
+      "norm_label": ".default()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_hide",
-      "label": ".hide()",
+      "id": "docs_build_html_static_scripts_bootstrap_qn_defaulttype",
+      "label": ".DefaultType()",
       "_callable": true,
       "_origin": "ast",
       "community": 7,
       "community_name": "trigger",
       "file_type": "code",
-      "norm_label": ".hide()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_isanimated",
-      "label": "._isAnimated()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": "._isanimated()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_ps_show",
-      "label": ".show()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": ".show()",
+      "norm_label": ".defaulttype()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -9752,6 +9752,54 @@
       "community_name": "trigger",
       "file_type": "code",
       "norm_label": ".hide()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_initializebackdrop",
+      "label": "._initializeBackDrop()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "trigger",
+      "file_type": "code",
+      "norm_label": "._initializebackdrop()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_initializefocustrap",
+      "label": "._initializeFocusTrap()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "trigger",
+      "file_type": "code",
+      "norm_label": "._initializefocustrap()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_jqueryinterface",
+      "label": ".jQueryInterface()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "trigger",
+      "file_type": "code",
+      "norm_label": ".jqueryinterface()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_qn_name",
+      "label": ".NAME()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "trigger",
+      "file_type": "code",
+      "norm_label": ".name()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -9800,6 +9848,18 @@
       "community_name": "trigger",
       "file_type": "code",
       "norm_label": "._adjustdialog()",
+      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
+      "source_location": "L2"
+    },
+    {
+      "id": "docs_build_html_static_scripts_bootstrap_sn_constructor",
+      "label": ".constructor()",
+      "_callable": true,
+      "_origin": "ast",
+      "community": 7,
+      "community_name": "trigger",
+      "file_type": "code",
+      "norm_label": ".constructor()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -9960,30 +10020,6 @@
       "source_location": "L2"
     },
     {
-      "id": "docs_build_html_static_scripts_bootstrap_xe_close",
-      "label": ".close()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": ".close()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_xe_destroyelement",
-      "label": "._destroyElement()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": "._destroyelement()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
       "id": "docs_build_html_static_scripts_bootstrap_ye_queuecallback",
       "label": "._queueCallback()",
       "_callable": true,
@@ -9992,42 +10028,6 @@
       "community_name": "trigger",
       "file_type": "code",
       "norm_label": "._queuecallback()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_zs_activate",
-      "label": "._activate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": "._activate()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_zs_deactivate",
-      "label": "._deactivate()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": "._deactivate()",
-      "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
-      "source_location": "L2"
-    },
-    {
-      "id": "docs_build_html_static_scripts_bootstrap_zs_toggledropdown",
-      "label": "._toggleDropDown()",
-      "_callable": true,
-      "_origin": "ast",
-      "community": 7,
-      "community_name": "trigger",
-      "file_type": "code",
-      "norm_label": "._toggledropdown()",
       "source_file": "docs/_build/html/_static/scripts/bootstrap.js",
       "source_location": "L2"
     },
@@ -10488,7 +10488,7 @@
       "label": "api/analysis.ts",
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "api/analysis.ts",
       "source_file": "frontend/src/api/analysis.ts",
@@ -10499,7 +10499,7 @@
       "label": "CopFormulaModal.tsx",
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "copformulamodal.tsx",
       "source_file": "frontend/src/components/analysis/CopFormulaModal.tsx",
@@ -10510,7 +10510,7 @@
       "label": "BUILTIN_FORMULAS",
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "builtin_formulas",
       "source_file": "frontend/src/components/analysis/CopFormulaModal.tsx",
@@ -10521,7 +10521,7 @@
       "label": "DEFAULT_COP_FORMULA",
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "default_cop_formula",
       "source_file": "frontend/src/components/analysis/CopFormulaModal.tsx",
@@ -10532,7 +10532,7 @@
       "label": "EXAMPLES",
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "examples",
       "source_file": "frontend/src/components/analysis/CopFormulaModal.tsx",
@@ -10543,7 +10543,7 @@
       "label": "HeatRecoveryToggle.tsx",
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "heatrecoverytoggle.tsx",
       "source_file": "frontend/src/components/analysis/HeatRecoveryToggle.tsx",
@@ -10554,7 +10554,7 @@
       "label": "analysisStore.ts",
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "analysisstore.ts",
       "source_file": "frontend/src/store/analysisStore.ts",
@@ -10565,7 +10565,7 @@
       "label": "types/analysis.ts",
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "types/analysis.ts",
       "source_file": "frontend/src/types/analysis.ts",
@@ -10576,7 +10576,7 @@
       "label": "id.ts",
       "_origin": "ast",
       "community": 11,
-      "community_name": "types/analysis.ts",
+      "community_name": "analysisStore.ts",
       "file_type": "code",
       "norm_label": "id.ts",
       "source_file": "frontend/src/utils/id.ts",
@@ -11243,6 +11243,28 @@
       "source_location": "L61"
     },
     {
+      "id": "frontend_src_app_potentialanalysispage",
+      "label": "PotentialAnalysisPage",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "potentialanalysispage",
+      "source_file": "frontend/src/App.tsx",
+      "source_location": "L11"
+    },
+    {
+      "id": "frontend_src_components_analysis_energydemands",
+      "label": "EnergyDemands.tsx",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "energydemands.tsx",
+      "source_file": "frontend/src/components/analysis/EnergyDemands.tsx",
+      "source_location": "L1"
+    },
+    {
       "id": "frontend_src_components_analysis_heatpumptable",
       "label": "HeatPumpTable.tsx",
       "_origin": "ast",
@@ -11265,17 +11287,6 @@
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_components_analysis_scenariocomparison",
-      "label": "ScenarioComparison.tsx",
-      "_origin": "ast",
-      "community": 16,
-      "community_name": "PotentialAnalysisPage.tsx",
-      "file_type": "code",
-      "norm_label": "scenariocomparison.tsx",
-      "source_file": "frontend/src/components/analysis/ScenarioComparison.tsx",
-      "source_location": "L1"
-    },
-    {
       "id": "frontend_src_components_analysis_statusquocomparison",
       "label": "StatusQuoComparison.tsx",
       "_origin": "ast",
@@ -11287,6 +11298,17 @@
       "source_location": "L1"
     },
     {
+      "id": "frontend_src_components_analysis_streamselector",
+      "label": "StreamSelector.tsx",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "streamselector.tsx",
+      "source_file": "frontend/src/components/analysis/StreamSelector.tsx",
+      "source_location": "L1"
+    },
+    {
       "id": "frontend_src_components_analysis_temperatureintervaldiagram",
       "label": "TemperatureIntervalDiagram.tsx",
       "_origin": "ast",
@@ -11295,6 +11317,17 @@
       "file_type": "code",
       "norm_label": "temperatureintervaldiagram.tsx",
       "source_file": "frontend/src/components/analysis/TemperatureIntervalDiagram.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_components_ui_charthelpbutton",
+      "label": "ChartHelpButton.tsx",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "charthelpbutton.tsx",
+      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
       "source_location": "L1"
     },
     {
@@ -11329,6 +11362,17 @@
       "norm_label": "useanalysisstore",
       "source_file": "frontend/src/store/analysisStore.ts",
       "source_location": "L116"
+    },
+    {
+      "id": "frontend_src_utils_streamutils",
+      "label": "streamUtils.ts",
+      "_origin": "ast",
+      "community": 16,
+      "community_name": "PotentialAnalysisPage.tsx",
+      "file_type": "code",
+      "norm_label": "streamutils.ts",
+      "source_file": "frontend/src/utils/streamUtils.ts",
+      "source_location": "L1"
     },
     {
       "id": "frontend_eslint_config",
@@ -13279,102 +13323,80 @@
       "source_location": "L386"
     },
     {
-      "id": "frontend_src_components_analysis_energydemands",
-      "label": "EnergyDemands.tsx",
+      "id": "frontend_src_api_streams",
+      "label": "streams.ts",
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "energydemands.tsx",
-      "source_file": "frontend/src/components/analysis/EnergyDemands.tsx",
+      "norm_label": "streams.ts",
+      "source_file": "frontend/src/api/streams.ts",
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_components_analysis_streamselector",
-      "label": "StreamSelector.tsx",
+      "id": "frontend_src_components_process_streameditor",
+      "label": "StreamEditor.tsx",
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "streamselector.tsx",
-      "source_file": "frontend/src/components/analysis/StreamSelector.tsx",
+      "norm_label": "streameditor.tsx",
+      "source_file": "frontend/src/components/process/StreamEditor.tsx",
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_components_ui_charthelpbutton",
-      "label": "ChartHelpButton.tsx",
+      "id": "frontend_src_components_process_streameditor_all_vars",
+      "label": "ALL_VARS",
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "charthelpbutton.tsx",
-      "source_file": "frontend/src/components/ui/ChartHelpButton.tsx",
-      "source_location": "L1"
+      "norm_label": "all_vars",
+      "source_file": "frontend/src/components/process/StreamEditor.tsx",
+      "source_location": "L12"
     },
     {
-      "id": "frontend_src_components_ui_errorboundary",
-      "label": "ErrorBoundary.tsx",
+      "id": "frontend_src_components_process_streameditor_default_vars",
+      "label": "DEFAULT_VARS",
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "errorboundary.tsx",
-      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
-      "source_location": "L1"
+      "norm_label": "default_vars",
+      "source_file": "frontend/src/components/process/StreamEditor.tsx",
+      "source_location": "L24"
     },
     {
-      "id": "frontend_src_store_projectstore",
-      "label": "projectStore.ts",
+      "id": "frontend_src_components_process_streameditor_stream_types",
+      "label": "STREAM_TYPES",
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "projectstore.ts",
-      "source_file": "frontend/src/store/projectStore.ts",
-      "source_location": "L1"
+      "norm_label": "stream_types",
+      "source_file": "frontend/src/components/process/StreamEditor.tsx",
+      "source_location": "L31"
     },
     {
-      "id": "frontend_src_store_projectstore_defaultstate",
-      "label": "defaultState",
+      "id": "frontend_src_components_process_streameditor_unit_options",
+      "label": "UNIT_OPTIONS",
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "defaultstate",
-      "source_file": "frontend/src/store/projectStore.ts",
+      "norm_label": "unit_options",
+      "source_file": "frontend/src/components/process/StreamEditor.tsx",
       "source_location": "L33"
     },
     {
-      "id": "frontend_src_store_projectstore_test",
-      "label": "projectStore.test.ts",
+      "id": "frontend_src_types_stream",
+      "label": "stream.ts",
       "_origin": "ast",
       "community": 30,
-      "community_name": "useProjectStore",
+      "community_name": "StreamEditor.tsx",
       "file_type": "code",
-      "norm_label": "projectstore.test.ts",
-      "source_file": "frontend/src/store/projectStore.test.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_store_projectstore_useprojectstore",
-      "label": "useProjectStore",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "useProjectStore",
-      "file_type": "code",
-      "norm_label": "useprojectstore",
-      "source_file": "frontend/src/store/projectStore.ts",
-      "source_location": "L53"
-    },
-    {
-      "id": "frontend_src_utils_streamutils",
-      "label": "streamUtils.ts",
-      "_origin": "ast",
-      "community": 30,
-      "community_name": "useProjectStore",
-      "file_type": "code",
-      "norm_label": "streamutils.ts",
-      "source_file": "frontend/src/utils/streamUtils.ts",
+      "norm_label": "stream.ts",
+      "source_file": "frontend/src/types/stream.ts",
       "source_location": "L1"
     },
     {
@@ -13541,39 +13563,6 @@
       "norm_label": "streamdatatable.tsx",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
       "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_io_actionbar",
-      "label": "ActionBar.tsx",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "StreamDataTable.tsx",
-      "file_type": "code",
-      "norm_label": "actionbar.tsx",
-      "source_file": "frontend/src/components/io/ActionBar.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_io_actionbar_base_options",
-      "label": "BASE_OPTIONS",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "StreamDataTable.tsx",
-      "file_type": "code",
-      "norm_label": "base_options",
-      "source_file": "frontend/src/components/io/ActionBar.tsx",
-      "source_location": "L25"
-    },
-    {
-      "id": "frontend_src_schemas_projectschema_projectstateschema",
-      "label": "projectStateSchema",
-      "_origin": "ast",
-      "community": 33,
-      "community_name": "StreamDataTable.tsx",
-      "file_type": "code",
-      "norm_label": "projectstateschema",
-      "source_file": "frontend/src/schemas/projectSchema.ts",
-      "source_location": "L97"
     },
     {
       "id": "frontend_src_utils_csvexport",
@@ -13999,61 +13988,6 @@
       "source_location": "L1"
     },
     {
-      "id": "frontend_src_components_process_streameditor",
-      "label": "StreamEditor.tsx",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "streameditor.tsx",
-      "source_file": "frontend/src/components/process/StreamEditor.tsx",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_components_process_streameditor_all_vars",
-      "label": "ALL_VARS",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "all_vars",
-      "source_file": "frontend/src/components/process/StreamEditor.tsx",
-      "source_location": "L12"
-    },
-    {
-      "id": "frontend_src_components_process_streameditor_default_vars",
-      "label": "DEFAULT_VARS",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "default_vars",
-      "source_file": "frontend/src/components/process/StreamEditor.tsx",
-      "source_location": "L24"
-    },
-    {
-      "id": "frontend_src_components_process_streameditor_stream_types",
-      "label": "STREAM_TYPES",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "stream_types",
-      "source_file": "frontend/src/components/process/StreamEditor.tsx",
-      "source_location": "L31"
-    },
-    {
-      "id": "frontend_src_components_process_streameditor_unit_options",
-      "label": "UNIT_OPTIONS",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "unit_options",
-      "source_file": "frontend/src/components/process/StreamEditor.tsx",
-      "source_location": "L33"
-    },
-    {
       "id": "frontend_src_components_process_subprocesscard",
       "label": "SubprocessCard.tsx",
       "_origin": "ast",
@@ -14084,17 +14018,6 @@
       "file_type": "code",
       "norm_label": "process.ts",
       "source_file": "frontend/src/types/process.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_types_stream",
-      "label": "stream.ts",
-      "_origin": "ast",
-      "community": 38,
-      "community_name": "ProcessNode",
-      "file_type": "code",
-      "norm_label": "stream.ts",
-      "source_file": "frontend/src/types/stream.ts",
       "source_location": "L1"
     },
     {
@@ -14436,17 +14359,6 @@
       "file_type": "code",
       "norm_label": "projects.ts",
       "source_file": "frontend/src/api/projects.ts",
-      "source_location": "L1"
-    },
-    {
-      "id": "frontend_src_api_streams",
-      "label": "streams.ts",
-      "_origin": "ast",
-      "community": 41,
-      "community_name": "io.ts",
-      "file_type": "code",
-      "norm_label": "streams.ts",
-      "source_file": "frontend/src/api/streams.ts",
       "source_location": "L1"
     },
     {
@@ -14969,6 +14881,17 @@
       "source_location": "L55"
     },
     {
+      "id": "frontend_src_schemas_projectschema_projectstateschema",
+      "label": "projectStateSchema",
+      "_origin": "ast",
+      "community": 48,
+      "community_name": "projectSchema.ts",
+      "file_type": "code",
+      "norm_label": "projectstateschema",
+      "source_file": "frontend/src/schemas/projectSchema.ts",
+      "source_location": "L97"
+    },
+    {
       "id": "frontend_src_schemas_projectschema_streampropertiesschema",
       "label": "streamPropertiesSchema",
       "_origin": "ast",
@@ -15123,15 +15046,37 @@
       "source_location": "L10"
     },
     {
-      "id": "frontend_src_app_potentialanalysispage",
-      "label": "PotentialAnalysisPage",
+      "id": "frontend_src_components_analysis_scenariocomparison",
+      "label": "ScenarioComparison.tsx",
       "_origin": "ast",
       "community": 5,
       "community_name": "react",
       "file_type": "code",
-      "norm_label": "potentialanalysispage",
-      "source_file": "frontend/src/App.tsx",
-      "source_location": "L11"
+      "norm_label": "scenariocomparison.tsx",
+      "source_file": "frontend/src/components/analysis/ScenarioComparison.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_components_io_actionbar",
+      "label": "ActionBar.tsx",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "actionbar.tsx",
+      "source_file": "frontend/src/components/io/ActionBar.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_components_io_actionbar_base_options",
+      "label": "BASE_OPTIONS",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "base_options",
+      "source_file": "frontend/src/components/io/ActionBar.tsx",
+      "source_location": "L25"
     },
     {
       "id": "frontend_src_components_layout_appshell",
@@ -15186,6 +15131,17 @@
       "file_type": "code",
       "norm_label": "analysishelp.tsx",
       "source_file": "frontend/src/components/ui/AnalysisHelp.tsx",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_components_ui_errorboundary",
+      "label": "ErrorBoundary.tsx",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "errorboundary.tsx",
+      "source_file": "frontend/src/components/ui/ErrorBoundary.tsx",
       "source_location": "L1"
     },
     {
@@ -15253,6 +15209,50 @@
       "norm_label": "homepage.tsx",
       "source_file": "frontend/src/pages/HomePage.tsx",
       "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_store_projectstore",
+      "label": "projectStore.ts",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "projectstore.ts",
+      "source_file": "frontend/src/store/projectStore.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_store_projectstore_defaultstate",
+      "label": "defaultState",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "defaultstate",
+      "source_file": "frontend/src/store/projectStore.ts",
+      "source_location": "L33"
+    },
+    {
+      "id": "frontend_src_store_projectstore_test",
+      "label": "projectStore.test.ts",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "projectstore.test.ts",
+      "source_file": "frontend/src/store/projectStore.test.ts",
+      "source_location": "L1"
+    },
+    {
+      "id": "frontend_src_store_projectstore_useprojectstore",
+      "label": "useProjectStore",
+      "_origin": "ast",
+      "community": 5,
+      "community_name": "react",
+      "file_type": "code",
+      "norm_label": "useprojectstore",
+      "source_file": "frontend/src/store/projectStore.ts",
+      "source_location": "L53"
     },
     {
       "id": "ref_i18next",
@@ -25983,7 +25983,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/analysis/HPIOptimizationPanel.tsx",
-      "source_location": "L164",
+      "source_location": "L165",
       "weight": 1.0
     },
     {
@@ -26007,7 +26007,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/analysis/HPIOptimizationPanel.tsx",
-      "source_location": "L36",
+      "source_location": "L37",
       "weight": 1.0
     },
     {
@@ -26079,7 +26079,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L206",
+      "source_location": "L208",
       "weight": 1.0
     },
     {
@@ -26091,7 +26091,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L265",
+      "source_location": "L267",
       "weight": 1.0
     },
     {
@@ -26103,7 +26103,19 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L320",
+      "source_location": "L322",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_analysis_streamdatatable_streamdatatable",
+      "target": "frontend_src_store_analysisstore_useanalysisstore",
+      "relation": "calls",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "call",
+      "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
+      "source_location": "L46",
       "weight": 1.0
     },
     {
@@ -26115,7 +26127,7 @@
       "confidence_score": 1.0,
       "context": "call",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L89",
+      "source_location": "L91",
       "weight": 1.0
     },
     {
@@ -27483,7 +27495,7 @@
       "confidence_score": 1.0,
       "context": "field",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L12",
+      "source_location": "L13",
       "weight": 1.0
     },
     {
@@ -30202,6 +30214,18 @@
     },
     {
       "source": "frontend_src_components_analysis_streamdatatable",
+      "target": "frontend_src_store_analysisstore_useanalysisstore",
+      "relation": "imports",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
+      "source_location": "L10",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_analysis_streamdatatable",
       "target": "frontend_src_types_process_processnode",
       "relation": "imports",
       "_origin": "ast",
@@ -32800,6 +32824,18 @@
       "context": "import",
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
       "source_location": "L1",
+      "weight": 1.0
+    },
+    {
+      "source": "frontend_src_components_analysis_streamdatatable",
+      "target": "frontend_src_store_analysisstore",
+      "relation": "imports_from",
+      "_origin": "ast",
+      "confidence": "EXTRACTED",
+      "confidence_score": 1.0,
+      "context": "import",
+      "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
+      "source_location": "L10",
       "weight": 1.0
     },
     {
@@ -40639,7 +40675,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L11",
+      "source_location": "L12",
       "weight": 1.0
     },
     {
@@ -40650,7 +40686,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L18",
+      "source_location": "L19",
       "weight": 1.0
     },
     {
@@ -40661,7 +40697,7 @@
       "confidence": "EXTRACTED",
       "confidence_score": 1.0,
       "source_file": "frontend/src/components/analysis/StreamDataTable.tsx",
-      "source_location": "L38",
+      "source_location": "L39",
       "weight": 1.0
     },
     {
@@ -48604,7 +48640,7 @@
       "confidence_score": 0.85,
       "context": "argument",
       "source_file": "frontend/src/components/analysis/HPIOptimizationPanel.tsx",
-      "source_location": "L91",
+      "source_location": "L92",
       "weight": 1.0
     },
     {
@@ -49493,5 +49529,5 @@
     }
   ],
   "hyperedges": [],
-  "built_at_commit": "69ea7e33bfff656105f15fedc656301ef06b5151"
+  "built_at_commit": "7d5fdd76a1a4bd86269294bb3b52a6996a042371"
 }
