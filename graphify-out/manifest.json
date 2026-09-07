@@ -282,9 +282,9 @@
     "semantic_hash": ""
   },
   "backend/app/utils/cop_formula.py": {
-    "mtime": 1788533185.3272233,
-    "seen": 1788763628.601065,
-    "ast_hash": "de91cd1bb946d5853cb4c1858f365bf7",
+    "mtime": 1788767843.7197452,
+    "seen": 1788767904.299961,
+    "ast_hash": "c1c8b402484994a953762d321019b88c",
     "semantic_hash": ""
   },
   "backend/app/utils/geo_utils.py": {
@@ -318,9 +318,9 @@
     "semantic_hash": ""
   },
   "backend/tests/test_analysis.py": {
-    "mtime": 1788767372.1393673,
-    "seen": 1788767382.14043,
-    "ast_hash": "ebe6b166765ec7643281dde00d4fee4a",
+    "mtime": 1788767856.6917803,
+    "seen": 1788767904.300159,
+    "ast_hash": "39bc13c82a7739d40c061c99b6ae4df7",
     "semantic_hash": ""
   },
   "backend/tests/test_api.py": {
@@ -504,15 +504,15 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/CompositeCurvesChart.tsx": {
-    "mtime": 1788766787.9972339,
-    "seen": 1788767364.27773,
-    "ast_hash": "cf5e8599f77b8a93efdd4a22f5141a41",
+    "mtime": 1788767893.0175352,
+    "seen": 1788767904.300781,
+    "ast_hash": "d6214b7dfcb1df29b7d4f89c67482b57",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/CopFormulaModal.tsx": {
-    "mtime": 1788533192.4630556,
-    "seen": 1788763628.6010811,
-    "ast_hash": "792229d2326f8c2260cdba2bafd8fd46",
+    "mtime": 1788767874.0940568,
+    "seen": 1788767904.300781,
+    "ast_hash": "632acb5ff9710e0ddb25f4f6d51d9e21",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/EnergyDemands.tsx": {
@@ -540,9 +540,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIOptimizationPanel.tsx": {
-    "mtime": 1788533192.4652054,
-    "seen": 1788763628.6010828,
-    "ast_hash": "60fae4641d2ff8a4aec9de1e168ae80f",
+    "mtime": 1788767881.6387324,
+    "seen": 1788767904.300861,
+    "ast_hash": "e5437a5cbc5ea68ff6362849fe16bd0f",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HeatPumpTable.tsx": {
@@ -936,15 +936,15 @@
     "semantic_hash": ""
   },
   "docs/heat_pump_integration.md": {
-    "mtime": 1788765275.0449474,
-    "seen": 1788765286.766788,
-    "ast_hash": "f18fa18ea1cbd954aadd613778df40a1",
+    "mtime": 1788767626.2377462,
+    "seen": 1788767642.6187599,
+    "ast_hash": "2fab66503a45fa7c6d44b9e9535b74ce",
     "semantic_hash": ""
   },
   "docs/heat_pump_optimization.md": {
-    "mtime": 1788537129.2476866,
-    "seen": 1788763628.601111,
-    "ast_hash": "5e1c56675fa73a72aacaa1fc29056624",
+    "mtime": 1788767629.958714,
+    "seen": 1788767642.618761,
+    "ast_hash": "fa33e3d402a12673a5fb7d6978e83da1",
     "semantic_hash": ""
   },
   "docs/index.md": {

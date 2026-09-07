@@ -40,7 +40,14 @@ export default function CompositeCurvesChart() {
   ];
 
   const layout: any = {
-    title: { text: titleText, font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' } },
+    title: {
+      text: titleText,
+      x: 0,
+      y: 1.15,
+      xanchor: 'left' as const,
+      yanchor: 'bottom' as const,
+      font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
+    },
     xaxis: {
       title: { text: 'Enthalpy flow (kW)' },
       automargin: true,
@@ -58,12 +65,13 @@ export default function CompositeCurvesChart() {
     height: 400,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { l: 80, r: 30, t: 40, b: 80 },
+    margin: { l: 80, r: 30, t: 60, b: 80 },
     legend: {
-      x: 0.01,
-      y: 0.99,
-      xanchor: 'left',
-      yanchor: 'top',
+      orientation: 'h' as const,
+      x: 1,
+      y: 1.15,
+      xanchor: 'right' as const,
+      yanchor: 'bottom' as const,
       font: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     hovermode: 'closest' as const,
