@@ -373,7 +373,7 @@
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#heat-pump-technologies-and-operating-windows">Heat Pump Technologies and Operating Windows</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cop-correlations">COP Correlations</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regressions-of-prototypical-heat-pumps">Regressions of Prototypical Heat Pumps</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#carnot-fallback">Carnot Fallback</a></li>
 </ul>
 </li>
@@ -476,28 +476,36 @@
 </details>
 </section>
 <hr class="docutils" />
-<section id="cop-correlations">
-<h2>COP Correlations<a class="headerlink" href="#cop-correlations" title="Link to this heading">#</a></h2>
-<p>Each technology has a <strong>regression fit</strong> — a formula that takes the sink temperature <span class="math notranslate nohighlight">\(T_{sink}\)</span> (°C) and the temperature lift <span class="math notranslate nohighlight">\(\Delta T = T_{sink} - T_{source}\)</span> (°C) and returns the COP.</p>
+<section id="regressions-of-prototypical-heat-pumps">
+<h2>Regressions of Prototypical Heat Pumps<a class="headerlink" href="#regressions-of-prototypical-heat-pumps" title="Link to this heading">#</a></h2>
+<p>The COP models for classic heat pump integration are <strong>empirical regressions of prototypical heat pump technologies</strong> (fitted from manufacturer performance datasets and literature models), rather than theoretical thermodynamic correlations.</p>
+<p>Each prototypical technology model represents a specific heat pump architecture, refrigerant class, and temperature range:</p>
+<ul class="simple">
+<li><p><strong>Prototypical Stirling</strong>: Stirling cycle heat pump baseline for high-temperature lift process applications (<span class="math notranslate nohighlight">\(T_{sink}\)</span>: 144°C–212°C, <span class="math notranslate nohighlight">\(\Delta T\)</span>: 25–190 K).</p></li>
+<li><p><strong>VHTHP (HFC/HFO)</strong>: <strong>Very High Temperature Heat Pump</strong> utilizing low-GWP fluorinated refrigerants (HFC/HFO blends) for high-temperature process steam and hot water generation (<span class="math notranslate nohighlight">\(T_{sink}\)</span>: 80°C–160°C, <span class="math notranslate nohighlight">\(\Delta T\)</span>: 25–95 K).</p></li>
+<li><p><strong>SHP and HTHPs (HFC/HFO)</strong>: <strong>Standard Heat Pumps (SHP) &amp; High Temperature Heat Pumps (HTHP)</strong> using synthetic HFC/HFO refrigerants (<span class="math notranslate nohighlight">\(T_{sink}\)</span>: 25°C–100°C, <span class="math notranslate nohighlight">\(\Delta T\)</span>: 10–78 K).</p></li>
+<li><p><strong>SHP and HTHPs (R717)</strong>: <strong>Standard &amp; High Temperature Heat Pumps</strong> using natural Ammonia (R717) refrigerant (<span class="math notranslate nohighlight">\(T_{sink}\)</span>: 70°C–85°C, <span class="math notranslate nohighlight">\(\Delta T\)</span>: 30–75 K).</p></li>
+<li><p><strong>Theoretical Carnot (50% Carnot / 0.5 Carnot)</strong>: Theoretical Carnot baseline operating at 50% exergetic second-law efficiency factor (<span class="math notranslate nohighlight">\(\eta_{Carnot} = 0.5\)</span>).</p></li>
+</ul>
 <blockquote>
 <div><p>[!IMPORTANT]
 <strong>Physical Lift and Shifted Temperatures</strong>: The source and sink temperatures taken from the Grand Composite Curve are shifted temperatures (<span class="math notranslate nohighlight">\(T_{hot} - \Delta T_{min}/2\)</span> and <span class="math notranslate nohighlight">\(T_{cold} + \Delta T_{min}/2\)</span>). Because of this opposite shift, the difference between them (<span class="math notranslate nohighlight">\(T_{sink} - T_{source}\)</span>) exactly equals the true physical temperature lift the heat pump must overcome (<span class="math notranslate nohighlight">\(T_{cold} - T_{hot} + \Delta T_{min}\)</span>). Therefore, no additional <span class="math notranslate nohighlight">\(\Delta T_{min}\)</span> penalty is needed in the COP calculation; it is mathematically built into the curve.</p>
 <p><strong>COP Limit</strong>: To prevent mathematically unrealistic values when the temperature lift approaches zero, the final calculated COP is strictly capped at a maximum of <strong>15.0</strong>.</p>
 </div></blockquote>
-<p>These are empirical correlations, typically of the form:</p>
+<p>These regression formulas take the form:</p>
 <div class="math notranslate nohighlight">
 \[
 COP = a \cdot (\Delta T + 2c)^b \cdot (T_{sink} + 273 + c)^d
 \]</div>
-<p>where <span class="math notranslate nohighlight">\(a, b, c, d\)</span> are fitted coefficients specific to each technology. The temperature is converted to Kelvin (<span class="math notranslate nohighlight">\(+273\)</span>) for the sink term.</p>
-<p>For example, the <strong>VHTHP (HFC/HFO)</strong> correlation is:</p>
+<p>where <span class="math notranslate nohighlight">\(a, b, c, d\)</span> are fitted regression coefficients specific to each prototypical technology. The temperature is converted to Kelvin (<span class="math notranslate nohighlight">\(+273\)</span>) for the sink term.</p>
+<p>For example, the <strong>VHTHP (HFC/HFO)</strong> regression model is:</p>
 <div class="math notranslate nohighlight">
 \[
 COP_{VHTHP} = 1.9118 \cdot (\Delta T + 2 \times 0.04419)^{-0.89094} \cdot (T_{sink} + 273 + 0.04419)^{0.67895}
 \]</div>
 <section id="carnot-fallback">
 <h3>Carnot Fallback<a class="headerlink" href="#carnot-fallback" title="Link to this heading">#</a></h3>
-<p>When no named technology can operate at a given point, the system falls back to a <strong>generic Carnot COP</strong> at 50% efficiency:</p>
+<p>When no named technology can operate at a given point, the system falls back to a <strong>generic Carnot COP</strong> at 50% efficiency factor (<span class="math notranslate nohighlight">\(\times 0.5\)</span>):</p>
 <div class="math notranslate nohighlight">
 \[
 COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
@@ -742,7 +750,7 @@ COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#heat-pump-technologies-and-operating-windows">Heat Pump Technologies and Operating Windows</a></li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#cop-correlations">COP Correlations</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#regressions-of-prototypical-heat-pumps">Regressions of Prototypical Heat Pumps</a><ul class="pst-show_toc_level nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#carnot-fallback">Carnot Fallback</a></li>
 </ul>
 </li>
