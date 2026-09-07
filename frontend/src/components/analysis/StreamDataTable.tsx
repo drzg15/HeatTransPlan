@@ -7,6 +7,7 @@ import {
   exportDistanceMatrixToCsv,
   exportLiveMapSnapshot,
 } from '../../utils/csvExport';
+import { useAnalysisStore } from '../../store/analysisStore';
 
 interface Props {
   processes: ProcessNode[];
@@ -42,6 +43,7 @@ export default function StreamDataTable({
   groupCoordinates = {},
 }: Props) {
   const { t } = useTranslation();
+  const tMin = useAnalysisStore((s) => s.tMin);
   const [sortKey, setSortKey] = useState<SortKey>('Q');
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
@@ -337,14 +339,32 @@ export default function StreamDataTable({
               boxShadow: '0 1px 2px rgba(0,0,0,0.05)',
             }}
           >
+            {/* Top level grouped headers */}
+            <tr>
+              <th colSpan={4} style={{ ...headStyle('' as SortKey), textAlign: 'center', borderRight: '1px solid var(--border)' }}>
+                Process & Stream Info
+              </th>
+              <th colSpan={2} style={{ ...headStyle('' as SortKey), textAlign: 'center', background: 'var(--surface-hover)', borderRight: '1px solid var(--border)' }}>
+                Actual Temp. [°C]
+              </th>
+              <th colSpan={2} style={{ ...headStyle('' as SortKey), textAlign: 'center', background: 'var(--surface-hover)', borderRight: '1px solid var(--border)' }}>
+                Shifted Temp. (±{tMin/2}K) [°C]
+              </th>
+              <th colSpan={10} style={{ ...headStyle('' as SortKey), textAlign: 'center' }}>
+                Thermal & Physical Data
+              </th>
+            </tr>
+            {/* Sub-headers for sorting */}
             <tr>
               {[
                 { k: 'group', l: t('stream_table.headers.process') },
                 { k: 'subprocess', l: t('stream_table.headers.subprocess') },
                 { k: 'streamName', l: t('stream_table.headers.stream') },
                 { k: 'type', l: t('stream_table.headers.type') },
-                { k: 'tin', l: 'Tin [°C]' },
-                { k: 'tout', l: 'Tout [°C]' },
+                { k: 'tin', l: 'Tin' },
+                { k: 'tout', l: 'Tout' },
+                { k: 'tin_shifted', l: 'T*in' },
+                { k: 'tout_shifted', l: 'T*out' },
                 { k: 'mdot', l: 'ṁ [kg/s]' },
                 { k: 'cp', l: 'cp [kJ/(kg·K)]' },
                 { k: 'CP', l: 'CP [kW/K]' },
@@ -361,7 +381,7 @@ export default function StreamDataTable({
                 <th
                   key={h.k}
                   style={headStyle(h.k as SortKey)}
-                  onClick={() => toggleSort(h.k as SortKey)}
+                  onClick={() => h.k && !h.k.includes('shifted') && toggleSort(h.k as SortKey)}
                 >
                   {h.l} {sortKey === h.k ? (sortDir === 'asc' ? '▴' : '▾') : ''}
                 </th>
@@ -395,7 +415,13 @@ export default function StreamDataTable({
                   </td>
                   <td style={cellStyle}>{r.type}</td>
                   <td style={cellStyle}>{r.tin?.toFixed(1) ?? '—'}</td>
-                  <td style={cellStyle}>{r.tout?.toFixed(1) ?? '—'}</td>
+                  <td style={{ ...cellStyle, borderRight: '1px solid var(--border)' }}>{r.tout?.toFixed(1) ?? '—'}</td>
+                  <td style={{ ...cellStyle, color: 'var(--text-muted)' }}>
+                    {r.tin != null ? (r.tin + (r.type === 'Hot' ? -tMin/2 : tMin/2)).toFixed(1) : '—'}
+                  </td>
+                  <td style={{ ...cellStyle, color: 'var(--text-muted)', borderRight: '1px solid var(--border)' }}>
+                    {r.tout != null ? (r.tout + (r.type === 'Hot' ? -tMin/2 : tMin/2)).toFixed(1) : '—'}
+                  </td>
                   <td style={cellStyle}>{r.mdot?.toFixed(2) ?? '—'}</td>
                   <td style={cellStyle}>{r.cp?.toFixed(2) ?? '—'}</td>
                   <td style={cellStyle}>{r.CP?.toFixed(2) ?? '—'}</td>
