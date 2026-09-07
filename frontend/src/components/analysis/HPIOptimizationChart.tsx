@@ -295,6 +295,7 @@ export default function HPIOptimizationChart({
     >
       <ChartHelpButton
         title="Optimization Solutions"
+        size="large"
         description={
           <>
             <p>Visualizes all feasible heat pump solutions based on the predictive model.</p>
@@ -305,6 +306,23 @@ export default function HPIOptimizationChart({
             <p>
               The large highlighted points indicate the optimal solution or the one you actively
               clicked on.
+            </p>
+            <hr style={{ margin: '8px 0', borderColor: 'var(--border)' }} />
+            <p style={{ fontWeight: 600, marginBottom: '4px' }}>How to read this chart:</p>
+            <p style={{ fontSize: '0.8rem' }}>
+              The <b>solid blue line (Sink Profile)</b> represents the total heating demand of your process at each temperature level. The further to the right on the x-axis, the more total heat (kW) is required.
+              <br/><br/>
+              The <b>solid red line (Source Profile)</b> represents the total waste heat available to be recovered.
+              <br/><br/>
+              A normal heat pump solution aims to cover the entire sink demand at its delivery temperature. Therefore, its sink point (open diamond) will sit exactly <b>on the solid blue line</b>.
+            </p>
+            <hr style={{ margin: '8px 0', borderColor: 'var(--border)' }} />
+            <p style={{ fontWeight: 600, marginBottom: '4px' }}>Why are some points off the blue line?</p>
+            <p style={{ fontSize: '0.8rem' }}>
+              Points plotted to the left of the solid blue line are <b>source-limited</b>. 
+              This means the available waste heat (red line) is not enough to cover the <i>entire</i> heating demand required by the process at that specific temperature. 
+              <br/><br/>
+              The heat pump can only supply a portion of the total demand, so it is plotted at a smaller kW value. The rest of the heat will still need to be supplied by an external utility.
             </p>
           </>
         }

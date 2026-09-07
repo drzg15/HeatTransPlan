@@ -6,9 +6,10 @@ interface Props {
   title: string;
   description: React.ReactNode;
   inline?: boolean;
+  size?: 'normal' | 'large';
 }
 
-export default function ChartHelpButton({ title, description, inline = false }: Props) {
+export default function ChartHelpButton({ title, description, inline = false, size = 'normal' }: Props) {
   const [isOpen, setIsOpen] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -103,7 +104,7 @@ export default function ChartHelpButton({ title, description, inline = false }: 
     >
       <button
         ref={buttonRef}
-        className={`btn btn-sm chart-help-btn ${isOpen ? 'active' : ''}`}
+        className={`btn btn-sm chart-help-btn ${size === 'large' ? 'chart-help-btn-large' : ''} ${isOpen ? 'active' : ''}`}
         title="Toggle Explanation"
       >
         💡
