@@ -173,13 +173,15 @@ export default function HPIChart() {
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     xaxis: {
-      title: mirrored ? 'Q̇  ← source | sink →  (kW)' : 'Net ΔH (kW)',
+      title: { text: mirrored ? 'Q̇  ← source | sink →  (kW)' : 'Net Enthalpy flow in kW' },
+      automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     yaxis: {
-      title: 'Shifted Temperature (°C)',
+      title: { text: 'Shifted Temperature in °C' },
+      automargin: true,
       rangemode: 'tozero',
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
@@ -192,7 +194,7 @@ export default function HPIChart() {
     height: isMobile ? 470 : 400,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: isMobile ? { l: 60, r: 15, t: 40, b: 130 } : { l: 220, r: 20, t: 40, b: 50 },
+    margin: isMobile ? { l: 80, r: 15, t: 40, b: 130 } : { l: 220, r: 20, t: 40, b: 80 },
     hovermode: 'closest' as const,
     showlegend: true,
     legend: isMobile
