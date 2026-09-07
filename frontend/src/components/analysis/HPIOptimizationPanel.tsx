@@ -380,11 +380,11 @@ export default function HPIOptimizationPanel() {
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_sink')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          {t('optimization.panel.headers.t_sink')} [°C]
+                          Actual Sink Temp [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Shifted Sink Temp"
-                              description="The shifted temperature of the heat sink pocket on the GCC."
+                              title="Actual Sink Temp"
+                              description="The physical condensation temperature of the heat pump. This is the real temperature used to calculate the COP."
                               inline={true}
                             />
                           </span>
@@ -392,12 +392,12 @@ export default function HPIOptimizationPanel() {
                         </div>
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_sink')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
-                          Actual Sink (T*+{tMin/2}K) [°C]
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          Shifted Sink (T+{tMin/2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Actual Sink Temp"
-                              description="The actual physical temperature of the heat sink process."
+                              title="Shifted Sink Temp"
+                              description="The shifted temperature on the Grand Composite Curve (Actual + ΔTmin/2). Represents the pinch pocket temperature."
                               inline={true}
                             />
                           </span>
@@ -405,11 +405,11 @@ export default function HPIOptimizationPanel() {
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_source')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          {t('optimization.panel.headers.t_source')} [°C]
+                          Actual Source Temp [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Shifted Source Temp"
-                              description="The shifted temperature of the heat source pocket on the GCC."
+                              title="Actual Source Temp"
+                              description="The physical evaporation temperature of the heat pump. This is the real temperature used to calculate the COP."
                               inline={true}
                             />
                           </span>
@@ -417,12 +417,12 @@ export default function HPIOptimizationPanel() {
                         </div>
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_source')}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', color: 'var(--text-muted)' }}>
-                          Actual Source (T*-{tMin/2}K) [°C]
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          Shifted Source (T-{tMin/2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Actual Source Temp"
-                              description="The actual physical temperature of the heat source process."
+                              title="Shifted Source Temp"
+                              description="The shifted temperature on the Grand Composite Curve (Actual - ΔTmin/2). Represents the pinch pocket temperature."
                               inline={true}
                             />
                           </span>
@@ -495,9 +495,9 @@ export default function HPIOptimizationPanel() {
                           </td>
                           <td>{((pt.Q_demand * (pt.COP - 1)) / pt.COP).toFixed(1)}</td>
                           <td>{pt.T_sink.toFixed(1)}</td>
-                          <td style={{ color: 'var(--text-muted)' }}>{(pt.T_sink + tMin/2).toFixed(1)}</td>
+                          <td>{(pt.T_sink + tMin/2).toFixed(1)}</td>
                           <td>{pt.T_source.toFixed(1)}</td>
-                          <td style={{ color: 'var(--text-muted)' }}>{(pt.T_source - tMin/2).toFixed(1)}</td>
+                          <td>{(pt.T_source - tMin/2).toFixed(1)}</td>
                           <td>{refName}</td>
                           <td>{pt.hp_level}</td>
                         </tr>
