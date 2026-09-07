@@ -1,7 +1,7 @@
 # Graph Report - HeatTransPlan  (2026-09-07)
 
 ## Corpus Check
-- 151 files · ~281,363 words
+- 151 files · ~281,575 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `7ddd17e8`
+- Built from commit: `63f6d992`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 

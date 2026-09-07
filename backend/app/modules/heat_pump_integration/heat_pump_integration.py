@@ -12,7 +12,7 @@ HP_OPERATING_WINDOWS = {
     'VHTHP (HFC/HFO)':         {'t_sink_min': 80,  't_sink_max': 160, 'dt_min': 25, 'dt_max': 95},
     'SHP and HTHPs (HFC/HFO)': {'t_sink_min': 25,  't_sink_max': 100, 'dt_min': 10, 'dt_max': 78},
     'SHP and HTHPs (R717)':    {'t_sink_min': 70,  't_sink_max': 85,  'dt_min': 30, 'dt_max': 75},
-    'Theoretical Carnot':      {'t_sink_min': -273, 't_sink_max': 10000, 'dt_min': 0, 'dt_max': 10000},
+    'Carnot':                  {'t_sink_min': -273, 't_sink_max': 10000, 'dt_min': 0, 'dt_max': 10000},
 }
 
 # Regression fits, one per technology. Each takes the sink temperature (°C) and
@@ -26,8 +26,22 @@ HP_COP_CORRELATIONS = {
         lambda t_sink, dt: 1.4480 * (10 ** 12) * (dt + 2 * 88.73) ** (-4.9469),
     'SHP and HTHPs (R717)':
         lambda t_sink, dt: 40.789 * (dt + 2 * 1.0305) ** (-1.0489) * (t_sink + 273 + 1.0305) ** 0.29998,
-    'Theoretical Carnot':
+    'Carnot':
         lambda t_sink, dt: carnot_cop(t_sink, dt),
+}
+
+# String templates to show the user exactly what was calculated.
+HP_COP_FORMULAS = {
+    'Prototypical Stirling':
+        lambda t_sink, dt: f"1.28792 * ({dt:.1f} + 1.08206)^(-0.37606) * ({t_sink:.1f} + 273.54103)^0.35992",
+    'VHTHP (HFC/HFO)':
+        lambda t_sink, dt: f"1.9118 * ({dt:.1f} + 0.08838)^(-0.89094) * ({t_sink:.1f} + 273.04419)^0.67895",
+    'SHP and HTHPs (HFC/HFO)':
+        lambda t_sink, dt: f"1.4480e12 * ({dt:.1f} + 177.46)^(-4.9469)",
+    'SHP and HTHPs (R717)':
+        lambda t_sink, dt: f"40.789 * ({dt:.1f} + 2.061)^(-1.0489) * ({t_sink:.1f} + 274.0305)^0.29998",
+    'Carnot':
+        lambda t_sink, dt: f"({t_sink:.1f} + 273.15) / {dt:.1f} * 0.5",
 }
 
 
@@ -114,7 +128,7 @@ class HeatPumpIntegration():
         to belong to one named technology.
         """
         self._check_lift(T)
-        delta_T = self.t_sink_out - T + self.tmin
+        delta_T = self.t_sink_out - T
 
         candidates = [
             (correlation(self.t_sink_out, delta_T), hp_type)
@@ -129,7 +143,7 @@ class HeatPumpIntegration():
     def get_available_heat_pumps(self, T):
         """Returns list of all heat pump types with their COPs and availability status"""
         hp_list = []
-        delta_T = self.t_sink_out - T + self.tmin
+        delta_T = self.t_sink_out - T
 
         for hp_type, correlation in HP_COP_CORRELATIONS.items():
             if in_operating_window(hp_type, self.t_sink_out, delta_T):
@@ -164,7 +178,7 @@ class HeatPumpIntegration():
         was really just Carnot, and made several of them come out identical.
         """
         self._check_lift(T)
-        delta_T = self.t_sink_out - T + self.tmin
+        delta_T = self.t_sink_out - T
 
         if hp_type not in HP_COP_CORRELATIONS:
             raise ValueError(f"Unknown heat pump type '{hp_type}'.")
