@@ -33,15 +33,15 @@ HP_COP_CORRELATIONS = {
 # String templates to show the user exactly what was calculated.
 HP_COP_FORMULAS = {
     'Prototypical Stirling':
-        lambda t_sink, dt: f"1.28792 * ({dt:.1f} + 1.08206)^(-0.37606) * ({t_sink:.1f} + 273.54103)^0.35992",
+        lambda t_sink, dt: f"1.288 * (ΔT + 1.08)^-0.38 * (T_sink + 273.5)^0.36\n= 1.28792 * ({dt:.1f} + 1.08206)^-0.37606 * ({t_sink:.1f} + 273.54103)^0.35992",
     'VHTHP (HFC/HFO)':
-        lambda t_sink, dt: f"1.9118 * ({dt:.1f} + 0.08838)^(-0.89094) * ({t_sink:.1f} + 273.04419)^0.67895",
+        lambda t_sink, dt: f"1.912 * (ΔT + 0.09)^-0.89 * (T_sink + 273.0)^0.68\n= 1.9118 * ({dt:.1f} + 0.08838)^-0.89094 * ({t_sink:.1f} + 273.04419)^0.67895",
     'SHP and HTHPs (HFC/HFO)':
-        lambda t_sink, dt: f"1.4480e12 * ({dt:.1f} + 177.46)^(-4.9469)",
+        lambda t_sink, dt: f"1.448e12 * (ΔT + 177.46)^-4.9469\n= 1.4480e12 * ({dt:.1f} + 177.46)^-4.9469",
     'SHP and HTHPs (R717)':
-        lambda t_sink, dt: f"40.789 * ({dt:.1f} + 2.061)^(-1.0489) * ({t_sink:.1f} + 274.0305)^0.29998",
+        lambda t_sink, dt: f"40.789 * (ΔT + 2.06)^-1.05 * (T_sink + 274.0)^0.30\n= 40.789 * ({dt:.1f} + 2.061)^-1.0489 * ({t_sink:.1f} + 274.0305)^0.29998",
     'Carnot':
-        lambda t_sink, dt: f"({t_sink:.1f} + 273.15) / {dt:.1f} * 0.5",
+        lambda t_sink, dt: f"COP_carnot = T_sink(K) / (T_sink - T_source) * 0.5\n= ({t_sink:.1f} + 273.15) / {dt:.1f} * 0.5",
 }
 
 

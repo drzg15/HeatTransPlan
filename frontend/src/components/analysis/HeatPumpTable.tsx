@@ -3,11 +3,13 @@
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
+import ChartHelpButton from '../ui/ChartHelpButton';
 
 export default function HeatPumpTable() {
   const { t } = useTranslation();
   const hpiResult = useAnalysisStore((s) => s.hpiResult);
   const [isExcludedOpen, setIsExcludedOpen] = useState(false);
+  const [activeCalc, setActiveCalc] = useState<string | null>(null);
 
   if (!hpiResult) return null;
 
@@ -38,7 +40,22 @@ export default function HeatPumpTable() {
                 .sort((a, b) => (b.cop ?? 0) - (a.cop ?? 0))
                 .map((hp) => (
                   <tr key={hp.name}>
-                    <td>{hp.name}</td>
+                    <td>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                        {hp.name}
+                        {hp.calculation_details && (
+                          <ChartHelpButton
+                            inline
+                            title={`${hp.name} Calculation`}
+                            description={
+                              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9em' }}>
+                                {hp.calculation_details}
+                              </pre>
+                            }
+                          />
+                        )}
+                      </div>
+                    </td>
                     <td>{hp.cop?.toFixed(2) ?? '—'}</td>
                     <td>{hp.t_source?.toFixed(1) ?? '—'}</td>
                     <td>{hp.t_sink?.toFixed(1) ?? '—'}</td>

@@ -72,6 +72,7 @@ class HeatPumpEntry(BaseModel):
     coverage: Optional[float] = None
     available: bool = True
     reason: str = ""
+    calculation_details: Optional[str] = None
 
 class HPIRequest(BaseModel):
     """Input to the HPI endpoint."""

@@ -1,7 +1,7 @@
 # Graph Report - HeatTransPlan  (2026-09-07)
 
 ## Corpus Check
-- 151 files · ~281,575 words
+- 151 files · ~281,769 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
@@ -10,7 +10,7 @@
 - Token cost: 0 input · 0 output
 
 ## Graph Freshness
-- Built from commit: `63f6d992`
+- Built from commit: `f4582b90`
 - Run `git rev-parse HEAD` and compare to check if the graph is stale.
 - Run `graphify update .` after code changes (no API cost).
 
@@ -158,7 +158,7 @@ Nodes (35): ProcessNode, A node in the process hierarchy. Exactly mirrors create
 
 ### Community 10 - "HeatPumpIntegration"
 Cohesion: 0.10
-Nodes (13): carnot_cop(), HeatPumpIntegration, in_operating_window(), ValueError, Best COP available at source temperature T, across every technology rated for…, Returns list of all heat pump types with their COPs and availability status, COP of one named technology at source temperature T. Raises HeatPumpOutOfRange…, Carnot COP at 50 % efficiency — the generic fallback for 'any heat pump'. (+5 more)
+Nodes (13): carnot_cop(), HeatPumpIntegration, in_operating_window(), ValueError, A heat pump needs a positive temperature lift. With the pocket-free GCC the…, Best COP available at source temperature T, across every technology rated for…, Returns list of all heat pump types with their COPs and availability status, COP of one named technology at source temperature T. Raises HeatPumpOutOfRange… (+5 more)
 
 ### Community 11 - "types/analysis.ts"
 Cohesion: 0.12
