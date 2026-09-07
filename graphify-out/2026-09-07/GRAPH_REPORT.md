@@ -1,11 +1,11 @@
 # Graph Report - HeatTransPlan  (2026-09-07)
 
 ## Corpus Check
-- 151 files · ~281,363 words
+- 151 files · ~281,379 words
 - Verdict: corpus is large enough that graph structure adds value.
 
 ## Summary
-- 1427 nodes · 2790 edges · 96 communities (52 shown, 27 thin omitted)
+- 1427 nodes · 2793 edges · 92 communities (53 shown, 22 thin omitted)
 - Extraction: 96% EXTRACTED · 4% INFERRED · 0% AMBIGUOUS · INFERRED: 103 edges (avg confidence: 0.9)
 - Token cost: 0 input · 0 output
 
@@ -73,7 +73,7 @@
 - import_csv
 - list_projects
 - scripts
-- fe
+- StreamSelector.tsx
 - vite.config.ts
 - copybutton_funcs.js
 - doctools.js
@@ -90,10 +90,6 @@
 - setupTests.ts
 - GEMINI.md
 - heattransplan-backend
-- ._getConfig
-- tn
-- ve
-- HPIChart.tsx
 
 ## God Nodes (most connected - your core abstractions)
 1. `654()` - 55 edges
@@ -122,7 +118,7 @@
 ## Import Cycles
 - None detected.
 
-## Communities (96 total, 27 thin omitted)
+## Communities (92 total, 22 thin omitted)
 
 ### Community 0 - "654"
 Cohesion: 0.06
@@ -135,6 +131,10 @@ Nodes (48): ae(), B(), ce(), ct(), D(), de(), dt(), _e() (+40 more)
 ### Community 2 - "Pinch"
 Cohesion: 0.05
 Nodes (10): PinchMain, PinchExport, Pinch, PinchPlot, Streams, TotalSiteProfile, TSPPlot, SplitStreams (+2 more)
+
+### Community 3 - "is"
+Cohesion: 0.06
+Nodes (6): fe(), ge(), getDataAttributes(), is, tn, ve
 
 ### Community 4 - "optimization_service.py"
 Cohesion: 0.08
@@ -162,7 +162,7 @@ Nodes (13): carnot_cop(), HeatPumpIntegration, in_operating_window(), ValueError
 
 ### Community 11 - "types/analysis.ts"
 Cohesion: 0.12
-Nodes (26): validateCopFormula(), CopFormulaModal(), DEFAULT_COP_FORMULA, EXAMPLES, Props, AnalysisStore, CompositeDiagramData, CopFormulaSpec (+18 more)
+Nodes (27): validateCopFormula(), CopFormulaModal(), DEFAULT_COP_FORMULA, EXAMPLES, Props, ModeOption, AnalysisStore, CompositeDiagramData (+19 more)
 
 ### Community 12 - "models/analysis.py"
 Cohesion: 0.12
@@ -177,16 +177,16 @@ Cohesion: 0.10
 Nodes (27): GroupCoordinates, ProjectState, BaseModel, Project state model — exact mirror of save_app_state() / load_app_state() in…, Coordinates and metadata for a process group on the map., Complete project state. Matches save_app_state() output exactly. This is what…, create_project(), delete_project() (+19 more)
 
 ### Community 16 - "PotentialAnalysisPage.tsx"
-Cohesion: 0.16
-Nodes (20): generateReport(), runHPI(), runHPIOptimization(), runPinch(), runStatusQuo(), EnergyDemands(), HeatPumpTable(), PinchMetrics() (+12 more)
+Cohesion: 0.15
+Nodes (20): generateReport(), runHPI(), runHPIOptimization(), runPinch(), runStatusQuo(), HeatPumpTable(), HP_COLORS, HPIChart() (+12 more)
 
 ### Community 17 - "package.json"
 Cohesion: 0.09
 Nodes (23): name, private, type, version, eslint, @eslint/js, eslint-plugin-react-hooks, eslint-plugin-react-refresh (+15 more)
 
 ### Community 18 - "useUIStore"
-Cohesion: 0.18
-Nodes (16): CompositeCurvesChart(), GrandCompositeCurveChart(), HeatRecoveryToggle(), ModeOption, HPIOptimizationChart(), Props, HPIOptimizationPanel(), isSamePoint() (+8 more)
+Cohesion: 0.17
+Nodes (15): CompositeCurvesChart(), GrandCompositeCurveChart(), HeatRecoveryToggle(), HPIOptimizationChart(), Props, HPIOptimizationPanel(), isSamePoint(), SortKey (+7 more)
 
 ### Community 19 - "StreamModel"
 Cohesion: 0.13
@@ -308,6 +308,10 @@ Nodes (7): get_project(), list_projects(), get, List all project IDs and timesta
 Cohesion: 0.29
 Nodes (7): scripts, build, dev, lint, prepare, preview, test
 
+### Community 60 - "StreamSelector.tsx"
+Cohesion: 0.52
+Nodes (4): EnergyDemands(), StreamSelector(), getStreamInfo(), toFloat()
+
 ### Community 61 - "vite.config.ts"
 Cohesion: 0.40
 Nodes (3): apiProxy, vite, @vitejs/plugin-react
@@ -328,23 +332,19 @@ Nodes (3): PlotProps, react-plotly.js, plotly.js
 Cohesion: 0.67
 Nodes (3): lint-staged, *.{css,md,json}, *.{ts,tsx}
 
-### Community 95 - "HPIChart.tsx"
-Cohesion: 0.53
-Nodes (4): HP_COLORS, HPIChart(), useIsMobile(), useMediaQuery()
-
 ## Knowledge Gaps
 - **227 isolated node(s):** `heattransplan-backend`, `messages`, `BLACKLISTED_KEY_CONTROL_ELEMENTS`, `Documentation`, `DOCUMENTATION_OPTIONS` (+222 more)
   These have ≤1 connection - possible missing edges or undocumented components. (Counts symbols only; 606 node(s) total have ≤1 connection when file, concept and rationale nodes are included.)
-- **27 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
+- **22 thin communities (<3 nodes) omitted from report** — run `graphify query` to explore isolated nodes.
 
 ## Suggested Questions
 _Questions this graph is uniquely positioned to answer:_
 
 - **Why does `de()` connect `bootstrap.js` to `react`?**
   _High betweenness centrality (0.108) - this node is a cross-community bridge._
-- **Why does `react-i18next` connect `react` to `StreamDataTable.tsx`, `SubprocessCard.tsx`, `types/analysis.ts`, `PotentialAnalysisPage.tsx`, `package.json`, `useUIStore`, `ProcessNode`, `HPIChart.tsx`?**
+- **Why does `react-i18next` connect `react` to `StreamDataTable.tsx`, `SubprocessCard.tsx`, `types/analysis.ts`, `PotentialAnalysisPage.tsx`, `package.json`, `useUIStore`, `StreamSelector.tsx`, `ProcessNode`?**
   _High betweenness centrality (0.095) - this node is a cross-community bridge._
-- **Why does `ps` connect `ps` to `bootstrap.js`, `is`, `ye`, `Ai`, `Qi`, `._getConfig`?**
+- **Why does `ps` connect `ps` to `bootstrap.js`, `is`, `ye`, `Ai`, `Qi`?**
   _High betweenness centrality (0.025) - this node is a cross-community bridge._
 - **Are the 7 inferred relationships involving `654()` (e.g. with `dc()` and `hc()`) actually correct?**
   _`654()` has 7 INFERRED edges - model-reasoned connections that need verification._
