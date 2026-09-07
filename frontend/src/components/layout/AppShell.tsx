@@ -97,6 +97,16 @@ export default function AppShell({ children }: Props) {
         </nav>
 
         <div className="nav-actions">
+          <a
+            href="https://davidzapata.github.io/HeatTransPlan/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn btn-sm"
+            style={{ marginRight: '8px', textDecoration: 'none' }}
+            title="Open Documentation"
+          >
+            📖 Documentation
+          </a>
           <button
             className="btn btn-sm"
             onClick={() => setShowResetModal(true)}
