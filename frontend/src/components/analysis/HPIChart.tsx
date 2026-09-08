@@ -163,7 +163,7 @@ export default function HPIChart() {
 
   const titleText = usesGCC
     ? t('analysis.charts.hpi_gcc')
-    : profileMode === 'uncascaded'
+    : profileMode === 'composite'
       ? t('analysis.charts.hpi_partial')
       : t('analysis.charts.hpi_none');
 
