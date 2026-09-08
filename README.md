@@ -8,13 +8,13 @@ It is developed as part of the [HeatTransPlan research project](https://www.heat
 
 ## Features
 
-- 🗺️ **Interactive map** — Geolocate industrial facilities and place processes on a map canvas.
-- ⚙️ **Energy Data Collection** — Define processes, sub-processes, hot/cold streams, temperatures, flow rates, and operating hours.
-- 📊 **Pinch Analysis** — Automatically compute composite curves, the grand composite curve, pinch point, and minimum heating/cooling demands.
-- 🔥 **Heat Pump Integration** — Evaluate and optimise heat pump solutions across feasible temperature lifts, with COP modelling and refrigerant selection.
-- 📁 **Import / Export** — Save and load project state as JSON; export stream data and distance matrices as CSV; export map screenshots.
-- 🌍 **Multilingual** — English and German UI (i18n ready).
-- 🌙 **Dark / Light mode** — Theme toggle built in.
+- **Interactive map** — Geolocate industrial facilities and place processes on a map canvas.
+- **Energy Data Collection** — Define processes, sub-processes, hot/cold streams, temperatures, flow rates, and operating hours.
+- **Pinch Analysis** — Automatically compute composite curves, the grand composite curve, pinch point, and minimum heating/cooling demands.
+- **Heat Pump Integration** — Evaluate and optimise heat pump solutions across feasible temperature lifts, with COP modelling and refrigerant selection.
+- **Import / Export** — Save and load project state as JSON; export stream data and distance matrices as CSV; export map screenshots.
+- **Multilingual** — English and German UI (i18n ready).
+- **Dark / Light mode** — Theme toggle built in.
 
 ---
 
