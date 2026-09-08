@@ -29,9 +29,7 @@ const DEFAULT_COP_FORMULA: CopFormulaSpec = {
   hp_level: '1',
 };
 
-/** Starting points, so nobody faces an empty box. The last two are the app's
- *  own built-in correlations, which double as a syntax example. */
-const EXAMPLES: Array<{ label: string; expression: string }> = [];
+
 
 const BUILTIN_FORMULAS: Array<{ label: string; expression: string; T_sink_min: number; T_sink_max: number }> = [
   { label: 'Theoretical Carnot (50 %)', expression: '0.5 * (T_sink + 273.15) / (T_sink - T_source)', T_sink_min: 0, T_sink_max: 250 },
