@@ -540,15 +540,15 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIOptimizationPanel.tsx": {
-    "mtime": 1788795410.8219724,
-    "seen": 1788795421.073062,
-    "ast_hash": "5d5ae80d4b619b6b59894d0cdad41f93",
+    "mtime": 1788796468.13479,
+    "seen": 1788847528.0467682,
+    "ast_hash": "5de3c9d5d3a9a21e789465b069fb0f71",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HeatPumpTable.tsx": {
-    "mtime": 1788785787.9322257,
-    "seen": 1788785972.808716,
-    "ast_hash": "a612d7c486edb300f909a4aa4df6b0aa",
+    "mtime": 1788796468.1353962,
+    "seen": 1788847528.046769,
+    "ast_hash": "33f4c36da0f4d2f2550cf179e2f4c176",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HeatRecoveryToggle.tsx": {
