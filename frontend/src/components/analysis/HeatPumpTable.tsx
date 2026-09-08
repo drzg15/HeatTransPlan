@@ -10,7 +10,6 @@ export default function HeatPumpTable() {
   const hpiResult = useAnalysisStore((s) => s.hpiResult);
   const tMin = useAnalysisStore((s) => s.tMin);
   const [isExcludedOpen, setIsExcludedOpen] = useState(false);
-  const [activeCalc, setActiveCalc] = useState<string | null>(null);
 
   if (!hpiResult) return null;
 

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useProjectStore } from '../../store/projectStore';
 import { exportProjectToCsv } from '../../utils/csvExport';
@@ -43,7 +43,7 @@ export default function ActionBar({
   const { t } = useTranslation();
   const state = useProjectStore((s) => s.state);
   const setState = useProjectStore((s) => s.setState);
-  const resetState = useProjectStore((s) => s.resetState);
+
   const fileRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {

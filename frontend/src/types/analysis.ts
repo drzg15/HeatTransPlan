@@ -57,6 +57,7 @@ export interface HeatPumpEntry {
   coverage?: number | null;
   available: boolean;
   reason?: string;
+  calculation_details?: string;
 }
 
 export interface HPIntegrationResult {
