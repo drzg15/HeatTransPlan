@@ -8,38 +8,39 @@ export default function TutorialSidebar() {
 
   const steps = [
     {
-      title: t('tutorial.step0_title'),
-      text: t('tutorial.step0_text'),
+      title: 'Navigating the Map & UI',
+      text: '1. Data Collection tab.\n2. Search Bar to center map.\n3. Lock Map button disables panning for marker placement.\n4. Help/Tutorial button.',
+      image: '/assets/tutorial/slide-1.png',
     },
     {
-      title: t('tutorial.step1_title'),
-      text: t('tutorial.step1_text'),
-      image: '/tutorial_step1.png?v=3',
+      title: 'Adding a Process',
+      text: '1. Click + Add Process to create a group.\n2. Click Place to position it.\n3. The Process 1 marker appears on the map.',
+      image: '/assets/tutorial/slide-2.png',
     },
     {
-      title: t('tutorial.step2_title'),
-      text: t('tutorial.step2_text'),
-      image: '/tutorial_step2.png?v=3',
+      title: 'Subprocesses',
+      text: '1. Click Show on Map to zoom into subprocesses.\n2. Click + Add to create new subprocesses inside the parent process.',
+      image: '/assets/tutorial/slide-3.png',
     },
     {
-      title: t('tutorial.step3_title'),
-      text: t('tutorial.step3_text'),
-      image: '/tutorial_step3.png?v=3',
+      title: 'Connections & Streams',
+      text: '1. Use Next Processes to draw arrows between boxes.\n2. Use Streams to input thermodynamics (Temperatures, Mass flow, Heat capacity).',
+      image: '/assets/tutorial/slide-4.png',
     },
     {
-      title: t('tutorial.step4_title'),
-      text: t('tutorial.step4_text'),
-      image: '/tutorial_step4.png?v=4',
+      title: 'The Potential Analysis Dashboard',
+      text: '1. Switch to Potential Analysis tab.\n2. Toggle hot/cold streams in Streams Selection.\n3. Configure Current Energy Supply.',
+      image: '/assets/tutorial/slide-5.png',
     },
     {
-      title: t('tutorial.step5_title'),
-      text: t('tutorial.step5_text'),
-      image: '/tutorial_step5.png?v=4',
+      title: 'Pinch Analysis Curves',
+      text: '1. Comparison table shows energy savings (kW and %).\n2. Composite Curves plot Temp vs Enthalpy.\n3. Grand Composite Curve visualizes remaining demands.',
+      image: '/assets/tutorial/slide-6.png',
     },
     {
-      title: t('tutorial.step6_title'),
-      text: t('tutorial.step6_text'),
-      image: '/tutorial_step6.png?v=4',
+      title: 'Heat Pump Optimization',
+      text: '1. Heat Pump Model table lists refrigerants & COPs.\n2. Filters panel for refining results.\n3. Chart displays actual heat pump cycles layered on pinch curves.',
+      image: '/assets/tutorial/slide-7.png',
     },
   ];
 
