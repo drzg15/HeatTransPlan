@@ -2,6 +2,9 @@
   width: 100%;
   padding: 0 24px;
 }
+:global(.dark) .home-page {
+  background-color: transparent;
+}
 
 .home-grid {
   display: grid;

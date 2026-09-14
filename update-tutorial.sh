@@ -23,11 +23,15 @@ end tell
 EOF
 osascript /tmp/convert.scpt
 
-echo "2️⃣ Extracting slides to images..."
+echo "2️⃣ Extracting slides to SVG vectors..."
 # Remove old slides
 rm -f /Users/davidzapata/Documents/GitHub/HeatTransPlan/frontend/public/assets/tutorial/slide-*.png
+rm -f /Users/davidzapata/Documents/GitHub/HeatTransPlan/frontend/public/assets/tutorial/slide-*.svg
 
-# Convert PDF to PNGs
-pdftoppm -png "$PDF_PATH" "$EXPORT_DIR"
+# Convert PDF to SVGs page by page
+PAGES=$(pdfinfo "$PDF_PATH" | grep Pages | awk '{print $2}')
+for i in $(seq 1 $PAGES); do
+    pdftocairo -f $i -l $i -svg "$PDF_PATH" "${EXPORT_DIR}-${i}.svg"
+done
 
 echo "✅ Success! The tutorial images have been updated."
