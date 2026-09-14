@@ -1,11 +1,20 @@
 .home-page {
-  max-width: 1200px;
+  width: 100%;
+  padding: 0 24px;
 }
 
 .home-grid {
   display: grid;
-  grid-template-columns: 3fr 2fr;
+  grid-template-columns: 1fr 2.5fr;
   gap: 32px;
+}
+
+.home-image-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-bottom: 32px;
+  align-items: center;
 }
 
 .home-logo {
@@ -44,7 +53,8 @@
 
 .home-info-row {
   display: flex;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
   gap: 16px;
   margin-bottom: 12px;
 }
@@ -63,7 +73,7 @@
 
 .home-qr-col {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
   gap: 12px;
 }

@@ -77,8 +77,38 @@ export default function ActionBar({
           return;
         }
 
+        const data = parsed.data;
+        
+        const isLegacy = (scale: any, threshold: number) => {
+          if (scale == null) return true;
+          const num = parseFloat(String(scale));
+          if (isNaN(num)) return true;
+          return num < threshold;
+        };
+
+        // Upgrade legacy box scales to the new larger defaults
+        if (data.processes) {
+          data.processes = data.processes.map(p => ({
+            ...p,
+            box_scale: isLegacy(p.box_scale, 1.5) ? 1.5 : p.box_scale,
+            children: (p.children || []).map(c => ({
+              ...c,
+              box_scale: isLegacy(c.box_scale, 1.2) ? 1.2 : c.box_scale,
+            }))
+          }));
+        }
+        if (data.proc_group_coordinates) {
+          Object.keys(data.proc_group_coordinates).forEach(k => {
+            const numK = parseInt(k, 10);
+            const gc = data.proc_group_coordinates[numK];
+            if (gc) {
+               gc.box_scale = isLegacy(gc.box_scale, 1.5) ? 1.5 : gc.box_scale;
+            }
+          });
+        }
+
         // If it succeeds, parsed.data is heavily typed and guaranteed to be clean
-        setState({ ...parsed.data, map_locked: true });
+        setState({ ...data, map_locked: true });
       } catch (err) {
         alert('Could not parse the file. It is not a valid JSON document.');
       }

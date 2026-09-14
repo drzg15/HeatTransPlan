@@ -11,7 +11,7 @@
     {
       "name": "Subprocess 1",
       "level": 1,
-      "next": "Subprocess 3",
+      "next": "",
       "conntemp": "",
       "product_tout": "",
       "connm": "",
@@ -59,9 +59,9 @@
         }
       ],
       "children": [],
-      "lat": "51.70918802196024",
-      "lon": "8.768720626831056",
-      "box_scale": 1.5,
+      "lat": 51.708546,
+      "lon": 8.769704,
+      "box_scale": 1,
       "extra_info": {
         "air_tin": "",
         "air_tout": "",
@@ -93,7 +93,7 @@
     {
       "name": "Subprocess 2",
       "level": 1,
-      "next": "Subprocess 3",
+      "next": "",
       "conntemp": "",
       "product_tout": "",
       "connm": "",
@@ -121,9 +121,9 @@
         }
       ],
       "children": [],
-      "lat": "51.70852652546815",
-      "lon": "8.768725991249086",
-      "box_scale": 1.5,
+      "lat": 51.708543,
+      "lon": 8.770825,
+      "box_scale": 1,
       "extra_info": {
         "air_tin": "",
         "air_tout": "",
@@ -155,7 +155,7 @@
     {
       "name": "Subprocess 3",
       "level": 1,
-      "next": "Subprocess 4",
+      "next": "",
       "conntemp": "",
       "product_tout": "",
       "connm": "",
@@ -203,9 +203,9 @@
         }
       ],
       "children": [],
-      "lat": "51.708888853890606",
-      "lon": "8.770421147346498",
-      "box_scale": 1.5,
+      "lat": 51.70853,
+      "lon": 8.772048,
+      "box_scale": 1,
       "extra_info": {
         "air_tin": "",
         "air_tout": "",
@@ -265,9 +265,9 @@
         }
       ],
       "children": [],
-      "lat": "51.708888853890606",
-      "lon": "8.772089481353762",
-      "box_scale": 1.5,
+      "lat": 51.708516,
+      "lon": 8.773276,
+      "box_scale": 1,
       "extra_info": {
         "air_tin": "",
         "air_tout": "",
