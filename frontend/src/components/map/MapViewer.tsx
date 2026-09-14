@@ -181,9 +181,9 @@ function createDivIcon(
   markerType: string = '',
   markerId: string = ''
 ) {
-  const fs = Math.max(10, Math.round(10 * scale));
-  const px = Math.max(4, Math.round(8 * scale));
-  const py = Math.max(2, Math.round(4 * scale));
+  const fs = Math.max(12, Math.round(15 * scale));
+  const px = Math.max(6, Math.round(12 * scale));
+  const py = Math.max(3, Math.round(6 * scale));
   const opacity = isSelected ? 1.0 : 0.4;
 
   const borderColor = isMultiSelected ? 'var(--warning)' : isSelected ? '#1b5e20' : '#1b5e20';
@@ -672,62 +672,98 @@ function ConnectionLines({
       const tLon = parseFloat(String(tgt.lon));
       if (isNaN(srcLat) || isNaN(srcLon) || isNaN(tLat) || isNaN(tLon)) return null;
 
-      const srcScale = p.box_scale ? parseFloat(String(p.box_scale)) : 1.0;
-      const tgtScale = tgt.box_scale ? parseFloat(String(tgt.box_scale)) : 1.0;
+      const srcScale = p.box_scale ? parseFloat(String(p.box_scale)) : 1.5;
+      const tgtScale = tgt.box_scale ? parseFloat(String(tgt.box_scale)) : 1.5;
 
       const p1 = map.latLngToContainerPoint([srcLat, srcLon]);
       const p2 = map.latLngToContainerPoint([tLat, tLon]);
       const dist = Math.sqrt(Math.pow(p2.x - p1.x, 2) + Math.pow(p2.y - p1.y, 2));
       if (dist < 40) return null;
 
-      const angleRad = Math.atan2(p2.y - p1.y, p2.x - p1.x);
-      const angleDeg = angleRad * (180 / Math.PI);
-      const cos = Math.abs(Math.cos(angleRad));
-      const sin = Math.abs(Math.sin(angleRad));
+      const fsTarget = Math.max(12, Math.round(15 * tgtScale));
+      const pxTarget = Math.max(6, Math.round(12 * tgtScale));
+      const pyTarget = Math.max(3, Math.round(6 * tgtScale));
+      const avgCharWidthTarget = fsTarget * 0.62;
+      const tgtW = Math.round(Math.max(20, tgt.name.length * avgCharWidthTarget + pxTarget * 2 + 2)) / 2;
+      const tgtH = Math.round(fsTarget + pyTarget * 2 + 2) / 2;
 
-      const getOffset = (name: string, scale: number) => {
-        const w = ((name.length * 6 + 12) * scale) / 2;
-        const h = (12 * scale + 8) / 2;
-        return Math.min(w / (cos || 0.001), h / (sin || 0.001));
-      };
+      let pMid1: L.Point;
+      let pMid2: L.Point;
+      let pArrow: L.Point;
+      let angleDeg: number;
 
-      const startOffset = getOffset(p.name, srcScale) + 2;
-      const endOffset = getOffset(tgt.name, tgtScale) + 2;
-      if (dist <= startOffset + endOffset + 10) return null;
+      // The arrow center is 10px from the tip, so we offset by 12px total (10px + 2px padding) from the edge
+      const ARROW_OFFSET = 12;
+      const isHorizontalLayout = Math.abs(p2.x - p1.x) > Math.abs(p2.y - p1.y);
 
-      const startRatio = startOffset / dist;
-      const arrowRatio = (dist - endOffset) / dist;
-      const lineEndRatio = (dist - endOffset - 12) / dist;
+      if (isHorizontalLayout) {
+        // Horizontal Layout: Exit Side, Enter Side (3 segments)
+        const midX = (p1.x + p2.x) / 2;
+        pMid1 = L.point(midX, p1.y);
+        pMid2 = L.point(midX, p2.y);
+        
+        if (p2.x > p1.x) {
+          // Target is Right: Enter Left side, point Right
+          pArrow = L.point(p2.x - tgtW - ARROW_OFFSET, p2.y);
+          angleDeg = 0;
+        } else {
+          // Target is Left: Enter Right side, point Left
+          pArrow = L.point(p2.x + tgtW + ARROW_OFFSET, p2.y);
+          angleDeg = 180;
+        }
+      } else {
+        // Vertical Layout: Exit Top/Bottom, Enter Top/Bottom (3 segments)
+        const midY = (p1.y + p2.y) / 2;
+        pMid1 = L.point(p1.x, midY);
+        pMid2 = L.point(p2.x, midY);
 
-      const pStart = L.point(p1.x + (p2.x - p1.x) * startRatio, p1.y + (p2.y - p1.y) * startRatio);
-      const pArrow = L.point(p1.x + (p2.x - p1.x) * arrowRatio, p1.y + (p2.y - p1.y) * arrowRatio);
-      const pLineEnd = L.point(
-        p1.x + (p2.x - p1.x) * lineEndRatio,
-        p1.y + (p2.y - p1.y) * lineEndRatio
-      );
+        if (p2.y > p1.y) {
+          // Target is Below: Enter Top side, point Down
+          pArrow = L.point(p2.x, p2.y - tgtH - ARROW_OFFSET);
+          angleDeg = 90;
+        } else {
+          // Target is Above: Enter Bottom side, point Up
+          pArrow = L.point(p2.x, p2.y + tgtH + ARROW_OFFSET);
+          angleDeg = -90;
+        }
+      }
 
-      const lStart = map.containerPointToLatLng(pStart);
+      const lStart = map.containerPointToLatLng(p1);
       const lArrow = map.containerPointToLatLng(pArrow);
-      const lEnd = map.containerPointToLatLng(pLineEnd);
 
-      const icon = L.divIcon({
+      const arrowIcon = L.divIcon({
         className: 'custom-arrow',
         html: `<div style="transform: rotate(${angleDeg}deg); display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;">
           <svg width="20" height="20" viewBox="0 0 20 20" overflow="visible" style="display: block;">
-            <path d="M2,4 L18,10 L2,16 L6,10 Z" fill="var(--text-main)" />
+            <path d="M2,4 L18,10 L2,16 L6,10 Z" fill="#475569" />
           </svg>
         </div>`,
         iconSize: [20, 20],
-        iconAnchor: [18, 10],
+        iconAnchor: [10, 10],
       });
+
+      const createLineMarker = (pA: L.Point, pB: L.Point, suffix: string) => {
+        const dx = pB.x - pA.x;
+        const dy = pB.y - pA.y;
+        const len = Math.sqrt(dx * dx + dy * dy);
+        const ang = Math.atan2(dy, dx) * (180 / Math.PI);
+        const lA = map.containerPointToLatLng(pA);
+        
+        const lineIcon = L.divIcon({
+          className: 'custom-line-icon',
+          html: `<div style="width: ${len}px; height: 2px; background: #475569; transform: rotate(${ang}deg); transform-origin: left center; margin-top: -1px;"></div>`,
+          iconSize: [0, 0],
+          iconAnchor: [0, 0],
+        });
+        return <Marker key={`conn-${p.name}-${tgt.name}-${suffix}`} position={lA} icon={lineIcon} interactive={false} />;
+      };
 
       return (
         <React.Fragment key={`conn-${p.name}-${tgt.name}`}>
-          <Polyline
-            positions={[lStart, lEnd]}
-            pathOptions={{ color: 'var(--text-main)', weight: 3, pane: 'activeMarkerPane' }}
-          />
-          <Marker position={lArrow} icon={icon} interactive={false} pane="activeMarkerPane" />
+          {createLineMarker(p1, pMid1, 'line1')}
+          {createLineMarker(pMid1, pMid2, 'line2')}
+          {createLineMarker(pMid2, pArrow, 'line3')}
+          <Marker position={lArrow} icon={arrowIcon} interactive={false} />
         </React.Fragment>
       );
     };
@@ -1087,9 +1123,11 @@ export default function MapViewer({
                 />
               );
             }
-            return null;
           })}
+        </Pane>
 
+        {/* 3.5 Connection Lines — Below markers but above canvas */}
+        <Pane name="connectionLinesPane" style={{ zIndex: 655 }}>
           <ConnectionLines
             processes={processes}
             groups={groups}
@@ -1135,7 +1173,7 @@ export default function MapViewer({
                     '',
                     p.name,
                     '',
-                    p.box_scale ? parseFloat(String(p.box_scale)) : 1.2,
+                    p.box_scale ? parseFloat(String(p.box_scale)) : 1.5,
                     isSubSelected,
                     allowMultiMove && selectedIds.has(`sub-${si}`),
                     'sub',
@@ -1174,7 +1212,7 @@ export default function MapViewer({
                     '',
                     child.name,
                     '',
-                    child.box_scale ? parseFloat(String(child.box_scale)) : 0.9,
+                    child.box_scale ? parseFloat(String(child.box_scale)) : 1.2,
                     isChildSelected,
                     allowMultiMove && selectedIds.has(`child-${si}-${ci}`),
                     'child',

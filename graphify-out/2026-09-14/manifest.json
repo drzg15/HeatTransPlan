@@ -510,9 +510,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/CopFormulaModal.tsx": {
-    "mtime": 1789366370.3075898,
-    "seen": 1789367182.946513,
-    "ast_hash": "4b35ef09f3724ece1b388bdf5098c22d",
+    "mtime": 1788785787.93007,
+    "seen": 1788785972.808683,
+    "ast_hash": "060c9b1b742131c890f02ade5778934b",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/EnergyDemands.tsx": {
@@ -528,9 +528,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIChart.tsx": {
-    "mtime": 1789366370.3078659,
-    "seen": 1789367182.946551,
-    "ast_hash": "4b27c38f84eab674b191f27467a9d1f3",
+    "mtime": 1788785787.9307868,
+    "seen": 1788785972.808712,
+    "ast_hash": "0d1c67b612ab722944e66c38e988968e",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HPIOptimizationChart.tsx": {
@@ -546,9 +546,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HeatPumpTable.tsx": {
-    "mtime": 1788847933.3662257,
-    "seen": 1789367182.946589,
-    "ast_hash": "1b9eb3a7828fa3469094843a99488a3e",
+    "mtime": 1788796468.1353962,
+    "seen": 1788847528.046769,
+    "ast_hash": "33f4c36da0f4d2f2550cf179e2f4c176",
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/HeatRecoveryToggle.tsx": {
@@ -576,8 +576,8 @@
     "semantic_hash": ""
   },
   "frontend/src/components/analysis/StreamDataTable.tsx": {
-    "mtime": 1788847528.1704626,
-    "seen": 1789367182.946683,
+    "mtime": 1788789278.5859852,
+    "seen": 1788795421.073261,
     "ast_hash": "c18d64dad1a2beabb834809ab156f2ce",
     "semantic_hash": ""
   },
@@ -594,9 +594,9 @@
     "semantic_hash": ""
   },
   "frontend/src/components/io/ActionBar.tsx": {
-    "mtime": 1788847933.3675013,
-    "seen": 1789367182.946723,
-    "ast_hash": "d637c2074ab636017d10d84fe413b154",
+    "mtime": 1788790360.6406918,
+    "seen": 1788795421.0733619,
+    "ast_hash": "422e1e491cd1f8e10fb19a2a2c1c6249",
     "semantic_hash": ""
   },
   "frontend/src/components/layout/AppShell.tsx": {
@@ -672,15 +672,15 @@
     "semantic_hash": ""
   },
   "frontend/src/locales/de.json": {
-    "mtime": 1789366577.0341146,
-    "seen": 1789367182.9469671,
-    "ast_hash": "6d63776542e132a1ff832669df19e6ff",
+    "mtime": 1788533192.4769893,
+    "seen": 1788763628.601092,
+    "ast_hash": "ddeca0a711eec0b271cd38e76ac7bcf9",
     "semantic_hash": ""
   },
   "frontend/src/locales/en.json": {
-    "mtime": 1789366577.033087,
-    "seen": 1789367182.946968,
-    "ast_hash": "36c5a1d0b7a61e9b8821e2d963dea0cb",
+    "mtime": 1788533192.4773102,
+    "seen": 1788763628.601093,
+    "ast_hash": "e6e35c1973e4823761c4a2b1c8c80439",
     "semantic_hash": ""
   },
   "frontend/src/main.tsx": {
@@ -696,9 +696,9 @@
     "semantic_hash": ""
   },
   "frontend/src/pages/HomePage.tsx": {
-    "mtime": 1789366554.5625727,
-    "seen": 1789367182.9470022,
-    "ast_hash": "47843e9aee8b33da0b01b16e9d1cc67d",
+    "mtime": 1788533192.4785266,
+    "seen": 1788763628.6010938,
+    "ast_hash": "e8e6729eac6741a27eb1cd72896520df",
     "semantic_hash": ""
   },
   "frontend/src/pages/PotentialAnalysisPage.tsx": {
@@ -738,9 +738,9 @@
     "semantic_hash": ""
   },
   "frontend/src/types/analysis.ts": {
-    "mtime": 1788847933.3691,
-    "seen": 1789367182.947104,
-    "ast_hash": "add6fe2045f53b8d0a34f7f9e6aff7d8",
+    "mtime": 1788785787.9364805,
+    "seen": 1788785972.8092659,
+    "ast_hash": "ba744a21128a04c3d6d26281c2806016",
     "semantic_hash": ""
   },
   "frontend/src/types/process.ts": {
@@ -840,9 +840,9 @@
     "semantic_hash": ""
   },
   "README.md": {
-    "mtime": 1788847637.640945,
-    "seen": 1789367182.9473689,
-    "ast_hash": "84a5ba0cca801ba6ebd0f8086084ebd7",
+    "mtime": 1788533547.7496862,
+    "seen": 1788763628.6011038,
+    "ast_hash": "e7a312a59f40e61df2bd54dfeb9ae6e4",
     "semantic_hash": ""
   },
   "docker-compose.yml": {
@@ -942,9 +942,9 @@
     "semantic_hash": ""
   },
   "docs/heat_pump_optimization.md": {
-    "mtime": 1789366370.307282,
-    "seen": 1789367182.947695,
-    "ast_hash": "f6fdd34e8624a54bae4ba1bae4fe2904",
+    "mtime": 1788785787.925349,
+    "seen": 1788785972.809649,
+    "ast_hash": "8be2c4bb32a50fe6d64a2b4aedd296b4",
     "semantic_hash": ""
   },
   "docs/index.md": {
@@ -1083,12 +1083,6 @@
     "mtime": 1788785787.9259174,
     "seen": 1788785972.809653,
     "ast_hash": "bd4527a6e7b497e637dd9b618972fabd",
-    "semantic_hash": ""
-  },
-  "frontend/src/components/ui/TutorialSidebar.tsx": {
-    "mtime": 1789366533.0306983,
-    "seen": 1789367182.946932,
-    "ast_hash": "7dca3fc7cc2c4d13cdae552ad47e5ec3",
     "semantic_hash": ""
   }
 }

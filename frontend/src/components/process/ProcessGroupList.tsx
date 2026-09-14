@@ -108,7 +108,7 @@ export default function ProcessGroupList({
       name: `Subprocess ${newProcesses.length + 1}`,
       lat: '',
       lon: '',
-      box_scale: 1.0,
+      box_scale: 1.5,
       next: '',
       hours: '',
       extra_info: { notes: '' },
@@ -175,7 +175,7 @@ export default function ProcessGroupList({
                 <input
                   type="range"
                   min={0.5}
-                  max={3}
+                  max={2.5}
                   step={0.1}
                   value={gCoords.box_scale ?? 1.5}
                   onChange={(e) => updateGroupCoord(gIdx, 'box_scale', parseFloat(e.target.value))}
