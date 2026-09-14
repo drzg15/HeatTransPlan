@@ -8,8 +8,8 @@
 
 .home-grid {
   display: grid;
-  grid-template-columns: 1fr 2.5fr;
-  gap: 32px;
+  grid-template-columns: 450px 1fr;
+  gap: 48px;
 }
 
 .home-image-wrapper {
@@ -31,13 +31,13 @@
 }
 
 .home-left h1 {
-  font-size: 1.5rem;
-  margin-bottom: 12px;
+  font-size: 2rem;
+  margin-bottom: 16px;
   color: var(--text-main);
 }
 
 .home-left h2 {
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   margin-top: 20px;
   margin-bottom: 8px;
   color: var(--text-main);
@@ -52,6 +52,8 @@
 
 .home-left p {
   color: var(--text-main);
+  font-size: 1.05rem;
+  line-height: 1.7;
 }
 
 .home-info-row {
@@ -65,7 +67,8 @@
 .home-project-img {
   border-radius: var(--radius);
   transition: transform 0.3s ease;
-  max-width: 100%;
+  width: 100%;
+  max-width: 600px;
   height: auto;
   border: 1px solid var(--border);
 }
@@ -77,8 +80,9 @@
 .home-qr-col {
   display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 12px;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 600px;
 }
 
 .qr-item {
@@ -93,9 +97,9 @@
 
 .qr-label {
   display: block;
-  font-size: 9px;
+  font-size: 11px;
   color: var(--text-muted);
-  margin-top: 2px;
+  margin-top: 4px;
 }
 
 .home-about-link {
