@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUIStore } from '../../store/uiStore';
 import { useProjectStore } from '../../store/projectStore';
@@ -73,10 +73,10 @@ export default function AppShell({ children }: Props) {
     <div className="app-shell">
       {/* Top Navigation */}
       <header className="top-nav">
-        <div className="nav-brand">
+        <Link to="/" className="nav-brand" style={{ textDecoration: 'none' }}>
           <span className="brand-text notranslate">HeatTransPlan</span>
-          <span className="brand-version notranslate">v2.3.0</span>
-        </div>
+          <span className="brand-version notranslate">v2.4</span>
+        </Link>
 
         <nav id="app-nav" className={`nav-links ${menuOpen ? 'open' : ''}`}>
           {NAV_ITEMS.map((item) => (
