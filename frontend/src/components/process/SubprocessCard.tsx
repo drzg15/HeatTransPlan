@@ -104,9 +104,9 @@ export default function SubprocessCard({
           <input
             type="range"
             min={0.5}
-            max={3}
+            max={2.5}
             step={0.1}
-            value={subprocess.box_scale || 1.0}
+            value={subprocess.box_scale || 1.5}
             onChange={(e) => update({ box_scale: parseFloat(e.target.value) })}
           />
         </div>

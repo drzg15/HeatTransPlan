@@ -4,6 +4,7 @@ import { useProjectStore } from '../store/projectStore';
 import { getExample } from '../api/io';
 import { useTranslation, Trans } from 'react-i18next';
 import styles from './HomePage.module.css';
+import TutorialSidebar from '../components/ui/TutorialSidebar';
 
 const PROJECT_IMG_URL =
   'https://www.heattransplan.de/fileadmin/_processed_/4/c/csm_AdobeStock_880898724_d3e9ed3e63.jpeg';
@@ -92,18 +93,6 @@ export default function HomePage() {
           <h2>{t('home.about_title')}</h2>
           <p dangerouslySetInnerHTML={{ __html: t('home.about_text') }}></p>
 
-          <h3>{t('home.how_to_use')}</h3>
-          <ul className={styles['home-instructions']}>
-            <li>
-              <Trans i18nKey="home.instruction_1">
-                Open <strong>Energy Data Collection</strong> to locate the facility, describe the
-                process and add energy data.
-              </Trans>
-            </li>
-            <li>{t('home.instruction_2')}</li>
-            <li>{t('home.instruction_3')}</li>
-          </ul>
-
           <h3>{t('home.examples')}</h3>
           {error && <div className={styles['home-error']}>{error}</div>}
           {successMsg && <div className={styles['home-success']}>{successMsg}</div>}
@@ -117,8 +106,10 @@ export default function HomePage() {
           </button>
         </div>
 
-        {/* Right column - empty for now, matching original layout ratio */}
-        <div className={styles['home-right']} />
+        {/* Right column */}
+        <div className={styles['home-right']}>
+          <TutorialSidebar />
+        </div>
       </div>
     </div>
   );

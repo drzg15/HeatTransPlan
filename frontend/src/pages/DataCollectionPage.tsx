@@ -44,6 +44,40 @@ export default function DataCollectionPage() {
     setUiMode(state.map_locked ? 'analyze' : 'select');
   }, [state.map_locked]);
 
+  // Upgrade legacy box scales automatically if loaded from local storage
+  useEffect(() => {
+    let changed = false;
+    const processes = [...state.processes];
+    processes.forEach((p, i) => {
+      if (p.box_scale == null || parseFloat(String(p.box_scale)) < 1.5) {
+        processes[i] = { ...p, box_scale: 1.5 };
+        changed = true;
+      }
+      if (p.children) {
+        p.children.forEach((c, ci) => {
+          if (c.box_scale == null || parseFloat(String(c.box_scale)) < 1.2) {
+            processes[i].children![ci] = { ...c, box_scale: 1.2 };
+            changed = true;
+          }
+        });
+      }
+    });
+
+    const groups = { ...state.proc_group_coordinates };
+    Object.keys(groups).forEach(k => {
+      const g = groups[parseInt(k)];
+      if (g && (g.box_scale == null || parseFloat(String(g.box_scale)) < 1.5)) {
+        groups[parseInt(k)] = { ...g, box_scale: 1.5 };
+        changed = true;
+      }
+    });
+
+    if (changed) {
+      setProcesses(processes);
+      useProjectStore.getState().setGroupCoordinates(groups);
+    }
+  }, []);
+
   // Placement state
   const [placementTarget, setPlacementTarget] = useState<string | null>(null);
 
@@ -185,7 +219,7 @@ export default function DataCollectionPage() {
       name: `Subprocess ${processes.length + 1}`,
       lat: '',
       lon: '',
-      box_scale: 1.0,
+      box_scale: 1.5,
       next: '',
       hours: '',
       extra_info: { notes: '' },
