@@ -2,45 +2,50 @@ import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import styles from './TutorialSidebar.module.css';
 
-export default function TutorialSidebar() {
+interface TutorialSidebarProps {
+  onLoadExample?: () => void;
+  loadingExample?: boolean;
+}
+
+export default function TutorialSidebar({ onLoadExample, loadingExample }: TutorialSidebarProps) {
   const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
 
   const steps = [
     {
       title: 'Navigating the Map & UI',
-      text: '1. Data Collection tab.\n2. Search Bar to center map.\n3. Lock Map button disables panning for marker placement.\n4. Help/Tutorial button.',
-      image: '/assets/tutorial/slide-1.png',
+      text: '1. Data collection tab.\n2. Search bar to center map.\n3. Lock map button disables panning for marker placement.\n4. Help/tutorial button. It is located at many place to explain different items for more information',
+      image: '/assets/tutorial/slide-1.svg',
     },
     {
       title: 'Adding a Process',
-      text: '1. Click + Add Process to create a group.\n2. Click Place to position it.\n3. The Process 1 marker appears on the map.',
-      image: '/assets/tutorial/slide-2.png',
+      text: '1. Click + Add Process to create a group.\n2. Click Place to position it.\n3. Place the process on the map',
+      image: '/assets/tutorial/slide-2.svg',
     },
     {
       title: 'Subprocesses',
-      text: '1. Click Show on Map to zoom into subprocesses.\n2. Click + Add to create new subprocesses inside the parent process.',
-      image: '/assets/tutorial/slide-3.png',
+      text: '1. Click to show subprocesses of the process\n2. Click + Add to create new subprocesses inside the parent process.',
+      image: '/assets/tutorial/slide-3.svg',
     },
     {
       title: 'Connections & Streams',
-      text: '1. Use Next Processes to draw arrows between boxes.\n2. Use Streams to input thermodynamics (Temperatures, Mass flow, Heat capacity).',
-      image: '/assets/tutorial/slide-4.png',
+      text: '1. Use next processes to draw arrows between boxes.\n2. Use streams to input thermodynamics (temperatures, mass flow, heat capacity).',
+      image: '/assets/tutorial/slide-4.svg',
     },
     {
       title: 'The Potential Analysis Dashboard',
-      text: '1. Switch to Potential Analysis tab.\n2. Toggle hot/cold streams in Streams Selection.\n3. Configure Current Energy Supply.',
-      image: '/assets/tutorial/slide-5.png',
+      text: '1. Switch to Potential Analysis tab.\n2. Toggle hot/cold streams in Streams Selection.\n3. Configure current energy supply (if available)',
+      image: '/assets/tutorial/slide-5.svg',
     },
     {
       title: 'Pinch Analysis Curves',
-      text: '1. Comparison table shows energy savings (kW and %).\n2. Composite Curves plot Temp vs Enthalpy.\n3. Grand Composite Curve visualizes remaining demands.',
-      image: '/assets/tutorial/slide-6.png',
+      text: '1. Comparison table shows energy savings (kW and %).\n2. Composite curves plot temp vs enthalpy.\n3. Grand composite curve visualizes remaining demands.',
+      image: '/assets/tutorial/slide-6.svg',
     },
     {
       title: 'Heat Pump Optimization',
-      text: '1. Heat Pump Model table lists refrigerants & COPs.\n2. Filters panel for refining results.\n3. Chart displays actual heat pump cycles layered on pinch curves.',
-      image: '/assets/tutorial/slide-7.png',
+      text: '1. Heat pump model table lists refrigerants & COPs.\n2. Filters panel for refining results.\n3. Chart displays actual heat pump cycles layered on pinch curves.',
+      image: '/assets/tutorial/slide-7.svg',
     },
   ];
 
@@ -58,7 +63,7 @@ export default function TutorialSidebar() {
 
   return (
     <div className={styles.tutorialContainer}>
-      <div className={styles.tutorialHeader}>{t('tutorial.header')}</div>
+      <div className={styles.tutorialHeader}>Quick tutorial.</div>
       <div className={styles.tutorialContent}>
         {steps[currentStep].image && (
           <img 
@@ -69,6 +74,19 @@ export default function TutorialSidebar() {
         )}
         <div className={styles.slideTitle}>{steps[currentStep].title}</div>
         <div className={styles.slideText}>{steps[currentStep].text}</div>
+        
+        {currentStep === steps.length - 1 && onLoadExample && (
+          <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
+            <button
+              className="btn"
+              onClick={onLoadExample}
+              disabled={loadingExample}
+              style={{ width: '100%', padding: '16px', background: 'var(--primary-gradient)', border: 'none', color: '#fff', fontSize: '1rem', fontWeight: 600, borderRadius: 'var(--radius)' }}
+            >
+              {loadingExample ? 'Loading...' : 'Now test it with an example'}
+            </button>
+          </div>
+        )}
       </div>
       <div className={styles.tutorialFooter}>
         <button

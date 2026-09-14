@@ -21,6 +21,7 @@ export default function HomePage() {
   const [loadingExample, setLoadingExample] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   const loadExample = async (filename: string) => {
     setLoadingExample(true);
@@ -92,23 +93,64 @@ export default function HomePage() {
 
           <h2>{t('home.about_title')}</h2>
           <p dangerouslySetInnerHTML={{ __html: t('home.about_text') }}></p>
-
-          <h3>{t('home.examples')}</h3>
-          {error && <div className={styles['home-error']}>{error}</div>}
-          {successMsg && <div className={styles['home-success']}>{successMsg}</div>}
-
-          <button
-            className="btn btn-primary"
-            onClick={() => loadExample('heat_integration_example_1.json')}
-            disabled={loadingExample}
-          >
-            {loadingExample ? <span className="spinner" /> : t('home.load_example_1')}
-          </button>
         </div>
 
         {/* Right column */}
         <div className={styles['home-right']}>
-          <TutorialSidebar />
+          {!showTutorial ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+              <h2>Get Started</h2>
+              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
+                <div style={{ flex: '1 1 45%' }}>
+                  <a
+                    href="https://drzg15.github.io/HeatTransPlan/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="btn"
+                    style={{ display: 'block', textAlign: 'center', padding: '24px', border: 'none', background: 'var(--primary-gradient)', color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}
+                  >
+                    Technical Documentation
+                  </a>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '8px', lineHeight: 1.4 }}>
+                    Read the complete manual to understand all calculations, physics models, and engineering concepts used in the tool.
+                  </p>
+                </div>
+                <div style={{ flex: '1 1 45%' }}>
+                  <button
+                    className="btn"
+                    style={{ width: '100%', padding: '24px', border: 'none', background: 'var(--primary-gradient)', color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}
+                    onClick={() => setShowTutorial(true)}
+                  >
+                    Tutorial (Quick guide)
+                  </button>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '8px', lineHeight: 1.4 }}>
+                    A fast, visual walk-through of the interface and the core features right here on this page.
+                  </p>
+                </div>
+              </div>
+              
+              <div style={{ marginTop: '8px' }}>
+                {error && <div className={styles['home-error']} style={{ marginBottom: '8px' }}>{error}</div>}
+                {successMsg && <div className={styles['home-success']} style={{ marginBottom: '8px' }}>{successMsg}</div>}
+                <button
+                  className="btn"
+                  onClick={() => loadExample('heat_integration_example_1.json')}
+                  disabled={loadingExample}
+                  style={{ width: '100%', padding: '24px', background: 'var(--primary-gradient)', border: 'none', color: '#fff', fontSize: '1.1rem', fontWeight: 600 }}
+                >
+                  {loadingExample ? t('home.loading') : 'Load Example 1: Heat integration example'}
+                </button>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '8px', lineHeight: 1.4 }}>
+                  Instantly load a pre-configured industrial plant model to see the pinch analysis and heat pump optimization in action.
+                </p>
+              </div>
+            </div>
+          ) : (
+            <TutorialSidebar
+              onLoadExample={() => loadExample('heat_integration_example_1.json')}
+              loadingExample={loadingExample}
+            />
+          )}
         </div>
       </div>
     </div>
