@@ -347,10 +347,7 @@ export default function StreamDataTable({
               <th colSpan={2} style={{ ...headStyle('' as SortKey), textAlign: 'center', background: 'var(--surface-hover)', borderRight: '1px solid var(--border)' }}>
                 Actual Temp. [°C]
               </th>
-              <th colSpan={2} style={{ ...headStyle('' as SortKey), textAlign: 'center', background: 'var(--surface-hover)', borderRight: '1px solid var(--border)' }}>
-                Shifted Temp. (±{tMin/2}K) [°C]
-              </th>
-              <th colSpan={10} style={{ ...headStyle('' as SortKey), textAlign: 'center' }}>
+              <th colSpan={12} style={{ ...headStyle('' as SortKey), textAlign: 'center' }}>
                 Thermal & Physical Data
               </th>
             </tr>
@@ -363,8 +360,6 @@ export default function StreamDataTable({
                 { k: 'type', l: t('stream_table.headers.type') },
                 { k: 'tin', l: 'Tin' },
                 { k: 'tout', l: 'Tout' },
-                { k: 'tin_shifted', l: 'T*in' },
-                { k: 'tout_shifted', l: 'T*out' },
                 { k: 'mdot', l: 'ṁ [kg/s]' },
                 { k: 'cp', l: 'cp [kJ/(kg·K)]' },
                 { k: 'CP', l: 'CP [kW/K]' },
@@ -416,12 +411,6 @@ export default function StreamDataTable({
                   <td style={cellStyle}>{r.type}</td>
                   <td style={cellStyle}>{r.tin?.toFixed(1) ?? '—'}</td>
                   <td style={{ ...cellStyle, borderRight: '1px solid var(--border)' }}>{r.tout?.toFixed(1) ?? '—'}</td>
-                  <td style={{ ...cellStyle, color: 'var(--text-muted)' }}>
-                    {r.tin != null ? (r.tin + (r.type === 'Hot' ? -tMin/2 : tMin/2)).toFixed(1) : '—'}
-                  </td>
-                  <td style={{ ...cellStyle, color: 'var(--text-muted)', borderRight: '1px solid var(--border)' }}>
-                    {r.tout != null ? (r.tout + (r.type === 'Hot' ? -tMin/2 : tMin/2)).toFixed(1) : '—'}
-                  </td>
                   <td style={cellStyle}>{r.mdot?.toFixed(2) ?? '—'}</td>
                   <td style={cellStyle}>{r.cp?.toFixed(2) ?? '—'}</td>
                   <td style={cellStyle}>{r.CP?.toFixed(2) ?? '—'}</td>
