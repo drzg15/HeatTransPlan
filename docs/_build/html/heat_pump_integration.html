@@ -205,6 +205,7 @@
 <li class="toctree-l1"><a class="reference internal" href="pinch_analysis.html">Pinch Analysis</a></li>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Heat Pump Integration — Classic Method</a></li>
 <li class="toctree-l1"><a class="reference internal" href="heat_pump_optimization.html">Heat Pump Optimization — Predictive ML Model &amp; Grid Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refrigerant_limits.html">Refrigerant Operating Limits</a></li>
 </ul>
 
     </div>
@@ -577,19 +578,16 @@ COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
 <tr class="row-odd"><th class="head"><p>Mode</p></th>
 <th class="head"><p>Heat Recovery Assumption</p></th>
 <th class="head"><p>What the Heat Pump Sees</p></th>
-<th class="head"><p>Engineering Use Case</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><strong>net_load</strong> (default)</p></td>
+<tr class="row-even"><td><p><strong>With heat recovery</strong> (default)</p></td>
 <td><p><strong>Full recovery (100%)</strong></p></td>
 <td><p>Residual utility demand only (pocket-free GCC)</p></td>
-<td><p>Standard Pinch analysis — invest in heat pump only for net deficit remaining after internal exchangers</p></td>
 </tr>
-<tr class="row-odd"><td><p><strong>composite</strong></p></td>
+<tr class="row-odd"><td><p><strong>No heat recovery</strong></p></td>
 <td><p><strong>No heat recovery (0%)</strong></p></td>
 <td><p>Full raw stream duties directly</p></td>
-<td><p>Used when streams cannot exchange heat with each other (e.g. distant buildings or contamination risks)</p></td>
 </tr>
 </tbody>
 </table>
@@ -597,13 +595,13 @@ COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
 <section id="detailed-mode-breakdown">
 <h3>Detailed Mode Breakdown<a class="headerlink" href="#detailed-mode-breakdown" title="Link to this heading">#</a></h3>
 <ol class="arabic simple">
-<li><p><strong><code class="docutils literal notranslate"><span class="pre">net_load</span></code> (Full Heat Recovery - Default)</strong></p>
+<li><p><strong>With heat recovery (Full Heat Recovery - Default)</strong></p>
 <ul class="simple">
 <li><p>All internal process heat recovery takes place first. Temperature pockets are deleted.</p></li>
 <li><p>The heat pump only sees the <strong>residual net utility demand</strong> remaining above and below the pinch point.</p></li>
 </ul>
 </li>
-<li><p><strong><code class="docutils literal notranslate"><span class="pre">composite</span></code> (No Heat Recovery - Raw Composite Curves)</strong></p>
+<li><p><strong>No heat recovery (Raw Composite Curves)</strong></p>
 <ul class="simple">
 <li><p>Assumes <strong>zero internal heat exchange</strong> between streams.</p></li>
 <li><p>Every hot stream dumps 100% of its thermal duty into the heat pump evaporator (or cold utility).</p></li>
