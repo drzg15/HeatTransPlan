@@ -92,54 +92,47 @@ export default function HomePage() {
 
         {/* Right column */}
         <div className={styles['home-right']}>
-          {!showTutorial ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', padding: '24px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
-              <h2>Get Started</h2>
-              <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-                <div style={{ flex: '1 1 45%' }}>
-                  <button
-                    className={`${styles['action-card']} ${styles['action-card-primary']}`}
-                    onClick={() => setShowTutorial(true)}
-                  >
-                    <span className={styles['action-card-title']}>Tutorial (Quick guide)</span>
-                    <span className={styles['action-card-desc']}>A fast, visual walk-through of the interface and the core features right here on this page.</span>
-                  </button>
-                </div>
-                <div style={{ flex: '1 1 45%' }}>
-                  <a
-                    href="https://drzg15.github.io/HeatTransPlan/"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`${styles['action-card']} ${styles['action-card-secondary']}`}
-                  >
-                    <span className={styles['action-card-title']}>Technical Documentation</span>
-                    <span className={styles['action-card-desc']}>Read the complete manual to understand all calculations, physics models, and engineering concepts used in the tool.</span>
-                  </a>
-                </div>
-              </div>
-              
-              <div style={{ marginTop: '8px' }}>
-                {error && <div className={styles['home-error']} style={{ marginBottom: '8px' }}>{error}</div>}
-                {successMsg && <div className={styles['home-success']} style={{ marginBottom: '8px' }}>{successMsg}</div>}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+            <h2 style={{ margin: 0, fontSize: '1.2rem' }}>Get Started</h2>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <div style={{ flex: '1 1 45%' }}>
                 <button
-                  className={`${styles['action-card']} ${styles['action-card-gradient']}`}
-                  onClick={() => loadExample('heat_integration_example_1.json')}
-                  disabled={loadingExample}
+                  className={`${styles['action-card']} ${styles['action-card-primary']}`}
+                  onClick={() => setShowTutorial(!showTutorial)}
                 >
-                  <span className={styles['action-card-title']}>{loadingExample ? t('home.loading') : 'Load Example 1: Heat integration example'}</span>
-                  <span className={styles['action-card-desc']}>Instantly load a pre-configured industrial plant model to see the pinch analysis and heat pump optimization in action.</span>
+                  <span className={styles['action-card-title']}>Tutorial (Quick guide)</span>
+                  <span className={styles['action-card-desc']}>A fast, visual walk-through of the interface and the core features right here on this page.</span>
                 </button>
               </div>
+              <div style={{ flex: '1 1 45%' }}>
+                <a
+                  href="https://drzg15.github.io/HeatTransPlan/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${styles['action-card']} ${styles['action-card-secondary']}`}
+                >
+                  <span className={styles['action-card-title']}>Technical Documentation</span>
+                  <span className={styles['action-card-desc']}>Read the complete manual to understand all calculations, physics models, and engineering concepts used in the tool.</span>
+                </a>
+              </div>
             </div>
-          ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', height: '100%' }}>
-              <button 
-                className="btn" 
-                onClick={() => setShowTutorial(false)}
-                style={{ alignSelf: 'flex-start', display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 16px', background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: 'var(--radius)' }}
+            
+            <div style={{ marginTop: '0px' }}>
+              {error && <div className={styles['home-error']} style={{ marginBottom: '8px' }}>{error}</div>}
+              {successMsg && <div className={styles['home-success']} style={{ marginBottom: '8px' }}>{successMsg}</div>}
+              <button
+                className={`${styles['action-card']} ${styles['action-card-gradient']}`}
+                onClick={() => loadExample('heat_integration_example_1.json')}
+                disabled={loadingExample}
               >
-                ← Go back
+                <span className={styles['action-card-title']}>{loadingExample ? t('home.loading') : 'Load Example 1: Heat integration example'}</span>
+                <span className={styles['action-card-desc']}>Instantly load a pre-configured industrial plant model to see the pinch analysis and heat pump optimization in action.</span>
               </button>
+            </div>
+          </div>
+
+          {showTutorial && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, minHeight: 0, maxHeight: '70vh', marginTop: '16px' }}>
               <TutorialSidebar
                 onLoadExample={() => loadExample('heat_integration_example_1.json')}
                 loadingExample={loadingExample}
