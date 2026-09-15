@@ -110,3 +110,12 @@
     opacity: 1;
   }
 }
+
+/* Fallback background for the map container so any subpixel gaps 
+   that appear during animation blend in with the map instead of glowing white. */
+.leaflet-container {
+  background: #e5e3df !important;
+}
+:global(.dark) .leaflet-container {
+  background: #242424 !important;
+}
