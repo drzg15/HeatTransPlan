@@ -73,20 +73,20 @@ export default function TutorialSidebar({ onLoadExample, loadingExample }: Tutor
           />
         )}
         <div className={styles.slideTitle}>{steps[currentStep].title}</div>
-        <div className={styles.slideText}>{steps[currentStep].text}</div>
-        
-        {currentStep === steps.length - 1 && onLoadExample && (
-          <div style={{ marginTop: 'auto', paddingTop: '16px' }}>
-            <button
-              className="btn"
-              onClick={onLoadExample}
-              disabled={loadingExample}
-              style={{ width: '100%', padding: '16px', background: 'var(--primary-gradient)', border: 'none', color: '#fff', fontSize: '1rem', fontWeight: 600, borderRadius: 'var(--radius)' }}
-            >
-              {loadingExample ? 'Loading...' : 'Now test it with an example'}
-            </button>
-          </div>
-        )}
+        <div className={styles.slideText}>
+          {steps[currentStep].text}
+          {currentStep === steps.length - 1 && onLoadExample && (
+            <>
+              <br />
+              <span
+                onClick={!loadingExample ? onLoadExample : undefined}
+                style={{ cursor: loadingExample ? 'wait' : 'pointer', color: 'var(--brand-magenta)', textDecoration: 'underline', fontWeight: 600 }}
+              >
+                {loadingExample ? '4. Loading example...' : '4. Test it with an example'}
+              </span>
+            </>
+          )}
+        </div>
       </div>
       <div className={styles.tutorialFooter}>
         <button
