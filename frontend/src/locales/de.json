@@ -18,7 +18,7 @@
   },
   "tutorial": {
     "header": "Wie HeatTransPlan funktioniert",
-    "step1_title": "Schritt 1: Prozess hinzufügen",
+    "quick_title": "Kurzanleitung.",
     "step1_text": "Beginnen Sie mit dem Hinzufügen eines übergeordneten industriellen Prozessblocks für Ihre Anlage über die Schaltfläche 'Prozess hinzufügen'.",
     "step2_title": "Schritt 2: Geolokalisierung",
     "step2_text": "Platzieren Sie Ihren Prozess geografisch auf der interaktiven Karte, um Rohrleitungen und räumliche Beschränkungen visuell zu planen.",
@@ -30,10 +30,22 @@
     "next": "Weiter",
     "step0_title": "Übersicht: Erste Schritte",
     "step0_text": "Willkommen bei HeatTransPlan! Dieses Tool hilft Industrieanlagen dabei, Energieeinsparungen zu entdecken. So ist der Workflow aufgebaut:\n\n1) Datenerfassung & Anlagenkartierung\n• Beginnen Sie mit dem Hinzufügen Ihrer Hauptbetriebsprozesse.\n• Unterteilen Sie diese in spezifische Teilprozesse (z.B. 'Kühlturm', 'Kessel').\n• Definieren Sie für jeden Teilprozess die einzelnen Energieströme (heiß und kalt). Sie müssen den Massenstrom, die Wärmekapazität (Cp) sowie die Ein- und Austrittstemperaturen angeben.\n• Nutzen Sie die interaktive Karte, um Ihre Prozesse geografisch genau dort zu platzieren, wo sie sich in Ihrer echten Anlage befinden. Dies hilft bei der Visualisierung räumlicher Beschränkungen.\n\n2) Potenzialanalyse & Wärmeintegration\n• Überprüfen Sie die Tabelle der Stromzusammenfassung, um sicherzustellen, dass Ihre thermodynamischen Daten korrekt sind.\n• Wählen Sie die spezifischen Ströme aus, die Sie analysieren möchten.\n• Führen Sie die Pinch-Analyse durch, um Verbundkurven zu generieren. Diese Diagramme veranschaulichen Ihr maximales Wärmerückgewinnungspotenzial.\n• Erkunden Sie abschließend die Wärmepumpen-Integration, um verbleibende Temperaturlücken mit vorgeschlagenen Wärmepumpenmodellen (inkl. kW und COP) zu schließen.\n\nKlicken Sie auf 'Weiter', um einen visuellen Rundgang durch diese Schritte zu sehen!",
-    "step5_title": "Schritt 5: Pinch-Kurven & Versorgungsanlagen",
-    "step5_text": "Sehen Sie Ihr absolutes Wärmerückgewinnungspotenzial und die minimalen Heiz-/Kühlbedarfe durch automatisch generierte Verbundkurven.",
-    "step6_title": "Schritt 6: Wärmepumpen-Integration",
-    "step6_text": "Erkunden Sie die Integration realer Wärmepumpenmodelle, um Temperaturlücken zu schließen, wobei die erforderlichen kW und der erwartete COP berechnet werden."
+    "slide1_title": "Navigation Karte & UI",
+    "slide1_text": "1. Reiter Datenerfassung.<br/>2. Suchleiste zur Zentrierung der Karte.<br/>3. Karte fixieren deaktiviert das Verschieben zur Markerplatzierung.<br/>4. Hilfe/Tutorial-Button für Erklärungen.",
+    "slide2_title": "Prozess hinzufügen",
+    "slide2_text": "1. Klicke + Prozess hinzufügen.<br/>2. Klicke Platzieren.<br/>3. Platziere den Prozess auf der Karte.",
+    "slide3_title": "Teilprozesse",
+    "slide3_text": "1. Klicke, um Teilprozesse anzuzeigen.<br/>2. Klicke + Hinzufügen, um neue Teilprozesse im Hauptprozess zu erstellen.",
+    "slide4_title": "Verbindungen & Ströme",
+    "slide4_text": "1. Nutze 'Nachfolgende Prozesse' für Pfeile.<br/>2. Nutze Ströme für Thermodynamik (Temperaturen, Massenstrom, Wärmekapazität).",
+    "slide5_title": "Potenzialanalyse-Dashboard",
+    "slide5_text": "1. Wechsle zum Reiter Potenzialanalyse.<br/>2. Wähle heiße/kalte Ströme in der Stromauswahl.<br/>3. Konfiguriere aktuelle Energieversorgung (falls vorhanden).",
+    "slide6_title": "Pinch-Analyse-Kurven",
+    "slide6_text": "1. Tabelle zeigt Energieeinsparungen (kW und %).<br/>2. Verbundkurven (Temp vs. Enthalpie).<br/>3. Großverbundkurve visualisiert verbleibenden Bedarf.",
+    "slide7_title": "Wärmepumpen-Optimierung",
+    "slide7_text": "1. Tabelle listet Kältemittel & COPs.<br/>2. Filter-Panel für Ergebnisse.<br/>3. Diagramm zeigt Wärmepumpen-Zyklen.",
+    "test_example": "Mit einem Beispiel testen",
+    "loading_example": "Beispiel wird geladen..."
   },
   "action_bar": {
     "lock_map": "Karte fixieren",
@@ -106,15 +118,23 @@
     "about_link": "Über <span class='notranslate'>HeatTransPlan</span>",
     "about_title": "Über diese App",
     "about_text": "<span class='notranslate'>HeatTransPlan</span> hilft bei der Erfassung von Energiedaten industrieller Prozesse und der Analyse des Wärmerückgewinnungspotenzials sowie der Integrationsmöglichkeiten von Wärmepumpen mittels Pinch-Analyse.",
+    "documentation": "Dokumentation",
+    "reset_all": "Alle Daten zurücksetzen",
     "how_to_use": "So verwenden Sie die App",
     "instruction_1": "Öffnen Sie <strong>Datenerfassung</strong>, um die Anlage zu lokalisieren, den Prozess zu beschreiben und Energiedaten hinzuzufügen.",
     "instruction_2": "Fügen Sie Strominformationen hinzu und verfeinern Sie diese. Überprüfen Sie dann die Prozessdaten direkt in den Tabellen- und Kartenansichten.",
     "instruction_3": "Exportieren Sie aufgezeichnete Daten und Analyseergebnisse.",
     "examples": "Beispiele",
-    "load_example_1": "Beispiel 1 laden: Wärmeintegrationsbeispiel",
+    "load_example_1_title": "Beispiel 1 laden: Wärmeintegrationsbeispiel",
+    "load_example_1_desc": "Laden Sie sofort ein vorkonfiguriertes Anlagenmodell, um die Pinch-Analyse und Wärmepumpen-Optimierung in Aktion zu sehen.",
     "loading": "Wird geladen...",
     "example_success": "Beispiel geladen! Weiterleitung zur Datenerfassung...",
-    "example_error": "Fehler beim Laden des Beispiels"
+    "example_error": "Fehler beim Laden des Beispiels",
+    "get_started": "Erste Schritte",
+    "tutorial_btn_title": "Tutorial (Kurzanleitung)",
+    "tutorial_btn_desc": "Ein schneller, visueller Rundgang durch die Benutzeroberfläche und die wichtigsten Funktionen direkt auf dieser Seite.",
+    "tech_doc_title": "Technische Dokumentation",
+    "tech_doc_desc": "Lesen Sie das vollständige Handbuch, um alle Berechnungen, physikalischen Modelle und technischen Konzepte des Tools zu verstehen."
   },
   "analysis": {
     "title": "Potenzialanalyse",
@@ -336,5 +356,17 @@
     "min_cooling_desc": "Der absolute minimale externe Kühlbedarf des Systems nach Ausschöpfung aller internen Wärmerückgewinnungsmöglichkeiten.",
     "pinch_temp_desc": "Das Temperaturniveau, das das System in eine Senke (oberhalb des Pinch) und eine Quelle (unterhalb des Pinch) teilt. Es sollte keine Wärme über den Pinch übertragen werden.",
     "heat_recovery_desc": "Die gesamte Wärmemenge, die intern durch Kopplung heißer und kalter Ströme zurückgewonnen werden kann."
+  },
+  "collection_help": {
+    "title": "Erfassungs-Leitfaden",
+    "map_ui": "Karte & UI",
+    "map_ui_desc": "Verwenden Sie die Suchleiste, um die Karte zu zentrieren. Die Schaltfläche <strong>Karte fixieren</strong> deaktiviert das Verschieben, sodass Sie Marker sicher platzieren können.",
+    "add_process": "Prozess hinzufügen",
+    "add_process_desc": "Klicken Sie auf <strong>+ Prozess hinzufügen</strong>, um eine neue Anlagengruppe zu erstellen. Klicken Sie dann auf <strong>Platzieren</strong> und auf eine beliebige Stelle auf der Karte, um ihn zu positionieren.",
+    "subprocesses": "Teilprozesse",
+    "subprocesses_desc": "Erweitern Sie einen Prozess, um seine internen Details anzuzeigen. Klicken Sie auf <strong>+ Hinzufügen</strong>, um neue Teilprozesse innerhalb des übergeordneten Prozesses zu erstellen.",
+    "connections": "Verbindungen & Ströme",
+    "connections_desc": "Verwenden Sie <em>Nachfolgende Prozesse</em>, um Richtungspfeile zwischen Boxen auf der Karte zu ziehen. Nutzen Sie die <em>Ströme</em>-Tabelle zur Eingabe thermodynamischer Daten (Temperaturen, Massenstrom, Wärmekapazität) für die Pinch-Analyse.",
+    "tip": "Sobald Ihre Daten erfasst sind, wechseln Sie zur Registerkarte <strong>Potenzialanalyse</strong>, um Ihre Energierückgewinnung zu optimieren."
   }
 }

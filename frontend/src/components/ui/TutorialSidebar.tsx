@@ -13,38 +13,38 @@ export default function TutorialSidebar({ onLoadExample, loadingExample }: Tutor
 
   const steps = [
     {
-      title: 'Navigating the Map & UI',
-      text: '1. Data collection tab.\n2. Search bar to center map.\n3. Lock map button disables panning for marker placement.\n4. Help/tutorial button. It is located at many place to explain different items for more information',
+      title: t('tutorial.slide1_title'),
+      text: t('tutorial.slide1_text'),
       image: '/assets/tutorial/slide-1.svg',
     },
     {
-      title: 'Adding a Process',
-      text: '1. Click + Add Process to create a group.\n2. Click Place to position it.\n3. Place the process on the map',
+      title: t('tutorial.slide2_title'),
+      text: t('tutorial.slide2_text'),
       image: '/assets/tutorial/slide-2.svg',
     },
     {
-      title: 'Subprocesses',
-      text: '1. Click to show subprocesses of the process\n2. Click + Add to create new subprocesses inside the parent process.',
+      title: t('tutorial.slide3_title'),
+      text: t('tutorial.slide3_text'),
       image: '/assets/tutorial/slide-3.svg',
     },
     {
-      title: 'Connections & Streams',
-      text: '1. Use next processes to draw arrows between boxes.\n2. Use streams to input thermodynamics (temperatures, mass flow, heat capacity).',
+      title: t('tutorial.slide4_title'),
+      text: t('tutorial.slide4_text'),
       image: '/assets/tutorial/slide-4.svg',
     },
     {
-      title: 'The Potential Analysis Dashboard',
-      text: '1. Switch to Potential Analysis tab.\n2. Toggle hot/cold streams in Streams Selection.\n3. Configure current energy supply (if available)',
+      title: t('tutorial.slide5_title'),
+      text: t('tutorial.slide5_text'),
       image: '/assets/tutorial/slide-5.svg',
     },
     {
-      title: 'Pinch Analysis Curves',
-      text: '1. Comparison table shows energy savings (kW and %).\n2. Composite curves plot temp vs enthalpy.\n3. Grand composite curve visualizes remaining demands.',
+      title: t('tutorial.slide6_title'),
+      text: t('tutorial.slide6_text'),
       image: '/assets/tutorial/slide-6.svg',
     },
     {
-      title: 'Heat Pump Optimization',
-      text: '1. Heat pump model table lists refrigerants & COPs.\n2. Filters panel for refining results.\n3. Chart displays actual heat pump cycles layered on pinch curves.',
+      title: t('tutorial.slide7_title'),
+      text: t('tutorial.slide7_text'),
       image: '/assets/tutorial/slide-7.svg',
     },
   ];
@@ -63,7 +63,7 @@ export default function TutorialSidebar({ onLoadExample, loadingExample }: Tutor
 
   return (
     <div className={styles.tutorialContainer}>
-      <div className={styles.tutorialHeader}>Quick tutorial.</div>
+      <div className={styles.tutorialHeader}>{t('tutorial.quick_title')}</div>
       <div className={styles.tutorialContent}>
         {steps[currentStep].image && (
           <img 
@@ -74,17 +74,16 @@ export default function TutorialSidebar({ onLoadExample, loadingExample }: Tutor
         )}
         <div className={styles.slideTitle}>{steps[currentStep].title}</div>
         <div className={styles.slideText}>
-          {steps[currentStep].text}
+          <div dangerouslySetInnerHTML={{ __html: steps[currentStep].text }} />
           {currentStep === steps.length - 1 && onLoadExample && (
-            <>
-              <br />
+            <div style={{ marginTop: '16px' }}>
               <span
                 onClick={!loadingExample ? onLoadExample : undefined}
                 style={{ cursor: loadingExample ? 'wait' : 'pointer', color: 'var(--brand-magenta)', textDecoration: 'underline', fontWeight: 600 }}
               >
-                {loadingExample ? '4. Loading example...' : '4. Test it with an example'}
+                {loadingExample ? t('tutorial.loading_example') : t('tutorial.test_example')}
               </span>
-            </>
+            </div>
           )}
         </div>
       </div>
