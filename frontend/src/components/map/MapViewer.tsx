@@ -167,8 +167,7 @@ function BoxSelector({
 const TILE_URLS: Record<string, string> = {
   OpenStreetMap: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
   Positron: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
-  Satellite:
-    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  Satellite: 'https://mt1.google.com/vt/lyrs=s&x={x}&y={y}&z={z}',
 };
 
 function createDivIcon(
@@ -1059,7 +1058,7 @@ export default function MapViewer({
         zoomSnap={0.25}
         zoomDelta={0.25}
       >
-        <TileLayer url={tileUrl} />
+        <TileLayer key={tileUrl} url={tileUrl} maxNativeZoom={19} maxZoom={24} />
         <MapController center={center} zoom={zoom} locked={locked} />
         <MapClickHandler onClick={handleMapClick} />
         <MapFullscreenResizer active={isFullscreen} />
