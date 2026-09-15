@@ -544,25 +544,84 @@ def generate_html_report(req: ReportRequest) -> str:
         nav_links_html += f'<li class="nav-tab" onclick="showPage(\'comparison-summary\')">⚖️ {texts["comparison"]}</li>'
         sc_rows = ""
         sc_names, sc_hot, sc_cold = [], [], []
+        sc_savings_pct, sc_best_cop, sc_tot_heat = [], [], []
+        
         for sc in req.scenarios:
             sc_disp_name = texts['all_streams'] if sc.name.lower() == 'all streams' else sc.name
             phu = sc.pinch_result.hot_utility if sc.pinch_result else 0
             pcu = sc.pinch_result.cold_utility if sc.pinch_result else 0
-            sc_names.append(sc_disp_name); sc_hot.append(phu); sc_cold.append(pcu)
-            sc_rows += f"<tr><td><strong>{sc_disp_name}</strong></td><td>{sc.t_min}K</td><td>{phu:.1f} kW</td><td>{pcu:.1f} kW</td></tr>"
+            
+            # Additional detailed metrics
+            tot_heat = sum(d.heat_demand for d in sc.energy_demands)
+            tot_cool = sum(d.cooling_demand for d in sc.energy_demands)
+            sh = tot_heat - phu
+            sh_pct = (abs(sh)/tot_heat*100) if tot_heat > 0 else 0
+            
+            hp_sorted = sorted([hp for hp in sc.heat_pumps if hp.available], key=lambda x: x.cop or 0, reverse=True)
+            best = hp_sorted[0] if hp_sorted else None
+            
+            hc_heat = min(best.q_sink, phu) if (best and best.q_sink is not None) else 0
+            coverage = (hc_heat / phu * 100) if phu > 0 else 0
+            best_cop = best.cop if best else 0
+
+            sc_names.append(sc_disp_name)
+            sc_hot.append(phu)
+            sc_cold.append(pcu)
+            sc_savings_pct.append(sh_pct)
+            sc_best_cop.append(best_cop)
+            sc_tot_heat.append(tot_heat)
+            
+            sc_rows += f"<tr><td><strong>{sc_disp_name}</strong></td><td>{sc.t_min}K</td><td>{tot_heat:.1f}</td><td>{phu:.1f}</td><td>{tot_cool:.1f}</td><td>{pcu:.1f}</td><td style='background:#e8f5e9'>{sh:.1f}</td><td style='background:#e8f5e9'>{sh_pct:.1f}%</td><td style='background:#f3e5f5'>{_fmt(best_cop)}</td><td style='background:#f3e5f5'>{coverage:.1f}%</td></tr>"
         
-        fig = go.Figure([go.Bar(x=sc_names, y=sc_hot, name=texts['hot'], marker_color='#ef4444'), go.Bar(x=sc_names, y=sc_cold, name=texts['cold'], marker_color='#3b82f6')])
+        fig = go.Figure([go.Bar(x=sc_names, y=sc_tot_heat, name='Status Quo (Hot)', marker_color='#ef4444', opacity=0.3, showlegend=False), 
+                         go.Bar(x=sc_names, y=sc_hot, name=texts['hot'], marker_color='#ef4444'), 
+                         go.Bar(x=sc_names, y=sc_cold, name=texts['cold'], marker_color='#3b82f6')])
         fig.update_layout(height=400, barmode='group', title=texts['utilities_comparison'])
         comp_chart = fig.to_html(full_html=False, include_plotlyjs=False)
+
+        # Second chart: Performance Metrics
+        fig_perf = go.Figure()
+        fig_perf.add_trace(go.Scatter(x=sc_names, y=sc_savings_pct, mode='lines+markers', name='Heating Savings (%)', line=dict(color='#00CC96', width=3), marker=dict(size=8)))
+        fig_perf.add_trace(go.Scatter(x=sc_names, y=sc_best_cop, mode='lines+markers', name='Best HP COP', yaxis='y2', line=dict(color='#AB63FA', width=3, dash='dot'), marker=dict(size=8)))
+        fig_perf.update_layout(
+            height=400, title="Performance Metrics",
+            yaxis=dict(title='Heating Savings (%)', range=[0, 105]),
+            yaxis2=dict(title='Best HP COP', overlaying='y', side='right', range=[0, 10.5]),
+            legend=dict(orientation="h", y=-0.2, x=0.5, xanchor='center')
+        )
+        perf_chart = fig_perf.to_html(full_html=False, include_plotlyjs=False)
 
         comparison_html = f"""
         <div id="comparison-summary" class="page-content">
             <h2>⚖️ {texts['comparison_summary']}</h2>
-            <div class="plot-section">{comp_chart}</div>
-            <table class="data-table">
-                <thead><tr><th>{texts['scenario']}</th><th>ΔTmin</th><th>{texts['min_heating']}</th><th>{texts['min_cooling']}</th></tr></thead>
-                <tbody>{sc_rows}</tbody>
-            </table>
+            
+            <div style="background:#fff; padding:15px; border:1px solid #ddd; border-radius:8px; margin-bottom:20px;">
+                <h3 style="margin-top:0;">Combined Status Quo vs. Proposal Comparison</h3>
+                <table class="data-table" style="text-align:center;">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" style="background:#f1f5f9; color:#333;">{texts['scenario']}</th>
+                            <th rowspan="2" style="background:#f1f5f9; color:#333;">ΔTmin</th>
+                            <th colspan="2" style="background:#ffcdd2; color:#b71c1c; text-align:center;">HEATING (KW)</th>
+                            <th colspan="2" style="background:#bbdefb; color:#0d47a1; text-align:center;">COOLING (KW)</th>
+                            <th colspan="2" style="background:#c8e6c9; color:#1b5e20; text-align:center;">HEAT RECOVERY POTENTIAL</th>
+                            <th colspan="2" style="background:#e1bee7; color:#4a148c; text-align:center;">HP INTEGRATION</th>
+                        </tr>
+                        <tr>
+                            <th style="background:#ffebee; color:#d32f2f;">STATUS QUO</th><th style="background:#ffebee; color:#d32f2f;">PINCH MIN.</th>
+                            <th style="background:#e3f2fd; color:#1976d2;">STATUS QUO</th><th style="background:#e3f2fd; color:#1976d2;">PINCH MIN.</th>
+                            <th style="background:#e8f5e9; color:#388e3c;">SAVINGS (KW)</th><th style="background:#e8f5e9; color:#388e3c;">SAVINGS (%)</th>
+                            <th style="background:#f3e5f5; color:#7b1fa2;">BEST COP</th><th style="background:#f3e5f5; color:#7b1fa2;">COVERAGE (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody>{sc_rows}</tbody>
+                </table>
+            </div>
+
+            <div class="hpi-flex-row">
+                <div class="hpi-table-col"><div class="plot-section">{comp_chart}</div></div>
+                <div class="hpi-table-col"><div class="plot-section">{perf_chart}</div></div>
+            </div>
         </div>"""
 
     # Final HTML assembly
