@@ -159,18 +159,18 @@ Before integrating the heat pump, process heat curves are converted into a **sou
 
 The application supports **two primary heat recovery modes** depending on how much internal heat exchange is assumed to happen between process streams before placing the heat pump:
 
-| Mode | Heat Recovery Assumption | What the Heat Pump Sees | Engineering Use Case |
-|---|---|---|---|
-| **net_load** (default) | **Full recovery (100%)** | Residual utility demand only (pocket-free GCC) | Standard Pinch analysis — invest in heat pump only for net deficit remaining after internal exchangers |
-| **composite** | **No heat recovery (0%)** | Full raw stream duties directly | Used when streams cannot exchange heat with each other (e.g. distant buildings or contamination risks) |
+| Mode | Heat Recovery Assumption | What the Heat Pump Sees |
+|---|---|---|
+| **With heat recovery** (default) | **Full recovery (100%)** | Residual utility demand only (pocket-free GCC) |
+| **No heat recovery** | **No heat recovery (0%)** | Full raw stream duties directly |
 
 ### Detailed Mode Breakdown
 
-1. **`net_load` (Full Heat Recovery - Default)**
+1. **With heat recovery (Full Heat Recovery - Default)**
    - All internal process heat recovery takes place first. Temperature pockets are deleted.
    - The heat pump only sees the **residual net utility demand** remaining above and below the pinch point.
 
-2. **`composite` (No Heat Recovery - Raw Composite Curves)**
+2. **No heat recovery (Raw Composite Curves)**
    - Assumes **zero internal heat exchange** between streams.
    - Every hot stream dumps 100% of its thermal duty into the heat pump evaporator (or cold utility).
    - Every cold stream receives 100% of its thermal duty from the heat pump condenser (or hot utility).

@@ -98,12 +98,11 @@ export default function HomePage() {
               <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
                 <div style={{ flex: '1 1 45%' }}>
                   <button
-                    className="btn"
+                    className={`${styles['action-card']} ${styles['action-card-primary']}`}
                     onClick={() => setShowTutorial(true)}
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', width: '100%', padding: '40px 24px', border: 'none', background: 'var(--brand-magenta)', color: '#fff', borderRadius: 'var(--radius-lg)', height: '100%', boxShadow: 'var(--shadow-sm)', cursor: 'pointer' }}
                   >
-                    <span style={{ fontSize: '1.3rem', fontWeight: 700 }}>Tutorial (Quick guide)</span>
-                    <span style={{ fontSize: '0.9rem', fontWeight: 400, opacity: 0.9, lineHeight: 1.4 }}>A fast, visual walk-through of the interface and the core features right here on this page.</span>
+                    <span className={styles['action-card-title']}>Tutorial (Quick guide)</span>
+                    <span className={styles['action-card-desc']}>A fast, visual walk-through of the interface and the core features right here on this page.</span>
                   </button>
                 </div>
                 <div style={{ flex: '1 1 45%' }}>
@@ -111,11 +110,10 @@ export default function HomePage() {
                     href="https://drzg15.github.io/HeatTransPlan/"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn"
-                    style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', textAlign: 'center', padding: '40px 24px', border: 'none', background: '#475569', color: '#fff', borderRadius: 'var(--radius-lg)', textDecoration: 'none', height: '100%', boxShadow: 'var(--shadow-sm)' }}
+                    className={`${styles['action-card']} ${styles['action-card-secondary']}`}
                   >
-                    <span style={{ fontSize: '1.3rem', fontWeight: 700 }}>Technical Documentation</span>
-                    <span style={{ fontSize: '0.9rem', fontWeight: 400, opacity: 0.9, lineHeight: 1.4, color: '#f8fafc' }}>Read the complete manual to understand all calculations, physics models, and engineering concepts used in the tool.</span>
+                    <span className={styles['action-card-title']}>Technical Documentation</span>
+                    <span className={styles['action-card-desc']}>Read the complete manual to understand all calculations, physics models, and engineering concepts used in the tool.</span>
                   </a>
                 </div>
               </div>
@@ -124,13 +122,12 @@ export default function HomePage() {
                 {error && <div className={styles['home-error']} style={{ marginBottom: '8px' }}>{error}</div>}
                 {successMsg && <div className={styles['home-success']} style={{ marginBottom: '8px' }}>{successMsg}</div>}
                 <button
-                  className="btn"
+                  className={`${styles['action-card']} ${styles['action-card-gradient']}`}
                   onClick={() => loadExample('heat_integration_example_1.json')}
                   disabled={loadingExample}
-                  style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '12px', width: '100%', padding: '40px 24px', background: '#10b981', border: 'none', color: '#fff', borderRadius: 'var(--radius-lg)', boxShadow: 'var(--shadow-sm)' }}
                 >
-                  <span style={{ fontSize: '1.3rem', fontWeight: 700 }}>{loadingExample ? t('home.loading') : 'Load Example 1: Heat integration example'}</span>
-                  <span style={{ fontSize: '0.9rem', fontWeight: 400, opacity: 0.9, lineHeight: 1.4 }}>Instantly load a pre-configured industrial plant model to see the pinch analysis and heat pump optimization in action.</span>
+                  <span className={styles['action-card-title']}>{loadingExample ? t('home.loading') : 'Load Example 1: Heat integration example'}</span>
+                  <span className={styles['action-card-desc']}>Instantly load a pre-configured industrial plant model to see the pinch analysis and heat pump optimization in action.</span>
                 </button>
               </div>
             </div>
