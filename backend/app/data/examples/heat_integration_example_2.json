@@ -2,10 +2,10 @@
   "timestamp": "2026-02-20T15:29:48.033469",
   "map_locked": true,
   "map_center": [
-    51.708709829702975,
-    8.770607177770723
+    51.70893206717847,
+    8.770539164543154
   ],
-  "map_zoom": 17.5,
+  "map_zoom": 18,
   "current_base": "OpenStreetMap",
   "processes": [
     {
