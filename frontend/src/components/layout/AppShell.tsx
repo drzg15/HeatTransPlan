@@ -103,17 +103,17 @@ export default function AppShell({ children }: Props) {
             rel="noopener noreferrer"
             className="btn btn-sm"
             style={{ marginRight: '8px', textDecoration: 'none' }}
-            title="Open Documentation"
+            title={t('home.documentation')}
           >
-            📖 Documentation
+            📖 {t('home.documentation')}
           </a>
           <button
             className="btn btn-sm"
             onClick={() => setShowResetModal(true)}
-            title="Clear all data and reset project"
+            title={t('action_bar.reset_modal_title')}
             style={{ marginRight: '8px' }}
           >
-            🔄 Reset all data
+            🔄 {t('home.reset_all')}
           </button>
           <LanguagePicker />
           <button

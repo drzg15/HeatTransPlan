@@ -14,7 +14,7 @@ const CollectionHelp: React.FC<Props> = ({ isOpen, onClose }) => {
   return (
     <div className="analysis-help-panel">
       <div className="help-header">
-        <h3>🔍 Collection Guide</h3>
+        <h3>🔍 {t('collection_help.title')}</h3>
         <button className="help-close" onClick={onClose}>
           ×
         </button>
@@ -22,36 +22,28 @@ const CollectionHelp: React.FC<Props> = ({ isOpen, onClose }) => {
 
       <div className="help-scroll">
         <section className="help-section">
-          <h4>🗺️ Map & UI</h4>
-          <p>
-            Use the Search bar to center the map. The <strong>Lock map</strong> button disables panning so you can safely place markers without dragging the map.
-          </p>
+          <h4>🗺️ {t('collection_help.map_ui')}</h4>
+          <p dangerouslySetInnerHTML={{ __html: t('collection_help.map_ui_desc') }} />
         </section>
 
         <section className="help-section">
-          <h4>🏭 Adding a Process</h4>
-          <p>
-            Click <strong>+ Add Process</strong> to create a new industrial plant group. Then click <strong>Place</strong> and click anywhere on the map to position it.
-          </p>
+          <h4>🏭 {t('collection_help.add_process')}</h4>
+          <p dangerouslySetInnerHTML={{ __html: t('collection_help.add_process_desc') }} />
         </section>
 
         <section className="help-section">
-          <h4>⚙️ Subprocesses</h4>
-          <p>
-            Expand a process to view its internals. Click <strong>+ Add</strong> to create new subprocesses inside the parent process.
-          </p>
+          <h4>⚙️ {t('collection_help.subprocesses')}</h4>
+          <p dangerouslySetInnerHTML={{ __html: t('collection_help.subprocesses_desc') }} />
         </section>
 
         <section className="help-section">
-          <h4>🔗 Connections & Streams</h4>
-          <p>
-            Use <em>next processes</em> to draw directional arrows between boxes on the map. Use the <em>streams</em> table to input thermodynamic data (temperatures, mass flow, heat capacity) for pinch analysis.
-          </p>
+          <h4>🔗 {t('collection_help.connections')}</h4>
+          <p dangerouslySetInnerHTML={{ __html: t('collection_help.connections_desc') }} />
         </section>
 
         <div className="help-footer">
           <p>
-            ✨ <em>Once your data is collected, switch to the <strong>Potential Analysis</strong> tab to optimize your energy recovery.</em>
+            ✨ <em dangerouslySetInnerHTML={{ __html: t('collection_help.tip') }} />
           </p>
         </div>
       </div>
