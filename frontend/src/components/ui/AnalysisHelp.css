@@ -3,7 +3,7 @@
   top: 12px;
   right: 12px;
   width: 250px;
-  bottom: 12px;
+  max-height: calc(100% - 24px);
   background: var(--surface);
   border: 1px solid var(--border);
   display: flex;

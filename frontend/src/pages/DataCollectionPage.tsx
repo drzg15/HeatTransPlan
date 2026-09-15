@@ -9,7 +9,7 @@ import ProcessGroupList from '../components/process/ProcessGroupList';
 import ActionBar from '../components/io/ActionBar';
 import StreamDataTable from '../components/analysis/StreamDataTable';
 import './DataCollectionPage.css';
-import TutorialPanel from '../components/ui/TutorialPanel';
+import CollectionHelp from '../components/ui/CollectionHelp';
 import { useIsMobile } from '../hooks/useMediaQuery';
 
 export default function DataCollectionPage() {
@@ -442,7 +442,8 @@ export default function DataCollectionPage() {
             container on init and comes up zero-sized if that container is
             display:none, so it has to mount only when it is actually visible. */}
         {(!isMobile || mobilePane === 'map') && (
-          <div className="dc-right">
+          <div className="dc-right" style={{ position: 'relative' }}>
+            <CollectionHelp isOpen={showTutorial} onClose={() => setShowTutorial(false)} />
             {/* Removed redundant search bar — integrated into ActionBar */}
 
             <MapViewer
@@ -585,7 +586,6 @@ export default function DataCollectionPage() {
 
       {/* Page-level so the help toggle works from either mobile pane, not just
           the one the map happens to be in. */}
-      <TutorialPanel isOpen={showTutorial} onClose={() => setShowTutorial(false)} />
     </div>
   );
 }
