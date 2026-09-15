@@ -110,7 +110,7 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
   const canApply = !!check?.valid && draft.expression.trim().length > 0;
 
   return (
-    <div className="cf-backdrop" onClick={onCancel} role="presentation">
+    <div className="cf-backdrop" role="presentation">
       <div
         className="cf-modal"
         onClick={(e) => e.stopPropagation()}
@@ -146,7 +146,7 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
             ref={textareaRef}
             className={`cf-expression ${check && !check.valid ? 'cf-invalid' : ''}`}
             value={draft.expression}
-            rows={3}
+            rows={14}
             spellCheck={false}
             maxLength={500}
             onChange={(e) => set('expression', e.target.value)}
@@ -200,6 +200,21 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
                 {name}
               </button>
             ))}
+            <button
+              className="cf-chip"
+              title="Conditional logic for intervals (formatted for readability)"
+              onClick={() => insert(`where(
+  T_sink < 110, 
+  carnot * 0.55, 
+  where(
+    T_sink >= 120, 
+    carnot * 0.45, 
+    carnot * 0.5
+  )
+)`)}
+            >
+              Interval Example
+            </button>
           </div>
           {check?.functions?.length ? (
             <p className="cf-muted cf-funcs">{t('cop_modal.functions')} {check.functions.join(', ')}</p>

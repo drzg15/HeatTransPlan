@@ -18,8 +18,8 @@
   border: 1px solid var(--border);
   border-radius: 12px;
   box-shadow: var(--shadow-lg);
-  width: 560px;
-  max-width: 100%;
+  width: 900px;
+  max-width: 95vw;
   max-height: 90vh;
   display: flex;
   flex-direction: column;
