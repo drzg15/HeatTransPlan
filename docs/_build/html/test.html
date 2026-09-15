@@ -8,7 +8,7 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Test Literal Include &#8212; HeatTransPlan — Calculation Logic</title>
+    <title>Test &#8212; HeatTransPlan — Calculation Logic</title>
   
   
   
@@ -355,7 +355,7 @@
               
 
 <div id="jb-print-docs-body" class="onlyprint">
-    <h1>Test Literal Include</h1>
+    <h1>Test</h1>
     <!-- Table of contents -->
     <div id="print-main-content">
         <div id="jb-print-toc">
@@ -369,11 +369,27 @@
 <div id="searchbox"></div>
                 <article class="bd-article">
                   
-  <section class="tex2jax_ignore mathjax_ignore" id="test-literal-include">
-<h1>Test Literal Include<a class="headerlink" href="#test-literal-include" title="Link to this heading">#</a></h1>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>
+  <section class="tex2jax_ignore mathjax_ignore" id="test">
+<h1>Test<a class="headerlink" href="#test" title="Link to this heading">#</a></h1>
+<details>
+<summary><b>Source code:</b> <code>test</code></summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">HP_OPERATING_WINDOWS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;Prototypical Stirling&#39;</span><span class="p">:</span>   <span class="p">{</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">:</span> <span class="mi">144</span><span class="p">,</span> <span class="s1">&#39;t_sink_max&#39;</span><span class="p">:</span> <span class="mi">212</span><span class="p">,</span> <span class="s1">&#39;dt_min&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;dt_max&#39;</span><span class="p">:</span> <span class="mi">190</span><span class="p">},</span>
+    <span class="s1">&#39;VHTHP (HFC/HFO)&#39;</span><span class="p">:</span>         <span class="p">{</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span>  <span class="s1">&#39;t_sink_max&#39;</span><span class="p">:</span> <span class="mi">160</span><span class="p">,</span> <span class="s1">&#39;dt_min&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s1">&#39;dt_max&#39;</span><span class="p">:</span> <span class="mi">95</span><span class="p">},</span>
+    <span class="s1">&#39;SHP and HTHPs (HFC/HFO)&#39;</span><span class="p">:</span> <span class="p">{</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span>  <span class="s1">&#39;t_sink_max&#39;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s1">&#39;dt_min&#39;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s1">&#39;dt_max&#39;</span><span class="p">:</span> <span class="mi">78</span><span class="p">},</span>
+    <span class="s1">&#39;SHP and HTHPs (R717)&#39;</span><span class="p">:</span>    <span class="p">{</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span>  <span class="s1">&#39;t_sink_max&#39;</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span>  <span class="s1">&#39;dt_min&#39;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s1">&#39;dt_max&#39;</span><span class="p">:</span> <span class="mi">75</span><span class="p">},</span>
+    <span class="s1">&#39;Carnot&#39;</span><span class="p">:</span>                  <span class="p">{</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">:</span> <span class="o">-</span><span class="mi">273</span><span class="p">,</span> <span class="s1">&#39;t_sink_max&#39;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">,</span> <span class="s1">&#39;dt_min&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;dt_max&#39;</span><span class="p">:</span> <span class="mi">10000</span><span class="p">},</span>
+<span class="p">}</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">in_operating_window</span><span class="p">(</span><span class="n">hp_type</span><span class="p">,</span> <span class="n">t_sink</span><span class="p">,</span> <span class="n">dt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True when `hp_type` is rated for this sink temperature and lift.&quot;&quot;&quot;</span>
+    <span class="n">w</span> <span class="o">=</span> <span class="n">HP_OPERATING_WINDOWS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">hp_type</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">w</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">w</span><span class="p">[</span><span class="s1">&#39;t_sink_min&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">t_sink</span> <span class="o">&lt;=</span> <span class="n">w</span><span class="p">[</span><span class="s1">&#39;t_sink_max&#39;</span><span class="p">]</span>
+            <span class="ow">and</span> <span class="n">w</span><span class="p">[</span><span class="s1">&#39;dt_min&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="n">dt</span> <span class="o">&lt;=</span> <span class="n">w</span><span class="p">[</span><span class="s1">&#39;dt_max&#39;</span><span class="p">])</span>
 </pre></div>
 </div>
+</details>
 </section>
 
 
