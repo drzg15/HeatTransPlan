@@ -18,7 +18,7 @@
   },
   "tutorial": {
     "header": "How HeatTransPlan Works",
-    "step1_title": "Step 1: Add Process",
+    "quick_title": "Quick tutorial.",
     "step1_text": "Start by adding a high-level industrial process block for your facility using the 'Add Process' button.",
     "step2_title": "Step 2: Geolocation",
     "step2_text": "Place your process geographically on the interactive map so you can visually plan piping and spatial constraints.",
@@ -30,10 +30,22 @@
     "next": "Next",
     "step0_title": "Overview: Getting Started",
     "step0_text": "Welcome to HeatTransPlan! This tool helps industrial facilities discover energy savings. Here is how the workflow is structured:\n\n1) Data Collection & Facility Mapping\n• Start by adding your main operational Processes.\n• Break those down into specific Subprocesses (e.g., 'Cooling Tower', 'Boiler').\n• For each subprocess, define the individual energy Streams (hot and cold). You must specify the Mass Flow, Heat Capacity (Cp), and the Input/Output Temperatures.\n• Use the interactive Map to place your processes geographically, exactly where they are located in your real facility. This helps visualize spatial constraints for future pipe routing.\n\n2) Potential Analysis & Heat Integration\n• Review the Stream Summary table to ensure your thermodynamic data is correct.\n• Select the specific streams you want to analyze.\n• Run the Pinch Analysis to automatically generate Composite Curves. These graphs visually demonstrate your absolute maximum heat recovery potential and identify your 'Pinch Point'.\n• Finally, explore Heat Pump Integration to bridge remaining temperature gaps using proposed real-world heat pump models (showing kW and COP parameters).\n\nClick 'Next' to see a visual walkthrough of these steps!",
-    "step5_title": "Step 5: Pinch Curves & Utilities",
-    "step5_text": "See your absolute Heat Recovery Potential and minimum heating/cooling utilities via automatically generated Composite Curves.",
-    "step6_title": "Step 6: Heat Pump Integration",
-    "step6_text": "Explore integrating real-world heat pump models to bridge temperature gaps, calculating required kW and expected COP."
+    "slide1_title": "Navigating the Map & UI",
+    "slide1_text": "1. Data collection tab.<br/>2. Search bar to center map.<br/>3. Lock map button disables panning for marker placement.<br/>4. Help/tutorial button. It is located at many place to explain different items for more information",
+    "slide2_title": "Adding a Process",
+    "slide2_text": "1. Click + Add Process to create a group.<br/>2. Click Place to position it.<br/>3. Place the process on the map",
+    "slide3_title": "Subprocesses",
+    "slide3_text": "1. Click to show subprocesses of the process<br/>2. Click + Add to create new subprocesses inside the parent process.",
+    "slide4_title": "Connections & Streams",
+    "slide4_text": "1. Use next processes to draw arrows between boxes.<br/>2. Use streams to input thermodynamics (temperatures, mass flow, heat capacity).",
+    "slide5_title": "The Potential Analysis Dashboard",
+    "slide5_text": "1. Switch to Potential Analysis tab.<br/>2. Toggle hot/cold streams in Streams Selection.<br/>3. Configure current energy supply (if available)",
+    "slide6_title": "Pinch Analysis Curves",
+    "slide6_text": "1. Comparison table shows energy savings (kW and %).<br/>2. Composite curves plot temp vs enthalpy.<br/>3. Grand composite curve visualizes remaining demands.",
+    "slide7_title": "Heat Pump Optimization",
+    "slide7_text": "1. Heat pump model table lists refrigerants & COPs.<br/>2. Filters panel for refining results.<br/>3. Chart displays actual heat pump cycles layered on pinch curves.",
+    "test_example": "Test it with an example",
+    "loading_example": "Loading example..."
   },
   "action_bar": {
     "lock_map": "Lock Map",
@@ -106,15 +118,23 @@
     "about_link": "About <span class='notranslate'>HeatTransPlan</span>",
     "about_title": "About this app",
     "about_text": "<span class='notranslate'>HeatTransPlan</span> helps collect industrial process energy data and analyze heat recovery potential and heat pump integration opportunities using pinch analysis.",
+    "documentation": "Documentation",
+    "reset_all": "Reset all data",
     "how_to_use": "How to use",
     "instruction_1": "Open <strong>Energy Data Collection</strong> to locate the facility, describe the process and add energy data.",
     "instruction_2": "Add and refine stream information, then review process data directly in the table and map views.",
     "instruction_3": "Export recorded data and analysis results.",
     "examples": "Examples",
-    "load_example_1": "Load Example 1: Heat integration example",
+    "load_example_1_title": "Load Example 1: Heat integration example",
+    "load_example_1_desc": "Instantly load a pre-configured industrial plant model to see the pinch analysis and heat pump optimization in action.",
     "loading": "Loading...",
     "example_success": "Example loaded! Redirecting to Data Collection...",
-    "example_error": "Failed to load example"
+    "example_error": "Failed to load example",
+    "get_started": "Get Started",
+    "tutorial_btn_title": "Tutorial (Quick guide)",
+    "tutorial_btn_desc": "A fast, visual walk-through of the interface and the core features right here on this page.",
+    "tech_doc_title": "Technical Documentation",
+    "tech_doc_desc": "Read the complete manual to understand all calculations, physics models, and engineering concepts used in the tool."
   },
   "analysis": {
     "title": "Potential Analysis",
@@ -336,5 +356,17 @@
     "min_cooling_desc": "The absolute minimum external cooling required by the system after all possible internal heat recovery is utilized.",
     "pinch_temp_desc": "The temperature level dividing the system into a heat sink (above pinch) and a heat source (below pinch). No heat should be transferred across the pinch.",
     "heat_recovery_desc": "The total amount of heat that can be recovered internally by matching hot and cold streams."
+  },
+  "collection_help": {
+    "title": "Collection Guide",
+    "map_ui": "Map & UI",
+    "map_ui_desc": "Use the Search bar to center the map. The <strong>Lock map</strong> button disables panning so you can safely place markers without dragging the map.",
+    "add_process": "Adding a Process",
+    "add_process_desc": "Click <strong>+ Add Process</strong> to create a new industrial plant group. Then click <strong>Place</strong> and click anywhere on the map to position it.",
+    "subprocesses": "Subprocesses",
+    "subprocesses_desc": "Expand a process to view its internals. Click <strong>+ Add</strong> to create new subprocesses inside the parent process.",
+    "connections": "Connections & Streams",
+    "connections_desc": "Use <em>next processes</em> to draw directional arrows between boxes on the map. Use the <em>streams</em> table to input thermodynamic data (temperatures, mass flow, heat capacity) for pinch analysis.",
+    "tip": "Once your data is collected, switch to the <strong>Potential Analysis</strong> tab to optimize your energy recovery."
   }
 }
