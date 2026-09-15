@@ -3,7 +3,6 @@ import {
   MapContainer,
   TileLayer,
   Marker,
-  Polyline,
   Rectangle,
   useMap,
   useMapEvents,
@@ -686,7 +685,6 @@ function ConnectionLines({
       const tLon = parseFloat(String(tgt.lon));
       if (isNaN(srcLat) || isNaN(srcLon) || isNaN(tLat) || isNaN(tLon)) return null;
 
-      const srcScale = p.box_scale ? parseFloat(String(p.box_scale)) : 1.5;
       const tgtScale = tgt.box_scale ? parseFloat(String(tgt.box_scale)) : 1.5;
 
       const p1 = map.latLngToContainerPoint([srcLat, srcLon]);
@@ -742,7 +740,6 @@ function ConnectionLines({
         }
       }
 
-      const lStart = map.containerPointToLatLng(p1);
       const lArrow = map.containerPointToLatLng(pArrow);
 
       const arrowIcon = L.divIcon({

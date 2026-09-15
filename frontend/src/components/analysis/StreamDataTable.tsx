@@ -7,7 +7,6 @@ import {
   exportDistanceMatrixToCsv,
   exportLiveMapSnapshot,
 } from '../../utils/csvExport';
-import { useAnalysisStore } from '../../store/analysisStore';
 
 interface Props {
   processes: ProcessNode[];
@@ -43,7 +42,6 @@ export default function StreamDataTable({
   groupCoordinates = {},
 }: Props) {
   const { t } = useTranslation();
-  const tMin = useAnalysisStore((s) => s.tMin);
   const [sortKey, setSortKey] = useState<SortKey>('Q');
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
   const [exportMenuOpen, setExportMenuOpen] = useState(false);

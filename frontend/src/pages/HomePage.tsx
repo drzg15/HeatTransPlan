@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useProjectStore } from '../store/projectStore';
 import { getExample } from '../api/io';
-import { useTranslation, Trans } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import styles from './HomePage.module.css';
 import TutorialSidebar from '../components/ui/TutorialSidebar';
 
