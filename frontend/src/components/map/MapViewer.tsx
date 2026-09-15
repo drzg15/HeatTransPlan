@@ -309,6 +309,21 @@ function MapMountFitter({ center, zoom }: { center: [number, number]; zoom: numb
   return null;
 }
 
+function MapCenterSync({ center, zoom }: { center: [number, number]; zoom: number }) {
+  const map = useMap();
+  useEffect(() => {
+    const current = map.getCenter();
+    const currentZoom = map.getZoom();
+    // Only fly if the distance is greater than 10 meters or the zoom level changed.
+    // This prevents jitter/interruption when the map is just sending moveend events back up.
+    const dist = current.distanceTo(L.latLng(center[0], center[1]));
+    if (dist > 10 || currentZoom !== zoom) {
+      map.flyTo(center, zoom, { duration: 1.5 });
+    }
+  }, [center, zoom, map]);
+  return null;
+}
+
 function SubprocessCanvasOverlay({ active, deps }: { active: boolean; deps?: any }) {
   const map = useMap();
   const [center, setCenter] = useState<L.LatLng | null>(null);
@@ -1293,6 +1308,7 @@ export default function MapViewer({
 
         {onMoveEnd && <MapMoveHandler onMoveEnd={onMoveEnd} locked={locked} />}
         <MapMountFitter center={center} zoom={zoom} />
+        <MapCenterSync center={center} zoom={zoom} />
         <MapFullscreenResizer active={isFullscreen} />
       </MapContainer>
     </div>
