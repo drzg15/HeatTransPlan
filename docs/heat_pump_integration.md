@@ -19,30 +19,12 @@ Each heat pump technology has a defined **operating envelope**: a sink temperatu
 | Theoretical Carnot ($\times 0.5$ efficiency) | $-\infty$ | $+\infty$ | $0$ | $+\infty$ |
 
 
-A heat pump is only considered available when **both** the sink temperature and the temperature lift fall within its operating window.
-
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (lines 10–42)</summary>
+<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (HP_OPERATING_WINDOWS and in_operating_window)</summary>
 
-```python
-HP_OPERATING_WINDOWS = {
-    'Prototypical Stirling':   {'t_sink_min': 144, 't_sink_max': 212,
-                                'dt_min': 25, 'dt_max': 190},
-    'VHTHP (HFC/HFO)':        {'t_sink_min': 80,  't_sink_max': 160,
-                                'dt_min': 25, 'dt_max': 95},
-    'SHP and HTHPs (HFC/HFO)':{'t_sink_min': 25,  't_sink_max': 100,
-                                'dt_min': 10, 'dt_max': 78},
-    'SHP and HTHPs (R717)':    {'t_sink_min': 70,  't_sink_max': 85,
-                                'dt_min': 30, 'dt_max': 75},
-}
-
-def in_operating_window(hp_type, t_sink, dt):
-    """True when the technology is rated for this sink temperature and lift."""
-    w = HP_OPERATING_WINDOWS.get(hp_type)
-    if w is None:
-        return False
-    return (w['t_sink_min'] <= t_sink <= w['t_sink_max']
-            and w['dt_min'] <= dt <= w['dt_max'])
+```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
+:language: python
+:lines: 10-16, 53-59
 ```
 
 </details>
