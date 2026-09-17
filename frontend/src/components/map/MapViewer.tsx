@@ -653,6 +653,8 @@ function StreamArrowsOverlay({
     subprocess: string;
     tin: number | null;
     tout: number | null;
+    mdot: number | null;
+    cp: number | null;
     Q: number | null;
     pIdx: number;
     ci?: number;
@@ -686,6 +688,8 @@ function StreamArrowsOverlay({
               subprocess: p.name,
               tin: info.tin,
               tout: info.tout,
+              mdot: info.mdot,
+              cp: info.cp,
               Q: info.Q,
               pIdx: si,
               si: sidx,
@@ -713,6 +717,8 @@ function StreamArrowsOverlay({
               subprocess: child.name,
               tin: info.tin,
               tout: info.tout,
+              mdot: info.mdot,
+              cp: info.cp,
               Q: info.Q,
               pIdx: si,
               ci: ci,
@@ -769,7 +775,7 @@ function StreamArrowsOverlay({
         const N = streams.length;
         const streamSpacing = 120; // Increased spacing to prevent overlap
         const svgW = Math.max(250, N * streamSpacing + 60);
-        const svgH = 240; // Taller to allow staggering and process box in center
+        const svgH = 300; // Taller to allow 4 lines of text
         
         const startX = (svgW / 2) - ((N - 1) * streamSpacing / 2);
 
@@ -789,48 +795,66 @@ function StreamArrowsOverlay({
           const num = match ? match[0] : s.si + 1;
           const streamTypeStr = isHotStream ? 'Source' : 'Sink';
           
-          // "Heat in line 1 Source in line 2, the number next to it." -> Heat \n Source 1
-          const aliasSVG = `<tspan x="${cx}" dy="-6">Heat</tspan><tspan x="${cx}" dy="12">${streamTypeStr} ${num}</tspan>`;
+          const tColor = isHotStream ? '#e74c3c' : '#3498db';
+
+          const tinText = s.tin !== null && s.tin !== undefined ? `Tin=${s.tin}°C` : '';
+          const toutText = s.tout !== null && s.tout !== undefined ? `Tout=${s.tout}°C` : '';
+          const extraProps = [];
+          if (s.mdot !== null && s.mdot !== undefined) extraProps.push(`m=${s.mdot}`);
+          if (s.cp !== null && s.cp !== undefined) extraProps.push(`cp=${s.cp}`);
+          const extraText = extraProps.length > 0 ? extraProps.join(', ') : '';
+
+          const feedSVG = `
+            <tspan x="${cx}" dy="-6">Heat</tspan>
+            <tspan x="${cx}" dy="12">${streamTypeStr} ${num}</tspan>
+            ${tinText ? `<tspan x="${cx}" dy="12">${tinText}</tspan>` : ''}
+            ${extraText ? `<tspan x="${cx}" dy="12">${extraText}</tspan>` : ''}
+          `;
+          
+          const prodSVG = toutText ? `<tspan x="${cx}" dy="0">${toutText}</tspan>` : '';
 
           const strokeWidth = isSelected ? 3 : 2;
           const opacity = isSelected ? 1 : 0.5;
           
-          const textStyle = `font-size="11" font-weight="bold" fill="#333" paint-order="stroke" stroke="white" stroke-width="3" opacity="${opacity}"`;
+          const textStyle = `font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3" opacity="${opacity}"`;
 
           // Stagger Y positions for adjacent streams
           const staggerOffset = (sidx % 2 === 0) ? 0 : 15;
           
-          // If Heat Source (hot), flow is UPWARDS. If Heat Sink (cold), flow is DOWNWARDS.
           let inArrow = '';
           let outArrow = '';
           
           if (isHotStream) {
             // Hot stream: UPWARDS
-            // Feed (inColor) enters from bottom, goes UP to box (y=205 to y=150)
-            // Product (outColor) leaves from top, goes UP (y=90 to y=35)
-            const inTextY = 230 + staggerOffset;
+            // Feed (inColor) enters from bottom (y=245 to 180)
+            const inTextY = 260 + staggerOffset;
             inArrow = `
-              <text x="${cx}" y="${inTextY}" text-anchor="middle" ${textStyle}>${aliasSVG}</text>
-              <line x1="${cx}" y1="205" x2="${cx}" y2="150" stroke="${inColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-              <polygon points="${cx-5},155 ${cx+5},155 ${cx},145" fill="${inColor.stroke}" opacity="${opacity}" />
+              <text x="${cx}" y="${inTextY}" text-anchor="middle" ${textStyle}>${feedSVG}</text>
+              <line x1="${cx}" y1="245" x2="${cx}" y2="180" stroke="${inColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
+              <polygon points="${cx-5},190 ${cx+5},190 ${cx},180" fill="${inColor.stroke}" opacity="${opacity}" />
             `;
+            // Product (outColor) leaves from top (y=120 to 55)
+            const outTextY = 45 - staggerOffset;
             outArrow = `
-              <line x1="${cx}" y1="90" x2="${cx}" y2="35" stroke="${outColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-              <polygon points="${cx-5},40 ${cx+5},40 ${cx},30" fill="${outColor.stroke}" opacity="${opacity}" />
+              ${prodSVG ? `<text x="${cx}" y="${outTextY}" text-anchor="middle" ${textStyle}>${prodSVG}</text>` : ''}
+              <line x1="${cx}" y1="120" x2="${cx}" y2="55" stroke="${outColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
+              <polygon points="${cx-5},65 ${cx+5},65 ${cx},55" fill="${outColor.stroke}" opacity="${opacity}" />
             `;
           } else {
             // Cold stream: DOWNWARDS
-            // Feed (inColor) enters from top, goes DOWN to box (y=35 to y=90)
-            // Product (outColor) leaves from bottom, goes DOWN (y=150 to y=205)
+            // Feed (inColor) enters from top (y=55 to 120)
             const inTextY = 20 - staggerOffset;
             inArrow = `
-              <text x="${cx}" y="${inTextY}" text-anchor="middle" ${textStyle}>${aliasSVG}</text>
-              <line x1="${cx}" y1="35" x2="${cx}" y2="90" stroke="${inColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-              <polygon points="${cx-5},85 ${cx+5},85 ${cx},95" fill="${inColor.stroke}" opacity="${opacity}" />
+              <text x="${cx}" y="${inTextY}" text-anchor="middle" ${textStyle}>${feedSVG}</text>
+              <line x1="${cx}" y1="55" x2="${cx}" y2="120" stroke="${inColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
+              <polygon points="${cx-5},110 ${cx+5},110 ${cx},120" fill="${inColor.stroke}" opacity="${opacity}" />
             `;
+            // Product (outColor) leaves from bottom (y=180 to 245)
+            const outTextY = 260 + staggerOffset;
             outArrow = `
-              <line x1="${cx}" y1="150" x2="${cx}" y2="205" stroke="${outColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-              <polygon points="${cx-5},200 ${cx+5},200 ${cx},210" fill="${outColor.stroke}" opacity="${opacity}" />
+              ${prodSVG ? `<text x="${cx}" y="${outTextY}" text-anchor="middle" ${textStyle}>${prodSVG}</text>` : ''}
+              <line x1="${cx}" y1="180" x2="${cx}" y2="245" stroke="${outColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
+              <polygon points="${cx-5},235 ${cx+5},235 ${cx},245" fill="${outColor.stroke}" opacity="${opacity}" />
             `;
           }
 
@@ -888,6 +912,7 @@ function ConnectionLines({
   groupCoordinates,
   subprocessMapExpanded,
   childMapExpanded,
+  onElementDoubleClick,
 }: {
   processes: ProcessNode[];
   groups: number[][];
@@ -895,6 +920,7 @@ function ConnectionLines({
   groupCoordinates: Record<string, GroupCoords>;
   subprocessMapExpanded: Record<number, boolean>;
   childMapExpanded: Record<number, boolean>;
+  onElementDoubleClick?: (type: 'group' | 'sub' | 'child' | 'stream', id: any, subId?: any) => void;
 }) {
   const map = useMap();
 
@@ -1028,40 +1054,130 @@ function ConnectionLines({
         
         let midP: L.Point;
         let htmlContent = '';
+        
+        let pIdx = processes.findIndex(proc => proc === p);
+        let cIdx: number | undefined = undefined;
+        if (pIdx === -1) {
+          processes.forEach((proc, i) => {
+            if (proc.children) {
+              const childIndex = proc.children.findIndex((c: any) => c === p);
+              if (childIndex !== -1) {
+                pIdx = i;
+                cIdx = childIndex;
+              }
+            }
+          });
+        }
+
+        let iconAnchorX, iconAnchorY;
+        const svgW = 140;
+        const svgH = 80;
+        
+        let svgContent = '';
+        const sidxsStr = productStreams.map((s: any) => p.streams!.findIndex(orig => orig === s)).join(',');
+        const cidxArg = cIdx !== undefined ? cIdx : 'undefined';
 
         if (isHorizontalLayout) {
           const startX = pMid1.x > p1.x ? p1.x + srcW : p1.x - srcW;
           midP = L.point((startX + pMid1.x) / 2, p1.y);
-          htmlContent = `<div style="position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); text-align: center; font-size: 11px; font-weight: bold; padding: 2px 4px; white-space: nowrap; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;">
-            ${productStreams.map((s: any, pIdx: number) => {
-              const info = extractStreamInfo(s);
-              const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
-              const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
-              return `<span style="color: ${tColor}">Product${numStr}</span>`;
-            }).join(', ')}
-          </div>`;
+          iconAnchorX = svgW / 2;
+          iconAnchorY = svgH; // Bottom-center anchor
+          
+          let currentY = 20; // Start near the top of the SVG box
+          
+          productStreams.forEach((s: any, pIdx: number) => {
+            const info = extractStreamInfo(s);
+            const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
+            const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
+            const parts = [];
+            if (info.tin !== null && info.tin !== undefined) parts.push(`Tin=${info.tin}°C`);
+            if (info.tout !== null && info.tout !== undefined) parts.push(`Tout=${info.tout}°C`);
+            
+            const extraProps = [];
+            if (info.mdot !== null && info.mdot !== undefined) extraProps.push(`m=${info.mdot}`);
+            if (info.cp !== null && info.cp !== undefined) extraProps.push(`cp=${info.cp}`);
+            
+            svgContent += `<text x="${svgW/2}" y="${currentY}" text-anchor="middle" font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">Product${numStr}</text>`;
+            currentY += 12;
+            
+            if (parts.length > 0) {
+              svgContent += `<text x="${svgW/2}" y="${currentY}" text-anchor="middle" font-size="11" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${parts.join(', ')}</text>`;
+              currentY += 12;
+            }
+            if (extraProps.length > 0) {
+              svgContent += `<text x="${svgW/2}" y="${currentY}" text-anchor="middle" font-size="11" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${extraProps.join(', ')}</text>`;
+              currentY += 12;
+            }
+            currentY += 4; // Spacing between multiple products
+          });
+
         } else {
           const startY = pMid1.y > p1.y ? p1.y + srcH : p1.y - srcH;
           midP = L.point(p1.x, (startY + pMid1.y) / 2);
-          htmlContent = `<div style="position: absolute; left: 6px; top: 50%; transform: translateY(-50%); text-align: left; font-size: 11px; font-weight: bold; padding: 2px 4px; white-space: nowrap; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;">
-            ${productStreams.map((s: any, pIdx: number) => {
-              const info = extractStreamInfo(s);
-              const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
-              const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
-              return `<span style="color: ${tColor}">Product${numStr}</span>`;
-            }).join('<br>')}
-          </div>`;
+          iconAnchorX = 0;
+          iconAnchorY = svgH / 2; // Left-center anchor
+          
+          let currentY = 30; // Start vertically centered-ish
+          
+          productStreams.forEach((s: any, pIdx: number) => {
+            const info = extractStreamInfo(s);
+            const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
+            const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
+            const parts = [];
+            if (info.tin !== null && info.tin !== undefined) parts.push(`Tin=${info.tin}°C`);
+            if (info.tout !== null && info.tout !== undefined) parts.push(`Tout=${info.tout}°C`);
+            
+            const extraProps = [];
+            if (info.mdot !== null && info.mdot !== undefined) extraProps.push(`m=${info.mdot}`);
+            if (info.cp !== null && info.cp !== undefined) extraProps.push(`cp=${info.cp}`);
+            
+            svgContent += `<text x="6" y="${currentY}" text-anchor="start" font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">Product${numStr}</text>`;
+            currentY += 12;
+            
+            if (parts.length > 0) {
+              svgContent += `<text x="6" y="${currentY}" text-anchor="start" font-size="11" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${parts.join(', ')}</text>`;
+              currentY += 12;
+            }
+            if (extraProps.length > 0) {
+              svgContent += `<text x="6" y="${currentY}" text-anchor="start" font-size="11" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${extraProps.join(', ')}</text>`;
+              currentY += 12;
+            }
+            currentY += 4;
+          });
         }
+        
+        // Wrap the SVG content in a <g> tag with the class "stream-arrow" so it shares the identical CSS/Event rules as the normal streams.
+        htmlContent = `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
+          <g class="stream-arrow" data-pidx="${pIdx}" data-cidx="${cIdx ?? ''}" data-sidxs="${sidxsStr}" style="cursor:pointer; transition:all 0.2s;">
+            ${svgContent}
+          </g>
+        </svg>`;
 
         const lText = map.containerPointToLatLng(midP);
         
         const textIcon = L.divIcon({
           className: 'custom-product-text',
-          html: htmlContent,
-          iconSize: [0, 0],
-          iconAnchor: [0, 0],
+          html: `<style>.custom-product-text { background: none; border: none; pointer-events: none !important; } .custom-product-text .stream-arrow { pointer-events: auto !important; }</style>` + htmlContent,
+          iconSize: [svgW, svgH],
+          iconAnchor: [iconAnchorX, iconAnchorY],
         });
-        productTextMarker = <Marker key={`conn-prod-${p.name}-${tgt.name}`} position={lText} icon={textIcon} interactive={false} />;
+
+        const handleMarkerClick = (e: any) => {
+          const target = e.originalEvent.target as HTMLElement;
+          const g = target.closest('g.stream-arrow');
+          if (g && onElementDoubleClick && pIdx !== -1) {
+            const sidxs = (g.getAttribute('data-sidxs') || '').split(',').filter(Boolean).map(Number);
+            if (sidxs.length > 0) onElementDoubleClick('stream', pIdx, sidxs[0]);
+          }
+        };
+
+        productTextMarker = <Marker 
+          key={`conn-prod-${p.name}-${tgt.name}`} 
+          position={lText} 
+          icon={textIcon} 
+          interactive={true} 
+          eventHandlers={{ click: handleMarkerClick }}
+        />;
       }
 
       return (
@@ -1442,6 +1558,7 @@ export default function MapViewer({
             groupCoordinates={groupCoordinates}
             subprocessMapExpanded={subprocessMapExpanded}
             childMapExpanded={childMapExpanded}
+            onElementDoubleClick={onElementDoubleClick}
           />
         </Pane>
 
