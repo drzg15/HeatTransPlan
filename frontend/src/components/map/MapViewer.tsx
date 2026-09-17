@@ -68,9 +68,11 @@ interface Props {
 function BoxSelector({
   onSelect,
   active,
+  locked,
 }: {
   onSelect: (bounds: L.LatLngBounds) => void;
   active: boolean;
+  locked: boolean;
 }) {
   const map = useMap();
   const [visualBounds, setVisualBounds] = useState<L.LatLngBounds | null>(null);
@@ -116,9 +118,14 @@ function BoxSelector({
       setVisualBounds(bounds);
     };
 
+    // On a locked map dragging must stay off; only restore it when unlocked.
+    const restoreDragging = () => {
+      if (!locked) map.dragging.enable();
+    };
+
     const onUp = (e: MouseEvent) => {
       if (!startLatLngRef.current) {
-        map.dragging.enable();
+        restoreDragging();
         return;
       }
 
@@ -128,7 +135,7 @@ function BoxSelector({
       // Clean up state immediately
       startLatLngRef.current = null;
       setVisualBounds(null);
-      map.dragging.enable();
+      restoreDragging();
 
       // Trigger selection if meaningful distance
       if (bounds.getNorthEast().distanceTo(bounds.getSouthWest()) > 1.0) {
@@ -144,9 +151,9 @@ function BoxSelector({
       L.DomEvent.off(container, 'mousedown', onDown as any);
       L.DomEvent.off(window as any, 'mousemove', onMove as any);
       L.DomEvent.off(window as any, 'mouseup', onUp as any);
-      map.dragging.enable();
+      restoreDragging();
     };
-  }, [active, map, onSelect]);
+  }, [active, map, onSelect, locked]);
 
   if (!visualBounds) return null;
   return (
@@ -1664,6 +1671,7 @@ export default function MapViewer({
 
         <BoxSelector
           active={locked} // Always active when map is locked
+          locked={locked}
           onSelect={(bounds) => {
             lastSelectionTime.current = Date.now();
             const idxsInBox: number[] = [];
