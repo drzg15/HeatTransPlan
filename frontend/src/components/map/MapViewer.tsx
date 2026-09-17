@@ -679,6 +679,7 @@ function StreamArrowsOverlay({
 
           const streams: StreamBubble[] = [];
           (p.streams || []).forEach((s: any, sidx: number) => {
+            if (s.type && s.type.toLowerCase() === 'product') return;
             const info = extractStreamInfo(s);
             streams.push({
               name: s.name || 'Stream',
@@ -705,6 +706,7 @@ function StreamArrowsOverlay({
 
           const streams: StreamBubble[] = [];
           (child.streams || []).forEach((s: any, sidx: number) => {
+            if (s.type && s.type.toLowerCase() === 'product') return;
             const info = extractStreamInfo(s);
             streams.push({
               name: s.name || 'Stream',
@@ -765,9 +767,9 @@ function StreamArrowsOverlay({
     <>
       {arrowGroups.map(({ lat, lon, streams }, idx) => {
         const N = streams.length;
-        const streamSpacing = 80;
-        const svgW = Math.max(200, N * streamSpacing + 40);
-        const svgH = 200; // Fixed height, centered on process node
+        const streamSpacing = 120; // Increased spacing to prevent overlap
+        const svgW = Math.max(250, N * streamSpacing + 60);
+        const svgH = 240; // Taller to allow staggering and process box in center
         
         const startX = (svgW / 2) - ((N - 1) * streamSpacing / 2);
 
@@ -782,25 +784,55 @@ function StreamArrowsOverlay({
           const isHotStream = (s.tin || 0) > (s.tout || 0);
           const inColor = streamColorForTemp(s.tin, isHotStream, isSelected);
           const outColor = streamColorForTemp(s.tout, isHotStream, isSelected);
+          
+          const match = s.name.match(/\d+/);
+          const num = match ? match[0] : s.si + 1;
+          const streamTypeStr = isHotStream ? 'Source' : 'Sink';
+          
+          // "Heat in line 1 Source in line 2, the number next to it." -> Heat \n Source 1
+          const aliasSVG = `<tspan x="${cx}" dy="-6">Heat</tspan><tspan x="${cx}" dy="12">${streamTypeStr} ${num}</tspan>`;
 
           const strokeWidth = isSelected ? 3 : 2;
           const opacity = isSelected ? 1 : 0.5;
           
           const textStyle = `font-size="11" font-weight="bold" fill="#333" paint-order="stroke" stroke="white" stroke-width="3" opacity="${opacity}"`;
 
-          // IN arrow (Top, pointing DOWN)
-          const inArrow = `
-            <text x="${cx}" y="20" text-anchor="middle" ${textStyle}>${s.name} (Tin=${s.tin}°C)</text>
-            <line x1="${cx}" y1="30" x2="${cx}" y2="70" stroke="${inColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-            <polygon points="${cx-5},65 ${cx+5},65 ${cx},75" fill="${inColor.stroke}" opacity="${opacity}" />
-          `;
-
-          // OUT arrow (Bottom, pointing DOWN)
-          const outArrow = `
-            <line x1="${cx}" y1="125" x2="${cx}" y2="165" stroke="${outColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-            <polygon points="${cx-5},160 ${cx+5},160 ${cx},170" fill="${outColor.stroke}" opacity="${opacity}" />
-            <text x="${cx}" y="185" text-anchor="middle" ${textStyle}>Tout=${s.tout}°C</text>
-          `;
+          // Stagger Y positions for adjacent streams
+          const staggerOffset = (sidx % 2 === 0) ? 0 : 15;
+          
+          // If Heat Source (hot), flow is UPWARDS. If Heat Sink (cold), flow is DOWNWARDS.
+          let inArrow = '';
+          let outArrow = '';
+          
+          if (isHotStream) {
+            // Hot stream: UPWARDS
+            // Feed (inColor) enters from bottom, goes UP to box (y=205 to y=150)
+            // Product (outColor) leaves from top, goes UP (y=90 to y=35)
+            const inTextY = 230 + staggerOffset;
+            inArrow = `
+              <text x="${cx}" y="${inTextY}" text-anchor="middle" ${textStyle}>${aliasSVG}</text>
+              <line x1="${cx}" y1="205" x2="${cx}" y2="150" stroke="${inColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
+              <polygon points="${cx-5},155 ${cx+5},155 ${cx},145" fill="${inColor.stroke}" opacity="${opacity}" />
+            `;
+            outArrow = `
+              <line x1="${cx}" y1="90" x2="${cx}" y2="35" stroke="${outColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
+              <polygon points="${cx-5},40 ${cx+5},40 ${cx},30" fill="${outColor.stroke}" opacity="${opacity}" />
+            `;
+          } else {
+            // Cold stream: DOWNWARDS
+            // Feed (inColor) enters from top, goes DOWN to box (y=35 to y=90)
+            // Product (outColor) leaves from bottom, goes DOWN (y=150 to y=205)
+            const inTextY = 20 - staggerOffset;
+            inArrow = `
+              <text x="${cx}" y="${inTextY}" text-anchor="middle" ${textStyle}>${aliasSVG}</text>
+              <line x1="${cx}" y1="35" x2="${cx}" y2="90" stroke="${inColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
+              <polygon points="${cx-5},85 ${cx+5},85 ${cx},95" fill="${inColor.stroke}" opacity="${opacity}" />
+            `;
+            outArrow = `
+              <line x1="${cx}" y1="150" x2="${cx}" y2="205" stroke="${outColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
+              <polygon points="${cx-5},200 ${cx+5},200 ${cx},210" fill="${outColor.stroke}" opacity="${opacity}" />
+            `;
+          }
 
           arrowParts.push(
             `<g class="stream-arrow" data-pidx="${s.pIdx}" ${s.ci !== undefined ? `data-cidx="${s.ci}"` : ''} data-si="${s.si}" style="cursor:pointer; transition:all 0.2s">
@@ -981,12 +1013,64 @@ function ConnectionLines({
         return <Marker key={`conn-${p.name}-${tgt.name}-${suffix}`} position={lA} icon={lineIcon} interactive={false} />;
       };
 
+      // Draw product streams of the SOURCE process on its OUTGOING connection line
+      const productStreams = (p.streams || []).filter((s: any) => s.type && s.type.toLowerCase() === 'product');
+      let productTextMarker = null;
+      if (productStreams.length > 0) {
+        // Calculate source box dimensions to find the true visible start of the line
+        const srcScale = p.box_scale ? parseFloat(String(p.box_scale)) : 1.5;
+        const fsSrc = Math.max(12, Math.round(15 * srcScale));
+        const pxSrc = Math.max(6, Math.round(12 * srcScale));
+        const pySrc = Math.max(3, Math.round(6 * srcScale));
+        const avgCharWidthSrc = fsSrc * 0.62;
+        const srcW = Math.round(Math.max(20, p.name.length * avgCharWidthSrc + pxSrc * 2 + 2)) / 2;
+        const srcH = Math.round(fsSrc + pySrc * 2 + 2) / 2;
+        
+        let midP: L.Point;
+        let htmlContent = '';
+
+        if (isHorizontalLayout) {
+          const startX = pMid1.x > p1.x ? p1.x + srcW : p1.x - srcW;
+          midP = L.point((startX + pMid1.x) / 2, p1.y);
+          htmlContent = `<div style="position: absolute; left: 50%; bottom: 4px; transform: translateX(-50%); text-align: center; font-size: 11px; font-weight: bold; padding: 2px 4px; white-space: nowrap; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;">
+            ${productStreams.map((s: any, pIdx: number) => {
+              const info = extractStreamInfo(s);
+              const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
+              const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
+              return `<span style="color: ${tColor}">Product${numStr}</span>`;
+            }).join(', ')}
+          </div>`;
+        } else {
+          const startY = pMid1.y > p1.y ? p1.y + srcH : p1.y - srcH;
+          midP = L.point(p1.x, (startY + pMid1.y) / 2);
+          htmlContent = `<div style="position: absolute; left: 6px; top: 50%; transform: translateY(-50%); text-align: left; font-size: 11px; font-weight: bold; padding: 2px 4px; white-space: nowrap; text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;">
+            ${productStreams.map((s: any, pIdx: number) => {
+              const info = extractStreamInfo(s);
+              const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
+              const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
+              return `<span style="color: ${tColor}">Product${numStr}</span>`;
+            }).join('<br>')}
+          </div>`;
+        }
+
+        const lText = map.containerPointToLatLng(midP);
+        
+        const textIcon = L.divIcon({
+          className: 'custom-product-text',
+          html: htmlContent,
+          iconSize: [0, 0],
+          iconAnchor: [0, 0],
+        });
+        productTextMarker = <Marker key={`conn-prod-${p.name}-${tgt.name}`} position={lText} icon={textIcon} interactive={false} />;
+      }
+
       return (
         <React.Fragment key={`conn-${p.name}-${tgt.name}`}>
           {createLineMarker(p1, pMid1, 'line1')}
           {createLineMarker(pMid1, pMid2, 'line2')}
           {createLineMarker(pMid2, pArrow, 'line3')}
           <Marker position={lArrow} icon={arrowIcon} interactive={false} />
+          {productTextMarker}
         </React.Fragment>
       );
     };
