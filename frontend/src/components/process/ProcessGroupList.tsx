@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
 import SubprocessCard from './SubprocessCard';
+import { useUIStore } from '../../store/uiStore';
 import './ProcessGroupList.css';
 
 interface GroupCoords {
@@ -260,6 +261,17 @@ export default function ProcessGroupList({
                       {t('process.subprocesses')} ({subIdxs.length})
                     </span>
                     <div className="flex gap-xs">
+                      <button 
+                        className="btn btn-sm" 
+                        onClick={() => {
+                          const state = useUIStore.getState();
+                          const anyExpanded = subIdxs.some(si => state.expandedSubprocesses.has(si));
+                          subIdxs.forEach(si => state.setSubprocessExpanded(si, !anyExpanded));
+                        }}
+                        title="Collapse / Expand All"
+                      >
+                        ↕
+                      </button>
                       <button className="btn btn-sm" onClick={() => onSubprocessMapToggle(gIdx)}>
                         {subprocessMapExpanded[gIdx]
                           ? `🔽 ${t('process.hide_map')}`
