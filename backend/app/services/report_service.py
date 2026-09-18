@@ -544,7 +544,7 @@ def generate_html_report(req: ReportRequest) -> str:
         nav_links_html += f'<li class="nav-tab" onclick="showPage(\'comparison-summary\')">⚖️ {texts["comparison"]}</li>'
         sc_rows = ""
         sc_names, sc_hot, sc_cold = [], [], []
-        sc_savings_pct, sc_best_cop, sc_tot_heat = [], [], []
+        sc_best_cop, sc_tot_heat = [], []
         
         for sc in req.scenarios:
             sc_disp_name = texts['all_streams'] if sc.name.lower() == 'all streams' else sc.name
@@ -567,7 +567,6 @@ def generate_html_report(req: ReportRequest) -> str:
             sc_names.append(sc_disp_name)
             sc_hot.append(phu)
             sc_cold.append(pcu)
-            sc_savings_pct.append(sh_pct)
             sc_best_cop.append(best_cop)
             sc_tot_heat.append(tot_heat)
             
@@ -581,12 +580,10 @@ def generate_html_report(req: ReportRequest) -> str:
 
         # Second chart: Performance Metrics
         fig_perf = go.Figure()
-        fig_perf.add_trace(go.Scatter(x=sc_names, y=sc_savings_pct, mode='lines+markers', name='Heating Savings (%)', line=dict(color='#00CC96', width=3), marker=dict(size=8)))
-        fig_perf.add_trace(go.Scatter(x=sc_names, y=sc_best_cop, mode='lines+markers', name='Best HP COP', yaxis='y2', line=dict(color='#AB63FA', width=3, dash='dot'), marker=dict(size=8)))
+        fig_perf.add_trace(go.Scatter(x=sc_names, y=sc_best_cop, mode='lines+markers', name='Best HP COP', line=dict(color='#AB63FA', width=3, dash='dot'), marker=dict(size=8)))
         fig_perf.update_layout(
             height=400, title="Performance Metrics",
-            yaxis=dict(title='Heating Savings (%)', range=[0, 105]),
-            yaxis2=dict(title='Best HP COP', overlaying='y', side='right', range=[0, 10.5]),
+            yaxis=dict(title='Best HP COP', autorange=True, rangemode='tozero'),
             legend=dict(orientation="h", y=-0.2, x=0.5, xanchor='center')
         )
         perf_chart = fig_perf.to_html(full_html=False, include_plotlyjs=False)

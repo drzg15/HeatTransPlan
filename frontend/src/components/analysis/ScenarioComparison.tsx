@@ -19,14 +19,13 @@ const ScenarioComparison: React.FC = () => {
     const names = scenarios.map((sc) => sc.name);
     const hotUtilities = scenarios.map((sc) => sc.pinchResult?.hot_utility ?? 0);
     const coldUtilities = scenarios.map((sc) => sc.pinchResult?.cold_utility ?? 0);
-    const heatingSavings = scenarios.map((sc) => sc.statusQuoResult?.heating_savings_pct ?? 0);
     const bestCOPs = scenarios.map((sc) => {
       const caps =
         sc.hpiResult?.heat_pumps?.filter((hp) => hp.available).map((hp) => hp.cop ?? 0) || [];
       return caps.length > 0 ? Math.max(...caps) : 0;
     });
 
-    return { names, hotUtilities, coldUtilities, heatingSavings, bestCOPs };
+    return { names, hotUtilities, coldUtilities, bestCOPs };
   }, [scenarios]);
 
   if (scenarios.length < 2) return null;
@@ -326,20 +325,10 @@ const ScenarioComparison: React.FC = () => {
               data={[
                 {
                   x: chartData.names,
-                  y: chartData.heatingSavings,
-                  name: 'Heating Savings (%)',
-                  type: 'scatter',
-                  mode: 'lines+markers',
-                  line: { color: '#10b981', width: 3 },
-                  marker: { size: 8 },
-                },
-                {
-                  x: chartData.names,
                   y: chartData.bestCOPs,
                   name: 'Best HP COP',
                   type: 'scatter',
                   mode: 'lines+markers',
-                  yaxis: 'y2',
                   line: { color: '#8b5cf6', width: 3, dash: 'dot' },
                   marker: { size: 8 },
                 },
@@ -349,14 +338,7 @@ const ScenarioComparison: React.FC = () => {
                 height: 300,
                 margin: { l: 40, r: 40, t: 40, b: 60 },
                 legend: { orientation: 'h', y: -0.2 },
-                yaxis: { title: 'Savings %', range: [0, 100], gridcolor: '#f1f5f9' },
-                yaxis2: {
-                  title: 'Best COP',
-                  overlaying: 'y',
-                  side: 'right',
-                  range: [0, 10],
-                  showgrid: false,
-                },
+                yaxis: { title: 'Best COP', autorange: true, rangemode: 'tozero', gridcolor: '#f1f5f9' },
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
               }}
