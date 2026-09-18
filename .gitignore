@@ -41,3 +41,7 @@ test_company/
 scratch/
 
 test.json
+
+# Local agent artifacts
+GEMINI.md
+graphify-out/
