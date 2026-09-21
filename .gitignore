@@ -45,3 +45,4 @@ test.json
 # Local agent artifacts
 GEMINI.md
 graphify-out/
+.gemini/
