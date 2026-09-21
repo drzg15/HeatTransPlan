@@ -298,31 +298,24 @@ export default function HPIOptimizationChart({
         size="large"
         description={
           <>
-            <p>Visualizes all feasible heat pump solutions based on the predictive model.</p>
-            <p>
-              Solid diamonds represent the source points, and open diamonds represent the sink
-              points. Colors correspond to the refrigerant used.
-            </p>
-            <p>
-              The large highlighted points indicate the optimal solution or the one you actively
-              clicked on.
+            <p>{t('optimization.desc_opt_chart_p1')}</p>
+            <p>{t('optimization.desc_opt_chart_p2')}</p>
+            <p>{t('optimization.desc_opt_chart_p3')}</p>
+            <hr style={{ margin: '8px 0', borderColor: 'var(--border)' }} />
+            <p style={{ fontWeight: 600, marginBottom: '4px' }}>{t('optimization.desc_opt_chart_how')}</p>
+            <p style={{ fontSize: '0.8rem' }}>
+              {t('optimization.desc_opt_chart_blue_1')}<b>{t('optimization.desc_opt_chart_blue_2')}</b>{t('optimization.desc_opt_chart_blue_3')}
+              <br/><br/>
+              {t('optimization.desc_opt_chart_red_1')}<b>{t('optimization.desc_opt_chart_red_2')}</b>{t('optimization.desc_opt_chart_red_3')}
+              <br/><br/>
+              {t('optimization.desc_opt_chart_aims_1')}<b>{t('optimization.desc_opt_chart_aims_2')}</b>{t('optimization.desc_opt_chart_aims_3')}
             </p>
             <hr style={{ margin: '8px 0', borderColor: 'var(--border)' }} />
-            <p style={{ fontWeight: 600, marginBottom: '4px' }}>How to read this chart:</p>
+            <p style={{ fontWeight: 600, marginBottom: '4px' }}>{t('optimization.desc_opt_chart_why')}</p>
             <p style={{ fontSize: '0.8rem' }}>
-              The <b>solid blue line (Sink Profile)</b> represents the total heating demand of your process at each temperature level. The further to the right on the x-axis, the more total heat (kW) is required.
+              {t('optimization.desc_opt_chart_off_1')}<b>{t('optimization.desc_opt_chart_off_2')}</b>{t('optimization.desc_opt_chart_off_3')}<i>{t('optimization.desc_opt_chart_off_4')}</i>{t('optimization.desc_opt_chart_off_5')}
               <br/><br/>
-              The <b>solid red line (Source Profile)</b> represents the total waste heat available to be recovered.
-              <br/><br/>
-              A normal heat pump solution aims to cover the entire sink demand at its delivery temperature. Therefore, its sink point (open diamond) will sit exactly <b>on the solid blue line</b>.
-            </p>
-            <hr style={{ margin: '8px 0', borderColor: 'var(--border)' }} />
-            <p style={{ fontWeight: 600, marginBottom: '4px' }}>Why are some points off the blue line?</p>
-            <p style={{ fontSize: '0.8rem' }}>
-              Points plotted to the left of the solid blue line are <b>source-limited</b>. 
-              This means the available waste heat (red line) is not enough to cover the <i>entire</i> heating demand required by the process at that specific temperature. 
-              <br/><br/>
-              The heat pump can only supply a portion of the total demand, so it is plotted at a smaller kW value. The rest of the heat will still need to be supplied by an external utility.
+              {t('optimization.desc_opt_chart_rest')}
             </p>
           </>
         }

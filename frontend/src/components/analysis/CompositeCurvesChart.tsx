@@ -106,17 +106,10 @@ export default function CompositeCurvesChart() {
         description={
           <>
             <p>
-              The <strong>horizontal overlap</strong> between the Hot (Red) and Cold (Blue) lines
-              represents the maximum heat that can be recovered internally.
+              {t('optimization.desc_cc_chart_p1a')}<strong>{t('optimization.desc_cc_chart_p1b')}</strong>{t('optimization.desc_cc_chart_p1c')}
             </p>
-            <p>
-              The remaining gaps on the left and right show the external heating and cooling utility
-              we still need to provide.
-            </p>
-            <p>
-              The vertical distance between the curves represents the temperature difference driving
-              the heat transfer.
-            </p>
+            <p>{t('optimization.desc_cc_chart_p2')}</p>
+            <p>{t('optimization.desc_cc_chart_p3')}</p>
           </>
         }
       />

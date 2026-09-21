@@ -64,11 +64,7 @@ export default function HeatRecoveryToggle() {
         <ChartHelpButton
           inline
           title={t('analysis.recovery.title')}
-          description={
-            'Chooses how much internal heat recovery is credited before the heat pump is placed. ' +
-            'It changes the source and sink profiles that both the heat pump integration and the ' +
-            'refrigerant optimization run on, and therefore the resulting duties and COPs.'
-          }
+          description={t('optimization.desc_hr_toggle')}
         />
       </div>
 

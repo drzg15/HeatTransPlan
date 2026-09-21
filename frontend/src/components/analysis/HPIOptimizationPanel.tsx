@@ -304,8 +304,8 @@ export default function HPIOptimizationPanel() {
                   {t('optimization.panel.title')}
                   <span onClick={(e) => e.stopPropagation()}>
                     <ChartHelpButton
-                      title="Model Information"
-                      description="Please note that the Heat Pump model provided by Copeland is based on physical simulations and yields approximations intended for reference purposes only. For precise calculations or project-specific data, please contact Copeland directly."
+                      title={t('optimization.title_model_information')}
+                      description={t('optimization.desc_model_information')}
                       inline={true}
                     />
                   </span>
@@ -318,7 +318,7 @@ export default function HPIOptimizationPanel() {
                           {t('optimization.panel.headers.refrigerant_type')}
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Refrigerant Type"
+                              title={t('optimization.title_refrigerant_type')}
                               description={t('optimization.tooltip_refrigerant_type')}
                               inline={true}
                             />
@@ -331,8 +331,8 @@ export default function HPIOptimizationPanel() {
                           {t('optimization.panel.headers.medium_sink')}
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Medium Sink"
-                              description="The sink medium for this integration"
+                              title={t('optimization.title_medium_sink')}
+                              description={t('optimization.desc_medium_sink')}
                               inline={true}
                             />
                           </span>
@@ -344,7 +344,7 @@ export default function HPIOptimizationPanel() {
                           <span className="notranslate">{t('optimization.panel.headers.cop')}</span>
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="COP"
+                              title={t('optimization.title_cop')}
                               description={t('optimization.tooltip_cop')}
                               inline={true}
                             />
@@ -357,7 +357,7 @@ export default function HPIOptimizationPanel() {
                           {t('optimization.panel.headers.q_sink')}
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Q_Sink"
+                              title={t('optimization.title_q_sink')}
                               description={t('optimization.tooltip_q_sink')}
                               inline={true}
                             />
@@ -370,7 +370,7 @@ export default function HPIOptimizationPanel() {
                           {t('optimization.panel.headers.q_source')}
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Q_Source"
+                              title={t('optimization.title_q_source')}
                               description={t('optimization.tooltip_q_source')}
                               inline={true}
                             />
@@ -383,8 +383,8 @@ export default function HPIOptimizationPanel() {
                           Actual Sink Temp [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Actual Sink Temp"
-                              description="The physical condensation temperature of the heat pump. (Note: In some specific pocket configurations, this physical temperature may align with the integration temperature)."
+                              title={t('optimization.title_actual_sink_temp')}
+                              description={t('optimization.desc_actual_sink_temp')}
                               inline={true}
                             />
                           </span>
@@ -396,8 +396,8 @@ export default function HPIOptimizationPanel() {
                           Shifted Sink (T+{tMin/2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Shifted Sink Temp"
-                              description="The shifted temperature on the Grand Composite Curve (Actual + ΔTmin/2). This is the temperature used for the COP calculation."
+                              title={t('optimization.title_shifted_sink_temp')}
+                              description={t('optimization.desc_shifted_sink_temp')}
                               inline={true}
                             />
                           </span>
@@ -408,8 +408,8 @@ export default function HPIOptimizationPanel() {
                           Actual Source Temp [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Actual Source Temp"
-                              description="The physical evaporation temperature of the heat pump. (Note: In some specific pocket configurations, this physical temperature may align with the integration temperature)."
+                              title={t('optimization.title_actual_source_temp')}
+                              description={t('optimization.desc_actual_source_temp')}
                               inline={true}
                             />
                           </span>
@@ -421,8 +421,8 @@ export default function HPIOptimizationPanel() {
                           Shifted Source (T-{tMin/2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Shifted Source Temp"
-                              description="The shifted temperature on the Grand Composite Curve (Actual - ΔTmin/2). This is the temperature used for the COP calculation."
+                              title={t('optimization.title_shifted_source_temp')}
+                              description={t('optimization.desc_shifted_source_temp')}
                               inline={true}
                             />
                           </span>
@@ -433,7 +433,7 @@ export default function HPIOptimizationPanel() {
                           {t('optimization.panel.headers.refrigerant')}
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="Refrigerant"
+                              title={t('optimization.title_refrigerant')}
                               description={t('optimization.tooltip_refrigerant')}
                               inline={true}
                             />
@@ -446,7 +446,7 @@ export default function HPIOptimizationPanel() {
                           {t('optimization.panel.headers.hp_stages')}
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title="HP Stages"
+                              title={t('optimization.title_hp_stages')}
                               description={t('optimization.tooltip_hp_stages')}
                               inline={true}
                             />
@@ -830,47 +830,40 @@ export default function HPIOptimizationPanel() {
                   <label style={labelStyle}>{t('optimization.panel.filters.cop_source')}</label>
                   <ChartHelpButton
                     inline
-                    title="Custom COP formula"
+                    title={t('optimization.title_custom_cop_formula')}
                     description={
-                      <>
-                        <p>
-                          By default every heat pump above gets its COP from a data-driven model
-                          trained based on simualtion data. Here you can add{' '}
-                          <strong>your own equation</strong> as one extra heat pump, so it appears
-                          in the same table and chart and can be compared against the model
-                          directly.
-                        </p>
-                        <p>
-                          Write COP as an expression of the operating temperatures. Available
-                          variables:
-                        </p>
-                        <ul style={{ margin: '4px 0 8px 16px', padding: 0 }}>
-                          <li>
-                            <code>T_source</code>, <code>T_sink</code> — °C
-                          </li>
-                          <li>
-                            <code>T_lift</code> — T_sink − T_source
-                          </li>
-                          <li>
-                            <code>carnot</code> — T_sink in K, divided by T_lift
-                          </li>
-                        </ul>
-                        <p>
-                          So a heat pump at 50 % of Carnot is written as{' '}
-                          <code>0.5 * (T_sink + 273.15) / T_lift</code> (or <code>0.5 * carnot</code>).
-                        </p>
-                        <p>
-                          You can also write <strong>temperature interval conditions</strong>, for instance:{' '}
-                          <code>(0.5 * (T_sink + 273.15) / T_lift) if T_sink &lt;= 100 else (0.4 * (T_sink + 273.15) / T_lift)</code>.
-                        </p>
-                        <p>
-                          The formula is checked as you type and previewed at one operating point.
-                          Set a <strong>validity range</strong> to say where your heat pump may be
-                          used — outside it the pump is not offered, exactly as a model refrigerant
-                          is ignored outside its trained range.
-                        </p>
-                      </>
-                    }
+          <>
+            <p>
+              {t('optimization.desc_opt_panel_c1')}{' '}
+              <strong>{t('optimization.desc_opt_panel_c2')}</strong>{t('optimization.desc_opt_panel_c3')}
+            </p>
+            <p>
+              {t('optimization.desc_opt_panel_c4')}
+            </p>
+            <ul style={{ margin: '4px 0 8px 16px', padding: 0 }}>
+              <li>
+                <code>T_source</code>, <code>T_sink</code>{t('optimization.desc_opt_panel_c5')}
+              </li>
+              <li>
+                <code>T_lift</code>{t('optimization.desc_opt_panel_c6')}
+              </li>
+              <li>
+                <code>carnot</code>{t('optimization.desc_opt_panel_c7')}
+              </li>
+            </ul>
+            <p>
+              {t('optimization.desc_opt_panel_c8')}{' '}
+              <code>0.5 * (T_sink + 273.15) / T_lift</code>{t('optimization.desc_opt_panel_c9')}<code>0.5 * carnot</code>{t('optimization.desc_opt_panel_c10')}
+            </p>
+            <p>
+              {t('optimization.desc_opt_panel_c11')}<strong>{t('optimization.desc_opt_panel_c12')}</strong>{t('optimization.desc_opt_panel_c13')}{' '}
+              <code>(0.5 * (T_sink + 273.15) / T_lift) if T_sink &lt;= 100 else (0.4 * (T_sink + 273.15) / T_lift)</code>{t('optimization.desc_opt_panel_c14')}
+            </p>
+            <p>
+              {t('optimization.desc_opt_panel_c15')}<strong>{t('optimization.desc_opt_panel_c16')}</strong>{t('optimization.desc_opt_panel_c17')}
+            </p>
+          </>
+        }
                   />
                 </div>
                 <button

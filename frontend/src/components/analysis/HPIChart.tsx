@@ -260,18 +260,15 @@ export default function HPIChart() {
   return (
     <div className="pa-chart" style={{ position: 'relative' }}>
       <ChartHelpButton
-        title="Heat Pump Integration"
+        title={t('optimization.title_heat_pump_integration')}
         description={
           <>
             <p>
-              Visualizes how a heat pump bridges the temperature gap to lift heat from{' '}
-              <strong>below the pinch</strong> (source) to <strong>above the pinch</strong> (sink).
+              {t('optimization.desc_hpi_chart_p1')}
+              <strong>{t('optimization.desc_hpi_chart_below')}</strong>{t('optimization.desc_hpi_chart_source')}<strong>{t('optimization.desc_hpi_chart_above')}</strong>{t('optimization.desc_hpi_chart_sink')}
             </p>
-            <p>
-              The solid diamonds represent the heat pump source, and hollow diamonds represent the
-              sink.
-            </p>
-            <p>Heat pumps reduce both external heating and cooling demands simultaneously.</p>
+            <p>{t('optimization.desc_hpi_chart_p2')}</p>
+            <p>{t('optimization.desc_hpi_chart_p3')}</p>
           </>
         }
       />
