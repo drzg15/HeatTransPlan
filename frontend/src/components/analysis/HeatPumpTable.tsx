@@ -32,32 +32,32 @@ export default function HeatPumpTable() {
                 <th>
                   Actual Source [°C]
                   <ChartHelpButton
-                    title="Actual Source Temp"
-                    description="The physical evaporation temperature of the heat pump. (Note: In some specific pocket configurations, this physical temperature may align with the integration temperature)."
+                    title={t('optimization.title_actual_source_temp')}
+                    description={t('optimization.desc_actual_source_temp')}
                     inline={true}
                   />
                 </th>
                 <th>
                   Shifted Source (T-{tMin/2}K) [°C]
                   <ChartHelpButton
-                    title="Shifted Source Temp"
-                    description="The shifted temperature on the Grand Composite Curve (Actual - ΔTmin/2). This is the temperature used for the COP calculation."
+                    title={t('optimization.title_shifted_source_temp')}
+                    description={t('optimization.desc_shifted_source_temp')}
                     inline={true}
                   />
                 </th>
                 <th>
                   Actual Sink [°C]
                   <ChartHelpButton
-                    title="Actual Sink Temp"
-                    description="The physical condensation temperature of the heat pump. (Note: In some specific pocket configurations, this physical temperature may align with the integration temperature)."
+                    title={t('optimization.title_actual_sink_temp')}
+                    description={t('optimization.desc_actual_sink_temp')}
                     inline={true}
                   />
                 </th>
                 <th>
                   Shifted Sink (T+{tMin/2}K) [°C]
                   <ChartHelpButton
-                    title="Shifted Sink Temp"
-                    description="The shifted temperature on the Grand Composite Curve (Actual + ΔTmin/2). This is the temperature used for the COP calculation."
+                    title={t('optimization.title_shifted_sink_temp')}
+                    description={t('optimization.desc_shifted_sink_temp')}
                     inline={true}
                   />
                 </th>

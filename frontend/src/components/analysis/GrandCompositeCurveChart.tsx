@@ -4,8 +4,10 @@ import Plot from 'react-plotly.js';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
+import { useTranslation } from 'react-i18next';
 
 export default function GrandCompositeCurveChart() {
+  const { t } = useTranslation();
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
   const theme = useUIStore((s) => s.theme);
   const isDark = theme === 'dark';
@@ -98,21 +100,14 @@ export default function GrandCompositeCurveChart() {
   return (
     <div className="pa-chart" style={{ position: 'relative' }}>
       <ChartHelpButton
-        title="Grand Composite Curve"
+        title={t('optimization.title_grand_composite_curve')}
         description={
           <>
             <p>
-              Identifies the <strong>Pinch Point</strong> (the bottleneck where the curve touches
-              the Y-axis at Enthalpy = 0).
+              {t('optimization.desc_gcc_chart_p1a')}<strong>{t('optimization.desc_gcc_chart_p1b')}</strong>{t('optimization.desc_gcc_chart_p1c')}
             </p>
-            <p>
-              Pockets in the curve (where it moves right then left) show where heat can be cascaded
-              internally without external utilities.
-            </p>
-            <p>
-              The top-right and bottom-right edges show the remaining external hot and cold utility
-              targets.
-            </p>
+            <p>{t('optimization.desc_gcc_chart_p2')}</p>
+            <p>{t('optimization.desc_gcc_chart_p3')}</p>
           </>
         }
       />

@@ -800,7 +800,7 @@ export default function PotentialAnalysisPage() {
                 <ChartHelpButton
                   inline
                   title={t('analysis.charts.hpi_title')}
-                  description="Simulates the integration of various heat pump types to upgrade waste heat from below the pinch to satisfy demands above the pinch, further reducing external utility consumption."
+                  description={t('optimization.desc_hp_simulates')}
                 />
               </h3>
 
