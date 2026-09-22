@@ -81,7 +81,7 @@ export default function HPIOptimizationChart({
       y: pocketlessSource.T,
       mode: 'lines' as const,
       line: { color: 'red', width: 3 },
-      name: 'Source profile',
+      name: t('analysis.charts.source_profile'),
       showlegend: false,
       hoverinfo: 'skip',
     });
@@ -94,7 +94,7 @@ export default function HPIOptimizationChart({
       y: pocketlessSink.T,
       mode: 'lines' as const,
       line: { color: 'blue', width: 3 },
-      name: 'Sink profile',
+      name: t('analysis.charts.sink_profile'),
       showlegend: false,
       hoverinfo: 'skip',
     });
@@ -111,7 +111,7 @@ export default function HPIOptimizationChart({
       x: pointsForRef.map((p) => p.Q_demand),
       y: pointsForRef.map((p) => p.T_sink),
       mode: 'markers' as const,
-      name: `${refName} - Sink`,
+      name: `${refName} - ${t('analysis.charts.sink')}`,
       legendgroup: refName,
       marker: {
         size: 5,
@@ -139,7 +139,7 @@ export default function HPIOptimizationChart({
       x: pointsForRef.map((p) => srcSign * ((p.Q_demand * (p.COP - 1)) / p.COP)),
       y: pointsForRef.map((p) => p.T_source),
       mode: 'markers' as const,
-      name: `${refName} - Source`,
+      name: `${refName} - ${t('analysis.charts.source')}`,
       legendgroup: refName,
       marker: {
         size: 5,
@@ -169,7 +169,7 @@ export default function HPIOptimizationChart({
       x: [activePoint.Q_demand],
       y: [activePoint.T_sink],
       mode: 'markers' as const,
-      name: 'Active Sink',
+      name: t('analysis.charts.active_sink'),
       showlegend: false,
       marker: {
         size: 9,
@@ -193,7 +193,7 @@ export default function HPIOptimizationChart({
         y: [activePoint.T_source, activePoint.T_sink],
         mode: 'lines' as const,
         line: { color: isDark ? '#A78BFA' : '#7C3AED', width: 2, dash: 'dashdot' },
-        name: 'HP profile',
+        name: t('analysis.charts.hp_profile'),
         showlegend: false,
         hoverinfo: 'skip' as const,
       });
@@ -203,7 +203,7 @@ export default function HPIOptimizationChart({
       x: [srcSign * ((activePoint.Q_demand * (activePoint.COP - 1)) / activePoint.COP)],
       y: [activePoint.T_source],
       mode: 'markers' as const,
-      name: 'Active Source',
+      name: t('analysis.charts.active_source'),
       showlegend: false,
       marker: {
         size: 9,
@@ -224,14 +224,14 @@ export default function HPIOptimizationChart({
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     xaxis: {
-      title: { text: mirrored ? 'Q̇  ← source | sink →  (kW)' : 'Net Enthalpy flow in kW' },
+      title: { text: mirrored ? t('analysis.charts.q_source_sink') : t('analysis.charts.net_enthalpy') },
       automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     yaxis: {
-      title: { text: 'Shifted Temperature in °C' },
+      title: { text: t('analysis.charts.shifted_temp') },
       automargin: true,
       rangemode: 'tozero',
       gridcolor: isDark ? '#334155' : '#E2E8F0',
@@ -280,7 +280,7 @@ export default function HPIOptimizationChart({
               xref: 'paper',
               xanchor: 'right',
               y: pinchTemperature,
-              text: `Pinch: ${pinchTemperature.toFixed(1)}°C`,
+              text: `${t('analysis.charts.pinch')}${pinchTemperature.toFixed(1)}°C`,
               showarrow: false,
               font: { size: 11, color: isDark ? '#60A5FA' : 'gray' },
             },
