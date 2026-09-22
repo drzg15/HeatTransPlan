@@ -7,6 +7,7 @@ import MapViewer from '../map/MapViewer';
 import './ScenarioComparison.css';
 
 const ScenarioComparison: React.FC = () => {
+  const { t } = useTranslation();
   const scenarios = useAnalysisStore((s) => s.scenarios);
   const activeScenarioId = useAnalysisStore((s) => s.activeScenarioId);
   const projectState = useProjectStore((s) => s.state);

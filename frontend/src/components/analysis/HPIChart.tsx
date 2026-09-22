@@ -19,6 +19,7 @@ const HP_COLORS = [
 ];
 
 export default function HPIChart() {
+  const { t } = useTranslation();
   const hpiResult = useAnalysisStore((s) => s.hpiResult);
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
   const selectedHPTypes = useAnalysisStore((s) => s.selectedHPTypes);
@@ -159,7 +160,7 @@ export default function HPIChart() {
     }
   });
 
-  const { t } = useTranslation();
+
 
   const titleText = usesGCC
     ? t('analysis.charts.hpi_gcc')
