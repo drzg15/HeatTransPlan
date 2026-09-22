@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { useTranslation } from 'react-i18next';
 import Plot from 'react-plotly.js';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useProjectStore } from '../../store/projectStore';
@@ -295,20 +296,20 @@ const ScenarioComparison: React.FC = () => {
                 {
                   x: chartData.names,
                   y: chartData.hotUtilities,
-                  name: 'Heating Demand (kW)',
+                  name: t('analysis.charts.heating_demand'),
                   type: 'bar',
                   marker: { color: '#ef4444' },
                 },
                 {
                   x: chartData.names,
                   y: chartData.coldUtilities,
-                  name: 'Cooling Demand (kW)',
+                  name: t('analysis.charts.cooling_demand'),
                   type: 'bar',
                   marker: { color: '#3b82f6' },
                 },
               ]}
               layout={{
-                title: { text: 'Utilities Load Comparison', font: { size: 14 } },
+                title: { text: t('analysis.charts.util_load_comp'), font: { size: 14 } },
                 barmode: 'group',
                 height: 300,
                 margin: { l: 40, r: 20, t: 40, b: 60 },
@@ -326,7 +327,7 @@ const ScenarioComparison: React.FC = () => {
                 {
                   x: chartData.names,
                   y: chartData.bestCOPs,
-                  name: 'Best HP COP',
+                  name: t('analysis.charts.best_hp_cop'),
                   type: 'scatter',
                   mode: 'lines+markers',
                   line: { color: '#8b5cf6', width: 3, dash: 'dot' },
@@ -334,7 +335,7 @@ const ScenarioComparison: React.FC = () => {
                 },
               ]}
               layout={{
-                title: { text: 'Performance Metrics', font: { size: 14 } },
+                title: { text: t('analysis.charts.perf_metrics'), font: { size: 14 } },
                 height: 300,
                 margin: { l: 40, r: 40, t: 40, b: 60 },
                 legend: { orientation: 'h', y: -0.2 },

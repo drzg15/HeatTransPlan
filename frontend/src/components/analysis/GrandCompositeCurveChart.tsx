@@ -40,18 +40,18 @@ export default function GrandCompositeCurveChart() {
 
   const layout: any = {
     title: {
-      text: 'Grand Composite Curve',
+      text: t('optimization.title_grand_composite_curve'),
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     xaxis: {
-      title: { text: 'Net Enthalpy flow in kW' },
+      title: { text: t('analysis.charts.net_enthalpy') },
       automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     yaxis: {
-      title: { text: 'Shifted Temperature in °C' },
+      title: { text: t('analysis.charts.shifted_temp') },
       automargin: true,
       rangemode: 'tozero',
       gridcolor: isDark ? '#334155' : '#E2E8F0',
@@ -90,7 +90,7 @@ export default function GrandCompositeCurveChart() {
         xref: 'paper',
         xanchor: 'right',
         y: pinchResult.pinch_temperature,
-        text: `Pinch: ${pinchResult.pinch_temperature.toFixed(1)}°C`,
+        text: `${t('analysis.charts.pinch')}${pinchResult.pinch_temperature.toFixed(1)}°C`,
         showarrow: false,
         font: { size: 11, color: isDark ? '#60A5FA' : 'gray' },
       },
