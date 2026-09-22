@@ -652,8 +652,7 @@ function StreamArrowsOverlay({
   childMapExpanded,
   selectedStreams,
   onSelectionToggle,
-  onElementDoubleClick,
-  locked = false
+  onElementDoubleClick
 }: any) {
   interface StreamBubble {
     name: string;
@@ -677,9 +676,9 @@ function StreamArrowsOverlay({
     const result: GroupBubbles[] = [];
     
     // 1. Subprocesses
-    groups.forEach((subIdxs, gIdx) => {
+    groups.forEach((subIdxs: number[], gIdx: number) => {
       if (subprocessMapExpanded[gIdx]) {
-        subIdxs.forEach((si) => {
+        subIdxs.forEach((si: number) => {
           const p = processes[si];
           if (!p) return;
           const lat = parseFloat(String(p.lat));
@@ -740,7 +739,7 @@ function StreamArrowsOverlay({
     return result;
   }, [processes, groups, subprocessMapExpanded, childMapExpanded]);
 
-  const { qMin, qRange, hotMin, hotRange, coldMin, coldRange } = React.useMemo(() => {
+  const { hotMin, hotRange, coldMin, coldRange } = React.useMemo(() => {
     const qs = arrowGroups.flatMap((gb) => gb.streams.map((s) => s.Q ?? 0)).filter((q) => q > 0);
     const mn = qs.length ? Math.min(...qs) : 0;
     const mx = qs.length ? Math.max(...qs) : 1;
@@ -1082,7 +1081,6 @@ function ConnectionLines({
         
         let svgContent = '';
         const sidxsStr = productStreams.map((s: any) => p.streams!.findIndex(orig => orig === s)).join(',');
-        const cidxArg = cIdx !== undefined ? cIdx : 'undefined';
 
         if (isHorizontalLayout) {
           const startX = pMid1.x > p1.x ? p1.x + srcW : p1.x - srcW;
