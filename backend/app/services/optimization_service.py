@@ -212,9 +212,10 @@ def _calculation_details(alt, t_source, t_sink):
             # A help bubble is never worth failing an analysis over.
             return None
     return (
-        f"COP predicted by the trained model for {alt['name']} "
-        f"({alt['medium_sink']}, {alt['hp_level']}) at "
-        f"T_source = {t_source:.1f} °C, T_sink = {t_sink:.1f} °C."
+        f"Regression over published operating data for real heat pumps, "
+        f"evaluated for {alt['name']} (sink medium {alt['medium_sink']}, "
+        f"{alt['hp_level']} stage(s)) at T_source = {t_source:.1f} °C, "
+        f"T_sink = {t_sink:.1f} °C."
     )
 
 

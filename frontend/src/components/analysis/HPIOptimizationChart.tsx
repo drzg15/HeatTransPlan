@@ -307,7 +307,7 @@ export default function HPIOptimizationChart({
     },
     // Taller than the HPI chart above: this one carries the whole solution
     // cloud plus the archetype curves, which need the vertical room.
-    height: 560,
+    height: 700,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     // Plain axis margin.
