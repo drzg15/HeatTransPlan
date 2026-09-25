@@ -16,7 +16,8 @@ type SortKey =
   | 'T_source'
   | 'T_sink'
   | 'Q_source'
-  | 'Q_demand';
+  | 'Q_demand'
+  | 'theoretical';
 
 /** An operating point is identified by its refrigerant and the temperature
  *  pair it runs between — the backend sends max_q_point as its own object, so
@@ -57,7 +58,7 @@ export default function HPIOptimizationPanel() {
   // Sort state (supports multi-column)
   const [sortConfigs, setSortConfigs] = useState<
     Array<{ key: SortKey; direction: 'asc' | 'desc' }>
-  >([{ key: 'Q_demand', direction: 'desc' }]);
+  >([{ key: 'COP', direction: 'desc' }]);
   const [hpDropdownOpen, setHpDropdownOpen] = useState(false);
   const [refDropdownOpen, setRefDropdownOpen] = useState(false);
   const hpDropdownRef = useRef<HTMLDivElement>(null);
@@ -194,7 +195,17 @@ export default function HPIOptimizationPanel() {
       bestTheoretical.set(pt.refrigerant, pt);
     }
   }
-  const theoreticalRows = Array.from(bestTheoretical.values()).sort((a, b) => b.COP - a.COP);
+  // Carnot is the thermodynamic ceiling, so it always stays as the reference.
+  // Of the remaining archetypes only the best one is shown — listing every
+  // technology that happens to fit at some sink temperature buried the table.
+  const allTheoretical = Array.from(bestTheoretical.values());
+  const carnotRow = allTheoretical.find((p) => p.refrigerant === 'Carnot');
+  const bestOtherRow = allTheoretical
+    .filter((p) => p.refrigerant !== 'Carnot')
+    .sort((a, b) => b.COP - a.COP)[0];
+  const theoreticalRows = [carnotRow, bestOtherRow]
+    .filter((p): p is OptimizedIntegrationPoint => Boolean(p))
+    .sort((a, b) => b.COP - a.COP);
 
   const pointsToShow = [...tableData];
   selectedPoints.forEach((sp) => {
@@ -212,6 +223,13 @@ export default function HPIOptimizationPanel() {
       if (config.key === 'Q_source') {
         valA = (a.Q_demand * (a.COP - 1)) / a.COP;
         valB = (b.Q_demand * (b.COP - 1)) / b.COP;
+      }
+
+      // theoretical is an optional boolean; compare it as 0/1 so undefined
+      // sorts with the real machines rather than below everything.
+      if (config.key === 'theoretical') {
+        valA = a.theoretical ? 1 : 0;
+        valB = b.theoretical ? 1 : 0;
       }
 
       if (valA < valB) return config.direction === 'asc' ? -1 : 1;
@@ -336,6 +354,19 @@ export default function HPIOptimizationPanel() {
                 <table className="pa-table pa-hp-table">
                   <thead style={{ position: 'sticky', top: '30px', zIndex: 2 }}>
                     <tr>
+                      <th style={thStyle} onClick={() => handleSort('theoretical')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          {t('optimization.panel.headers.entry_type')}
+                          <span onClick={(e) => e.stopPropagation()}>
+                            <ChartHelpButton
+                              title={t('optimization.theoretical')}
+                              description={t('optimization.theoretical_hint')}
+                              inline={true}
+                            />
+                          </span>
+                          {renderSortIcon('theoretical')}
+                        </div>
+                      </th>
                       <th style={thStyle} onClick={() => handleSort('refrigerant_type')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                           {t('optimization.panel.headers.refrigerant_type')}
@@ -495,26 +526,57 @@ export default function HPIOptimizationPanel() {
                           }
                         >
                           <td>
-                            {pt.theoretical ? (
-                              <span
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                padding: '0.1rem 0.4rem',
+                                borderRadius: '4px',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                backgroundColor: pt.theoretical
+                                  ? isDark
+                                    ? '#065F46'
+                                    : '#D1FAE5'
+                                  : isDark
+                                    ? '#1E3A8A'
+                                    : '#DBEAFE',
+                                color: pt.theoretical
+                                  ? isDark
+                                    ? '#A7F3D0'
+                                    : '#065F46'
+                                  : isDark
+                                    ? '#BFDBFE'
+                                    : '#1E3A8A',
+                              }}
+                              title={
+                                pt.theoretical
+                                  ? t('optimization.theoretical_hint')
+                                  : t('optimization.real_hint')
+                              }
+                            >
+                              {pt.theoretical
+                                ? t('optimization.theoretical')
+                                : t('optimization.real')}
+                            </span>
+                            {/* The refrigerant column is blank for archetypes,
+                                so the technology name rides here — otherwise
+                                Carnot and VHTHP rows look identical. */}
+                            {pt.theoretical && (
+                              <div
                                 style={{
-                                  display: 'inline-block',
-                                  padding: '0.1rem 0.4rem',
-                                  borderRadius: '4px',
                                   fontSize: '0.75rem',
-                                  fontWeight: 600,
-                                  backgroundColor: isDark ? '#065F46' : '#D1FAE5',
-                                  color: isDark ? '#A7F3D0' : '#065F46',
+                                  marginTop: '0.15rem',
+                                  color: isDark ? '#94A3B8' : '#64748B',
                                 }}
-                                title={t('optimization.theoretical_hint')}
                               >
-                                {t('optimization.theoretical')}
-                              </span>
-                            ) : (
-                              pt.refrigerant_type
+                                {pt.refrigerant}
+                              </div>
                             )}
                           </td>
-                          <td>{pt.medium_sink}</td>
+                          {/* Refrigerant type, medium and stage count describe a
+                              trained machine; an archetype has none of them. */}
+                          <td>{pt.theoretical ? '' : pt.refrigerant_type}</td>
+                          <td>{pt.theoretical ? '' : pt.medium_sink}</td>
                           <td style={{ fontWeight: 600 }}>{pt.COP.toFixed(2)}</td>
                           <td
                             title={
@@ -540,8 +602,8 @@ export default function HPIOptimizationPanel() {
                           <td>{(pt.T_sink + tMin/2).toFixed(1)}</td>
                           <td>{pt.T_source.toFixed(1)}</td>
                           <td>{(pt.T_source - tMin/2).toFixed(1)}</td>
-                          <td>{pt.theoretical ? pt.refrigerant : refName}</td>
-                          <td>{pt.hp_level}</td>
+                          <td>{pt.theoretical ? '' : refName}</td>
+                          <td>{pt.theoretical ? '' : pt.hp_level}</td>
                         </tr>
                       );
                     })}
