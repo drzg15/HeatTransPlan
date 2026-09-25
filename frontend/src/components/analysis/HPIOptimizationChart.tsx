@@ -113,7 +113,10 @@ export default function HPIOptimizationChart({
       theoreticalBest.set(key, pt);
     }
   }
-  const theoreticalPoints = Array.from(theoreticalBest.values());
+  // Archetypes stack on a steep profile exactly as the refrigerants do, so they
+  // get the same thinning — otherwise the diamonds keep the vertical alive
+  // after the dots have been thinned out of it.
+  const theoreticalPoints = collapseVerticals(Array.from(theoreticalBest.values()));
 
   const traces: any[] = [];
 
