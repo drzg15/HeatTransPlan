@@ -39,8 +39,10 @@ export default function HPIOptimizationChart({
   // The heat pump schematic is the thing being read, so it carries the strong
   // colours; the profiles and the solution cloud underneath are muted so they
   // read as background rather than competing with it.
-  const SOURCE_SOFT = isDark ? '#EF4444' : '#DC2626';
-  const SINK_SOFT = isDark ? '#3B82F6' : '#2563EB';
+  // Plain red and blue, the same two the composite and GCC charts use, so a
+  // source curve reads as the same thing in every chart on the page.
+  const SOURCE_SOFT = 'red';
+  const SINK_SOFT = 'blue';
   const EL_SOFT = isDark ? '#10B981' : '#059669';
   const HP_STROKE = isDark ? '#A78BFA' : '#7C3AED';
   const HP_FILL = isDark ? 'rgba(49,46,129,0.75)' : 'rgba(237,233,254,0.95)';
@@ -167,7 +169,9 @@ export default function HPIOptimizationChart({
       mode: 'lines' as const,
       line: { color: SOURCE_BG, width: 3 },
       name: t('analysis.charts.source_profile'),
-      showlegend: false,
+      // The two profile curves carry the legend; the solution cloud and the
+      // heat pump schematic stay out of it to keep the key to two entries.
+      showlegend: true,
       hoverinfo: 'skip',
     });
   }
@@ -180,7 +184,7 @@ export default function HPIOptimizationChart({
       mode: 'lines' as const,
       line: { color: SINK_BG, width: 3 },
       name: t('analysis.charts.sink_profile'),
-      showlegend: false,
+      showlegend: true,
       hoverinfo: 'skip',
     });
   }
@@ -602,7 +606,16 @@ export default function HPIOptimizationChart({
     // Plain axis margin.
     margin: { l: 80, r: 20, t: 40, b: 80 },
     hovermode: 'closest' as const,
-    showlegend: false,
+    // Same placement as the composite and GCC charts above.
+    showlegend: true,
+    legend: {
+      orientation: 'h' as const,
+      x: 1,
+      y: 1.02,
+      xanchor: 'right' as const,
+      yanchor: 'bottom' as const,
+      font: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
+    },
     shapes: [
       // Only the fully cascaded profiles have a pinch.
       ...(profileMode === 'net_load'
