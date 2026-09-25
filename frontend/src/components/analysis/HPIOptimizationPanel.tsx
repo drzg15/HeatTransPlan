@@ -228,6 +228,8 @@ export default function HPIOptimizationPanel() {
   // pinned block, so one click on a header orders every row consistently.
   const pointsToShow = [...theoreticalRows, ...tableData];
   selectedPoints.forEach((sp) => {
+    // A point selected while the toggle was on must not linger once it is off.
+    if (sp.theoretical && !showTheoretical) return;
     if (!pointsToShow.some((p) => p.refrigerant === sp.refrigerant && p.T_sink === sp.T_sink)) {
       pointsToShow.unshift(sp);
     }
@@ -260,6 +262,7 @@ export default function HPIOptimizationPanel() {
     // unsorted table. COP descending is the meaningful second key.
     return b.COP - a.COP;
   });
+
 
   const rowsToRender = pointsToShow;
 
