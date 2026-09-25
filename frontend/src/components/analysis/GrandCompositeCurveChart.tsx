@@ -4,11 +4,14 @@ import Plot from 'react-plotly.js';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
+import { pairedTempRange } from './pairedTempRange';
 import { useTranslation } from 'react-i18next';
 
 export default function GrandCompositeCurveChart() {
   const { t } = useTranslation();
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
+  // Same toggle the composite chart reads, so the shared range follows it.
+  const showShifted = useAnalysisStore((s) => s.showShifted);
   const theme = useUIStore((s) => s.theme);
   const isDark = theme === 'dark';
 
@@ -53,7 +56,9 @@ export default function GrandCompositeCurveChart() {
     yaxis: {
       title: { text: t('analysis.charts.shifted_temp') },
       automargin: true,
-      rangemode: 'tozero',
+      // Shared with the composite curves beside it so both pinch lines sit at
+      // the same height; see pairedTempRange.
+      range: pairedTempRange(pinchResult, showShifted),
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
