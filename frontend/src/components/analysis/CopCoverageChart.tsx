@@ -29,7 +29,6 @@ export default function CopCoverageChart() {
   const coverage = (p: OptimizedIntegrationPoint) => (100 * p.Q_demand) / totalDemand;
 
   const real = points.filter((p) => !p.theoretical);
-  const theoretical = points.filter((p) => p.theoretical);
 
   // The frontier: the best COP available at each coverage level. This is the
   // line worth reading — everything below it is dominated.
@@ -45,17 +44,10 @@ export default function CopCoverageChart() {
   }
   const frontier = Array.from(bestAt.entries()).sort((a, b) => a[0] - b[0]);
 
+  // Only the frontier is plotted. The full cloud was thousands of dominated
+  // points: for any one of them there is a machine at the same coverage with a
+  // better COP, so it says nothing about the trade-off.
   const traces: any[] = [
-    {
-      x: real.map(coverage),
-      y: real.map((p) => p.COP),
-      mode: 'markers' as const,
-      marker: { size: 4, color: isDark ? '#3B5480' : '#A8BFE4' },
-      name: t('optimization.cop_coverage_all'),
-      hovertemplate:
-        `${t('optimization.cop_coverage_x')}: %{x:.0f} %<br>COP: %{y:.2f}<extra></extra>`,
-      showlegend: false,
-    },
     {
       x: frontier.map(([c]) => c),
       y: frontier.map(([, p]) => p.COP),
@@ -63,32 +55,37 @@ export default function CopCoverageChart() {
       line: { color: isDark ? '#3B82F6' : '#2563EB', width: 2 },
       marker: { size: 5, color: isDark ? '#3B82F6' : '#2563EB' },
       name: t('optimization.cop_coverage_best'),
-      text: frontier.map(([, p]) => p.refrigerant),
+      // Duty and sink temperature ride along so the hover carries all four
+      // numbers that describe the point.
+      customdata: frontier.map(([, p]) => [p.refrigerant, p.Q_demand, p.T_sink]),
       hovertemplate:
-        `<b>%{text}</b><br>${t('optimization.cop_coverage_x')}: %{x:.0f} %` +
+        `<b>%{customdata[0]}</b><br>${t('optimization.cop_coverage_x')}: %{x:.0f} %` +
+        `<br>${t('optimization.cop_coverage_q')}: %{customdata[1]:.1f} kW` +
+        `<br>${t('optimization.cop_coverage_t')}: %{customdata[2]:.1f} °C` +
         `<br>COP: %{y:.2f}<extra></extra>`,
+      showlegend: false,
+    },
+    // Sink temperature on its own axis: it climbs as coverage grows, and it is
+    // the reason the COP falls, so showing both together makes the mechanism
+    // visible rather than implied.
+    {
+      x: frontier.map(([c]) => c),
+      y: frontier.map(([, p]) => p.T_sink),
+      yaxis: 'y2',
+      mode: 'lines' as const,
+      line: { color: isDark ? '#F87171' : '#DC2626', width: 1.5, dash: 'dash' as const },
+      name: t('optimization.cop_coverage_t'),
+      hovertemplate:
+        `${t('optimization.cop_coverage_t')}: %{y:.1f} °C<extra></extra>`,
       showlegend: false,
     },
   ];
 
-  if (theoretical.length > 0) {
-    traces.push({
-      x: theoretical.map(coverage),
-      y: theoretical.map((p) => p.COP),
-      mode: 'markers' as const,
-      marker: {
-        size: 6,
-        color: isDark ? '#A78BFA' : '#7C3AED',
-        symbol: 'diamond-open',
-      },
-      name: t('optimization.theoretical'),
-      text: theoretical.map((p) => p.refrigerant),
-      hovertemplate:
-        `<b>%{text}</b><br>${t('optimization.cop_coverage_x')}: %{x:.0f} %` +
-        `<br>COP: %{y:.2f}<extra></extra>`,
-      showlegend: false,
-    });
-  }
+  // Coverage maps one-to-one onto duty, so the same axis can be labelled in kW
+  // underneath the percentage.
+  const kwTicks = frontier
+    .filter((_, i) => i % Math.max(1, Math.round(frontier.length / 8)) === 0)
+    .map(([c, p]) => ({ c, kw: p.Q_demand }));
 
   const layout: any = {
     title: {
@@ -97,7 +94,13 @@ export default function CopCoverageChart() {
     },
     xaxis: {
       title: { text: t('optimization.cop_coverage_x_axis') },
-      range: [0, 105],
+      // Full coverage on the left: reading left to right is then "give up
+      // coverage, gain COP", which is the direction of the trade-off.
+      range: [105, 0],
+      // Each coverage level is a duty, so the tick carries both.
+      tickmode: 'array' as const,
+      tickvals: kwTicks.map((k) => k.c),
+      ticktext: kwTicks.map((k) => `${k.c} %<br>${k.kw.toFixed(0)} kW`),
       automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
@@ -111,10 +114,19 @@ export default function CopCoverageChart() {
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
+    yaxis2: {
+      title: { text: t('optimization.cop_coverage_t_axis') },
+      overlaying: 'y' as const,
+      side: 'right' as const,
+      automargin: true,
+      showgrid: false,
+      tickfont: { color: isDark ? '#F87171' : '#DC2626' },
+      titlefont: { color: isDark ? '#F87171' : '#DC2626' },
+    },
     height: 420,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { l: 70, r: 20, t: 40, b: 70 },
+    margin: { l: 70, r: 70, t: 40, b: 80 },
     hovermode: 'closest' as const,
     showlegend: false,
   };
