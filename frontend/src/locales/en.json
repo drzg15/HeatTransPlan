@@ -216,7 +216,9 @@
       "sink_profile": "Sink profile",
       "heating_demand": "Heating Demand (kW)",
       "cooling_demand": "Cooling Demand (kW)",
-      "best_hp_cop": "Best HP COP"
+      "best_hp_cop": "Best HP COP",
+      "show_classic_hpi": "Show single-point heat pump analysis",
+      "hide_classic_hpi": "Hide single-point heat pump analysis"
     },
     "recovery": {
       "title": "Heat recovery before integration",

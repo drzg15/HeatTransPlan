@@ -76,6 +76,11 @@ export default function PotentialAnalysisPage() {
   const [pinchError, setPinchError] = useState<string | null>(null);
   const [hpiError, setHPIError] = useState<string | null>(null);
   const [moreInfoOpen, setMoreInfoOpen] = useState(false);
+  // The classic HPI panel — the five technology archetypes at a single sink
+  // temperature — is superseded by the optimisation panel below, which sweeps
+  // them across every sink temperature. Kept behind a toggle rather than
+  // removed, so it is one click away while it is still being compared against.
+  const [showClassicHPI, setShowClassicHPI] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -806,10 +811,23 @@ export default function PotentialAnalysisPage() {
 
               <HeatRecoveryToggle />
 
-              {hpiLoading && <div className="pa-loading">Running HPI analysis…</div>}
-              {hpiError && <div className="pa-warning">⚠️ {hpiError}</div>}
+              <button
+                type="button"
+                onClick={() => setShowClassicHPI((v) => !v)}
+                className="pa-classic-hpi-toggle"
+                aria-expanded={showClassicHPI}
+              >
+                {showClassicHPI
+                  ? t('analysis.charts.hide_classic_hpi')
+                  : t('analysis.charts.show_classic_hpi')}
+              </button>
 
-              {hpiResult && (
+              {showClassicHPI && hpiLoading && (
+                <div className="pa-loading">Running HPI analysis…</div>
+              )}
+              {showClassicHPI && hpiError && <div className="pa-warning">⚠️ {hpiError}</div>}
+
+              {showClassicHPI && hpiResult && (
                 <div className="pa-hpi-layout">
                   <div className="pa-hpi-table-col">
                     <HeatPumpTable />
