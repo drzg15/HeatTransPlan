@@ -399,7 +399,9 @@
     "desc_opt_chart_off_3": ". This means the available waste heat (red line) is not enough to cover the ",
     "desc_opt_chart_off_4": "entire",
     "desc_opt_chart_off_5": " heating demand required by the process at that specific temperature.",
-    "desc_opt_chart_rest": "The heat pump can only supply a portion of the total demand, so it is plotted at a smaller kW value. The rest of the heat will still need to be supplied by an external utility."
+    "desc_opt_chart_rest": "The heat pump can only supply a portion of the total demand, so it is plotted at a smaller kW value. The rest of the heat will still need to be supplied by an external utility.",
+    "theoretical": "Theoretical",
+    "theoretical_hint": "A technology archetype from published regressions, not a specific machine. Shown as a reference against the modelled refrigerants."
   },
   "cop_modal": {
     "title": "Custom COP formula",

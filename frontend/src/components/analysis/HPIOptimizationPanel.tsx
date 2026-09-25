@@ -168,6 +168,7 @@ export default function HPIOptimizationPanel() {
 
   const bestByType = new Map<string, OptimizedIntegrationPoint>();
   for (const pt of filteredPoints) {
+    if (pt.theoretical) continue;
     const existing = bestByType.get(pt.refrigerant_type);
     if (
       !existing ||
@@ -178,6 +179,22 @@ export default function HPIOptimizationPanel() {
     }
   }
   let tableData = Array.from(bestByType.values());
+
+  // Every archetype shares the one "Theoretical" type, so grouping them by type
+  // would collapse five technologies into a single row. Group by technology.
+  const bestTheoretical = new Map<string, OptimizedIntegrationPoint>();
+  for (const pt of filteredPoints) {
+    if (!pt.theoretical) continue;
+    const existing = bestTheoretical.get(pt.refrigerant);
+    if (
+      !existing ||
+      pt.Q_demand > existing.Q_demand ||
+      (pt.Q_demand === existing.Q_demand && pt.COP > existing.COP)
+    ) {
+      bestTheoretical.set(pt.refrigerant, pt);
+    }
+  }
+  const theoreticalRows = Array.from(bestTheoretical.values()).sort((a, b) => b.COP - a.COP);
 
   const pointsToShow = [...tableData];
   selectedPoints.forEach((sp) => {
@@ -202,6 +219,12 @@ export default function HPIOptimizationPanel() {
     }
     return 0;
   });
+
+  // Archetypes sit above the real machines as a reference block. Their COP is a
+  // published regression, not a trained prediction, so ranking them against a
+  // purchasable refrigerant by COP would compare two different things — and a
+  // thermodynamic ceiling like Carnot would read as just another option.
+  const rowsToRender = [...theoreticalRows, ...pointsToShow];
 
   const handleSort = (key: SortKey) => {
     setSortConfigs((prev) => {
@@ -283,7 +306,7 @@ export default function HPIOptimizationPanel() {
       <div className="pa-split-layout">
         <div className="pa-left-col">
           <div className="pa-hp-table-wrap" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-            {pointsToShow.length > 0 ? (
+            {rowsToRender.length > 0 ? (
               <>
                 <div
                   className="pa-hp-section-label"
@@ -457,7 +480,7 @@ export default function HPIOptimizationPanel() {
                     </tr>
                   </thead>
                   <tbody>
-                    {pointsToShow.map((pt, i) => {
+                    {rowsToRender.map((pt, i) => {
                       const isSelected = selectedPoints.some(
                         (sp) => sp.refrigerant === pt.refrigerant && sp.T_sink === pt.T_sink
                       );
@@ -471,7 +494,26 @@ export default function HPIOptimizationPanel() {
                             isSelected ? { backgroundColor: isDark ? '#334155' : '#E2E8F0' } : {}
                           }
                         >
-                          <td>{pt.refrigerant_type}</td>
+                          <td>
+                            {pt.theoretical ? (
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  padding: '0.1rem 0.4rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 600,
+                                  backgroundColor: isDark ? '#065F46' : '#D1FAE5',
+                                  color: isDark ? '#A7F3D0' : '#065F46',
+                                }}
+                                title={t('optimization.theoretical_hint')}
+                              >
+                                {t('optimization.theoretical')}
+                              </span>
+                            ) : (
+                              pt.refrigerant_type
+                            )}
+                          </td>
                           <td>{pt.medium_sink}</td>
                           <td style={{ fontWeight: 600 }}>{pt.COP.toFixed(2)}</td>
                           <td
@@ -498,7 +540,7 @@ export default function HPIOptimizationPanel() {
                           <td>{(pt.T_sink + tMin/2).toFixed(1)}</td>
                           <td>{pt.T_source.toFixed(1)}</td>
                           <td>{(pt.T_source - tMin/2).toFixed(1)}</td>
-                          <td>{refName}</td>
+                          <td>{pt.theoretical ? pt.refrigerant : refName}</td>
                           <td>{pt.hp_level}</td>
                         </tr>
                       );
