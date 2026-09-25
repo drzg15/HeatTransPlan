@@ -52,6 +52,9 @@ export default function HPIOptimizationPanel() {
   const [refrigerantTypeFilter, setRefrigerantTypeFilter] = useState<string>('All');
   const [refrigerantFilter, setRefrigerantFilter] = useState<string[]>([]); // Empty means 'All'
   const [hpLevelFilter, setHpLevelFilter] = useState<string[]>([]); // Empty means 'All'
+  // Theoretical reference rows are off by default — they are context for the
+  // real machines, not candidates — but stay one click away.
+  const [showTheoretical, setShowTheoretical] = useState(false);
   const [showSourceLimited, setShowSourceLimited] = useState(false);
   const [showDemandLimited, setShowDemandLimited] = useState(false);
 
@@ -115,6 +118,9 @@ export default function HPIOptimizationPanel() {
   const uniqueHpLevels = Array.from(new Set(feasible_points.map((p) => p.hp_level))).sort();
 
   const filteredPoints = feasible_points.filter((p) => {
+    // Hiding the theoretical rows here keeps every downstream count, chart
+    // trace and best-point pick consistent with what is on screen.
+    if (p.theoretical && !showTheoretical) return false;
     const refName = p.refrigerant.includes('_')
       ? p.refrigerant.substring(0, p.refrigerant.lastIndexOf('_'))
       : p.refrigerant;
@@ -125,6 +131,12 @@ export default function HPIOptimizationPanel() {
     if (hpLevelFilter.length > 0 && !hpLevelFilter.includes(p.hp_level)) return false;
     return true;
   });
+
+  // Counted on the raw results, so the checkbox can say how many rows it would
+  // bring back while they are hidden.
+  const theoreticalCount = new Set(
+    feasible_points.filter((p) => p.theoretical).map((p) => p.refrigerant)
+  ).size;
 
   // Two kinds of point sit off a profile and turn the chart into a cloud when
   // plotted by default. Source-limited ones deliver less than the demand above
@@ -208,9 +220,9 @@ export default function HPIOptimizationPanel() {
   const bestOtherRow = allTheoretical
     .filter((p) => p.refrigerant !== 'Carnot')
     .sort((a, b) => b.Q_demand - a.Q_demand || b.COP - a.COP)[0];
-  const theoreticalRows = [carnotRow, bestOtherRow].filter(
-    (p): p is OptimizedIntegrationPoint => Boolean(p)
-  );
+  const theoreticalRows = showTheoretical
+    ? [carnotRow, bestOtherRow].filter((p): p is OptimizedIntegrationPoint => Boolean(p))
+    : [];
 
   // Archetypes take part in the table's own sort rather than sitting in a
   // pinned block, so one click on a header orders every row consistently.
@@ -917,6 +929,33 @@ export default function HPIOptimizationPanel() {
                 >
                   {t('optimization.panel.filters.clear')}
                 </button>
+                {theoreticalCount > 0 && (
+                  <label
+                    style={{
+                      marginTop: '0.5rem',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '0.4rem',
+                      fontSize: '0.8rem',
+                      color: isDark ? '#94A3B8' : '#64748B',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={showTheoretical}
+                      onChange={(e) => setShowTheoretical(e.target.checked)}
+                      style={{ marginTop: '0.15rem' }}
+                    />
+                    <span>
+                      {t('optimization.panel.filters.show_theoretical')} ({theoreticalCount})
+                      <br />
+                      <span style={{ fontSize: '0.75rem' }}>
+                        {t('optimization.panel.filters.show_theoretical_desc')}
+                      </span>
+                    </span>
+                  </label>
+                )}
                 {sourceLimitedCount > 0 && (
                   <label
                     style={{

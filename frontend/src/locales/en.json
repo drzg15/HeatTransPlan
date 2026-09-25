@@ -318,7 +318,9 @@
         "hp_stages": "HP STAGES",
         "cop_source": "COP SOURCE",
         "custom_cop_btn": "Use my own COP formula",
-        "custom_cop_desc": "Paste a custom COP to perform integration and optimization with your own heat pump."
+        "custom_cop_desc": "Paste a custom COP to perform integration and optimization with your own heat pump.",
+        "show_theoretical": "Show theoretical heat pumps",
+        "show_theoretical_desc": "Carnot and the best technology archetype, as reference points against the modelled machines."
       }
     },
     "title_actual_source_temp": "Actual Source Temp",

@@ -318,7 +318,9 @@
         "hp_stages": "WP STUFEN",
         "cop_source": "COP-QUELLE",
         "custom_cop_btn": "Eigene COP-Formel verwenden",
-        "custom_cop_desc": "Fügen Sie eine eigene COP-Formel ein, um die Integration und Optimierung mit Ihrer eigenen Wärmepumpe durchzuführen."
+        "custom_cop_desc": "Fügen Sie eine eigene COP-Formel ein, um die Integration und Optimierung mit Ihrer eigenen Wärmepumpe durchzuführen.",
+        "show_theoretical": "Theoretische Wärmepumpen anzeigen",
+        "show_theoretical_desc": "Carnot und der beste Technologie-Archetyp als Referenzpunkte zu den modellierten Maschinen."
       }
     },
     "title_actual_source_temp": "Tatsächliche Quellentemperatur",
