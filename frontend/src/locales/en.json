@@ -299,7 +299,8 @@
         "t_sink": "TEMP_SINK (°C)",
         "t_source": "TEMP_SOURCE (°C)",
         "refrigerant": "REFRIGERANT",
-        "hp_stages": "HP STAGES"
+        "hp_stages": "HP STAGES",
+        "entry_type": "TYPE"
       },
       "filters": {
         "all": "All",
@@ -401,7 +402,9 @@
     "desc_opt_chart_off_5": " heating demand required by the process at that specific temperature.",
     "desc_opt_chart_rest": "The heat pump can only supply a portion of the total demand, so it is plotted at a smaller kW value. The rest of the heat will still need to be supplied by an external utility.",
     "theoretical": "Theoretical",
-    "theoretical_hint": "A technology archetype from published regressions, not a specific machine. Shown as a reference against the modelled refrigerants."
+    "theoretical_hint": "A technology archetype from published regressions, not a specific machine. Shown as a reference against the modelled refrigerants.",
+    "real": "Real",
+    "real_hint": "A modelled refrigerant machine: its COP comes from the trained model over real heat pump data."
   },
   "cop_modal": {
     "title": "Custom COP formula",

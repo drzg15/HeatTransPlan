@@ -299,7 +299,8 @@
         "t_sink": "TEMP_SENKE (°C)",
         "t_source": "TEMP_QUELLE (°C)",
         "refrigerant": "KÄLTEMITTEL",
-        "hp_stages": "WP STUFEN"
+        "hp_stages": "WP STUFEN",
+        "entry_type": "TYP"
       },
       "filters": {
         "all": "Alle",
@@ -401,7 +402,9 @@
     "desc_opt_chart_off_5": " Heizbedarf zu decken, der vom Prozess bei dieser spezifischen Temperatur gefordert wird.",
     "desc_opt_chart_rest": "Die Wärmepumpe kann nur einen Teil des Gesamtbedarfs liefern und wird daher bei einem kleineren kW-Wert eingezeichnet. Die restliche Wärme muss weiterhin von einer externen Versorgung bereitgestellt werden.",
     "theoretical": "Theoretisch",
-    "theoretical_hint": "Ein Technologie-Archetyp aus veröffentlichten Regressionen, keine konkrete Maschine. Dient als Referenz zu den modellierten Kältemitteln."
+    "theoretical_hint": "Ein Technologie-Archetyp aus veröffentlichten Regressionen, keine konkrete Maschine. Dient als Referenz zu den modellierten Kältemitteln.",
+    "real": "Real",
+    "real_hint": "Eine modellierte Kältemittelmaschine: Der COP stammt aus dem trainierten Modell realer Wärmepumpendaten."
   },
   "cop_modal": {
     "title": "Eigene COP-Formel",
