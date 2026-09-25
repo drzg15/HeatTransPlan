@@ -134,6 +134,66 @@ def _formula_alternative(spec):
     }
 
 
+def _theoretical_alternatives():
+    """The literature technology archetypes, shaped like model alternatives.
+
+    The HPI panel above evaluates these same five correlations at a single sink
+    temperature. Here they are swept through the optimiser's full grid so they
+    appear as curves alongside the trained refrigerants, which is only valid
+    because both sides use the identical shifted-temperature convention and the
+    identical duty relation Q_sink = Q_source * COP/(COP-1).
+
+    Each archetype is only rated inside its own sink/lift window, so the COP
+    callable returns -1 outside it: the optimiser already discards any COP <= 1,
+    which enforces the window without touching its loop.
+    """
+    from app.modules.heat_pump_integration.heat_pump_integration import (
+        HP_OPERATING_WINDOWS,
+        HP_COP_CORRELATIONS,
+    )
+
+    alts = []
+    for name, window in HP_OPERATING_WINDOWS.items():
+        correlation = HP_COP_CORRELATIONS[name]
+
+        def make_fn(correlation=correlation, window=window):
+            def predict(t_source_model, t_sink_model):
+                t_src = np.asarray(t_source_model, dtype=float)
+                t_snk = np.asarray(t_sink_model, dtype=float)
+                lift = t_snk - t_src
+                with np.errstate(all="ignore"):
+                    cop = np.asarray(correlation(t_snk, lift), dtype=float)
+                # Outside the rated window the regression is extrapolation, not
+                # a machine anyone can buy. -1 makes the optimiser drop it.
+                in_window = (
+                    (t_snk >= window["t_sink_min"]) & (t_snk <= window["t_sink_max"])
+                    & (lift >= window["dt_min"]) & (lift <= window["dt_max"])
+                )
+                return np.where(in_window & np.isfinite(cop), cop, -1.0)
+            return predict
+
+        alts.append({
+            "name": name,
+            "Kältemittel_stufen": name,
+            "medium_sink": "—",
+            "refrigerant_type": "Theoretical",
+            "hp_level": "—",
+            "T_src_min": -273.0,
+            "T_src_max": 10000.0,
+            "T_sink_min": float(window["t_sink_min"]),
+            "T_sink_max": float(window["t_sink_max"]),
+            # The same ceiling the HPI panel clamps to, so a technology cannot
+            # look better here than it does above.
+            "cop_min": 1.0,
+            "cop_max": 15.0,
+            "deltaT_evap": OPTIMIZATION_CONFIG["deltaT_evap"],
+            "deltaT_cond": OPTIMIZATION_CONFIG["deltaT_cond"],
+            "cop_fn": make_fn(),
+            "theoretical": True,
+        })
+    return alts
+
+
 def _prepare_xy_curve(x, y, is_source=False):
     x = np.asarray(x, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
@@ -251,6 +311,10 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         profile_mode = "net_load"
 
     _, alternatives = _load_model_and_data()
+
+    # The technology archetypes ride through the same grid as the trained
+    # refrigerants so both end up in one table and one chart.
+    alternatives = list(alternatives) + _theoretical_alternatives()
 
     # A user formula is appended as one more alternative rather than replacing
     # the model, so it lands in the same table and chart and can be compared
@@ -415,7 +479,8 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                         refrigerant=alt["name"],
                         medium_sink=alt["medium_sink"],
                         refrigerant_type=alt["refrigerant_type"],
-                        hp_level=alt["hp_level"]
+                        hp_level=alt["hp_level"],
+                        theoretical=alt.get("theoretical", False)
                     )
                     feasible_points.append(pt)
                     found_full = True
@@ -473,7 +538,8 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                     refrigerant=alt["name"],
                     medium_sink=alt["medium_sink"],
                     refrigerant_type=alt["refrigerant_type"],
-                    hp_level=alt["hp_level"]
+                    hp_level=alt["hp_level"],
+                    theoretical=alt.get("theoretical", False)
                 )
                 feasible_points.append(pt)
                 if limited:

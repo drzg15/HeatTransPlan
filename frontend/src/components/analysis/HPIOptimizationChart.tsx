@@ -43,6 +43,7 @@ export default function HPIOptimizationChart({
   // Filter feasible points: For each T_sink temperature level and each refrigerant type, keep only the single point with the highest COP
   const bestPointsMap = new Map<string, OptimizedIntegrationPoint>();
   for (const pt of feasiblePoints) {
+    if (pt.theoretical) continue;
     // Group by T_sink and refrigerant_type (Natural/Synthetic)
     const key = `${pt.T_sink.toFixed(2)}_${pt.refrigerant_type}`;
     const existing = bestPointsMap.get(key);
@@ -51,6 +52,19 @@ export default function HPIOptimizationChart({
     }
   }
   const filteredPoints = Array.from(bestPointsMap.values());
+
+  // The technology archetypes are grouped per technology instead, so each keeps
+  // its own curve rather than competing with the refrigerants for a T_sink slot.
+  const theoreticalBest = new Map<string, OptimizedIntegrationPoint>();
+  for (const pt of feasiblePoints) {
+    if (!pt.theoretical) continue;
+    const key = `${pt.T_sink.toFixed(2)}_${pt.refrigerant}`;
+    const existing = theoreticalBest.get(key);
+    if (!existing || pt.COP > existing.COP) {
+      theoreticalBest.set(key, pt);
+    }
+  }
+  const theoreticalPoints = Array.from(theoreticalBest.values());
 
   const traces: any[] = [];
 
@@ -157,6 +171,56 @@ export default function HPIOptimizationChart({
       ),
       hoverinfo: 'text',
       customdata: pointsForRef,
+    });
+  });
+
+  // Technology archetypes (Carnot, VHTHP, ...): the same correlations the HPI
+  // panel above shows at a single sink temperature, swept across the full grid.
+  // Diamonds and a connecting line keep them apart from the refrigerant dots.
+  const theoreticalNames = Array.from(new Set(theoreticalPoints.map((p) => p.refrigerant)));
+
+  theoreticalNames.forEach((techName) => {
+    const pts = theoreticalPoints
+      .filter((p) => p.refrigerant === techName)
+      .sort((a, b) => a.T_sink - b.T_sink);
+    if (pts.length === 0) return;
+
+    const label = `${techName} (${t('optimization.theoretical')})`;
+
+    // Sink side
+    traces.push({
+      x: pts.map((p) => p.Q_demand),
+      y: pts.map((p) => p.T_sink),
+      mode: 'lines+markers' as const,
+      name: `${label} - ${t('analysis.charts.sink')}`,
+      legendgroup: `theo_${techName}`,
+      line: { color: isDark ? '#34D399' : '#059669', width: 1, dash: 'dot' as const },
+      marker: { size: 7, color: isDark ? '#34D399' : '#059669', symbol: 'diamond' },
+      showlegend: false,
+      text: pts.map(
+        (p) =>
+          `<b>${techName} — ${t('optimization.theoretical')}</b><br>T_sink: ${p.T_sink.toFixed(1)}°C<br>Q_sink: ${p.Q_demand.toFixed(1)} kW<br>COP: ${p.COP.toFixed(2)}`
+      ),
+      hoverinfo: 'text',
+      customdata: pts,
+    });
+
+    // Source side, mirrored with the same duty relation the refrigerants use
+    traces.push({
+      x: pts.map((p) => srcSign * ((p.Q_demand * (p.COP - 1)) / p.COP)),
+      y: pts.map((p) => p.T_source),
+      mode: 'lines+markers' as const,
+      name: `${label} - ${t('analysis.charts.source')}`,
+      legendgroup: `theo_${techName}`,
+      line: { color: isDark ? '#FBBF24' : '#D97706', width: 1, dash: 'dot' as const },
+      marker: { size: 7, color: isDark ? '#FBBF24' : '#D97706', symbol: 'diamond-open' },
+      showlegend: false,
+      text: pts.map(
+        (p) =>
+          `<b>${techName} — ${t('optimization.theoretical')}</b><br>T_source: ${p.T_source.toFixed(1)}°C<br>Q_source: ${((p.Q_demand * (p.COP - 1)) / p.COP).toFixed(1)} kW<br>COP: ${p.COP.toFixed(2)}`
+      ),
+      hoverinfo: 'text',
+      customdata: pts,
     });
   });
 
@@ -331,7 +395,10 @@ export default function HPIOptimizationChart({
             const matched = pt.customdata as OptimizedIntegrationPoint | undefined;
             if (matched && matched.refrigerant) {
               // Find all points at the same T_sink
-              const pointsAtTemp = filteredPoints.filter(
+              // Archetype diamonds live in their own series, so select from
+              // whichever set the clicked point came from.
+              const pool = matched.theoretical ? theoreticalPoints : filteredPoints;
+              const pointsAtTemp = pool.filter(
                 (p) => Math.abs(p.T_sink - matched.T_sink) < 0.01
               );
 

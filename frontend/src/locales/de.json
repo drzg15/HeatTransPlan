@@ -399,7 +399,9 @@
     "desc_opt_chart_off_3": ". Das bedeutet, dass die verfügbare Abwärme (rote Linie) nicht ausreicht, um den ",
     "desc_opt_chart_off_4": "gesamten",
     "desc_opt_chart_off_5": " Heizbedarf zu decken, der vom Prozess bei dieser spezifischen Temperatur gefordert wird.",
-    "desc_opt_chart_rest": "Die Wärmepumpe kann nur einen Teil des Gesamtbedarfs liefern und wird daher bei einem kleineren kW-Wert eingezeichnet. Die restliche Wärme muss weiterhin von einer externen Versorgung bereitgestellt werden."
+    "desc_opt_chart_rest": "Die Wärmepumpe kann nur einen Teil des Gesamtbedarfs liefern und wird daher bei einem kleineren kW-Wert eingezeichnet. Die restliche Wärme muss weiterhin von einer externen Versorgung bereitgestellt werden.",
+    "theoretical": "Theoretisch",
+    "theoretical_hint": "Ein Technologie-Archetyp aus veröffentlichten Regressionen, keine konkrete Maschine. Dient als Referenz zu den modellierten Kältemitteln."
   },
   "cop_modal": {
     "title": "Eigene COP-Formel",

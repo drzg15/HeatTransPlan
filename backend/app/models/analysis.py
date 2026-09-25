@@ -171,6 +171,11 @@ class OptimizedIntegrationPoint(BaseModel):
     # draws less than the waste heat available at T_source, so the point sits
     # off the source profile with the remainder left to cold utility.
     demand_limited: bool = False
+    # True for the literature technology archetypes (Carnot, VHTHP, ...) swept
+    # through the same grid as the trained refrigerants. Their COP comes from a
+    # published regression rather than the model, so the UI keeps them visually
+    # apart instead of ranking them against real machines.
+    theoretical: bool = False
 
 
 class HPIOptimizationDiagnostics(BaseModel):
