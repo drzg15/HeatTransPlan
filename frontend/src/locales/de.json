@@ -293,7 +293,7 @@
       "title": "Integration in Wärmepumpenmodell und Optimierung",
       "instruction": "Klicken Sie zum Sortieren auf eine Spaltenüberschrift. Klicken Sie auf einen Punkt im Diagramm, um Details anzuzeigen und ihn der Tabelle hinzuzufügen.",
       "headers": {
-        "refrigerant_type": "KÄLTEMITTELTYP",
+        "refrigerant_type": "KÄLTEM.",
         "medium_sink": "MEDIUM SENKE",
         "cop": "COP",
         "q_sink": "Q_SENKE (KW)",
@@ -302,7 +302,8 @@
         "t_source": "TEMP_QUELLE (°C)",
         "refrigerant": "KÄLTEMITTEL",
         "hp_stages": "WP STUFEN",
-        "entry_type": "TYP"
+        "entry_type": "TYP",
+        "w_el": "P_EL (KW)"
       },
       "filters": {
         "all": "Alle",
@@ -408,11 +409,20 @@
     "theoretical": "Theoretisch",
     "theoretical_hint": "Ein Technologie-Archetyp aus veröffentlichten Regressionen, keine konkrete Maschine. Dient als Referenz zu den modellierten Kältemitteln.",
     "real": "Real",
-    "real_hint": "Eine Regression über veröffentlichte Betriebsdaten realer Wärmepumpen, angepasst über Kältemittel, Senkenmedien und Verdichterstufen und hier bei den Temperaturen dieses Punktes ausgewertet.",
+    "real_hint": "Eine Regression über Simulationsdaten von Wärmepumpen aus einer Herstellerparameterstudie, über Kältemittel, Senkenmedien und Verdichterstufen hinweg, ausgewertet bei den Temperaturen dieses Punktes.",
     "calculation": "Berechnung",
     "carnot_50": "Carnot (50 %)",
     "carnot_hint": "Die Carnot-Beziehung zwischen den beiden Temperaturen, mit 50 % Wirkungsgrad als Faustregel für eine erreichbare Wärmepumpe. Keine Maschine und keine angepasste Korrelation, daher kann eine reale Maschine über dieser Linie liegen.",
-    "entry_type_hint": "Reale Zeilen sind Regressionen über veröffentlichte Betriebsdaten realer Wärmepumpen, ausgewertet bei den Temperaturen des jeweiligen Punktes. Theoretische Zeilen sind Referenzpunkte: Technologie-Archetypen aus veröffentlichten Korrelationen sowie Carnot, die thermodynamische Beziehung zwischen den beiden Temperaturen bei 50 % Wirkungsgrad."
+    "entry_type_hint": "Reale Zeilen sind Regressionen über Simulationsdaten von Wärmepumpen aus einer Herstellerparameterstudie, ausgewertet bei den Temperaturen des jeweiligen Punktes. Theoretische Zeilen sind Referenzpunkte: Technologie-Archetypen aus veröffentlichten Korrelationen sowie Carnot, die thermodynamische Beziehung zwischen den beiden Temperaturen bei 50 % Wirkungsgrad.",
+    "title_w_el": "Elektrische Leistung",
+    "tooltip_w_el": "Die elektrische Leistung, die der Verdichter aufnimmt. Sie schließt die Energiebilanz: P_el = Q_Senke − Q_Quelle, gleichbedeutend mit Q_Senke / COP. Ein höherer COP bedeutet, dass dieselbe gelieferte Wärme weniger Strom kostet.",
+    "hp_box_title": "Betriebspunkt der Wärmepumpe",
+    "hp_box_what": "Die Pumpe hebt Abwärme vom Quellenprofil auf das Senkenprofil an.",
+    "hp_box_source": "Abwärme, die dem Prozess bei dieser Temperatur entnommen wird",
+    "hp_box_el": "elektrische Leistung, die der Verdichter aufnimmt",
+    "hp_box_sink": "Wärme, die dem Prozess bei dieser Temperatur zugeführt wird",
+    "hp_box_cop": "gelieferte Wärme je Einheit Strom",
+    "hp_box_balance": "Quelle + elektrische Leistung = gelieferte Wärme."
   },
   "cop_modal": {
     "title": "Eigene COP-Formel",

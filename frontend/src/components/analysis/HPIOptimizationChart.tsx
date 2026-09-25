@@ -32,6 +32,24 @@ export default function HPIOptimizationChart({
   const theme = useUIStore((s) => s.theme);
   const isDark = theme === 'dark';
 
+  // The profile curves use full-strength red and blue. The heat pump overlay
+  // sits on top of them, so it uses muted versions of the same two hues plus a
+  // green for electricity — strong enough to read, quiet enough not to fight
+  // the curves underneath.
+  // The heat pump schematic is the thing being read, so it carries the strong
+  // colours; the profiles and the solution cloud underneath are muted so they
+  // read as background rather than competing with it.
+  const SOURCE_SOFT = isDark ? '#EF4444' : '#DC2626';
+  const SINK_SOFT = isDark ? '#3B82F6' : '#2563EB';
+  const EL_SOFT = isDark ? '#10B981' : '#059669';
+  const HP_STROKE = isDark ? '#A78BFA' : '#7C3AED';
+  const HP_FILL = isDark ? 'rgba(49,46,129,0.75)' : 'rgba(237,233,254,0.95)';
+
+  // Muted versions for the two profile CURVES only — the data points keep the
+  // strong colours, since they are what the chart is read for.
+  const SOURCE_BG = isDark ? '#7F3F3F' : '#E9A8A8';
+  const SINK_BG = isDark ? '#3B5480' : '#A8BFE4';
+
   const gccH = originalGCC.H || [];
   const gccT = originalGCC.T || [];
 
@@ -94,7 +112,7 @@ export default function HPIOptimizationChart({
       x: pocketlessSource.H.map((h) => srcSign * h),
       y: pocketlessSource.T,
       mode: 'lines' as const,
-      line: { color: 'red', width: 3 },
+      line: { color: SOURCE_BG, width: 3 },
       name: t('analysis.charts.source_profile'),
       showlegend: false,
       hoverinfo: 'skip',
@@ -107,7 +125,7 @@ export default function HPIOptimizationChart({
       x: pocketlessSink.H,
       y: pocketlessSink.T,
       mode: 'lines' as const,
-      line: { color: 'blue', width: 3 },
+      line: { color: SINK_BG, width: 3 },
       name: t('analysis.charts.sink_profile'),
       showlegend: false,
       hoverinfo: 'skip',
@@ -129,7 +147,7 @@ export default function HPIOptimizationChart({
       legendgroup: refName,
       marker: {
         size: 5,
-        color: 'blue',
+        color: SINK_SOFT,
         // Source-limited points sit off the sink profile and demand-limited ones
         // off the source profile; hollow markers keep both readable as the
         // partial solutions they are.
@@ -137,7 +155,7 @@ export default function HPIOptimizationChart({
           p.source_limited || p.demand_limited ? 'circle-open' : 'circle'
         ),
         opacity: pointsForRef.map((p) => (p.source_limited || p.demand_limited ? 0.45 : 1)),
-        line: { width: 1.5, color: 'blue' },
+        line: { width: 1.5, color: SINK_SOFT },
       },
       showlegend: false, // Don't show legend for each refrigerant if colors are the same
       text: pointsForRef.map(
@@ -157,12 +175,12 @@ export default function HPIOptimizationChart({
       legendgroup: refName,
       marker: {
         size: 5,
-        color: 'red',
+        color: SOURCE_SOFT,
         symbol: pointsForRef.map((p) =>
           p.source_limited || p.demand_limited ? 'circle-open' : 'circle'
         ),
         opacity: pointsForRef.map((p) => (p.source_limited || p.demand_limited ? 0.45 : 1)),
-        line: { width: 1.5, color: 'red' },
+        line: { width: 1.5, color: SOURCE_SOFT },
       },
       showlegend: false, // Don't duplicate legend
       text: pointsForRef.map(
@@ -196,8 +214,8 @@ export default function HPIOptimizationChart({
       legendgroup: `theo_${techName}`,
       // Sink side is blue everywhere on this chart; the diamond, not a third
       // colour, is what marks it as an archetype.
-      line: { color: 'blue', width: 1, dash: 'dot' as const },
-      marker: { size: 7, color: 'blue', symbol: 'diamond' },
+      line: { color: SINK_SOFT, width: 1, dash: 'dot' as const },
+      marker: { size: 7, color: SINK_SOFT, symbol: 'diamond' },
       showlegend: false,
       text: pts.map(
         (p) =>
@@ -215,8 +233,8 @@ export default function HPIOptimizationChart({
       name: `${label} - ${t('analysis.charts.source')}`,
       legendgroup: `theo_${techName}`,
       // Source side is red everywhere on this chart.
-      line: { color: 'red', width: 1, dash: 'dot' as const },
-      marker: { size: 7, color: 'red', symbol: 'diamond-open' },
+      line: { color: SOURCE_SOFT, width: 1, dash: 'dot' as const },
+      marker: { size: 7, color: SOURCE_SOFT, symbol: 'diamond-open' },
       showlegend: false,
       text: pts.map(
         (p) =>
@@ -228,7 +246,22 @@ export default function HPIOptimizationChart({
   });
 
   // Trace 3: Selected Points (if any, otherwise maxQ point)
-  const activePoints = selectedPoints.length > 0 ? selectedPoints : maxQPoint ? [maxQPoint] : [];
+  // The max-Q point is highlighted before anything is clicked. It used to be
+  // REPLACED by the first click, so that marker silently shrank back into the
+  // cloud — it now stays highlighted alongside the clicked ones.
+  const activePoints = (() => {
+    const out = maxQPoint ? [maxQPoint] : [];
+    for (const sp of selectedPoints) {
+      const dup = out.some(
+        (p) =>
+          p.refrigerant === sp.refrigerant &&
+          Math.abs(p.T_sink - sp.T_sink) < 0.01 &&
+          Math.abs(p.T_source - sp.T_source) < 0.01
+      );
+      if (!dup) out.push(sp);
+    }
+    return out;
+  })();
 
   for (const activePoint of activePoints) {
     // Highlight Active Sink
@@ -240,7 +273,7 @@ export default function HPIOptimizationChart({
       showlegend: false,
       marker: {
         size: 9,
-        color: 'blue',
+        color: SINK_SOFT,
         symbol: 'circle',
         line: { width: 2, color: isDark ? '#FFF' : '#000' },
       },
@@ -250,20 +283,8 @@ export default function HPIOptimizationChart({
       hoverinfo: 'text',
     });
 
-    // Heat pump profile: evaporator (source side) to condenser (sink side)
-    if (mirrored)
-      traces.push({
-        x: [
-          srcSign * ((activePoint.Q_demand * (activePoint.COP - 1)) / activePoint.COP),
-          activePoint.Q_demand,
-        ],
-        y: [activePoint.T_source, activePoint.T_sink],
-        mode: 'lines' as const,
-        line: { color: isDark ? '#A78BFA' : '#7C3AED', width: 2, dash: 'dashdot' },
-        name: t('analysis.charts.hp_profile'),
-        showlegend: false,
-        hoverinfo: 'skip' as const,
-      });
+    // The old evaporator-to-condenser connector was a single diagonal. The HP
+    // box below draws the same link as a right-angled route, so it is gone.
 
     // Highlight Active Source
     traces.push({
@@ -274,7 +295,7 @@ export default function HPIOptimizationChart({
       showlegend: false,
       marker: {
         size: 9,
-        color: 'red',
+        color: SOURCE_SOFT,
         symbol: 'circle',
         line: { width: 2, color: isDark ? '#FFF' : '#000' },
       },
@@ -282,6 +303,220 @@ export default function HPIOptimizationChart({
         `<b>Active Source</b><br>T: ${activePoint.T_source.toFixed(1)}°C<br>Q_source: ${((activePoint.Q_demand * (activePoint.COP - 1)) / activePoint.COP).toFixed(1)} kW<br>COP: ${activePoint.COP.toFixed(2)}`,
       ],
       hoverinfo: 'text',
+    });
+  }
+
+  // --- Heat pump schematic --------------------------------------------------
+  // Source and sink can sit 3 kW apart or 1500 kW apart depending on profile
+  // mode, so the box is sized in PIXELS and anchored to a data-space point.
+  // That keeps it legible at any zoom without ever outgrowing the gap.
+  const hpBoxShapes: typeof traces = [];
+  const hpBoxAnnotations: typeof traces = [];
+
+  // Only the most recently clicked pump gets a box. A click appends every
+  // machine at that sink temperature to the end of the selection, so the last
+  // entry's temperature is the one just clicked; the earlier selections stay
+  // on the chart as enlarged markers and in the table.
+  const lastTemp = activePoints.length
+    ? activePoints[activePoints.length - 1].T_sink
+    : null;
+  const boxPoints =
+    lastTemp === null
+      ? []
+      : (() => {
+          const atTemp = activePoints.filter((p) => Math.abs(p.T_sink - lastTemp) < 0.01);
+          // The best machine there represents the temperature.
+          const best = atTemp.reduce<OptimizedIntegrationPoint | null>(
+            (b, p) =>
+              !b || p.Q_demand > b.Q_demand || (p.Q_demand === b.Q_demand && p.COP > b.COP)
+                ? p
+                : b,
+            null
+          );
+          return best ? [best] : [];
+        })();
+
+  for (const boxPoint of boxPoints) {
+    const srcX = srcSign * ((boxPoint.Q_demand * (boxPoint.COP - 1)) / boxPoint.COP);
+    const srcY = boxPoint.T_source;
+    const snkX = boxPoint.Q_demand;
+    const snkY = boxPoint.T_sink;
+
+    // The box sits on the sink's x, halfway up the lift: the route is then a
+    // clean rise-then-across, with no diagonal anywhere.
+    const boxX = snkX;
+    const boxY = (srcY + snkY) / 2;
+
+    // The box holds two lines (HP + COP), so it needs the extra height.
+    const halfW = 30;
+    const halfH = 22;
+
+    hpBoxShapes.push({
+      type: 'rect',
+      xref: 'x',
+      yref: 'y',
+      xsizemode: 'pixel',
+      ysizemode: 'pixel',
+      xanchor: boxX,
+      yanchor: boxY,
+      x0: -halfW,
+      x1: halfW,
+      y0: -halfH,
+      y1: halfH,
+      line: { color: HP_STROKE, width: 2 },
+      fillcolor: HP_FILL,
+      layer: 'above',
+    });
+
+    hpBoxAnnotations.push({
+      x: boxX,
+      y: boxY,
+      xref: 'x',
+      yref: 'y',
+      // The primary box carries its COP, so the headline number is readable
+      // without going to the table or hovering.
+      text: `<b>HP</b><br>COP ${boxPoint.COP.toFixed(2)}`,
+      showarrow: false,
+      align: 'center' as const,
+      font: { size: 10, color: HP_STROKE },
+    });
+
+    // Help marker beside the box. A DOM help button cannot be positioned at a
+    // data coordinate, so this is an annotation carrying the explanation on
+    // hover. It is an annotation rather than a trace because only annotations
+    // support the pixel shift that keeps it clear of the box.
+    hpBoxAnnotations.push({
+      x: boxX,
+      y: boxY,
+      xref: 'x',
+      yref: 'y',
+      xshift: halfW + 12,
+      yshift: halfH + 4,
+      text: '💡',
+      showarrow: false,
+      font: { size: 13 },
+      captureevents: true,
+      hovertext: [
+        `<b>${t('optimization.hp_box_title')}</b>`,
+        '',
+        t('optimization.hp_box_what'),
+        '',
+        `<b>${Math.abs(srcX).toFixed(1)} kW · ${srcY.toFixed(1)} °C</b> — ${t('optimization.hp_box_source')}`,
+        `<b>P<sub>el</sub> ${(snkX - srcX).toFixed(1)} kW</b> — ${t('optimization.hp_box_el')}`,
+        `<b>${snkX.toFixed(1)} kW · ${snkY.toFixed(1)} °C</b> — ${t('optimization.hp_box_sink')}`,
+        `<b>COP ${boxPoint.COP.toFixed(2)}</b> — ${t('optimization.hp_box_cop')}`,
+        '',
+        t('optimization.hp_box_balance'),
+      ].join('<br>'),
+      hoverlabel: { align: 'left' as const, bgcolor: isDark ? '#1E293B' : '#FFF' },
+    });
+
+    // Endpoint readouts — duty and temperature at the source and the sink,
+    // placed clear of the legs that meet there.
+    hpBoxAnnotations.push({
+      x: srcX,
+      y: srcY,
+      xref: 'x',
+      yref: 'y',
+      text: `${Math.abs(srcX).toFixed(1)} kW<br>${srcY.toFixed(1)} °C`,
+      showarrow: false,
+      xanchor: 'right' as const,
+      yanchor: 'top' as const,
+      align: 'right' as const,
+      xshift: -8,
+      yshift: -2,
+      font: { size: 10, color: SOURCE_SOFT },
+    });
+    hpBoxAnnotations.push({
+      x: snkX,
+      y: snkY,
+      xref: 'x',
+      yref: 'y',
+      text: `${snkX.toFixed(1)} kW<br>${snkY.toFixed(1)} °C`,
+      showarrow: false,
+      xanchor: 'left' as const,
+      yanchor: 'bottom' as const,
+      align: 'left' as const,
+      xshift: 8,
+      yshift: 2,
+      font: { size: 10, color: SINK_SOFT },
+    });
+
+    // Source leg: across at the source temperature, then up into the box.
+    traces.push({
+    x: [srcX, boxX, boxX],
+    y: [srcY, srcY, boxY],
+    mode: 'lines' as const,
+    line: { color: SOURCE_SOFT, width: 2 },
+    showlegend: false,
+    hoverinfo: 'skip' as const,
+    });
+
+    // Sink leg: straight up from the box to the sink point.
+    traces.push({
+    x: [boxX, snkX],
+    y: [boxY, snkY],
+    mode: 'lines' as const,
+    line: { color: SINK_SOFT, width: 2 },
+    showlegend: false,
+    hoverinfo: 'skip' as const,
+    });
+
+    hpBoxAnnotations.push({
+    x: boxX,
+    y: snkY,
+    ax: boxX,
+    ay: snkY - (snkY - boxY) * 0.25,
+    xref: 'x',
+    yref: 'y',
+    axref: 'x',
+    ayref: 'y',
+    showarrow: true,
+    arrowhead: 3,
+    arrowsize: 1.4,
+    arrowwidth: 2,
+    arrowcolor: SINK_SOFT,
+    standoff: 8,
+    text: '',
+    });
+    hpBoxAnnotations.push({
+    x: boxX,
+    y: boxY,
+    ax: boxX,
+    ay: boxY - (boxY - srcY) * 0.25,
+    xref: 'x',
+    yref: 'y',
+    axref: 'x',
+    ayref: 'y',
+    showarrow: true,
+    arrowhead: 3,
+    arrowsize: 1.4,
+    arrowwidth: 2,
+    arrowcolor: SOURCE_SOFT,
+    standoff: halfH + 1,
+    text: '',
+    });
+
+    // Electrical input enters from the right, clear of the source leg. Only the
+    // primary box is labelled — repeating it on every mini box is noise.
+    hpBoxAnnotations.push({
+      x: boxX,
+      y: boxY,
+      ax: 52,
+      ay: 0,
+      xref: 'x',
+      yref: 'y',
+      axref: 'pixel',
+      ayref: 'pixel',
+      showarrow: true,
+      arrowhead: 3,
+      arrowsize: 1.4,
+      arrowwidth: 2,
+      arrowcolor: EL_SOFT,
+      standoff: halfW + 2,
+      text: `<b>P<sub>el</sub> ${(snkX - srcX).toFixed(1)} kW</b>`,
+      xanchor: 'left',
+      font: { size: 10, color: EL_SOFT },
     });
   }
 
@@ -339,6 +574,7 @@ export default function HPIOptimizationChart({
         line: { color: isDark ? '#94A3B8' : 'black', width: 1 },
         opacity: 0.3,
       },
+      ...hpBoxShapes,
     ],
     annotations:
       profileMode === 'net_load'
@@ -352,8 +588,9 @@ export default function HPIOptimizationChart({
               showarrow: false,
               font: { size: 11, color: isDark ? '#60A5FA' : 'gray' },
             },
+            ...hpBoxAnnotations,
           ]
-        : [],
+        : [...hpBoxAnnotations],
   };
 
   return (

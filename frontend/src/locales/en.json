@@ -293,7 +293,7 @@
       "title": "Integration with Heat Pump model and optimization",
       "instruction": "Click on any column header to sort. Click on any point in the chart to inspect its details and add it to the table.",
       "headers": {
-        "refrigerant_type": "REFRIGERANT TYPE",
+        "refrigerant_type": "REFRIG.",
         "medium_sink": "MEDIUM SINK",
         "cop": "COP",
         "q_sink": "Q_SINK (KW)",
@@ -302,7 +302,8 @@
         "t_source": "TEMP_SOURCE (°C)",
         "refrigerant": "REFRIGERANT",
         "hp_stages": "HP STAGES",
-        "entry_type": "TYPE"
+        "entry_type": "TYPE",
+        "w_el": "P_EL (KW)"
       },
       "filters": {
         "all": "All",
@@ -408,11 +409,20 @@
     "theoretical": "Theoretical",
     "theoretical_hint": "A technology archetype from published regressions, not a specific machine. Shown as a reference against the modelled refrigerants.",
     "real": "Real",
-    "real_hint": "A regression over published operating data for real heat pumps, fitted across refrigerants, sink media and compression stages, and evaluated here at this point's temperatures.",
+    "real_hint": "A regression over heat pump simulation data from a manufacturer parameter study, covering refrigerants, sink media and compression stages, and evaluated here at this point's temperatures.",
     "calculation": "Calculation",
     "carnot_50": "Carnot (50 %)",
     "carnot_hint": "The Carnot relation between the two temperatures, taken at 50 % efficiency as a rule-of-thumb for an achievable heat pump. Not a machine and not a fitted correlation, so a real machine can score above this line.",
-    "entry_type_hint": "Real rows are regressions over published operating data for real heat pumps, evaluated at each point's temperatures. Theoretical rows are reference points: technology archetypes from published correlations, plus Carnot, which is the thermodynamic relation between the two temperatures at 50 % efficiency."
+    "entry_type_hint": "Real rows are regressions over heat pump simulation data from a manufacturer parameter study, evaluated at each point's temperatures. Theoretical rows are reference points: technology archetypes from published correlations, plus Carnot, which is the thermodynamic relation between the two temperatures at 50 % efficiency.",
+    "title_w_el": "Electrical power",
+    "tooltip_w_el": "The electrical power the compressor draws. It closes the energy balance: P_el = Q_sink − Q_source, which is also Q_sink / COP. A higher COP means the same delivered heat costs less electricity.",
+    "hp_box_title": "Heat pump operating point",
+    "hp_box_what": "The pump lifts waste heat from the source profile up to the sink profile.",
+    "hp_box_source": "waste heat drawn from the process at that temperature",
+    "hp_box_el": "electrical power the compressor draws",
+    "hp_box_sink": "heat delivered to the process at that temperature",
+    "hp_box_cop": "heat delivered per unit of electricity",
+    "hp_box_balance": "Source + electrical input = delivered heat."
   },
   "cop_modal": {
     "title": "Custom COP formula",

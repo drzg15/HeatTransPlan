@@ -212,10 +212,10 @@ def _calculation_details(alt, t_source, t_sink):
             # A help bubble is never worth failing an analysis over.
             return None
     return (
-        f"Regression over published operating data for real heat pumps, "
-        f"evaluated for {alt['name']} (sink medium {alt['medium_sink']}, "
-        f"{alt['hp_level']} stage(s)) at T_source = {t_source:.1f} °C, "
-        f"T_sink = {t_sink:.1f} °C."
+        f"Regression over heat pump simulation data from a manufacturer "
+        f"parameter study, evaluated for {alt['name']} (sink medium "
+        f"{alt['medium_sink']}, {alt['hp_level']} stage(s)) at "
+        f"T_source = {t_source:.1f} °C, T_sink = {t_sink:.1f} °C."
     )
 
 
@@ -512,7 +512,15 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                     found_full = True
                     diag.accepted_full += 1
 
-                    if q_dem > max_q:
+                    # Dozens of machines can deliver the same maximum duty, so
+                    # duty alone leaves the pick to iteration order — it showed
+                    # a mid-range COP while the table listed a better one at the
+                    # identical duty. COP breaks the tie.
+                    if q_dem > max_q or (
+                        q_dem == max_q
+                        and max_q_point is not None
+                        and pt.COP > max_q_point.COP
+                    ):
                         max_q = q_dem
                         max_q_point = pt
 
@@ -576,7 +584,11 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                 else:
                     diag.accepted_demand_limited += 1
 
-                if q_sink_best > max_q:
+                if q_sink_best > max_q or (
+                    q_sink_best == max_q
+                    and max_q_point is not None
+                    and pt.COP > max_q_point.COP
+                ):
                     max_q = q_sink_best
                     max_q_point = pt
 
