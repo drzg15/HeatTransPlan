@@ -242,7 +242,11 @@ export default function HPIOptimizationPanel() {
       if (valA < valB) return config.direction === 'asc' ? -1 : 1;
       if (valA > valB) return config.direction === 'asc' ? 1 : -1;
     }
-    return 0;
+    // Every sort key can tie — Q_sink especially, since several machines often
+    // cover the same duty. Without a final tie-break the rows keep the order
+    // they were built in, which puts the archetypes on top and reads as an
+    // unsorted table. COP descending is the meaningful second key.
+    return b.COP - a.COP;
   });
 
   const rowsToRender = pointsToShow;
@@ -563,18 +567,49 @@ export default function HPIOptimizationPanel() {
                             </span>
                             {/* The refrigerant column is blank for archetypes,
                                 so the technology name rides here — otherwise
-                                Carnot and VHTHP rows look identical. */}
-                            {pt.theoretical && (
-                              <div
-                                style={{
-                                  fontSize: '0.75rem',
-                                  marginTop: '0.15rem',
-                                  color: isDark ? '#94A3B8' : '#64748B',
-                                }}
-                              >
-                                {pt.refrigerant}
-                              </div>
-                            )}
+                                Carnot and VHTHP rows look identical. The bulb
+                                carries the calculation, as in the HPI table. */}
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.25rem',
+                                fontSize: '0.75rem',
+                                marginTop: '0.15rem',
+                                color: isDark ? '#94A3B8' : '#64748B',
+                              }}
+                            >
+                              {pt.theoretical ? pt.refrigerant : ''}
+                              {pt.calculation_details && (
+                                <ChartHelpButton
+                                  inline
+                                  title={
+                                    pt.theoretical
+                                      ? `${pt.refrigerant} — ${t('optimization.calculation')}`
+                                      : t('optimization.calculation')
+                                  }
+                                  description={
+                                    <>
+                                      <p>
+                                        {pt.theoretical
+                                          ? t('optimization.theoretical_hint')
+                                          : t('optimization.real_hint')}
+                                      </p>
+                                      <pre
+                                        style={{
+                                          margin: 0,
+                                          whiteSpace: 'pre-wrap',
+                                          fontFamily: 'monospace',
+                                          fontSize: '0.9em',
+                                        }}
+                                      >
+                                        {pt.calculation_details}
+                                      </pre>
+                                    </>
+                                  }
+                                />
+                              )}
+                            </div>
                           </td>
                           {/* Refrigerant type, medium and stage count describe a
                               trained machine; an archetype has none of them. */}

@@ -404,7 +404,8 @@
     "theoretical": "Theoretical",
     "theoretical_hint": "A technology archetype from published regressions, not a specific machine. Shown as a reference against the modelled refrigerants.",
     "real": "Real",
-    "real_hint": "A modelled refrigerant machine: its COP comes from the trained model over real heat pump data."
+    "real_hint": "A modelled refrigerant machine: its COP comes from the trained model over real heat pump data.",
+    "calculation": "Calculation"
   },
   "cop_modal": {
     "title": "Custom COP formula",

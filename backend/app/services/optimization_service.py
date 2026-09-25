@@ -150,6 +150,7 @@ def _theoretical_alternatives():
     from app.modules.heat_pump_integration.heat_pump_integration import (
         HP_OPERATING_WINDOWS,
         HP_COP_CORRELATIONS,
+        HP_COP_FORMULAS,
     )
 
     alts = []
@@ -190,8 +191,31 @@ def _theoretical_alternatives():
             "deltaT_cond": OPTIMIZATION_CONFIG["deltaT_cond"],
             "cop_fn": make_fn(),
             "theoretical": True,
+            # Renders the published formula with a point's own temperatures.
+            "formula_fn": HP_COP_FORMULAS.get(name),
         })
     return alts
+
+
+def _calculation_details(alt, t_source, t_sink):
+    """The formula behind one point's COP, with its own temperatures filled in.
+
+    Archetypes carry a published correlation that can be written out; a trained
+    refrigerant does not, so it gets a short statement of where its COP came
+    from instead of a fake formula.
+    """
+    formula_fn = alt.get("formula_fn")
+    if formula_fn is not None:
+        try:
+            return formula_fn(t_sink, t_sink - t_source)
+        except Exception:
+            # A help bubble is never worth failing an analysis over.
+            return None
+    return (
+        f"COP predicted by the trained model for {alt['name']} "
+        f"({alt['medium_sink']}, {alt['hp_level']}) at "
+        f"T_source = {t_source:.1f} °C, T_sink = {t_sink:.1f} °C."
+    )
 
 
 def _prepare_xy_curve(x, y, is_source=False):
@@ -480,7 +504,8 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                         medium_sink=alt["medium_sink"],
                         refrigerant_type=alt["refrigerant_type"],
                         hp_level=alt["hp_level"],
-                        theoretical=alt.get("theoretical", False)
+                        theoretical=alt.get("theoretical", False),
+                        calculation_details=_calculation_details(alt, t_src_exact, t_snk)
                     )
                     feasible_points.append(pt)
                     found_full = True
@@ -539,7 +564,10 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                     medium_sink=alt["medium_sink"],
                     refrigerant_type=alt["refrigerant_type"],
                     hp_level=alt["hp_level"],
-                    theoretical=alt.get("theoretical", False)
+                    theoretical=alt.get("theoretical", False),
+                    calculation_details=_calculation_details(
+                        alt, float(t_src_valid[idx]), t_snk
+                    )
                 )
                 feasible_points.append(pt)
                 if limited:

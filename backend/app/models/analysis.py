@@ -171,6 +171,9 @@ class OptimizedIntegrationPoint(BaseModel):
     # draws less than the waste heat available at T_source, so the point sits
     # off the source profile with the remainder left to cold utility.
     demand_limited: bool = False
+    # How this point's COP was arrived at: the published formula with the
+    # point's own temperatures substituted, shown behind a help bulb.
+    calculation_details: Optional[str] = None
     # True for the literature technology archetypes (Carnot, VHTHP, ...) swept
     # through the same grid as the trained refrigerants. Their COP comes from a
     # published regression rather than the model, so the UI keeps them visually

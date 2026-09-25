@@ -404,7 +404,8 @@
     "theoretical": "Theoretisch",
     "theoretical_hint": "Ein Technologie-Archetyp aus veröffentlichten Regressionen, keine konkrete Maschine. Dient als Referenz zu den modellierten Kältemitteln.",
     "real": "Real",
-    "real_hint": "Eine modellierte Kältemittelmaschine: Der COP stammt aus dem trainierten Modell realer Wärmepumpendaten."
+    "real_hint": "Eine modellierte Kältemittelmaschine: Der COP stammt aus dem trainierten Modell realer Wärmepumpendaten.",
+    "calculation": "Berechnung"
   },
   "cop_modal": {
     "title": "Eigene COP-Formel",
