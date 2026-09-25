@@ -404,10 +404,10 @@
     "theoretical": "Theoretical",
     "theoretical_hint": "A technology archetype from published regressions, not a specific machine. Shown as a reference against the modelled refrigerants.",
     "real": "Real",
-    "real_hint": "A modelled refrigerant machine: its COP comes from the trained model over real heat pump data.",
+    "real_hint": "The COP comes from the trained model over real heat pump data.",
     "calculation": "Calculation",
     "carnot_50": "Carnot (50 %)",
-    "carnot_hint": "Not a machine and not a fitted correlation: the Carnot relation between the two temperatures, taken at 50 % efficiency as a rule-of-thumb for an achievable heat pump. A real machine can score above this line.",
+    "carnot_hint": "The Carnot relation between the two temperatures, taken at 50 % efficiency as a rule-of-thumb for an achievable heat pump. Not a machine and not a fitted correlation, so a real machine can score above this line.",
     "entry_type_hint": "Real rows are modelled refrigerant machines, with a COP predicted by the trained model. Theoretical rows are reference points: technology archetypes from published correlations, plus Carnot, which is the thermodynamic relation between the two temperatures at 50 % efficiency."
   },
   "cop_modal": {
