@@ -394,11 +394,10 @@ export default function HPIOptimizationChart({
             const pt = data.points[0];
             const matched = pt.customdata as OptimizedIntegrationPoint | undefined;
             if (matched && matched.refrigerant) {
-              // Find all points at the same T_sink
-              // Archetype diamonds live in their own series, so select from
-              // whichever set the clicked point came from.
-              const pool = matched.theoretical ? theoreticalPoints : filteredPoints;
-              const pointsAtTemp = pool.filter(
+              // Everything at this sink temperature, archetypes and real
+              // machines together — clicking a point is asking "what can run
+              // here?", and answering with only one kind hides half of it.
+              const pointsAtTemp = [...filteredPoints, ...theoreticalPoints].filter(
                 (p) => Math.abs(p.T_sink - matched.T_sink) < 0.01
               );
 

@@ -208,11 +208,13 @@ export default function HPIOptimizationPanel() {
   const bestOtherRow = allTheoretical
     .filter((p) => p.refrigerant !== 'Carnot')
     .sort((a, b) => b.Q_demand - a.Q_demand || b.COP - a.COP)[0];
-  const theoreticalRows = [carnotRow, bestOtherRow]
-    .filter((p): p is OptimizedIntegrationPoint => Boolean(p))
-    .sort((a, b) => b.COP - a.COP);
+  const theoreticalRows = [carnotRow, bestOtherRow].filter(
+    (p): p is OptimizedIntegrationPoint => Boolean(p)
+  );
 
-  const pointsToShow = [...tableData];
+  // Archetypes take part in the table's own sort rather than sitting in a
+  // pinned block, so one click on a header orders every row consistently.
+  const pointsToShow = [...theoreticalRows, ...tableData];
   selectedPoints.forEach((sp) => {
     if (!pointsToShow.some((p) => p.refrigerant === sp.refrigerant && p.T_sink === sp.T_sink)) {
       pointsToShow.unshift(sp);
@@ -243,11 +245,7 @@ export default function HPIOptimizationPanel() {
     return 0;
   });
 
-  // Archetypes sit above the real machines as a reference block. Their COP is a
-  // published regression, not a trained prediction, so ranking them against a
-  // purchasable refrigerant by COP would compare two different things — and a
-  // thermodynamic ceiling like Carnot would read as just another option.
-  const rowsToRender = [...theoreticalRows, ...pointsToShow];
+  const rowsToRender = pointsToShow;
 
   const handleSort = (key: SortKey) => {
     setSortConfigs((prev) => {
