@@ -69,25 +69,24 @@ export default function HPIOptimizationChart({
       bestPointsMap.set(key, pt);
     }
   }
-  // On a steep stretch of the sink profile, 25 °C of lift can cost barely
-  // 14 kW of duty, so dozens of points stack into a near-vertical line at
+  // On a steep stretch of the sink profile, tens of degrees of lift cost only
+  // a few kW, so dozens of points stack into a near-vertical line at
   // effectively the same power. They are not distinct options — the extra
-  // temperature buys nothing — so keep one per duty step, the coolest, which
-  // is the cheapest lift that delivers it. Points elsewhere are untouched.
-  const dutyStep = (() => {
-    const qs = Array.from(bestPointsMap.values()).map((p) => p.Q_demand);
-    if (qs.length === 0) return 0;
-    const span = Math.max(...qs) - Math.min(...qs);
-    // A step of ~1 % of the duty range: fine enough to keep genuinely separate
-    // solutions, coarse enough to collapse a vertical stack.
-    return span > 0 ? span / 100 : 0;
-  })();
-
+  // temperature buys no extra duty — and they crowd out the points that do
+  // differ. Thin them by duty, keeping the coolest sink temperature in each
+  // step: the cheapest lift that delivers that power.
+  //
+  // The step is in DUTY, so it only bites where duty is barely changing. A
+  // shallow stretch spreads its points across many steps and keeps them all.
   const collapseVerticals = (points: OptimizedIntegrationPoint[]) => {
-    if (dutyStep <= 0) return points;
+    const qs = points.map((p) => p.Q_demand);
+    const span = qs.length ? Math.max(...qs) - Math.min(...qs) : 0;
+    if (span <= 0) return points;
+    const step = span * 0.02;
+
     const perBucket = new Map<string, OptimizedIntegrationPoint>();
     for (const pt of points) {
-      const key = `${Math.round(pt.Q_demand / dutyStep)}_${pt.refrigerant_type}`;
+      const key = `${Math.round(pt.Q_demand / step)}_${pt.refrigerant}`;
       const existing = perBucket.get(key);
       // Lowest sink temperature wins; COP breaks an exact tie.
       if (
