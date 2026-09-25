@@ -408,11 +408,11 @@
     "theoretical": "Theoretical",
     "theoretical_hint": "A technology archetype from published regressions, not a specific machine. Shown as a reference against the modelled refrigerants.",
     "real": "Real",
-    "real_hint": "The COP comes from the trained model over real heat pump data.",
+    "real_hint": "A regression over published operating data for real heat pumps, fitted across refrigerants, sink media and compression stages, and evaluated here at this point's temperatures.",
     "calculation": "Calculation",
     "carnot_50": "Carnot (50 %)",
     "carnot_hint": "The Carnot relation between the two temperatures, taken at 50 % efficiency as a rule-of-thumb for an achievable heat pump. Not a machine and not a fitted correlation, so a real machine can score above this line.",
-    "entry_type_hint": "Real rows are modelled refrigerant machines, with a COP predicted by the trained model. Theoretical rows are reference points: technology archetypes from published correlations, plus Carnot, which is the thermodynamic relation between the two temperatures at 50 % efficiency."
+    "entry_type_hint": "Real rows are regressions over published operating data for real heat pumps, evaluated at each point's temperatures. Theoretical rows are reference points: technology archetypes from published correlations, plus Carnot, which is the thermodynamic relation between the two temperatures at 50 % efficiency."
   },
   "cop_modal": {
     "title": "Custom COP formula",
