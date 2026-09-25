@@ -406,7 +406,9 @@
     "real": "Real",
     "real_hint": "Eine modellierte Kältemittelmaschine: Der COP stammt aus dem trainierten Modell realer Wärmepumpendaten.",
     "calculation": "Berechnung",
-    "carnot_50": "Carnot (50 %)"
+    "carnot_50": "Carnot (50 %)",
+    "carnot_hint": "Keine Maschine und keine angepasste Korrelation: die Carnot-Beziehung zwischen den beiden Temperaturen, mit 50 % Wirkungsgrad als Faustregel für eine erreichbare Wärmepumpe. Eine reale Maschine kann über dieser Linie liegen.",
+    "entry_type_hint": "Reale Zeilen sind modellierte Kältemittelmaschinen, deren COP das trainierte Modell vorhersagt. Theoretische Zeilen sind Referenzpunkte: Technologie-Archetypen aus veröffentlichten Korrelationen sowie Carnot, die thermodynamische Beziehung zwischen den beiden Temperaturen bei 50 % Wirkungsgrad."
   },
   "cop_modal": {
     "title": "Eigene COP-Formel",
