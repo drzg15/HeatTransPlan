@@ -52,8 +52,10 @@ export default function CopCoverageChart() {
       x: frontier.map(([c]) => c),
       y: frontier.map(([, p]) => p.COP),
       mode: 'lines+markers' as const,
-      line: { color: isDark ? '#3B82F6' : '#2563EB', width: 2 },
-      marker: { size: 5, color: isDark ? '#3B82F6' : '#2563EB' },
+      // Lilac, the colour the heat pump box carries elsewhere: this axis is
+      // the pump's COP, not a hot or cold stream.
+      line: { color: isDark ? '#A78BFA' : '#7C3AED', width: 2 },
+      marker: { size: 5, color: isDark ? '#A78BFA' : '#7C3AED' },
       name: t('optimization.cop_coverage_best'),
       // Duty and sink temperature ride along so the hover carries all four
       // numbers that describe the point.
@@ -65,27 +67,13 @@ export default function CopCoverageChart() {
         `<br>COP: %{y:.2f}<extra></extra>`,
       showlegend: false,
     },
-    // Sink temperature on its own axis: it climbs as coverage grows, and it is
-    // the reason the COP falls, so showing both together makes the mechanism
-    // visible rather than implied.
-    {
-      x: frontier.map(([c]) => c),
-      y: frontier.map(([, p]) => p.T_sink),
-      yaxis: 'y2',
-      mode: 'lines' as const,
-      line: { color: isDark ? '#F87171' : '#DC2626', width: 1.5, dash: 'dash' as const },
-      name: t('optimization.cop_coverage_t'),
-      hovertemplate:
-        `${t('optimization.cop_coverage_t')}: %{y:.1f} °C<extra></extra>`,
-      showlegend: false,
-    },
   ];
 
-  // Coverage maps one-to-one onto duty, so the same axis can be labelled in kW
-  // underneath the percentage.
+  // Coverage maps one-to-one onto duty and onto a sink temperature, so one
+  // axis can carry all three rather than spending a second y-axis on it.
   const kwTicks = frontier
     .filter((_, i) => i % Math.max(1, Math.round(frontier.length / 8)) === 0)
-    .map(([c, p]) => ({ c, kw: p.Q_demand }));
+    .map(([c, p]) => ({ c, kw: p.Q_demand, t: p.T_sink }));
 
   const layout: any = {
     title: {
@@ -100,7 +88,9 @@ export default function CopCoverageChart() {
       // Each coverage level is a duty, so the tick carries both.
       tickmode: 'array' as const,
       tickvals: kwTicks.map((k) => k.c),
-      ticktext: kwTicks.map((k) => `${k.c} %<br>${k.kw.toFixed(0)} kW`),
+      ticktext: kwTicks.map(
+        (k) => `${k.c} %<br>${k.kw.toFixed(0)} kW<br>${k.t.toFixed(0)} °C`
+      ),
       automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
@@ -114,19 +104,10 @@ export default function CopCoverageChart() {
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
-    yaxis2: {
-      title: { text: t('optimization.cop_coverage_t_axis') },
-      overlaying: 'y' as const,
-      side: 'right' as const,
-      automargin: true,
-      showgrid: false,
-      tickfont: { color: isDark ? '#F87171' : '#DC2626' },
-      titlefont: { color: isDark ? '#F87171' : '#DC2626' },
-    },
     height: 420,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { l: 70, r: 70, t: 40, b: 80 },
+    margin: { l: 70, r: 20, t: 40, b: 95 },
     hovermode: 'closest' as const,
     showlegend: false,
   };
