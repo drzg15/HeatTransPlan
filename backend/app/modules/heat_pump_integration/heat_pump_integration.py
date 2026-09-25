@@ -42,8 +42,8 @@ HP_COP_FORMULAS = {
         lambda t_sink, dt: f"40.789 * ((T_sink - T_source) + 2.06)^-1.05 * (T_sink + 274.0)^0.30\n= 40.789 * (({t_sink:.1f} - {t_sink - dt:.1f}) + 2.061)^-1.0489 * ({t_sink:.1f} + 274.0305)^0.29998",
     'Carnot':
         lambda t_sink, dt: (
-            "50 % of the Carnot ceiling — not the ceiling itself, so a real "
-            "machine can and often does score above this line.\n"
+            "50 % of the Carnot ceiling, so a real machine can and often "
+            "does score above this line.\n"
             "COP = 0.5 * T_sink(K) / (T_sink - T_source)\n"
             f"= 0.5 * ({t_sink:.1f} + 273.15) / ({t_sink:.1f} - {t_sink - dt:.1f})\n"
             f"= 0.5 * {(t_sink + 273.15) / dt:.3f}"
