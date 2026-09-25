@@ -517,6 +517,13 @@
   -webkit-overflow-scrolling: touch;
 }
 
+/* Every row stays exactly one line tall: the columns are sized to their content
+   and the table scrolls sideways in its wrapper rather than wrapping a cell. */
+.pa-hp-table td,
+.pa-hp-table th {
+  white-space: nowrap;
+}
+
 /* Section labels above each HP group */
 .pa-hp-section-label {
   font-size: 0.75rem;

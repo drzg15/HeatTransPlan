@@ -41,12 +41,23 @@ HP_COP_FORMULAS = {
     'SHP and HTHPs (R717)':
         lambda t_sink, dt: f"40.789 * ((T_sink - T_source) + 2.06)^-1.05 * (T_sink + 274.0)^0.30\n= 40.789 * (({t_sink:.1f} - {t_sink - dt:.1f}) + 2.061)^-1.0489 * ({t_sink:.1f} + 274.0305)^0.29998",
     'Carnot':
-        lambda t_sink, dt: f"COP_carnot = T_sink(K) / (T_sink - T_source) * 0.5\n= ({t_sink:.1f} + 273.15) / ({t_sink:.1f} - {t_sink - dt:.1f}) * 0.5",
+        lambda t_sink, dt: (
+            "50 % of the Carnot ceiling — not the ceiling itself, so a real "
+            "machine can and often does score above this line.\n"
+            "COP = 0.5 * T_sink(K) / (T_sink - T_source)\n"
+            f"= 0.5 * ({t_sink:.1f} + 273.15) / ({t_sink:.1f} - {t_sink - dt:.1f})\n"
+            f"= 0.5 * {(t_sink + 273.15) / dt:.3f}"
+        ),
 }
 
 
 def carnot_cop(t_sink, dt):
-    """Carnot COP at 50 % efficiency — the generic fallback for 'any heat pump'."""
+    """Carnot COP at 50 % efficiency — the generic fallback for 'any heat pump'.
+
+    This is deliberately HALF the thermodynamic ceiling: a rule-of-thumb for a
+    realistically achievable machine, not an upper bound. Real refrigerants
+    scoring above it is expected and is not a physics violation.
+    """
     return (t_sink + 273.15) / dt * 0.5
 
 

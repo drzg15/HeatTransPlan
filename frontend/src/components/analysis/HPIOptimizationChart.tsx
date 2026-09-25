@@ -194,8 +194,10 @@ export default function HPIOptimizationChart({
       mode: 'lines+markers' as const,
       name: `${label} - ${t('analysis.charts.sink')}`,
       legendgroup: `theo_${techName}`,
-      line: { color: isDark ? '#34D399' : '#059669', width: 1, dash: 'dot' as const },
-      marker: { size: 7, color: isDark ? '#34D399' : '#059669', symbol: 'diamond' },
+      // Sink side is blue everywhere on this chart; the diamond, not a third
+      // colour, is what marks it as an archetype.
+      line: { color: 'blue', width: 1, dash: 'dot' as const },
+      marker: { size: 7, color: 'blue', symbol: 'diamond' },
       showlegend: false,
       text: pts.map(
         (p) =>
@@ -212,8 +214,9 @@ export default function HPIOptimizationChart({
       mode: 'lines+markers' as const,
       name: `${label} - ${t('analysis.charts.source')}`,
       legendgroup: `theo_${techName}`,
-      line: { color: isDark ? '#FBBF24' : '#D97706', width: 1, dash: 'dot' as const },
-      marker: { size: 7, color: isDark ? '#FBBF24' : '#D97706', symbol: 'diamond-open' },
+      // Source side is red everywhere on this chart.
+      line: { color: 'red', width: 1, dash: 'dot' as const },
+      marker: { size: 7, color: 'red', symbol: 'diamond-open' },
       showlegend: false,
       text: pts.map(
         (p) =>

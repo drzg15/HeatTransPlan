@@ -324,7 +324,14 @@ export default function HPIOptimizationPanel() {
     position: 'sticky' as const,
     top: 0,
     zIndex: 1,
+    // Headers carry a label plus a help bulb plus a sort arrow; letting them
+    // wrap is what made rows two lines tall.
+    whiteSpace: 'nowrap' as const,
   };
+
+  // The type cell holds a badge and a technology name side by side, so it needs
+  // more room than the numeric columns or its content wraps onto a second line.
+  const typeThStyle = { ...thStyle, minWidth: '190px' };
 
   return (
     <div className={`analysis-panel ${isDark ? 'dark-mode' : ''}`} style={{ marginTop: '2rem' }}>
@@ -361,7 +368,7 @@ export default function HPIOptimizationPanel() {
                 <table className="pa-table pa-hp-table">
                   <thead style={{ position: 'sticky', top: '30px', zIndex: 2 }}>
                     <tr>
-                      <th style={thStyle} onClick={() => handleSort('theoretical')}>
+                      <th style={typeThStyle} onClick={() => handleSort('theoretical')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                           {t('optimization.panel.headers.entry_type')}
                           <span onClick={(e) => e.stopPropagation()}>
@@ -533,6 +540,14 @@ export default function HPIOptimizationPanel() {
                           }
                         >
                           <td>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
                             <span
                               style={{
                                 display: 'inline-block',
@@ -567,20 +582,23 @@ export default function HPIOptimizationPanel() {
                             </span>
                             {/* The refrigerant column is blank for archetypes,
                                 so the technology name rides here — otherwise
-                                Carnot and VHTHP rows look identical. The bulb
-                                carries the calculation, as in the HPI table. */}
-                            <div
+                                Carnot and VHTHP rows look identical. Kept on
+                                the same line so every row is one line tall. */}
+                            <span
                               style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.25rem',
                                 fontSize: '0.75rem',
-                                marginTop: '0.15rem',
                                 color: isDark ? '#94A3B8' : '#64748B',
                               }}
                             >
-                              {pt.theoretical ? pt.refrigerant : ''}
-                              {pt.calculation_details && (
+                              {/* The Carnot entry is 50 % of the ceiling, not
+                                  the ceiling, so it says so on the row. */}
+                              {pt.theoretical
+                                ? pt.refrigerant === 'Carnot'
+                                  ? t('optimization.carnot_50')
+                                  : pt.refrigerant
+                                : ''}
+                            </span>
+                            {pt.calculation_details && (
                                 <ChartHelpButton
                                   inline
                                   title={
