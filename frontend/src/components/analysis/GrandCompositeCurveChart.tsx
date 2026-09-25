@@ -23,6 +23,10 @@ export default function GrandCompositeCurveChart() {
 
   // Build one trace per segment for color
   const traces: any[] = [];
+  // The curve is drawn segment by segment, so each colour would otherwise
+  // appear in the legend once per segment. Let the first segment of each
+  // colour carry the entry and silence the rest.
+  const legendShown = { red: false, blue: false };
   for (let i = 0; i < gccH.length - 1; i++) {
     let color = 'gray';
     if (i < heatCascade.length) {
@@ -30,13 +34,25 @@ export default function GrandCompositeCurveChart() {
       if (dh > 0) color = 'red';
       else if (dh < 0) color = 'blue';
     }
+    const keyed = color === 'red' || color === 'blue' ? (color as 'red' | 'blue') : null;
+    const showThis = keyed !== null && !legendShown[keyed];
+    if (keyed && showThis) legendShown[keyed] = true;
     traces.push({
       x: [gccH[i], gccH[i + 1]],
       y: [gccT[i], gccT[i + 1]],
       mode: 'lines+markers' as const,
       line: { color, width: 2 },
       marker: { size: 6, color },
-      showlegend: false,
+      // The colour tracks the sign of deltaH in that temperature interval, not
+      // which side of the pinch it falls on — red segments appear below the
+      // pinch too — so it is labelled as surplus and deficit.
+      name:
+        keyed === 'red'
+          ? t('analysis.charts.gcc_surplus')
+          : keyed === 'blue'
+            ? t('analysis.charts.gcc_deficit')
+            : undefined,
+      showlegend: showThis,
       hovertemplate: `T: %{y:.1f}°C<br>ΔH: %{x:.1f} kW<extra></extra>`,
     });
   }
@@ -68,7 +84,17 @@ export default function GrandCompositeCurveChart() {
     height: 520,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
-    margin: { l: 80, r: 30, t: 40, b: 80 },
+    // Matches the composite chart beside it: same margins, same legend
+    // placement, so the pair reads as one figure.
+    margin: { l: 80, r: 30, t: 60, b: 80 },
+    legend: {
+      orientation: 'h' as const,
+      x: 1,
+      y: 1.15,
+      xanchor: 'right' as const,
+      yanchor: 'bottom' as const,
+      font: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
+    },
     hovermode: 'closest' as const,
     shapes: [
       {

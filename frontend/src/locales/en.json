@@ -218,7 +218,9 @@
       "cooling_demand": "Cooling Demand (kW)",
       "best_hp_cop": "Best HP COP",
       "show_classic_hpi": "Show single-point heat pump analysis",
-      "hide_classic_hpi": "Hide single-point heat pump analysis"
+      "hide_classic_hpi": "Hide single-point heat pump analysis",
+      "gcc_surplus": "Net heat surplus",
+      "gcc_deficit": "Net heat deficit"
     },
     "recovery": {
       "title": "Heat recovery before integration",
