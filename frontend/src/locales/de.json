@@ -218,7 +218,9 @@
       "cooling_demand": "Kühlbedarf (kW)",
       "best_hp_cop": "Bester WP-COP",
       "show_classic_hpi": "Einzelpunkt-Wärmepumpenanalyse anzeigen",
-      "hide_classic_hpi": "Einzelpunkt-Wärmepumpenanalyse ausblenden"
+      "hide_classic_hpi": "Einzelpunkt-Wärmepumpenanalyse ausblenden",
+      "gcc_surplus": "Netto-Wärmeüberschuss",
+      "gcc_deficit": "Netto-Wärmedefizit"
     },
     "recovery": {
       "title": "Wärmerückgewinnung vor der Integration",
