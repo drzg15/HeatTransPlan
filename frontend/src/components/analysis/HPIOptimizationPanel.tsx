@@ -52,9 +52,10 @@ export default function HPIOptimizationPanel() {
   const [refrigerantTypeFilter, setRefrigerantTypeFilter] = useState<string>('All');
   const [refrigerantFilter, setRefrigerantFilter] = useState<string[]>([]); // Empty means 'All'
   const [hpLevelFilter, setHpLevelFilter] = useState<string[]>([]); // Empty means 'All'
-  // Theoretical reference rows are off by default — they are context for the
-  // real machines, not candidates — but stay one click away.
-  const [showTheoretical, setShowTheoretical] = useState(false);
+  // Theoretical reference rows are shown by default: they are the context the
+  // real machines are read against, and with them hidden a click on the chart
+  // cannot select them either. Untick to get the modelled machines alone.
+  const [showTheoretical, setShowTheoretical] = useState(true);
   const [showSourceLimited, setShowSourceLimited] = useState(false);
   const [showDemandLimited, setShowDemandLimited] = useState(false);
 
