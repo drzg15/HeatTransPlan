@@ -305,8 +305,9 @@ export default function HPIOptimizationChart({
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
-    // Matches the HPI chart above so the two plots read as one pair.
-    height: 400,
+    // Taller than the HPI chart above: this one carries the whole solution
+    // cloud plus the archetype curves, which need the vertical room.
+    height: 560,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     // Plain axis margin.
