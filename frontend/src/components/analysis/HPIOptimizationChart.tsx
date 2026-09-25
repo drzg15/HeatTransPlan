@@ -69,7 +69,39 @@ export default function HPIOptimizationChart({
       bestPointsMap.set(key, pt);
     }
   }
-  const filteredPoints = Array.from(bestPointsMap.values());
+  // On a steep stretch of the sink profile, 25 °C of lift can cost barely
+  // 14 kW of duty, so dozens of points stack into a near-vertical line at
+  // effectively the same power. They are not distinct options — the extra
+  // temperature buys nothing — so keep one per duty step, the coolest, which
+  // is the cheapest lift that delivers it. Points elsewhere are untouched.
+  const dutyStep = (() => {
+    const qs = Array.from(bestPointsMap.values()).map((p) => p.Q_demand);
+    if (qs.length === 0) return 0;
+    const span = Math.max(...qs) - Math.min(...qs);
+    // A step of ~1 % of the duty range: fine enough to keep genuinely separate
+    // solutions, coarse enough to collapse a vertical stack.
+    return span > 0 ? span / 100 : 0;
+  })();
+
+  const collapseVerticals = (points: OptimizedIntegrationPoint[]) => {
+    if (dutyStep <= 0) return points;
+    const perBucket = new Map<string, OptimizedIntegrationPoint>();
+    for (const pt of points) {
+      const key = `${Math.round(pt.Q_demand / dutyStep)}_${pt.refrigerant_type}`;
+      const existing = perBucket.get(key);
+      // Lowest sink temperature wins; COP breaks an exact tie.
+      if (
+        !existing ||
+        pt.T_sink < existing.T_sink ||
+        (pt.T_sink === existing.T_sink && pt.COP > existing.COP)
+      ) {
+        perBucket.set(key, pt);
+      }
+    }
+    return Array.from(perBucket.values());
+  };
+
+  const filteredPoints = collapseVerticals(Array.from(bestPointsMap.values()));
 
   // The technology archetypes are grouped per technology instead, so each keeps
   // its own curve rather than competing with the refrigerants for a T_sink slot.
