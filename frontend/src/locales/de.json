@@ -422,7 +422,16 @@
     "hp_box_el": "elektrische Leistung, die der Verdichter aufnimmt",
     "hp_box_sink": "Wärme, die dem Prozess bei dieser Temperatur zugeführt wird",
     "hp_box_cop": "gelieferte Wärme je Einheit Strom",
-    "hp_box_balance": "Quelle + elektrische Leistung = gelieferte Wärme."
+    "hp_box_balance": "Quelle + elektrische Leistung = gelieferte Wärme.",
+    "cop_coverage_title": "COP gegen Senkenabdeckung",
+    "cop_coverage_x_axis": "Anteil des gedeckten Senkenbedarfs in %",
+    "cop_coverage_y_axis": "COP",
+    "cop_coverage_x": "Abdeckung",
+    "cop_coverage_all": "Alle Lösungen",
+    "cop_coverage_best": "Bester COP je Abdeckung",
+    "cop_coverage_help_1": "Eine Wärmepumpe deckt nur den Bedarf oberhalb ihrer Senkentemperatur. Liegt sie niedrig auf dem Senkenprofil, deckt sie einen kleinen Anteil des Gesamtbedarfs — aber über einen kurzen Temperaturhub, der günstig ist, sodass der COP hoch ausfällt.",
+    "cop_coverage_help_2": "Je näher die Abdeckung an 100 % rückt, desto höher die Senkentemperatur, desto größer der Hub und desto niedriger der COP. Die Linie zeigt den besten COP je Abdeckungsgrad; alles darunter ist für dieselbe Aufgabe die schlechtere Maschine.",
+    "cop_coverage_help_3": "Es gibt keine eindeutig richtige Wahl. Eine Pumpe mit hohem COP bei 30 % Abdeckung überlässt den Rest der externen Versorgung, während volle Abdeckung mehr Strom je Wärmeeinheit kostet — entscheidend ist, was diese verbleibende Versorgung kostet."
   },
   "cop_modal": {
     "title": "Eigene COP-Formel",
