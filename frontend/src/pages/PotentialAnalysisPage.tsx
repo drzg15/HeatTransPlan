@@ -27,6 +27,7 @@ import StatusQuoComparison from '../components/analysis/StatusQuoComparison';
 import TemperatureIntervalDiagram from '../components/analysis/TemperatureIntervalDiagram';
 import ScenarioComparison from '../components/analysis/ScenarioComparison';
 import HPIOptimizationPanel from '../components/analysis/HPIOptimizationPanel';
+import CopCoverageChart from '../components/analysis/CopCoverageChart';
 import HeatRecoveryToggle from '../components/analysis/HeatRecoveryToggle';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../hooks/useMediaQuery';
@@ -883,6 +884,7 @@ export default function PotentialAnalysisPage() {
               >
                 <summary>{t('analysis.more_info')}</summary>
                 <TemperatureIntervalDiagram />
+                <CopCoverageChart />
               </details>
 
               {/* Scenario Comparison View */}

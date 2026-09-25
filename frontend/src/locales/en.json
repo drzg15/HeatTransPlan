@@ -422,7 +422,16 @@
     "hp_box_el": "electrical power the compressor draws",
     "hp_box_sink": "heat delivered to the process at that temperature",
     "hp_box_cop": "heat delivered per unit of electricity",
-    "hp_box_balance": "Source + electrical input = delivered heat."
+    "hp_box_balance": "Source + electrical input = delivered heat.",
+    "cop_coverage_title": "COP vs. sink coverage",
+    "cop_coverage_x_axis": "Share of the sink demand covered in %",
+    "cop_coverage_y_axis": "COP",
+    "cop_coverage_x": "Coverage",
+    "cop_coverage_all": "All solutions",
+    "cop_coverage_best": "Best COP at each coverage",
+    "cop_coverage_help_1": "A heat pump only serves the demand above its sink temperature. Sitting low on the sink profile means covering a small share of the total — but over a short temperature lift, which is cheap, so the COP is high.",
+    "cop_coverage_help_2": "Pushing coverage towards 100 % forces the sink temperature up, the lift grows, and the COP falls. The line is the best COP available at each coverage level; everything below it is a worse machine for the same job.",
+    "cop_coverage_help_3": "There is no single right answer. A high-COP pump covering 30 % leaves the rest to utility, while full coverage costs more electricity per unit of heat — the choice depends on what that remaining utility costs you."
   },
   "cop_modal": {
     "title": "Custom COP formula",
