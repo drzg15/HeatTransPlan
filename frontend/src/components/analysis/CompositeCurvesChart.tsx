@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
+import { pairedTempRange } from './pairedTempRange';
 
 export default function CompositeCurvesChart() {
   const { t } = useTranslation();
@@ -57,7 +58,9 @@ export default function CompositeCurvesChart() {
     },
     yaxis: {
       title: { text: t('analysis.charts.temp') },
-      rangemode: 'tozero',
+      // Shared with the GCC beside it so both pinch lines sit at the same
+      // height; see pairedTempRange.
+      range: pairedTempRange(pinchResult, showShifted),
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
