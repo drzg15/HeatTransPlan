@@ -16,6 +16,7 @@ type SortKey =
   | 'T_source'
   | 'T_sink'
   | 'Q_source'
+  | 'W_el'
   | 'Q_demand'
   | 'theoretical';
 
@@ -175,10 +176,22 @@ export default function HPIOptimizationPanel() {
         : best,
     null
   );
+  // The headline pump is a machine you could actually buy, so the default
+  // highlight skips the theoretical references — Carnot wins on COP at the top
+  // duty and would otherwise always be the one in the box.
+  const bestRealPoint = chartPoints.reduce<OptimizedIntegrationPoint | null>(
+    (best, p) =>
+      p.theoretical
+        ? best
+        : !best || p.Q_demand > best.Q_demand || (p.Q_demand === best.Q_demand && p.COP > best.COP)
+          ? p
+          : best,
+    null
+  );
   const chartMaxQPoint =
-    max_q_point && chartPoints.some((p) => isSamePoint(p, max_q_point))
+    max_q_point && !max_q_point.theoretical && chartPoints.some((p) => isSamePoint(p, max_q_point))
       ? max_q_point
-      : bestVisiblePoint;
+      : (bestRealPoint ?? bestVisiblePoint);
 
   const bestByType = new Map<string, OptimizedIntegrationPoint>();
   for (const pt of filteredPoints) {
@@ -239,13 +252,21 @@ export default function HPIOptimizationPanel() {
   // Sorting
   pointsToShow.sort((a, b) => {
     for (const config of sortConfigs) {
-      let valA: any = a[config.key];
-      let valB: any = b[config.key];
-
-      if (config.key === 'Q_source') {
-        valA = (a.Q_demand * (a.COP - 1)) / a.COP;
-        valB = (b.Q_demand * (b.COP - 1)) / b.COP;
-      }
+      // Q_source and P_el are derived rather than stored on the point, so they
+      // are computed here instead of read off the object.
+      const valueFor = (p: OptimizedIntegrationPoint): string | number | boolean | undefined => {
+        switch (config.key) {
+          case 'Q_source':
+            return (p.Q_demand * (p.COP - 1)) / p.COP;
+          // Electrical input closes the balance: Q_sink - Q_source = Q_sink/COP.
+          case 'W_el':
+            return p.Q_demand / p.COP;
+          default:
+            return p[config.key];
+        }
+      };
+      let valA = valueFor(a);
+      let valB = valueFor(b);
 
       // theoretical is an optional boolean; compare it as 0/1 so undefined
       // sorts with the real machines rather than below everything.
@@ -253,6 +274,7 @@ export default function HPIOptimizationPanel() {
         valA = a.theoretical ? 1 : 0;
         valB = b.theoretical ? 1 : 0;
       }
+      if (valA === undefined || valB === undefined) continue;
 
       if (valA < valB) return config.direction === 'asc' ? -1 : 1;
       if (valA > valB) return config.direction === 'asc' ? 1 : -1;
@@ -348,6 +370,21 @@ export default function HPIOptimizationPanel() {
   // The type cell holds a badge and a technology name side by side, so it needs
   // more room than the numeric columns or its content wraps onto a second line.
   const typeThStyle = { ...thStyle, minWidth: '190px' };
+  // Holds only "Natural"/"Synthetic", so it needs far less room than its
+  // header once implied.
+  const narrowThStyle = { ...thStyle, width: '1%' };
+
+  // Tints matching the heat pump overlay in the chart, so a column can be read
+  // back to the arrow it belongs to. Kept pale: these sit behind black text on
+  // alternating row stripes, so anything saturated is hard on the eyes.
+  const sinkCell = { backgroundColor: isDark ? 'rgba(59,130,246,0.14)' : 'rgba(143,174,224,0.20)' };
+  const sourceCell = { backgroundColor: isDark ? 'rgba(248,113,113,0.14)' : 'rgba(232,139,139,0.20)' };
+  const elCell = { backgroundColor: isDark ? 'rgba(110,231,183,0.13)' : 'rgba(95,174,140,0.18)' };
+  // COP belongs to the heat pump itself, so it takes the box's lilac.
+  const copCell = {
+    backgroundColor: isDark ? 'rgba(167,139,250,0.16)' : 'rgba(124,58,237,0.13)',
+    fontWeight: 600,
+  };
 
   // Carnot is not a fitted correlation like the other archetypes — it is the
   // thermodynamic relation between the two temperatures — so it gets its own
@@ -407,7 +444,7 @@ export default function HPIOptimizationPanel() {
                           {renderSortIcon('theoretical')}
                         </div>
                       </th>
-                      <th style={thStyle} onClick={() => handleSort('refrigerant_type')}>
+                      <th style={narrowThStyle} onClick={() => handleSort('refrigerant_type')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                           {t('optimization.panel.headers.refrigerant_type')}
                           <span onClick={(e) => e.stopPropagation()}>
@@ -470,6 +507,19 @@ export default function HPIOptimizationPanel() {
                             />
                           </span>
                           {renderSortIcon('Q_source')}
+                        </div>
+                      </th>
+                      <th style={thStyle} onClick={() => handleSort('W_el')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          {t('optimization.panel.headers.w_el')}
+                          <span onClick={(e) => e.stopPropagation()}>
+                            <ChartHelpButton
+                              title={t('optimization.title_w_el')}
+                              description={t('optimization.tooltip_w_el')}
+                              inline={true}
+                            />
+                          </span>
+                          {renderSortIcon('W_el')}
                         </div>
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_sink')}>
@@ -653,8 +703,9 @@ export default function HPIOptimizationPanel() {
                               trained machine; an archetype has none of them. */}
                           <td>{pt.theoretical ? '' : pt.refrigerant_type}</td>
                           <td>{pt.theoretical ? '' : pt.medium_sink}</td>
-                          <td style={{ fontWeight: 600 }}>{pt.COP.toFixed(2)}</td>
+                          <td style={copCell}>{pt.COP.toFixed(2)}</td>
                           <td
+                            style={sinkCell}
                             title={
                               pt.source_limited && pt.Q_demand_total
                                 ? `Source-limited: the available waste heat only covers ${((100 * pt.Q_demand) / pt.Q_demand_total).toFixed(0)} % of the ${pt.Q_demand_total.toFixed(1)} kW required above this sink temperature.`
@@ -673,11 +724,14 @@ export default function HPIOptimizationPanel() {
                               </span>
                             ) : null}
                           </td>
-                          <td>{((pt.Q_demand * (pt.COP - 1)) / pt.COP).toFixed(1)}</td>
-                          <td>{pt.T_sink.toFixed(1)}</td>
-                          <td>{(pt.T_sink + tMin/2).toFixed(1)}</td>
-                          <td>{pt.T_source.toFixed(1)}</td>
-                          <td>{(pt.T_source - tMin/2).toFixed(1)}</td>
+                          <td style={sourceCell}>
+                            {((pt.Q_demand * (pt.COP - 1)) / pt.COP).toFixed(1)}
+                          </td>
+                          <td style={elCell}>{(pt.Q_demand / pt.COP).toFixed(1)}</td>
+                          <td style={sinkCell}>{pt.T_sink.toFixed(1)}</td>
+                          <td style={sinkCell}>{(pt.T_sink + tMin / 2).toFixed(1)}</td>
+                          <td style={sourceCell}>{pt.T_source.toFixed(1)}</td>
+                          <td style={sourceCell}>{(pt.T_source - tMin / 2).toFixed(1)}</td>
                           <td>{pt.theoretical ? '' : refName}</td>
                           <td>{pt.theoretical ? '' : pt.hp_level}</td>
                         </tr>
