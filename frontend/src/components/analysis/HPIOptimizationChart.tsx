@@ -100,7 +100,25 @@ export default function HPIOptimizationChart({
     return Array.from(perBucket.values());
   };
 
-  const filteredPoints = collapseVerticals(Array.from(bestPointsMap.values()));
+  // Active points are drawn as their own markers regardless of thinning, so if
+  // thinning drops one it is left standing alone off the line. Keep whatever is
+  // active in the cloud it belongs to.
+  const activeKeys = new Set(
+    (selectedPoints.length > 0 ? selectedPoints : maxQPoint ? [maxQPoint] : []).map(
+      (p) => `${p.refrigerant}_${p.T_sink.toFixed(2)}`
+    )
+  );
+  const keepActive = (points: OptimizedIntegrationPoint[], thinned: OptimizedIntegrationPoint[]) => {
+    const have = new Set(thinned.map((p) => `${p.refrigerant}_${p.T_sink.toFixed(2)}`));
+    const extra = points.filter((p) => {
+      const k = `${p.refrigerant}_${p.T_sink.toFixed(2)}`;
+      return activeKeys.has(k) && !have.has(k);
+    });
+    return extra.length ? [...thinned, ...extra] : thinned;
+  };
+
+  const bestPointsList = Array.from(bestPointsMap.values());
+  const filteredPoints = keepActive(bestPointsList, collapseVerticals(bestPointsList));
 
   // The technology archetypes are grouped per technology instead, so each keeps
   // its own curve rather than competing with the refrigerants for a T_sink slot.
@@ -116,7 +134,8 @@ export default function HPIOptimizationChart({
   // Archetypes stack on a steep profile exactly as the refrigerants do, so they
   // get the same thinning — otherwise the diamonds keep the vertical alive
   // after the dots have been thinned out of it.
-  const theoreticalPoints = collapseVerticals(Array.from(theoreticalBest.values()));
+  const theoreticalList = Array.from(theoreticalBest.values());
+  const theoreticalPoints = keepActive(theoreticalList, collapseVerticals(theoreticalList));
 
   const traces: any[] = [];
 
