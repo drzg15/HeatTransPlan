@@ -262,12 +262,14 @@ export default function HPIOptimizationChart({
     traces.push({
       x: pts.map((p) => p.Q_demand),
       y: pts.map((p) => p.T_sink),
-      mode: 'lines+markers' as const,
+      // Markers only. Joining consecutive archetype points drew a straight
+      // line between them, which cut across the pocket the curve goes around —
+      // a segment no heat pump operates on. The diamonds are the data.
+      mode: 'markers' as const,
       name: `${label} - ${t('analysis.charts.sink')}`,
       legendgroup: `theo_${techName}`,
       // Sink side is blue everywhere on this chart; the diamond, not a third
       // colour, is what marks it as an archetype.
-      line: { color: SINK_SOFT, width: 1, dash: 'dot' as const },
       marker: { size: 7, color: SINK_SOFT, symbol: 'diamond' },
       showlegend: false,
       text: pts.map(
@@ -282,11 +284,10 @@ export default function HPIOptimizationChart({
     traces.push({
       x: pts.map((p) => srcSign * ((p.Q_demand * (p.COP - 1)) / p.COP)),
       y: pts.map((p) => p.T_source),
-      mode: 'lines+markers' as const,
+      mode: 'markers' as const,
       name: `${label} - ${t('analysis.charts.source')}`,
       legendgroup: `theo_${techName}`,
       // Source side is red everywhere on this chart.
-      line: { color: SOURCE_SOFT, width: 1, dash: 'dot' as const },
       marker: { size: 7, color: SOURCE_SOFT, symbol: 'diamond-open' },
       showlegend: false,
       text: pts.map(
