@@ -198,11 +198,16 @@ export default function HPIOptimizationPanel() {
   // Carnot is the thermodynamic ceiling, so it always stays as the reference.
   // Of the remaining archetypes only the best one is shown — listing every
   // technology that happens to fit at some sink temperature buried the table.
+  //
+  // "Best" is the one at the maximum integration point, not the highest COP:
+  // an archetype that only fits at a low sink temperature covers a fraction of
+  // the demand, and its COP is high precisely because it does less work. Duty
+  // first, COP as the tie-break — the same order bestByType uses above.
   const allTheoretical = Array.from(bestTheoretical.values());
   const carnotRow = allTheoretical.find((p) => p.refrigerant === 'Carnot');
   const bestOtherRow = allTheoretical
     .filter((p) => p.refrigerant !== 'Carnot')
-    .sort((a, b) => b.COP - a.COP)[0];
+    .sort((a, b) => b.Q_demand - a.Q_demand || b.COP - a.COP)[0];
   const theoreticalRows = [carnotRow, bestOtherRow]
     .filter((p): p is OptimizedIntegrationPoint => Boolean(p))
     .sort((a, b) => b.COP - a.COP);
