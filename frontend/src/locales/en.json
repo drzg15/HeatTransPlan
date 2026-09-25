@@ -426,7 +426,7 @@
     "hp_box_cop": "heat delivered per unit of electricity",
     "hp_box_balance": "Source + electrical input = delivered heat.",
     "cop_coverage_title": "COP vs. sink coverage",
-    "cop_coverage_x_axis": "Share of the sink demand covered",
+    "cop_coverage_x_axis": "Sink coverage · duty · sink temperature",
     "cop_coverage_y_axis": "COP",
     "cop_coverage_x": "Coverage",
     "cop_coverage_all": "All solutions",

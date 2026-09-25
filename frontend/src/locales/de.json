@@ -426,7 +426,7 @@
     "hp_box_cop": "gelieferte Wärme je Einheit Strom",
     "hp_box_balance": "Quelle + elektrische Leistung = gelieferte Wärme.",
     "cop_coverage_title": "COP gegen Senkenabdeckung",
-    "cop_coverage_x_axis": "Anteil des gedeckten Senkenbedarfs",
+    "cop_coverage_x_axis": "Senkenabdeckung · Leistung · Senkentemperatur",
     "cop_coverage_y_axis": "COP",
     "cop_coverage_x": "Abdeckung",
     "cop_coverage_all": "Alle Lösungen",
