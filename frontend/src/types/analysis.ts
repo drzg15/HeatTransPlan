@@ -145,6 +145,9 @@ export interface OptimizedIntegrationPoint {
   /** True when the sink demand caps the duty while source heat is still available,
    *  putting the point off the source profile. */
   demand_limited?: boolean;
+  /** The formula or model statement behind this point's COP, with its own
+   *  temperatures substituted — shown behind the help bulb in the table. */
+  calculation_details?: string | null;
   /** True for the literature technology archetypes (Carnot, VHTHP, ...) rather
    *  than a trained refrigerant. Their COP comes from a published regression,
    *  so they are kept visually apart from real machines. */
