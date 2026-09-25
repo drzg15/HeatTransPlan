@@ -333,6 +333,16 @@ export default function HPIOptimizationPanel() {
   // more room than the numeric columns or its content wraps onto a second line.
   const typeThStyle = { ...thStyle, minWidth: '190px' };
 
+  // Carnot is not a fitted correlation like the other archetypes — it is the
+  // thermodynamic relation between the two temperatures — so it gets its own
+  // explanation rather than the "published regressions" one.
+  const entryHint = (pt: OptimizedIntegrationPoint) =>
+    !pt.theoretical
+      ? t('optimization.real_hint')
+      : pt.refrigerant === 'Carnot'
+        ? t('optimization.carnot_hint')
+        : t('optimization.theoretical_hint');
+
   return (
     <div className={`analysis-panel ${isDark ? 'dark-mode' : ''}`} style={{ marginTop: '2rem' }}>
       <div className="pa-split-layout">
@@ -373,8 +383,8 @@ export default function HPIOptimizationPanel() {
                           {t('optimization.panel.headers.entry_type')}
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
-                              title={t('optimization.theoretical')}
-                              description={t('optimization.theoretical_hint')}
+                              title={t('optimization.panel.headers.entry_type')}
+                              description={t('optimization.entry_type_hint')}
                               inline={true}
                             />
                           </span>
@@ -570,11 +580,7 @@ export default function HPIOptimizationPanel() {
                                     ? '#BFDBFE'
                                     : '#1E3A8A',
                               }}
-                              title={
-                                pt.theoretical
-                                  ? t('optimization.theoretical_hint')
-                                  : t('optimization.real_hint')
-                              }
+                              title={entryHint(pt)}
                             >
                               {pt.theoretical
                                 ? t('optimization.theoretical')
@@ -609,9 +615,7 @@ export default function HPIOptimizationPanel() {
                                   description={
                                     <>
                                       <p>
-                                        {pt.theoretical
-                                          ? t('optimization.theoretical_hint')
-                                          : t('optimization.real_hint')}
+                                        {entryHint(pt)}
                                       </p>
                                       <pre
                                         style={{
