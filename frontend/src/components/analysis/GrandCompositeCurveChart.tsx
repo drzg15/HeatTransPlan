@@ -58,7 +58,9 @@ export default function GrandCompositeCurveChart() {
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
       titlefont: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
-    height: 400,
+    // Paired side by side in .pa-charts-row — both charts carry the same
+    // height so the row keeps a straight baseline.
+    height: 520,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     margin: { l: 80, r: 30, t: 40, b: 80 },

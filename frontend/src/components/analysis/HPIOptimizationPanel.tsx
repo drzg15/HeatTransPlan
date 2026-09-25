@@ -363,7 +363,7 @@ export default function HPIOptimizationPanel() {
     <div className={`analysis-panel ${isDark ? 'dark-mode' : ''}`} style={{ marginTop: '2rem' }}>
       <div className="pa-split-layout">
         <div className="pa-left-col">
-          <div className="pa-hp-table-wrap" style={{ maxHeight: '250px', overflowY: 'auto' }}>
+          <div className="pa-hp-table-wrap" style={{ maxHeight: '440px', overflowY: 'auto' }}>
             {rowsToRender.length > 0 ? (
               <>
                 <div
