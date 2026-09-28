@@ -216,7 +216,11 @@
       "sink_profile": "Sink profile",
       "heating_demand": "Heating Demand (kW)",
       "cooling_demand": "Cooling Demand (kW)",
-      "best_hp_cop": "Best HP COP"
+      "best_hp_cop": "Best HP COP",
+      "show_classic_hpi": "Show single-point heat pump analysis",
+      "hide_classic_hpi": "Hide single-point heat pump analysis",
+      "gcc_surplus": "Net heat surplus",
+      "gcc_deficit": "Net heat deficit"
     },
     "recovery": {
       "title": "Heat recovery before integration",
@@ -291,7 +295,7 @@
       "title": "Integration with Heat Pump model and optimization",
       "instruction": "Click on any column header to sort. Click on any point in the chart to inspect its details and add it to the table.",
       "headers": {
-        "refrigerant_type": "REFRIGERANT TYPE",
+        "refrigerant_type": "REFRIG.",
         "medium_sink": "MEDIUM SINK",
         "cop": "COP",
         "q_sink": "Q_SINK (KW)",
@@ -299,7 +303,9 @@
         "t_sink": "TEMP_SINK (°C)",
         "t_source": "TEMP_SOURCE (°C)",
         "refrigerant": "REFRIGERANT",
-        "hp_stages": "HP STAGES"
+        "hp_stages": "HP STAGES",
+        "entry_type": "TYPE",
+        "w_el": "P_EL (KW)"
       },
       "filters": {
         "all": "All",
@@ -317,7 +323,9 @@
         "hp_stages": "HP STAGES",
         "cop_source": "COP SOURCE",
         "custom_cop_btn": "Use my own COP formula",
-        "custom_cop_desc": "Paste a custom COP to perform integration and optimization with your own heat pump."
+        "custom_cop_desc": "Paste a custom COP to perform integration and optimization with your own heat pump.",
+        "show_theoretical": "Show theoretical heat pumps",
+        "show_theoretical_desc": "Carnot and the best technology archetype, as reference points against the modelled machines."
       }
     },
     "title_actual_source_temp": "Actual Source Temp",
@@ -399,7 +407,39 @@
     "desc_opt_chart_off_3": ". This means the available waste heat (red line) is not enough to cover the ",
     "desc_opt_chart_off_4": "entire",
     "desc_opt_chart_off_5": " heating demand required by the process at that specific temperature.",
-    "desc_opt_chart_rest": "The heat pump can only supply a portion of the total demand, so it is plotted at a smaller kW value. The rest of the heat will still need to be supplied by an external utility."
+    "desc_opt_chart_rest": "The heat pump can only supply a portion of the total demand, so it is plotted at a smaller kW value. The rest of the heat will still need to be supplied by an external utility.",
+    "theoretical": "Theoretical",
+    "theoretical_hint": "A technology archetype from published regressions, not a specific machine. Shown as a reference against the modelled refrigerants.",
+    "real": "Real",
+    "real_hint": "A regression over heat pump simulation data from a manufacturer parameter study, covering refrigerants, sink media and compression stages, and evaluated here at this point's temperatures.",
+    "calculation": "Calculation",
+    "carnot_50": "Carnot (50 %)",
+    "carnot_hint": "The Carnot relation between the two temperatures, taken at 50 % efficiency as a rule-of-thumb for an achievable heat pump. Not a machine and not a fitted correlation, so a real machine can score above this line.",
+    "entry_type_hint": "Real rows are regressions over heat pump simulation data from a manufacturer parameter study, evaluated at each point's temperatures. Theoretical rows are reference points: technology archetypes from published correlations, plus Carnot, which is the thermodynamic relation between the two temperatures at 50 % efficiency.",
+    "title_w_el": "Electrical power",
+    "tooltip_w_el": "The electrical power the compressor draws. It closes the energy balance: P_el = Q_sink − Q_source, which is also Q_sink / COP. A higher COP means the same delivered heat costs less electricity.",
+    "hp_box_title": "Heat pump operating point",
+    "hp_box_what": "The pump lifts waste heat from the source profile up to the sink profile.",
+    "hp_box_source": "waste heat drawn from the process at that temperature",
+    "hp_box_el": "electrical power the compressor draws",
+    "hp_box_sink": "heat delivered to the process at that temperature",
+    "hp_box_cop": "heat delivered per unit of electricity",
+    "hp_box_balance": "Source + electrical input = delivered heat.",
+    "cop_coverage_title": "COP vs. sink coverage",
+    "cop_coverage_x_axis": "Sink coverage · duty · sink temperature",
+    "cop_coverage_y_axis": "COP",
+    "cop_coverage_x": "Coverage",
+    "cop_coverage_all": "All solutions",
+    "cop_coverage_best": "Best COP at each coverage",
+    "cop_coverage_help_1": "A heat pump only serves the demand above its sink temperature. Sitting low on the sink profile means covering a small share of the total — but over a short temperature lift, which is cheap, so the COP is high.",
+    "cop_coverage_help_2": "Pushing coverage towards 100 % forces the sink temperature up, the lift grows, and the COP falls. The line is the best COP available at each coverage level; everything below it is a worse machine for the same job.",
+    "cop_coverage_help_3": "There is no single right answer. A high-COP pump covering 30 % leaves the rest to utility, while full coverage costs more electricity per unit of heat — the choice depends on what that remaining utility costs you.",
+    "cop_coverage_q": "Sink duty",
+    "cop_coverage_t": "Sink temperature",
+    "cop_coverage_t_axis": "Sink temperature in °C",
+    "hover_also_here": "also here",
+    "hover_more": "more",
+    "hover_demand_limited": "demand-limited: waste heat left unused at this temperature"
   },
   "cop_modal": {
     "title": "Custom COP formula",

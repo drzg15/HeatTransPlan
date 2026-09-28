@@ -134,6 +134,91 @@ def _formula_alternative(spec):
     }
 
 
+def _theoretical_alternatives():
+    """The literature technology archetypes, shaped like model alternatives.
+
+    The HPI panel above evaluates these same five correlations at a single sink
+    temperature. Here they are swept through the optimiser's full grid so they
+    appear as curves alongside the trained refrigerants, which is only valid
+    because both sides use the identical shifted-temperature convention and the
+    identical duty relation Q_sink = Q_source * COP/(COP-1).
+
+    Each archetype is only rated inside its own sink/lift window, so the COP
+    callable returns -1 outside it: the optimiser already discards any COP <= 1,
+    which enforces the window without touching its loop.
+    """
+    from app.modules.heat_pump_integration.heat_pump_integration import (
+        HP_OPERATING_WINDOWS,
+        HP_COP_CORRELATIONS,
+        HP_COP_FORMULAS,
+    )
+
+    alts = []
+    for name, window in HP_OPERATING_WINDOWS.items():
+        correlation = HP_COP_CORRELATIONS[name]
+
+        def make_fn(correlation=correlation, window=window):
+            def predict(t_source_model, t_sink_model):
+                t_src = np.asarray(t_source_model, dtype=float)
+                t_snk = np.asarray(t_sink_model, dtype=float)
+                lift = t_snk - t_src
+                with np.errstate(all="ignore"):
+                    cop = np.asarray(correlation(t_snk, lift), dtype=float)
+                # Outside the rated window the regression is extrapolation, not
+                # a machine anyone can buy. -1 makes the optimiser drop it.
+                in_window = (
+                    (t_snk >= window["t_sink_min"]) & (t_snk <= window["t_sink_max"])
+                    & (lift >= window["dt_min"]) & (lift <= window["dt_max"])
+                )
+                return np.where(in_window & np.isfinite(cop), cop, -1.0)
+            return predict
+
+        alts.append({
+            "name": name,
+            "Kältemittel_stufen": name,
+            "medium_sink": "—",
+            "refrigerant_type": "Theoretical",
+            "hp_level": "—",
+            "T_src_min": -273.0,
+            "T_src_max": 10000.0,
+            "T_sink_min": float(window["t_sink_min"]),
+            "T_sink_max": float(window["t_sink_max"]),
+            # The same ceiling the HPI panel clamps to, so a technology cannot
+            # look better here than it does above.
+            "cop_min": 1.0,
+            "cop_max": 15.0,
+            "deltaT_evap": OPTIMIZATION_CONFIG["deltaT_evap"],
+            "deltaT_cond": OPTIMIZATION_CONFIG["deltaT_cond"],
+            "cop_fn": make_fn(),
+            "theoretical": True,
+            # Renders the published formula with a point's own temperatures.
+            "formula_fn": HP_COP_FORMULAS.get(name),
+        })
+    return alts
+
+
+def _calculation_details(alt, t_source, t_sink):
+    """The formula behind one point's COP, with its own temperatures filled in.
+
+    Archetypes carry a published correlation that can be written out; a trained
+    refrigerant does not, so it gets a short statement of where its COP came
+    from instead of a fake formula.
+    """
+    formula_fn = alt.get("formula_fn")
+    if formula_fn is not None:
+        try:
+            return formula_fn(t_sink, t_sink - t_source)
+        except Exception:
+            # A help bubble is never worth failing an analysis over.
+            return None
+    return (
+        f"Regression over heat pump simulation data from a manufacturer "
+        f"parameter study, evaluated for {alt['name']} (sink medium "
+        f"{alt['medium_sink']}, {alt['hp_level']} stage(s)) at "
+        f"T_source = {t_source:.1f} °C, T_sink = {t_sink:.1f} °C."
+    )
+
+
 def _prepare_xy_curve(x, y, is_source=False):
     x = np.asarray(x, dtype=float).ravel()
     y = np.asarray(y, dtype=float).ravel()
@@ -251,6 +336,10 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         profile_mode = "net_load"
 
     _, alternatives = _load_model_and_data()
+
+    # The technology archetypes ride through the same grid as the trained
+    # refrigerants so both end up in one table and one chart.
+    alternatives = list(alternatives) + _theoretical_alternatives()
 
     # A user formula is appended as one more alternative rather than replacing
     # the model, so it lands in the same table and chart and can be compared
@@ -415,13 +504,23 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                         refrigerant=alt["name"],
                         medium_sink=alt["medium_sink"],
                         refrigerant_type=alt["refrigerant_type"],
-                        hp_level=alt["hp_level"]
+                        hp_level=alt["hp_level"],
+                        theoretical=alt.get("theoretical", False),
+                        calculation_details=_calculation_details(alt, t_src_exact, t_snk)
                     )
                     feasible_points.append(pt)
                     found_full = True
                     diag.accepted_full += 1
 
-                    if q_dem > max_q:
+                    # Dozens of machines can deliver the same maximum duty, so
+                    # duty alone leaves the pick to iteration order — it showed
+                    # a mid-range COP while the table listed a better one at the
+                    # identical duty. COP breaks the tie.
+                    if q_dem > max_q or (
+                        q_dem == max_q
+                        and max_q_point is not None
+                        and pt.COP > max_q_point.COP
+                    ):
                         max_q = q_dem
                         max_q_point = pt
 
@@ -473,7 +572,11 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                     refrigerant=alt["name"],
                     medium_sink=alt["medium_sink"],
                     refrigerant_type=alt["refrigerant_type"],
-                    hp_level=alt["hp_level"]
+                    hp_level=alt["hp_level"],
+                    theoretical=alt.get("theoretical", False),
+                    calculation_details=_calculation_details(
+                        alt, float(t_src_valid[idx]), t_snk
+                    )
                 )
                 feasible_points.append(pt)
                 if limited:
@@ -481,7 +584,11 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                 else:
                     diag.accepted_demand_limited += 1
 
-                if q_sink_best > max_q:
+                if q_sink_best > max_q or (
+                    q_sink_best == max_q
+                    and max_q_point is not None
+                    and pt.COP > max_q_point.COP
+                ):
                     max_q = q_sink_best
                     max_q_point = pt
 

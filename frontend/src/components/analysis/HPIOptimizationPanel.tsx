@@ -16,7 +16,9 @@ type SortKey =
   | 'T_source'
   | 'T_sink'
   | 'Q_source'
-  | 'Q_demand';
+  | 'W_el'
+  | 'Q_demand'
+  | 'theoretical';
 
 /** An operating point is identified by its refrigerant and the temperature
  *  pair it runs between — the backend sends max_q_point as its own object, so
@@ -51,13 +53,17 @@ export default function HPIOptimizationPanel() {
   const [refrigerantTypeFilter, setRefrigerantTypeFilter] = useState<string>('All');
   const [refrigerantFilter, setRefrigerantFilter] = useState<string[]>([]); // Empty means 'All'
   const [hpLevelFilter, setHpLevelFilter] = useState<string[]>([]); // Empty means 'All'
+  // Theoretical reference rows are shown by default: they are the context the
+  // real machines are read against, and with them hidden a click on the chart
+  // cannot select them either. Untick to get the modelled machines alone.
+  const [showTheoretical, setShowTheoretical] = useState(true);
   const [showSourceLimited, setShowSourceLimited] = useState(false);
   const [showDemandLimited, setShowDemandLimited] = useState(false);
 
   // Sort state (supports multi-column)
   const [sortConfigs, setSortConfigs] = useState<
     Array<{ key: SortKey; direction: 'asc' | 'desc' }>
-  >([{ key: 'Q_demand', direction: 'desc' }]);
+  >([{ key: 'COP', direction: 'desc' }]);
   const [hpDropdownOpen, setHpDropdownOpen] = useState(false);
   const [refDropdownOpen, setRefDropdownOpen] = useState(false);
   const hpDropdownRef = useRef<HTMLDivElement>(null);
@@ -114,6 +120,9 @@ export default function HPIOptimizationPanel() {
   const uniqueHpLevels = Array.from(new Set(feasible_points.map((p) => p.hp_level))).sort();
 
   const filteredPoints = feasible_points.filter((p) => {
+    // Hiding the theoretical rows here keeps every downstream count, chart
+    // trace and best-point pick consistent with what is on screen.
+    if (p.theoretical && !showTheoretical) return false;
     const refName = p.refrigerant.includes('_')
       ? p.refrigerant.substring(0, p.refrigerant.lastIndexOf('_'))
       : p.refrigerant;
@@ -124,6 +133,12 @@ export default function HPIOptimizationPanel() {
     if (hpLevelFilter.length > 0 && !hpLevelFilter.includes(p.hp_level)) return false;
     return true;
   });
+
+  // Counted on the raw results, so the checkbox can say how many rows it would
+  // bring back while they are hidden.
+  const theoreticalCount = new Set(
+    feasible_points.filter((p) => p.theoretical).map((p) => p.refrigerant)
+  ).size;
 
   // Two kinds of point sit off a profile and turn the chart into a cloud when
   // plotted by default. Source-limited ones deliver less than the demand above
@@ -161,13 +176,26 @@ export default function HPIOptimizationPanel() {
         : best,
     null
   );
+  // The headline pump is a machine you could actually buy, so the default
+  // highlight skips the theoretical references — Carnot wins on COP at the top
+  // duty and would otherwise always be the one in the box.
+  const bestRealPoint = chartPoints.reduce<OptimizedIntegrationPoint | null>(
+    (best, p) =>
+      p.theoretical
+        ? best
+        : !best || p.Q_demand > best.Q_demand || (p.Q_demand === best.Q_demand && p.COP > best.COP)
+          ? p
+          : best,
+    null
+  );
   const chartMaxQPoint =
-    max_q_point && chartPoints.some((p) => isSamePoint(p, max_q_point))
+    max_q_point && !max_q_point.theoretical && chartPoints.some((p) => isSamePoint(p, max_q_point))
       ? max_q_point
-      : bestVisiblePoint;
+      : (bestRealPoint ?? bestVisiblePoint);
 
   const bestByType = new Map<string, OptimizedIntegrationPoint>();
   for (const pt of filteredPoints) {
+    if (pt.theoretical) continue;
     const existing = bestByType.get(pt.refrigerant_type);
     if (
       !existing ||
@@ -179,8 +207,43 @@ export default function HPIOptimizationPanel() {
   }
   let tableData = Array.from(bestByType.values());
 
-  const pointsToShow = [...tableData];
+  // Every archetype shares the one "Theoretical" type, so grouping them by type
+  // would collapse five technologies into a single row. Group by technology.
+  const bestTheoretical = new Map<string, OptimizedIntegrationPoint>();
+  for (const pt of filteredPoints) {
+    if (!pt.theoretical) continue;
+    const existing = bestTheoretical.get(pt.refrigerant);
+    if (
+      !existing ||
+      pt.Q_demand > existing.Q_demand ||
+      (pt.Q_demand === existing.Q_demand && pt.COP > existing.COP)
+    ) {
+      bestTheoretical.set(pt.refrigerant, pt);
+    }
+  }
+  // Carnot is the thermodynamic ceiling, so it always stays as the reference.
+  // Of the remaining archetypes only the best one is shown — listing every
+  // technology that happens to fit at some sink temperature buried the table.
+  //
+  // "Best" is the one at the maximum integration point, not the highest COP:
+  // an archetype that only fits at a low sink temperature covers a fraction of
+  // the demand, and its COP is high precisely because it does less work. Duty
+  // first, COP as the tie-break — the same order bestByType uses above.
+  const allTheoretical = Array.from(bestTheoretical.values());
+  const carnotRow = allTheoretical.find((p) => p.refrigerant === 'Carnot');
+  const bestOtherRow = allTheoretical
+    .filter((p) => p.refrigerant !== 'Carnot')
+    .sort((a, b) => b.Q_demand - a.Q_demand || b.COP - a.COP)[0];
+  const theoreticalRows = showTheoretical
+    ? [carnotRow, bestOtherRow].filter((p): p is OptimizedIntegrationPoint => Boolean(p))
+    : [];
+
+  // Archetypes take part in the table's own sort rather than sitting in a
+  // pinned block, so one click on a header orders every row consistently.
+  const pointsToShow = [...theoreticalRows, ...tableData];
   selectedPoints.forEach((sp) => {
+    // A point selected while the toggle was on must not linger once it is off.
+    if (sp.theoretical && !showTheoretical) return;
     if (!pointsToShow.some((p) => p.refrigerant === sp.refrigerant && p.T_sink === sp.T_sink)) {
       pointsToShow.unshift(sp);
     }
@@ -189,19 +252,42 @@ export default function HPIOptimizationPanel() {
   // Sorting
   pointsToShow.sort((a, b) => {
     for (const config of sortConfigs) {
-      let valA: any = a[config.key];
-      let valB: any = b[config.key];
+      // Q_source and P_el are derived rather than stored on the point, so they
+      // are computed here instead of read off the object.
+      const valueFor = (p: OptimizedIntegrationPoint): string | number | boolean | undefined => {
+        switch (config.key) {
+          case 'Q_source':
+            return (p.Q_demand * (p.COP - 1)) / p.COP;
+          // Electrical input closes the balance: Q_sink - Q_source = Q_sink/COP.
+          case 'W_el':
+            return p.Q_demand / p.COP;
+          default:
+            return p[config.key];
+        }
+      };
+      let valA = valueFor(a);
+      let valB = valueFor(b);
 
-      if (config.key === 'Q_source') {
-        valA = (a.Q_demand * (a.COP - 1)) / a.COP;
-        valB = (b.Q_demand * (b.COP - 1)) / b.COP;
+      // theoretical is an optional boolean; compare it as 0/1 so undefined
+      // sorts with the real machines rather than below everything.
+      if (config.key === 'theoretical') {
+        valA = a.theoretical ? 1 : 0;
+        valB = b.theoretical ? 1 : 0;
       }
+      if (valA === undefined || valB === undefined) continue;
 
       if (valA < valB) return config.direction === 'asc' ? -1 : 1;
       if (valA > valB) return config.direction === 'asc' ? 1 : -1;
     }
-    return 0;
+    // Every sort key can tie — Q_sink especially, since several machines often
+    // cover the same duty. Without a final tie-break the rows keep the order
+    // they were built in, which puts the archetypes on top and reads as an
+    // unsorted table. COP descending is the meaningful second key.
+    return b.COP - a.COP;
   });
+
+
+  const rowsToRender = pointsToShow;
 
   const handleSort = (key: SortKey) => {
     setSortConfigs((prev) => {
@@ -276,14 +362,46 @@ export default function HPIOptimizationPanel() {
     position: 'sticky' as const,
     top: 0,
     zIndex: 1,
+    // Headers carry a label plus a help bulb plus a sort arrow; letting them
+    // wrap is what made rows two lines tall.
+    whiteSpace: 'nowrap' as const,
   };
+
+  // The type cell holds a badge and a technology name side by side, so it needs
+  // more room than the numeric columns or its content wraps onto a second line.
+  const typeThStyle = { ...thStyle, minWidth: '190px' };
+  // Holds only "Natural"/"Synthetic", so it needs far less room than its
+  // header once implied.
+  const narrowThStyle = { ...thStyle, width: '1%' };
+
+  // Tints matching the heat pump overlay in the chart, so a column can be read
+  // back to the arrow it belongs to. Kept pale: these sit behind black text on
+  // alternating row stripes, so anything saturated is hard on the eyes.
+  const sinkCell = { backgroundColor: isDark ? 'rgba(59,130,246,0.14)' : 'rgba(143,174,224,0.20)' };
+  const sourceCell = { backgroundColor: isDark ? 'rgba(248,113,113,0.14)' : 'rgba(232,139,139,0.20)' };
+  const elCell = { backgroundColor: isDark ? 'rgba(110,231,183,0.13)' : 'rgba(95,174,140,0.18)' };
+  // COP belongs to the heat pump itself, so it takes the box's lilac.
+  const copCell = {
+    backgroundColor: isDark ? 'rgba(167,139,250,0.16)' : 'rgba(124,58,237,0.13)',
+    fontWeight: 600,
+  };
+
+  // Carnot is not a fitted correlation like the other archetypes — it is the
+  // thermodynamic relation between the two temperatures — so it gets its own
+  // explanation rather than the "published regressions" one.
+  const entryHint = (pt: OptimizedIntegrationPoint) =>
+    !pt.theoretical
+      ? t('optimization.real_hint')
+      : pt.refrigerant === 'Carnot'
+        ? t('optimization.carnot_hint')
+        : t('optimization.theoretical_hint');
 
   return (
     <div className={`analysis-panel ${isDark ? 'dark-mode' : ''}`} style={{ marginTop: '2rem' }}>
       <div className="pa-split-layout">
         <div className="pa-left-col">
-          <div className="pa-hp-table-wrap" style={{ maxHeight: '250px', overflowY: 'auto' }}>
-            {pointsToShow.length > 0 ? (
+          <div className="pa-hp-table-wrap" style={{ maxHeight: '440px', overflowY: 'auto' }}>
+            {rowsToRender.length > 0 ? (
               <>
                 <div
                   className="pa-hp-section-label"
@@ -313,7 +431,20 @@ export default function HPIOptimizationPanel() {
                 <table className="pa-table pa-hp-table">
                   <thead style={{ position: 'sticky', top: '30px', zIndex: 2 }}>
                     <tr>
-                      <th style={thStyle} onClick={() => handleSort('refrigerant_type')}>
+                      <th style={typeThStyle} onClick={() => handleSort('theoretical')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          {t('optimization.panel.headers.entry_type')}
+                          <span onClick={(e) => e.stopPropagation()}>
+                            <ChartHelpButton
+                              title={t('optimization.panel.headers.entry_type')}
+                              description={t('optimization.entry_type_hint')}
+                              inline={true}
+                            />
+                          </span>
+                          {renderSortIcon('theoretical')}
+                        </div>
+                      </th>
+                      <th style={narrowThStyle} onClick={() => handleSort('refrigerant_type')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
                           {t('optimization.panel.headers.refrigerant_type')}
                           <span onClick={(e) => e.stopPropagation()}>
@@ -376,6 +507,19 @@ export default function HPIOptimizationPanel() {
                             />
                           </span>
                           {renderSortIcon('Q_source')}
+                        </div>
+                      </th>
+                      <th style={thStyle} onClick={() => handleSort('W_el')}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                          {t('optimization.panel.headers.w_el')}
+                          <span onClick={(e) => e.stopPropagation()}>
+                            <ChartHelpButton
+                              title={t('optimization.title_w_el')}
+                              description={t('optimization.tooltip_w_el')}
+                              inline={true}
+                            />
+                          </span>
+                          {renderSortIcon('W_el')}
                         </div>
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_sink')}>
@@ -457,7 +601,7 @@ export default function HPIOptimizationPanel() {
                     </tr>
                   </thead>
                   <tbody>
-                    {pointsToShow.map((pt, i) => {
+                    {rowsToRender.map((pt, i) => {
                       const isSelected = selectedPoints.some(
                         (sp) => sp.refrigerant === pt.refrigerant && sp.T_sink === pt.T_sink
                       );
@@ -471,10 +615,97 @@ export default function HPIOptimizationPanel() {
                             isSelected ? { backgroundColor: isDark ? '#334155' : '#E2E8F0' } : {}
                           }
                         >
-                          <td>{pt.refrigerant_type}</td>
-                          <td>{pt.medium_sink}</td>
-                          <td style={{ fontWeight: 600 }}>{pt.COP.toFixed(2)}</td>
+                          <td>
+                            <div
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.35rem',
+                                whiteSpace: 'nowrap',
+                              }}
+                            >
+                            <span
+                              style={{
+                                display: 'inline-block',
+                                padding: '0.1rem 0.4rem',
+                                borderRadius: '4px',
+                                fontSize: '0.75rem',
+                                fontWeight: 600,
+                                backgroundColor: pt.theoretical
+                                  ? isDark
+                                    ? '#065F46'
+                                    : '#D1FAE5'
+                                  : isDark
+                                    ? '#1E3A8A'
+                                    : '#DBEAFE',
+                                color: pt.theoretical
+                                  ? isDark
+                                    ? '#A7F3D0'
+                                    : '#065F46'
+                                  : isDark
+                                    ? '#BFDBFE'
+                                    : '#1E3A8A',
+                              }}
+                              title={entryHint(pt)}
+                            >
+                              {pt.theoretical
+                                ? t('optimization.theoretical')
+                                : t('optimization.real')}
+                            </span>
+                            {/* The refrigerant column is blank for archetypes,
+                                so the technology name rides here — otherwise
+                                Carnot and VHTHP rows look identical. Kept on
+                                the same line so every row is one line tall. */}
+                            <span
+                              style={{
+                                fontSize: '0.75rem',
+                                color: isDark ? '#94A3B8' : '#64748B',
+                              }}
+                            >
+                              {/* The Carnot entry is 50 % of the ceiling, not
+                                  the ceiling, so it says so on the row. */}
+                              {pt.theoretical
+                                ? pt.refrigerant === 'Carnot'
+                                  ? t('optimization.carnot_50')
+                                  : pt.refrigerant
+                                : ''}
+                            </span>
+                            {pt.calculation_details && (
+                                <ChartHelpButton
+                                  inline
+                                  title={
+                                    pt.theoretical
+                                      ? `${pt.refrigerant} — ${t('optimization.calculation')}`
+                                      : t('optimization.calculation')
+                                  }
+                                  description={
+                                    <>
+                                      <p>
+                                        {entryHint(pt)}
+                                      </p>
+                                      <pre
+                                        style={{
+                                          margin: 0,
+                                          whiteSpace: 'pre-wrap',
+                                          fontFamily: 'monospace',
+                                          fontSize: '0.9em',
+                                        }}
+                                      >
+                                        {pt.calculation_details}
+                                      </pre>
+                                    </>
+                                  }
+                                />
+                              )}
+                            </div>
+                          </td>
+                          {/* Refrigerant type, medium and stage count describe a
+                              trained machine; an archetype has none of them. */}
+                          <td>{pt.theoretical ? '' : pt.refrigerant_type}</td>
+                          <td>{pt.theoretical ? '' : pt.medium_sink}</td>
+                          <td style={copCell}>{pt.COP.toFixed(2)}</td>
                           <td
+                            style={sinkCell}
                             title={
                               pt.source_limited && pt.Q_demand_total
                                 ? `Source-limited: the available waste heat only covers ${((100 * pt.Q_demand) / pt.Q_demand_total).toFixed(0)} % of the ${pt.Q_demand_total.toFixed(1)} kW required above this sink temperature.`
@@ -493,13 +724,16 @@ export default function HPIOptimizationPanel() {
                               </span>
                             ) : null}
                           </td>
-                          <td>{((pt.Q_demand * (pt.COP - 1)) / pt.COP).toFixed(1)}</td>
-                          <td>{pt.T_sink.toFixed(1)}</td>
-                          <td>{(pt.T_sink + tMin/2).toFixed(1)}</td>
-                          <td>{pt.T_source.toFixed(1)}</td>
-                          <td>{(pt.T_source - tMin/2).toFixed(1)}</td>
-                          <td>{refName}</td>
-                          <td>{pt.hp_level}</td>
+                          <td style={sourceCell}>
+                            {((pt.Q_demand * (pt.COP - 1)) / pt.COP).toFixed(1)}
+                          </td>
+                          <td style={elCell}>{(pt.Q_demand / pt.COP).toFixed(1)}</td>
+                          <td style={sinkCell}>{pt.T_sink.toFixed(1)}</td>
+                          <td style={sinkCell}>{(pt.T_sink + tMin / 2).toFixed(1)}</td>
+                          <td style={sourceCell}>{pt.T_source.toFixed(1)}</td>
+                          <td style={sourceCell}>{(pt.T_source - tMin / 2).toFixed(1)}</td>
+                          <td>{pt.theoretical ? '' : refName}</td>
+                          <td>{pt.theoretical ? '' : pt.hp_level}</td>
                         </tr>
                       );
                     })}
@@ -753,6 +987,33 @@ export default function HPIOptimizationPanel() {
                 >
                   {t('optimization.panel.filters.clear')}
                 </button>
+                {theoreticalCount > 0 && (
+                  <label
+                    style={{
+                      marginTop: '0.5rem',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '0.4rem',
+                      fontSize: '0.8rem',
+                      color: isDark ? '#94A3B8' : '#64748B',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={showTheoretical}
+                      onChange={(e) => setShowTheoretical(e.target.checked)}
+                      style={{ marginTop: '0.15rem' }}
+                    />
+                    <span>
+                      {t('optimization.panel.filters.show_theoretical')} ({theoreticalCount})
+                      <br />
+                      <span style={{ fontSize: '0.75rem' }}>
+                        {t('optimization.panel.filters.show_theoretical_desc')}
+                      </span>
+                    </span>
+                  </label>
+                )}
                 {sourceLimitedCount > 0 && (
                   <label
                     style={{
