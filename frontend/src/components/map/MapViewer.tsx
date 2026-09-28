@@ -1341,7 +1341,7 @@ export default function MapViewer({
   center,
   zoom,
   locked,
-  processes,
+  processes: rawProcesses,
   groups,
   groupNames,
   groupCoordinates,
@@ -1362,6 +1362,44 @@ export default function MapViewer({
   allowMultiMove = false,
 }: Props) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // A subprocess belongs to its process, so it sits where the process sits
+  // unless it has been given a spot of its own. The export table already
+  // resolves coordinates this way (sub.lat || group.lat) — the map was the
+  // one place that demanded explicit coordinates and silently skipped any
+  // node without them, so a freshly added subprocess never appeared.
+  //
+  // Resolved once here, so every consumer below — markers, connectors, stream
+  // bubbles and box selection — sees the inherited position without each
+  // having to repeat the fallback.
+  const processes = useMemo(() => {
+    const groupOf = new Map<number, GroupCoords>();
+    groups.forEach((subIdxs, gIdx) => {
+      const gc = groupCoordinates[gIdx];
+      if (gc) subIdxs.forEach((si) => groupOf.set(si, gc));
+    });
+
+    const inherit = (
+      node: ProcessNode,
+      fallbackLat: unknown,
+      fallbackLon: unknown
+    ): ProcessNode => {
+      const hasOwn = node.lat !== '' && node.lat != null && node.lon !== '' && node.lon != null;
+      const lat = hasOwn ? node.lat : (fallbackLat as ProcessNode['lat']);
+      const lon = hasOwn ? node.lon : (fallbackLon as ProcessNode['lon']);
+      const children = node.children?.length
+        ? node.children.map((c) => inherit(c, lat, lon))
+        : node.children;
+      return children === node.children && lat === node.lat && lon === node.lon
+        ? node
+        : { ...node, lat, lon, children };
+    };
+
+    return rawProcesses.map((proc, si) => {
+      const gc = groupOf.get(si);
+      return inherit(proc, gc?.lat, gc?.lon);
+    });
+  }, [rawProcesses, groups, groupCoordinates]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const lastSelectionTime = useRef(0);
 
@@ -1415,7 +1453,11 @@ export default function MapViewer({
 
     // 2. Prepare updates
     let nextGroupCoords = { ...groupCoordinates };
-    let nextProcesses = [...processes];
+    // Built from the RAW processes, not the resolved ones: writing back a
+    // resolved array would stamp every inherited coordinate onto its node as
+    // if it had been placed there, so a later move of the process would no
+    // longer carry its subprocesses along.
+    let nextProcesses = [...rawProcesses];
     let changedGroup = false;
     let changedProc = false;
 
@@ -1470,6 +1512,38 @@ export default function MapViewer({
         changedProc = true;
       }
     });
+
+    // A subprocess belongs to its process, so moving the process takes its
+    // subprocesses with it. Each keeps its own offset from the process, which
+    // is what holds the diagram's shape together — otherwise dragging a
+    // process left its subprocesses stranded at their old coordinates.
+    if (type === 'group' && !(allowMultiMove && selectedIds.has(markerKey))) {
+      const gIdx = parseInt(id);
+      const prevLat = parseFloat(String(groupCoordinates[id]?.lat ?? ''));
+      const prevLon = parseFloat(String(groupCoordinates[id]?.lon ?? ''));
+      // With no previous coordinate there is no delta to apply: the group has
+      // only just been placed, so its subprocesses inherit it instead.
+      if (!isNaN(prevLat) && !isNaN(prevLon)) {
+        const gLat = lat - prevLat;
+        const gLon = lng - prevLon;
+        const shift = (node: ProcessNode): ProcessNode => {
+          const nLat = parseFloat(String(node.lat ?? ''));
+          const nLon = parseFloat(String(node.lon ?? ''));
+          const moved =
+            isNaN(nLat) || isNaN(nLon)
+              ? node
+              : { ...node, lat: (nLat + gLat).toString(), lon: (nLon + gLon).toString() };
+          return moved.children?.length
+            ? { ...moved, children: moved.children.map(shift) }
+            : moved;
+        };
+        (groups[gIdx] || []).forEach((si) => {
+          if (!nextProcesses[si]) return;
+          nextProcesses[si] = shift(nextProcesses[si]);
+          changedProc = true;
+        });
+      }
+    }
 
     if (changedGroup && onGroupCoordinatesChange) onGroupCoordinatesChange(nextGroupCoords);
     if (changedProc && onProcessesChange) onProcessesChange(nextProcesses);

@@ -5,6 +5,7 @@ import { useUIStore } from '../store/uiStore';
 import { useAnalysisStore } from '../store/analysisStore';
 
 import MapViewer from '../components/map/MapViewer';
+import type { ProcessNode } from '../types/process';
 import ProcessGroupList from '../components/process/ProcessGroupList';
 import ActionBar from '../components/io/ActionBar';
 import StreamDataTable from '../components/analysis/StreamDataTable';
@@ -271,12 +272,41 @@ export default function DataCollectionPage() {
         if (placementTarget.startsWith('group_')) {
           const gIdx = parseInt(placementTarget.split('_')[1]);
           const coords = { ...state.proc_group_coordinates };
+          const prevLat = parseFloat(String(coords[gIdx]?.lat ?? ''));
+          const prevLon = parseFloat(String(coords[gIdx]?.lon ?? ''));
           coords[gIdx] = {
             ...(coords[gIdx] || {}),
             lat: lat.toString(),
             lon: lon.toString(),
           };
           useProjectStore.getState().setGroupCoordinates(coords);
+
+          // A subprocess belongs to its process, so placing the process takes
+          // its subprocesses with it, each keeping its offset so the diagram
+          // holds its shape. Without this they stayed at their old coordinates
+          // and the process arrived on its own.
+          if (!isNaN(prevLat) && !isNaN(prevLon)) {
+            const dLat = lat - prevLat;
+            const dLon = lon - prevLon;
+            const shift = (node: ProcessNode): ProcessNode => {
+              const nLat = parseFloat(String(node.lat ?? ''));
+              const nLon = parseFloat(String(node.lon ?? ''));
+              const moved =
+                isNaN(nLat) || isNaN(nLon)
+                  ? node
+                  : { ...node, lat: (nLat + dLat).toString(), lon: (nLon + dLon).toString() };
+              return moved.children?.length
+                ? { ...moved, children: moved.children.map(shift) }
+                : moved;
+            };
+            let touched = false;
+            (state.proc_groups[gIdx] || []).forEach((si) => {
+              if (!processes[si]) return;
+              processes[si] = shift(processes[si]);
+              touched = true;
+            });
+            if (touched) setProcesses(processes);
+          }
         } else if (placementTarget.startsWith('child_')) {
           const parts = placementTarget.split('_');
           const subIdx = parseInt(parts[1]);
