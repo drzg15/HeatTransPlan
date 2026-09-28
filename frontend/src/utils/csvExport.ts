@@ -41,8 +41,12 @@ export function exportProjectToCsv(state: ProjectState) {
       if (!sub) return;
 
       const notes = sub.extra_info?.notes || '';
-      const lat = String(sub.lat || gCoord.lat || '');
-      const lon = String(sub.lon || gCoord.lon || '');
+      // Matches the stream table: a subprocess is located by its process, so
+      // every row of a process carries the same coordinate. (The distance
+      // matrix below deliberately does NOT do this — it measures the real
+      // spread between subprocesses, which would collapse to zero.)
+      const lat = String(gCoord.lat || sub.lat || '');
+      const lon = String(gCoord.lon || sub.lon || '');
       const hours = sub.hours || gCoord.hours || '';
       const water_in = sub.extra_info?.water_content_in || '';
       const water_out = sub.extra_info?.water_content_out || '';
@@ -99,8 +103,8 @@ export function exportProjectToCsv(state: ProjectState) {
         // Also add streams for sub-subprocesses (children)
         (sub.children || []).forEach((child) => {
           const c_notes = child.extra_info?.notes || notes || '';
-          const c_lat = String(child.lat || sub.lat || gCoord.lat || '');
-          const c_lon = String(child.lon || sub.lon || gCoord.lon || '');
+          const c_lat = String(gCoord.lat || sub.lat || child.lat || '');
+          const c_lon = String(gCoord.lon || sub.lon || child.lon || '');
           const c_hours = child.hours || hours || '';
           const c_water_in = child.extra_info?.water_content_in || water_in || '';
           const c_water_out = child.extra_info?.water_content_out || water_out || '';

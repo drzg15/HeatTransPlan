@@ -58,8 +58,13 @@ export default function StreamDataTable({
         const baseInfo = {
           group: gName,
           subprocess: sub.name,
-          lat: sub.lat || gCoord.lat || '',
-          lon: sub.lon || gCoord.lon || '',
+          // A subprocess is located by its process: every row of a process
+          // reports the same coordinate. The subprocess keeps its own lat/lon
+          // for the map, where the spread between them is what draws the
+          // expanded diagram, but that spread is layout rather than location
+          // and does not belong in the data.
+          lat: gCoord.lat || sub.lat || '',
+          lon: gCoord.lon || sub.lon || '',
           hours: sub.hours || gCoord.hours || '',
           water_in: sub.extra_info?.water_content_in || '',
           water_out: sub.extra_info?.water_content_out || '',
@@ -102,8 +107,8 @@ export default function StreamDataTable({
           const childBase = {
             group: gName,
             subprocess: `${sub.name} › ${child.name}`,
-            lat: child.lat || sub.lat || gCoord.lat || '',
-            lon: child.lon || sub.lon || gCoord.lon || '',
+            lat: gCoord.lat || sub.lat || child.lat || '',
+            lon: gCoord.lon || sub.lon || child.lon || '',
             hours: child.hours || sub.hours || gCoord.hours || '',
             water_in: child.extra_info?.water_content_in || sub.extra_info?.water_content_in || '',
             water_out:
