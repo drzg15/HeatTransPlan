@@ -436,7 +436,10 @@
     "cop_coverage_help_3": "Es gibt keine eindeutig richtige Wahl. Eine Pumpe mit hohem COP bei 30 % Abdeckung überlässt den Rest der externen Versorgung, während volle Abdeckung mehr Strom je Wärmeeinheit kostet — entscheidend ist, was diese verbleibende Versorgung kostet.",
     "cop_coverage_q": "Senkenleistung",
     "cop_coverage_t": "Senkentemperatur",
-    "cop_coverage_t_axis": "Senkentemperatur in °C"
+    "cop_coverage_t_axis": "Senkentemperatur in °C",
+    "hover_also_here": "ebenfalls hier",
+    "hover_more": "weitere",
+    "hover_demand_limited": "bedarfsbegrenzt: Abwärme bleibt bei dieser Temperatur ungenutzt"
   },
   "cop_modal": {
     "title": "Eigene COP-Formel",

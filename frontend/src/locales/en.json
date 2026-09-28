@@ -436,7 +436,10 @@
     "cop_coverage_help_3": "There is no single right answer. A high-COP pump covering 30 % leaves the rest to utility, while full coverage costs more electricity per unit of heat — the choice depends on what that remaining utility costs you.",
     "cop_coverage_q": "Sink duty",
     "cop_coverage_t": "Sink temperature",
-    "cop_coverage_t_axis": "Sink temperature in °C"
+    "cop_coverage_t_axis": "Sink temperature in °C",
+    "hover_also_here": "also here",
+    "hover_more": "more",
+    "hover_demand_limited": "demand-limited: waste heat left unused at this temperature"
   },
   "cop_modal": {
     "title": "Custom COP formula",
