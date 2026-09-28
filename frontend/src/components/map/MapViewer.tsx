@@ -218,10 +218,13 @@ function MapController({
   center,
   zoom,
   locked,
+  frozen,
 }: {
   center: [number, number];
   zoom: number;
   locked: boolean;
+  /** True while a diagram is open: the map must stay exactly where it is. */
+  frozen: boolean;
 }) {
   const map = useMap();
   useEffect(() => {
@@ -234,7 +237,10 @@ function MapController({
       map.keyboard.disable();
       if ((map as any).touchZoom) (map as any).touchZoom.disable();
       if ((map as any).tap) (map as any).tap.disable();
-    } else {
+    } else if (!frozen) {
+      // Only when nothing else is holding the map still. This effect reruns on
+      // every centre/zoom change, so without the guard it would re-enable
+      // panning behind the freeze's back.
       map.dragging.enable();
       map.scrollWheelZoom.enable();
       map.doubleClickZoom.enable();
@@ -243,7 +249,7 @@ function MapController({
       if ((map as any).touchZoom) (map as any).touchZoom.enable();
       if ((map as any).tap) (map as any).tap.enable();
     }
-  }, [center, zoom, locked, map]);
+  }, [center, zoom, locked, frozen, map]);
   return null;
 }
 
@@ -326,6 +332,45 @@ function MapCenterSync({ center, zoom }: { center: [number, number]; zoom: numbe
       map.flyTo(center, zoom, { duration: 1.5 });
     }
   }, [center, zoom, map]);
+  return null;
+}
+
+/**
+ * Freezes the map while a group's diagram is open.
+ *
+ * A node's position on screen is project(lat, lon, zoom) measured against the
+ * map centre, so it depends on exactly two things: the centre and the zoom.
+ * The white canvas, by contrast, is fixed to the viewport. Pan the map and the
+ * nodes slide across a stationary canvas and out of it — no amount of bounds,
+ * zoom-fitting or label-shrinking changes that, because the two are anchored
+ * to different things.
+ *
+ * Holding the centre and zoom still pins every node, connector and label at
+ * once, with no per-element change: the diagram and its canvas become one
+ * fixed unit and the map is a backdrop. Collapse the group and the map is
+ * interactive again, with the nodes back on their own coordinates.
+ */
+function SubprocessMapFreeze({ active, locked }: { active: boolean; locked: boolean }) {
+  const map = useMap();
+
+  useEffect(() => {
+    // A locked map has already disabled all of this; leave it alone so that
+    // unfreezing here cannot re-enable interaction it deliberately turned off.
+    if (!active || locked) return;
+
+    const handlers = [
+      map.dragging,
+      map.scrollWheelZoom,
+      map.doubleClickZoom,
+      map.boxZoom,
+      map.keyboard,
+      map.touchZoom,
+    ].filter((h) => h && h.enabled());
+
+    handlers.forEach((h) => h.disable());
+    return () => handlers.forEach((h) => h.enable());
+  }, [active, locked, map]);
+
   return null;
 }
 
@@ -1294,7 +1339,7 @@ export default function MapViewer({
   center,
   zoom,
   locked,
-  processes,
+  processes: rawProcesses,
   groups,
   groupNames,
   groupCoordinates,
@@ -1315,6 +1360,44 @@ export default function MapViewer({
   allowMultiMove = false,
 }: Props) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // A subprocess belongs to its process, so it sits where the process sits
+  // unless it has been given a spot of its own. The export table already
+  // resolves coordinates this way (sub.lat || group.lat) — the map was the
+  // one place that demanded explicit coordinates and silently skipped any
+  // node without them, so a freshly added subprocess never appeared.
+  //
+  // Resolved once here, so every consumer below — markers, connectors, stream
+  // bubbles and box selection — sees the inherited position without each
+  // having to repeat the fallback.
+  const processes = useMemo(() => {
+    const groupOf = new Map<number, GroupCoords>();
+    groups.forEach((subIdxs, gIdx) => {
+      const gc = groupCoordinates[gIdx];
+      if (gc) subIdxs.forEach((si) => groupOf.set(si, gc));
+    });
+
+    const inherit = (
+      node: ProcessNode,
+      fallbackLat: unknown,
+      fallbackLon: unknown
+    ): ProcessNode => {
+      const hasOwn = node.lat !== '' && node.lat != null && node.lon !== '' && node.lon != null;
+      const lat = hasOwn ? node.lat : (fallbackLat as ProcessNode['lat']);
+      const lon = hasOwn ? node.lon : (fallbackLon as ProcessNode['lon']);
+      const children = node.children?.length
+        ? node.children.map((c) => inherit(c, lat, lon))
+        : node.children;
+      return children === node.children && lat === node.lat && lon === node.lon
+        ? node
+        : { ...node, lat, lon, children };
+    };
+
+    return rawProcesses.map((proc, si) => {
+      const gc = groupOf.get(si);
+      return inherit(proc, gc?.lat, gc?.lon);
+    });
+  }, [rawProcesses, groups, groupCoordinates]);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const lastSelectionTime = useRef(0);
 
@@ -1368,7 +1451,11 @@ export default function MapViewer({
 
     // 2. Prepare updates
     let nextGroupCoords = { ...groupCoordinates };
-    let nextProcesses = [...processes];
+    // Built from the RAW processes, not the resolved ones: writing back a
+    // resolved array would stamp every inherited coordinate onto its node as
+    // if it had been placed there, so a later move of the process would no
+    // longer carry its subprocesses along.
+    let nextProcesses = [...rawProcesses];
     let changedGroup = false;
     let changedProc = false;
 
@@ -1424,6 +1511,38 @@ export default function MapViewer({
       }
     });
 
+    // A subprocess belongs to its process, so moving the process takes its
+    // subprocesses with it. Each keeps its own offset from the process, which
+    // is what holds the diagram's shape together — otherwise dragging a
+    // process left its subprocesses stranded at their old coordinates.
+    if (type === 'group' && !(allowMultiMove && selectedIds.has(markerKey))) {
+      const gIdx = parseInt(id);
+      const prevLat = parseFloat(String(groupCoordinates[id]?.lat ?? ''));
+      const prevLon = parseFloat(String(groupCoordinates[id]?.lon ?? ''));
+      // With no previous coordinate there is no delta to apply: the group has
+      // only just been placed, so its subprocesses inherit it instead.
+      if (!isNaN(prevLat) && !isNaN(prevLon)) {
+        const gLat = lat - prevLat;
+        const gLon = lng - prevLon;
+        const shift = (node: ProcessNode): ProcessNode => {
+          const nLat = parseFloat(String(node.lat ?? ''));
+          const nLon = parseFloat(String(node.lon ?? ''));
+          const moved =
+            isNaN(nLat) || isNaN(nLon)
+              ? node
+              : { ...node, lat: (nLat + gLat).toString(), lon: (nLon + gLon).toString() };
+          return moved.children?.length
+            ? { ...moved, children: moved.children.map(shift) }
+            : moved;
+        };
+        (groups[gIdx] || []).forEach((si) => {
+          if (!nextProcesses[si]) return;
+          nextProcesses[si] = shift(nextProcesses[si]);
+          changedProc = true;
+        });
+      }
+    }
+
     if (changedGroup && onGroupCoordinatesChange) onGroupCoordinatesChange(nextGroupCoords);
     if (changedProc && onProcessesChange) onProcessesChange(nextProcesses);
   };
@@ -1473,10 +1592,12 @@ export default function MapViewer({
         zoomDelta={0.25}
       >
         <TileLayer key={tileUrl} url={tileUrl} maxNativeZoom={19} maxZoom={24} />
-        <MapController center={center} zoom={zoom} locked={locked} />
+        <MapController center={center} zoom={zoom} locked={locked} frozen={isCanvasActive} />
         <MapClickHandler onClick={handleMapClick} />
         <MapFullscreenResizer active={isFullscreen} />
         <MapMountFitter center={center} zoom={zoom} />
+        {/* Holds the map still so the diagram cannot be panned off its canvas. */}
+        <SubprocessMapFreeze active={isCanvasActive} locked={locked} />
 
         {/* 1. Base Site Bubbles — Hidden by canvas if active */}
         <Pane name="streamBubblesPane" style={{ zIndex: 450 }}>
@@ -1590,6 +1711,9 @@ export default function MapViewer({
                 <Marker
                   key={`sub-${si}`}
                   position={[lat, lon]}
+                  // The map is frozen while the diagram is open, but the boxes
+                  // are not: dragging one moves that box alone, which is how
+                  // the diagram is arranged.
                   draggable={true}
                   pane="expandedContentPane"
                   eventHandlers={{
@@ -1632,6 +1756,9 @@ export default function MapViewer({
                 <Marker
                   key={`child-${si}-${ci}`}
                   position={[lat, lon]}
+                  // The map is frozen while the diagram is open, but the boxes
+                  // are not: dragging one moves that box alone, which is how
+                  // the diagram is arranged.
                   draggable={true}
                   pane="expandedContentPane"
                   eventHandlers={{

@@ -216,7 +216,11 @@
       "sink_profile": "Senkenprofil",
       "heating_demand": "Heizbedarf (kW)",
       "cooling_demand": "Kühlbedarf (kW)",
-      "best_hp_cop": "Bester WP-COP"
+      "best_hp_cop": "Bester WP-COP",
+      "show_classic_hpi": "Einzelpunkt-Wärmepumpenanalyse anzeigen",
+      "hide_classic_hpi": "Einzelpunkt-Wärmepumpenanalyse ausblenden",
+      "gcc_surplus": "Netto-Wärmeüberschuss",
+      "gcc_deficit": "Netto-Wärmedefizit"
     },
     "recovery": {
       "title": "Wärmerückgewinnung vor der Integration",
@@ -291,7 +295,7 @@
       "title": "Integration in Wärmepumpenmodell und Optimierung",
       "instruction": "Klicken Sie zum Sortieren auf eine Spaltenüberschrift. Klicken Sie auf einen Punkt im Diagramm, um Details anzuzeigen und ihn der Tabelle hinzuzufügen.",
       "headers": {
-        "refrigerant_type": "KÄLTEMITTELTYP",
+        "refrigerant_type": "KÄLTEM.",
         "medium_sink": "MEDIUM SENKE",
         "cop": "COP",
         "q_sink": "Q_SENKE (KW)",
@@ -299,7 +303,9 @@
         "t_sink": "TEMP_SENKE (°C)",
         "t_source": "TEMP_QUELLE (°C)",
         "refrigerant": "KÄLTEMITTEL",
-        "hp_stages": "WP STUFEN"
+        "hp_stages": "WP STUFEN",
+        "entry_type": "TYP",
+        "w_el": "P_EL (KW)"
       },
       "filters": {
         "all": "Alle",
@@ -317,7 +323,9 @@
         "hp_stages": "WP STUFEN",
         "cop_source": "COP-QUELLE",
         "custom_cop_btn": "Eigene COP-Formel verwenden",
-        "custom_cop_desc": "Fügen Sie eine eigene COP-Formel ein, um die Integration und Optimierung mit Ihrer eigenen Wärmepumpe durchzuführen."
+        "custom_cop_desc": "Fügen Sie eine eigene COP-Formel ein, um die Integration und Optimierung mit Ihrer eigenen Wärmepumpe durchzuführen.",
+        "show_theoretical": "Theoretische Wärmepumpen anzeigen",
+        "show_theoretical_desc": "Carnot und der beste Technologie-Archetyp als Referenzpunkte zu den modellierten Maschinen."
       }
     },
     "title_actual_source_temp": "Tatsächliche Quellentemperatur",
@@ -399,7 +407,39 @@
     "desc_opt_chart_off_3": ". Das bedeutet, dass die verfügbare Abwärme (rote Linie) nicht ausreicht, um den ",
     "desc_opt_chart_off_4": "gesamten",
     "desc_opt_chart_off_5": " Heizbedarf zu decken, der vom Prozess bei dieser spezifischen Temperatur gefordert wird.",
-    "desc_opt_chart_rest": "Die Wärmepumpe kann nur einen Teil des Gesamtbedarfs liefern und wird daher bei einem kleineren kW-Wert eingezeichnet. Die restliche Wärme muss weiterhin von einer externen Versorgung bereitgestellt werden."
+    "desc_opt_chart_rest": "Die Wärmepumpe kann nur einen Teil des Gesamtbedarfs liefern und wird daher bei einem kleineren kW-Wert eingezeichnet. Die restliche Wärme muss weiterhin von einer externen Versorgung bereitgestellt werden.",
+    "theoretical": "Theoretisch",
+    "theoretical_hint": "Ein Technologie-Archetyp aus veröffentlichten Regressionen, keine konkrete Maschine. Dient als Referenz zu den modellierten Kältemitteln.",
+    "real": "Real",
+    "real_hint": "Eine Regression über Simulationsdaten von Wärmepumpen aus einer Herstellerparameterstudie, über Kältemittel, Senkenmedien und Verdichterstufen hinweg, ausgewertet bei den Temperaturen dieses Punktes.",
+    "calculation": "Berechnung",
+    "carnot_50": "Carnot (50 %)",
+    "carnot_hint": "Die Carnot-Beziehung zwischen den beiden Temperaturen, mit 50 % Wirkungsgrad als Faustregel für eine erreichbare Wärmepumpe. Keine Maschine und keine angepasste Korrelation, daher kann eine reale Maschine über dieser Linie liegen.",
+    "entry_type_hint": "Reale Zeilen sind Regressionen über Simulationsdaten von Wärmepumpen aus einer Herstellerparameterstudie, ausgewertet bei den Temperaturen des jeweiligen Punktes. Theoretische Zeilen sind Referenzpunkte: Technologie-Archetypen aus veröffentlichten Korrelationen sowie Carnot, die thermodynamische Beziehung zwischen den beiden Temperaturen bei 50 % Wirkungsgrad.",
+    "title_w_el": "Elektrische Leistung",
+    "tooltip_w_el": "Die elektrische Leistung, die der Verdichter aufnimmt. Sie schließt die Energiebilanz: P_el = Q_Senke − Q_Quelle, gleichbedeutend mit Q_Senke / COP. Ein höherer COP bedeutet, dass dieselbe gelieferte Wärme weniger Strom kostet.",
+    "hp_box_title": "Betriebspunkt der Wärmepumpe",
+    "hp_box_what": "Die Pumpe hebt Abwärme vom Quellenprofil auf das Senkenprofil an.",
+    "hp_box_source": "Abwärme, die dem Prozess bei dieser Temperatur entnommen wird",
+    "hp_box_el": "elektrische Leistung, die der Verdichter aufnimmt",
+    "hp_box_sink": "Wärme, die dem Prozess bei dieser Temperatur zugeführt wird",
+    "hp_box_cop": "gelieferte Wärme je Einheit Strom",
+    "hp_box_balance": "Quelle + elektrische Leistung = gelieferte Wärme.",
+    "cop_coverage_title": "COP gegen Senkenabdeckung",
+    "cop_coverage_x_axis": "Senkenabdeckung · Leistung · Senkentemperatur",
+    "cop_coverage_y_axis": "COP",
+    "cop_coverage_x": "Abdeckung",
+    "cop_coverage_all": "Alle Lösungen",
+    "cop_coverage_best": "Bester COP je Abdeckung",
+    "cop_coverage_help_1": "Eine Wärmepumpe deckt nur den Bedarf oberhalb ihrer Senkentemperatur. Liegt sie niedrig auf dem Senkenprofil, deckt sie einen kleinen Anteil des Gesamtbedarfs — aber über einen kurzen Temperaturhub, der günstig ist, sodass der COP hoch ausfällt.",
+    "cop_coverage_help_2": "Je näher die Abdeckung an 100 % rückt, desto höher die Senkentemperatur, desto größer der Hub und desto niedriger der COP. Die Linie zeigt den besten COP je Abdeckungsgrad; alles darunter ist für dieselbe Aufgabe die schlechtere Maschine.",
+    "cop_coverage_help_3": "Es gibt keine eindeutig richtige Wahl. Eine Pumpe mit hohem COP bei 30 % Abdeckung überlässt den Rest der externen Versorgung, während volle Abdeckung mehr Strom je Wärmeeinheit kostet — entscheidend ist, was diese verbleibende Versorgung kostet.",
+    "cop_coverage_q": "Senkenleistung",
+    "cop_coverage_t": "Senkentemperatur",
+    "cop_coverage_t_axis": "Senkentemperatur in °C",
+    "hover_also_here": "ebenfalls hier",
+    "hover_more": "weitere",
+    "hover_demand_limited": "bedarfsbegrenzt: Abwärme bleibt bei dieser Temperatur ungenutzt"
   },
   "cop_modal": {
     "title": "Eigene COP-Formel",

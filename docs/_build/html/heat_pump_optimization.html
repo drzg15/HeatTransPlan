@@ -378,6 +378,10 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refrigerant-operating-limits">Refrigerant Operating Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theoretical-technology-archetypes">Theoretical Technology Archetypes</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#provenance-of-each-cop">Provenance of each COP</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temperature-approach-corrections">Temperature Approach Corrections</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-cop-formula-evaluation">Custom COP Formula Evaluation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-mesh-grid-search-algorithm">2D Mesh Grid Search Algorithm</a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -386,6 +390,8 @@
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-limited-heat-pump-integration">Source-Limited Heat Pump Integration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-the-maximum-duty-point">Selecting the Maximum-Duty Point</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#demand-limited-heat-pump-integration">Demand-Limited Heat Pump Integration</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-summary">Output Summary</a></li>
 </ul>
             </nav>
@@ -483,6 +489,129 @@
 </pre></div>
 </div>
 </details>
+</section>
+<hr class="docutils" />
+<section id="theoretical-technology-archetypes">
+<h2>Theoretical Technology Archetypes<a class="headerlink" href="#theoretical-technology-archetypes" title="Link to this heading">#</a></h2>
+<p>Alongside the trained refrigerants, the optimizer sweeps the five <strong>technology archetypes</strong> from <a class="reference internal" href="heat_pump_integration.html"><span class="std std-doc">Heat Pump Integration</span></a> — Prototypical Stirling, VHTHP (HFC/HFO), SHP and HTHPs (HFC/HFO), SHP and HTHPs (R717), and the 50 % Carnot baseline.</p>
+<p>The integration module evaluates those same correlations at a <strong>single</strong> sink temperature. Here they are put through the <strong>identical mesh</strong> as the trained refrigerants, so a published technology curve can be read directly against what a real machine achieves at the same duty. This comparison is only valid because both sides use the same shifted-temperature convention and the same duty relation:</p>
+<div class="math notranslate nohighlight">
+\[
+\dot{Q}_{sink} = \dot{Q}_{source} \cdot \frac{COP}{COP - 1}
+\]</div>
+<p>Each archetype is rated only inside its own sink and lift window. Rather than special-casing the optimizer loop, the COP callable returns <span class="math notranslate nohighlight">\(-1\)</span> outside the window: the grid search already discards any candidate with <span class="math notranslate nohighlight">\(COP \leq 1\)</span>, which enforces the operating envelope for free.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+COP_{archetype}(T_{src}, T_{sink}) =
+\begin{cases}
+f_{tech}(T_{sink}, \Delta T) &amp; \text{inside the rated window} \\
+-1 &amp; \text{outside (discarded)}
+\end{cases}
+\end{split}\]</div>
+<p>Archetype points carry <code class="docutils literal notranslate"><span class="pre">theoretical</span> <span class="pre">=</span> <span class="pre">true</span></code> in the output, which is what separates them from measured machines in the results table and gives them their own marker on the chart.</p>
+<blockquote>
+<div><p>[!IMPORTANT]
+The Carnot archetype is the formula <span class="math notranslate nohighlight">\(\frac{T_{sink} + 273.15}{\Delta T} \times 0.5\)</span> evaluated at the point’s own temperatures — <strong>not</strong> a regression. Because it is deliberately <strong>half</strong> the thermodynamic ceiling rather than the ceiling itself, a real refrigerant scoring above it is expected and is not a physics violation. The same COP cap of <strong>15.0</strong> used by the integration module applies here.</p>
+</div></blockquote>
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_theoretical_alternatives</code>)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_theoretical_alternatives</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The literature technology archetypes, shaped like model alternatives.</span>
+
+<span class="sd">    The HPI panel above evaluates these same five correlations at a single sink</span>
+<span class="sd">    temperature. Here they are swept through the optimiser&#39;s full grid so they</span>
+<span class="sd">    appear as curves alongside the trained refrigerants, which is only valid</span>
+<span class="sd">    because both sides use the identical shifted-temperature convention and the</span>
+<span class="sd">    identical duty relation Q_sink = Q_source * COP/(COP-1).</span>
+
+<span class="sd">    Each archetype is only rated inside its own sink/lift window, so the COP</span>
+<span class="sd">    callable returns -1 outside it: the optimiser already discards any COP &lt;= 1,</span>
+<span class="sd">    which enforces the window without touching its loop.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">app.modules.heat_pump_integration.heat_pump_integration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">HP_OPERATING_WINDOWS</span><span class="p">,</span>
+        <span class="n">HP_COP_CORRELATIONS</span><span class="p">,</span>
+        <span class="n">HP_COP_FORMULAS</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">alts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">window</span> <span class="ow">in</span> <span class="n">HP_OPERATING_WINDOWS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">correlation</span> <span class="o">=</span> <span class="n">HP_COP_CORRELATIONS</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">make_fn</span><span class="p">(</span><span class="n">correlation</span><span class="o">=</span><span class="n">correlation</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="n">window</span><span class="p">):</span>
+            <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">,</span> <span class="n">t_sink_model</span><span class="p">):</span>
+                <span class="n">t_src</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">t_snk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t_sink_model</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="n">lift</span> <span class="o">=</span> <span class="n">t_snk</span> <span class="o">-</span> <span class="n">t_src</span>
+                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+                    <span class="n">cop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">correlation</span><span class="p">(</span><span class="n">t_snk</span><span class="p">,</span> <span class="n">lift</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+                <span class="c1"># Outside the rated window the regression is extrapolation, not</span>
+                <span class="c1"># a machine anyone can buy. -1 makes the optimiser drop it.</span>
+                <span class="n">in_window</span> <span class="o">=</span> <span class="p">(</span>
+                    <span class="p">(</span><span class="n">t_snk</span> <span class="o">&gt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">&quot;t_sink_min&quot;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t_snk</span> <span class="o">&lt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">&quot;t_sink_max&quot;</span><span class="p">])</span>
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">lift</span> <span class="o">&gt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">&quot;dt_min&quot;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lift</span> <span class="o">&lt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">&quot;dt_max&quot;</span><span class="p">])</span>
+                <span class="p">)</span>
+                <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_window</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cop</span><span class="p">),</span> <span class="n">cop</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">predict</span>
+
+        <span class="n">alts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;Kältemittel_stufen&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s2">&quot;medium_sink&quot;</span><span class="p">:</span> <span class="s2">&quot;—&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;refrigerant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Theoretical&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;hp_level&quot;</span><span class="p">:</span> <span class="s2">&quot;—&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;T_src_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">273.0</span><span class="p">,</span>
+            <span class="s2">&quot;T_src_max&quot;</span><span class="p">:</span> <span class="mf">10000.0</span><span class="p">,</span>
+            <span class="s2">&quot;T_sink_min&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="s2">&quot;t_sink_min&quot;</span><span class="p">]),</span>
+            <span class="s2">&quot;T_sink_max&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="s2">&quot;t_sink_max&quot;</span><span class="p">]),</span>
+            <span class="c1"># The same ceiling the HPI panel clamps to, so a technology cannot</span>
+            <span class="c1"># look better here than it does above.</span>
+            <span class="s2">&quot;cop_min&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">&quot;cop_max&quot;</span><span class="p">:</span> <span class="mf">15.0</span><span class="p">,</span>
+            <span class="s2">&quot;deltaT_evap&quot;</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">&quot;deltaT_evap&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;deltaT_cond&quot;</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">&quot;deltaT_cond&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;cop_fn&quot;</span><span class="p">:</span> <span class="n">make_fn</span><span class="p">(),</span>
+            <span class="s2">&quot;theoretical&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="c1"># Renders the published formula with a point&#39;s own temperatures.</span>
+            <span class="s2">&quot;formula_fn&quot;</span><span class="p">:</span> <span class="n">HP_COP_FORMULAS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+        <span class="p">})</span>
+    <span class="k">return</span> <span class="n">alts</span>
+</pre></div>
+</div>
+</details>
+<section id="provenance-of-each-cop">
+<h3>Provenance of each COP<a class="headerlink" href="#provenance-of-each-cop" title="Link to this heading">#</a></h3>
+<p>Every reported point records <strong>how its COP was arrived at</strong>, so a number can be traced back to its source without reading code. For an archetype this is the published formula with the point’s own temperatures substituted; for a trained refrigerant it names the regression, the sink medium and the number of compression stages.</p>
+<blockquote>
+<div><p>[!NOTE]
+The trained model is a regression over a heat pump manufacturer’s <strong>simulation</strong> parameter study — not measurements of operating machines.</p>
+</div></blockquote>
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_calculation_details</code>)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_calculation_details</span><span class="p">(</span><span class="n">alt</span><span class="p">,</span> <span class="n">t_source</span><span class="p">,</span> <span class="n">t_sink</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The formula behind one point&#39;s COP, with its own temperatures filled in.</span>
+
+<span class="sd">    Archetypes carry a published correlation that can be written out; a trained</span>
+<span class="sd">    refrigerant does not, so it gets a short statement of where its COP came</span>
+<span class="sd">    from instead of a fake formula.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">formula_fn</span> <span class="o">=</span> <span class="n">alt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;formula_fn&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">formula_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">formula_fn</span><span class="p">(</span><span class="n">t_sink</span><span class="p">,</span> <span class="n">t_sink</span> <span class="o">-</span> <span class="n">t_source</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="c1"># A help bubble is never worth failing an analysis over.</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Regression over heat pump simulation data from a manufacturer &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;parameter study, evaluated for </span><span class="si">{</span><span class="n">alt</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (sink medium &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">alt</span><span class="p">[</span><span class="s1">&#39;medium_sink&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">alt</span><span class="p">[</span><span class="s1">&#39;hp_level&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> stage(s)) at &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;T_source = </span><span class="si">{</span><span class="n">t_source</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> °C, T_sink = </span><span class="si">{</span><span class="n">t_sink</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> °C.&quot;</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
 </section>
 <hr class="docutils" />
 <section id="temperature-approach-corrections">
@@ -608,6 +737,52 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 </details>
 </section>
 <hr class="docutils" />
+<section id="selecting-the-maximum-duty-point">
+<h2>Selecting the Maximum-Duty Point<a class="headerlink" href="#selecting-the-maximum-duty-point" title="Link to this heading">#</a></h2>
+<p>The results highlight the point delivering the <strong>greatest sink duty</strong> — the largest heat pump the process can absorb. Many candidates typically reach that same maximum: in a representative case 48 machines tie at the top duty, with COPs spanning 2.57 to 9.08, because the duty ceiling is set by the process profile rather than by the machine.</p>
+<p>A plain <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> comparison therefore left the winner to iteration order, and could report a markedly worse machine than an equally large one sitting beside it. Ties are broken by COP:</p>
+<div class="math notranslate nohighlight">
+\[
+\text{select } p \quad \text{if} \quad \dot{Q}_p &gt; \dot{Q}_{max} \quad \text{or} \quad \left( \dot{Q}_p = \dot{Q}_{max} \ \text{and} \ COP_p &gt; COP_{max} \right)
+\]</div>
+<blockquote>
+<div><p>[!NOTE]
+This is an API-level selection rule, so it applies to every consumer of the optimization result, not only the chart.</p>
+</div></blockquote>
+</section>
+<hr class="docutils" />
+<section id="demand-limited-heat-pump-integration">
+<h2>Demand-Limited Heat Pump Integration<a class="headerlink" href="#demand-limited-heat-pump-integration" title="Link to this heading">#</a></h2>
+<p>The mirror image of the source-limited case. Here waste heat is <em>not</em> the constraint — there is more of it than the sink can absorb — so the duty is capped at the process demand and the surplus waste heat is left unused:</p>
+<div class="math notranslate nohighlight">
+\[
+\dot{Q}_{sink} = \dot{Q}_{demand} \quad \text{while} \quad \dot{Q}_{available} &gt; \dot{Q}_{demand} \cdot \frac{COP - 1}{COP}
+\]</div>
+<p>The distinction matters for reading the charts. A <strong>source-limited</strong> point sits off the <em>sink</em> profile, because it cannot reach the demand; a <strong>demand-limited</strong> point sits off the <em>source</em> profile, because it does not consume all the waste heat available. Both are drawn as hollow markers to mark them as partial solutions, and both are excluded from the COP-versus-coverage frontier — a capped machine would otherwise put a dip in that curve at the coverage where it happens to be the only candidate.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Flag</p></th>
+<th class="head"><p>Constraint</p></th>
+<th class="head"><p>Sits off</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">source_limited</span></code></p></td>
+<td><p>Waste heat runs out</p></td>
+<td><p>Sink profile</p></td>
+<td><p>Cannot meet the full demand</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">demand_limited</span></code></p></td>
+<td><p>Sink demand runs out</p></td>
+<td><p>Source profile</p></td>
+<td><p>Leaves waste heat unused</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
 <section id="output-summary">
 <h2>Output Summary<a class="headerlink" href="#output-summary" title="Link to this heading">#</a></h2>
 <p>The optimization service ranks candidates by <strong>COP</strong>, <strong>condenser thermal output (<span class="math notranslate nohighlight">\(\dot{Q}_{sink}\)</span>)</strong>, and <strong>electrical power input (<span class="math notranslate nohighlight">\(W_{el} = \dot{Q}_{sink} / COP\)</span>)</strong>, returning:</p>
@@ -626,6 +801,18 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 </tr>
 <tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">refrigerant_type</span></code></p></td>
 <td><p>Selected fluid (e.g. R1233zd(E), R290, R717)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">theoretical</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code> for a technology archetype, <code class="docutils literal notranslate"><span class="pre">false</span></code> for a trained refrigerant</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">calculation_details</span></code></p></td>
+<td><p>How this point’s COP was arrived at — the formula, or the regression and its inputs</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">demand_limited</span></code></p></td>
+<td><p>Duty capped by the sink demand, leaving waste heat unused</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Q_demand_total</span></code></p></td>
+<td><p>The full sink demand at this temperature, against which a limited point’s coverage is read</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">diagnostics</span></code></p></td>
 <td><p>Count of evaluated mesh points, skipped points outside operating envelope, and zero-crossing solutions</p></td>
@@ -688,6 +875,10 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#refrigerant-operating-limits">Refrigerant Operating Limits</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#theoretical-technology-archetypes">Theoretical Technology Archetypes</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#provenance-of-each-cop">Provenance of each COP</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temperature-approach-corrections">Temperature Approach Corrections</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-cop-formula-evaluation">Custom COP Formula Evaluation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-mesh-grid-search-algorithm">2D Mesh Grid Search Algorithm</a><ul class="pst-show_toc_level nav section-nav flex-column">
@@ -696,6 +887,8 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 </ul>
 </li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#source-limited-heat-pump-integration">Source-Limited Heat Pump Integration</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-the-maximum-duty-point">Selecting the Maximum-Duty Point</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#demand-limited-heat-pump-integration">Demand-Limited Heat Pump Integration</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-summary">Output Summary</a></li>
 </ul>
   </nav></div>
