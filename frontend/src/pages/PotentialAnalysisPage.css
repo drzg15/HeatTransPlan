@@ -509,12 +509,36 @@
   background: var(--surface-hover);
 }
 
+/* Reveals the superseded single-point HPI panel. Quiet by design — it is a
+   secondary view, not a primary action. */
+.pa-classic-hpi-toggle {
+  margin: 0.5rem 0 0.25rem;
+  padding: 0.35rem 0.75rem;
+  background: transparent;
+  color: var(--primary);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+.pa-classic-hpi-toggle:hover {
+  background: var(--surface-hover);
+}
+
 .pa-hp-table-wrap {
   margin: 8px 0;
   /* The heat-pump table has more columns than a phone is wide — it scrolls
      inside this box rather than widening the page. */
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+}
+
+/* Every row stays exactly one line tall: the columns are sized to their content
+   and the table scrolls sideways in its wrapper rather than wrapping a cell. */
+.pa-hp-table td,
+.pa-hp-table th {
+  white-space: nowrap;
 }
 
 /* Section labels above each HP group */
