@@ -65,6 +65,60 @@ def _load_model_and_data():
 
 ---
 
+## Theoretical Technology Archetypes
+
+Alongside the trained refrigerants, the optimizer sweeps the five **technology archetypes** from [Heat Pump Integration](heat_pump_integration.md) — Prototypical Stirling, VHTHP (HFC/HFO), SHP and HTHPs (HFC/HFO), SHP and HTHPs (R717), and the 50 % Carnot baseline.
+
+The integration module evaluates those same correlations at a **single** sink temperature. Here they are put through the **identical mesh** as the trained refrigerants, so a published technology curve can be read directly against what a real machine achieves at the same duty. This comparison is only valid because both sides use the same shifted-temperature convention and the same duty relation:
+
+$$
+\dot{Q}_{sink} = \dot{Q}_{source} \cdot \frac{COP}{COP - 1}
+$$
+
+Each archetype is rated only inside its own sink and lift window. Rather than special-casing the optimizer loop, the COP callable returns $-1$ outside the window: the grid search already discards any candidate with $COP \leq 1$, which enforces the operating envelope for free.
+
+$$
+COP_{archetype}(T_{src}, T_{sink}) =
+\begin{cases}
+f_{tech}(T_{sink}, \Delta T) & \text{inside the rated window} \\
+-1 & \text{outside (discarded)}
+\end{cases}
+$$
+
+Archetype points carry `theoretical = true` in the output, which is what separates them from measured machines in the results table and gives them their own marker on the chart.
+
+> [!IMPORTANT]
+> The Carnot archetype is the formula $\frac{T_{sink} + 273.15}{\Delta T} \times 0.5$ evaluated at the point's own temperatures — **not** a regression. Because it is deliberately **half** the thermodynamic ceiling rather than the ceiling itself, a real refrigerant scoring above it is expected and is not a physics violation. The same COP cap of **15.0** used by the integration module applies here.
+
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_theoretical_alternatives</code>)</summary>
+
+```{literalinclude} ../backend/app/services/optimization_service.py
+:language: python
+:pyobject: _theoretical_alternatives
+```
+
+</details>
+
+### Provenance of each COP
+
+Every reported point records **how its COP was arrived at**, so a number can be traced back to its source without reading code. For an archetype this is the published formula with the point's own temperatures substituted; for a trained refrigerant it names the regression, the sink medium and the number of compression stages.
+
+> [!NOTE]
+> The trained model is a regression over a heat pump manufacturer's **simulation** parameter study — not measurements of operating machines.
+
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_calculation_details</code>)</summary>
+
+```{literalinclude} ../backend/app/services/optimization_service.py
+:language: python
+:pyobject: _calculation_details
+```
+
+</details>
+
+---
+
 ## Temperature Approach Corrections
 
 Before predicting the COP, process temperatures are corrected for heat exchanger approach temperature differences:
@@ -208,6 +262,38 @@ valid_indices = np.where(coverage >= MIN_COVERAGE)[0]
 
 ---
 
+## Selecting the Maximum-Duty Point
+
+The results highlight the point delivering the **greatest sink duty** — the largest heat pump the process can absorb. Many candidates typically reach that same maximum: in a representative case 48 machines tie at the top duty, with COPs spanning 2.57 to 9.08, because the duty ceiling is set by the process profile rather than by the machine.
+
+A plain `>` comparison therefore left the winner to iteration order, and could report a markedly worse machine than an equally large one sitting beside it. Ties are broken by COP:
+
+$$
+\text{select } p \quad \text{if} \quad \dot{Q}_p > \dot{Q}_{max} \quad \text{or} \quad \left( \dot{Q}_p = \dot{Q}_{max} \ \text{and} \ COP_p > COP_{max} \right)
+$$
+
+> [!NOTE]
+> This is an API-level selection rule, so it applies to every consumer of the optimization result, not only the chart.
+
+---
+
+## Demand-Limited Heat Pump Integration
+
+The mirror image of the source-limited case. Here waste heat is *not* the constraint — there is more of it than the sink can absorb — so the duty is capped at the process demand and the surplus waste heat is left unused:
+
+$$
+\dot{Q}_{sink} = \dot{Q}_{demand} \quad \text{while} \quad \dot{Q}_{available} > \dot{Q}_{demand} \cdot \frac{COP - 1}{COP}
+$$
+
+The distinction matters for reading the charts. A **source-limited** point sits off the *sink* profile, because it cannot reach the demand; a **demand-limited** point sits off the *source* profile, because it does not consume all the waste heat available. Both are drawn as hollow markers to mark them as partial solutions, and both are excluded from the COP-versus-coverage frontier — a capped machine would otherwise put a dip in that curve at the coverage where it happens to be the only candidate.
+
+| Flag | Constraint | Sits off | Meaning |
+|---|---|---|---|
+| `source_limited` | Waste heat runs out | Sink profile | Cannot meet the full demand |
+| `demand_limited` | Sink demand runs out | Source profile | Leaves waste heat unused |
+
+---
+
 ## Output Summary
 
 The optimization service ranks candidates by **COP**, **condenser thermal output ($\dot{Q}_{sink}$)**, and **electrical power input ($W_{el} = \dot{Q}_{sink} / COP$)**, returning:
@@ -217,4 +303,8 @@ The optimization service ranks candidates by **COP**, **condenser thermal output
 | `best_cop_points` | Exact zero-crossing operating points with highest COP |
 | `source_limited_points` | Maximum heat delivery points when waste heat is constrained |
 | `refrigerant_type` | Selected fluid (e.g. R1233zd(E), R290, R717) |
+| `theoretical` | `true` for a technology archetype, `false` for a trained refrigerant |
+| `calculation_details` | How this point's COP was arrived at — the formula, or the regression and its inputs |
+| `demand_limited` | Duty capped by the sink demand, leaving waste heat unused |
+| `Q_demand_total` | The full sink demand at this temperature, against which a limited point's coverage is read |
 | `diagnostics` | Count of evaluated mesh points, skipped points outside operating envelope, and zero-crossing solutions |
