@@ -6,6 +6,35 @@ The implementation follows the classic methodology from Linnhoff & Hindmarsh (19
 
 ---
 
+## Pipeline Summary
+
+The full Pinch Analysis pipeline runs these steps in sequence:
+
+```mermaid
+flowchart TD
+    A[Input: Streams + ΔTmin] --> B[Shift Temperatures ±ΔTmin/2]
+    B --> C[Construct Temperature Intervals]
+    C --> D[Build Problem Table]
+    D --> E[Heat Cascade → Pinch Point]
+    E --> F[Shifted Composite Diagram]
+    F --> G[Composite Diagram]
+    E --> H[Grand Composite Curve]
+    H --> I[Temperature Pocket Deletion]
+    I --> J[Heat Pump Integration & Optimization]
+```
+
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch_main.py</code> (<code>solve_pinch</code>)</summary>
+
+```{literalinclude} ../backend/app/modules/pinch_main.py
+:language: python
+:pyobject: PinchMain.solve_pinch
+```
+
+</details>
+
+---
+
 ## Input: Process Streams
 
 Every stream is defined by three numbers:
@@ -425,48 +454,6 @@ class TemperaturePocketDeletion:
                         self.heatCascadeexitH[j+1] = self.heatCascadeexitH[j+2]
                         self.heatCascadedeltaH[j+1] = 0.0
                         j = i  # restart from pinch
-```
-
-</details>
-
----
-
-## Pipeline Summary
-
-The full Pinch Analysis pipeline runs these steps in sequence:
-
-```mermaid
-flowchart TD
-    A[Input: Streams + ΔTmin] --> B[Shift Temperatures ±ΔTmin/2]
-    B --> C[Construct Temperature Intervals]
-    C --> D[Build Problem Table]
-    D --> E[Heat Cascade → Pinch Point]
-    E --> F[Shifted Composite Diagram]
-    F --> G[Composite Diagram]
-    E --> H[Grand Composite Curve]
-    H --> I[Temperature Pocket Deletion]
-    I --> J[Heat Pump Integration & Optimization]
-```
-
-<details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch_main.py</code></summary>
-
-```python
-class PinchMain():
-    def solve_pinch(self, localisation='DE'):
-        self.pinch_analyse.shift_temperatures()
-        self.pinch_analyse.construct_temperature_interval()
-        self.pinch_analyse.construct_problem_table()
-        self.pinch_analyse.construct_heat_cascade()
-        self.pinch_analyse.construct_shifted_composite_diagram(localisation)
-        self.pinch_analyse.construct_composite_diagram(localisation)
-        self.pinch_analyse.construct_grand_composite_curve(localisation)
-```
-
-</details>
-        self.pinch_analyse.construct_shifted_composite_diagram(localisation)
-        self.pinch_analyse.construct_composite_diagram(localisation)
-        self.pinch_analyse.construct_grand_composite_curve(localisation)
 ```
 
 </details>

@@ -563,6 +563,7 @@ window.runMermaid = runMermaid;</script>
 <li class="toctree-l1 current active"><a class="current reference internal" href="#">Pinch Analysis</a></li>
 <li class="toctree-l1"><a class="reference internal" href="heat_pump_integration.html">Heat Pump Integration — Classic Method</a></li>
 <li class="toctree-l1"><a class="reference internal" href="heat_pump_optimization.html">Heat Pump Optimization — Predictive ML Model &amp; Grid Search</a></li>
+<li class="toctree-l1"><a class="reference internal" href="refrigerant_limits.html">Refrigerant Operating Limits</a></li>
 </ul>
 
     </div>
@@ -730,6 +731,7 @@ window.runMermaid = runMermaid;</script>
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-summary">Pipeline Summary</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-process-streams">Input: Process Streams</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-shift-temperatures-by-tmin-2">Step 1 — Shift Temperatures by ΔTmin/2</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-construct-temperature-intervals">Step 2 — Construct Temperature Intervals</a></li>
@@ -750,7 +752,6 @@ window.runMermaid = runMermaid;</script>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deletion-algorithm">Deletion Algorithm</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-summary">Pipeline Summary</a></li>
 </ul>
             </nav>
         </div>
@@ -766,6 +767,46 @@ window.runMermaid = runMermaid;</script>
 <h1>Pinch Analysis<a class="headerlink" href="#pinch-analysis" title="Link to this heading">#</a></h1>
 <p>Pinch Analysis is the foundational calculation of HeatTransPlan. It determines the <strong>minimum heating and cooling utility</strong> requirements for a set of process streams, identifies the <strong>Pinch Temperature</strong>, and constructs the diagnostic curves (Composite Curves, Grand Composite Curve) that drive all downstream modules.</p>
 <p>The implementation follows the classic methodology from Linnhoff &amp; Hindmarsh (1983), extended to handle edge cases in multi-process industrial settings.</p>
+<hr class="docutils" />
+<section id="pipeline-summary">
+<h2>Pipeline Summary<a class="headerlink" href="#pipeline-summary" title="Link to this heading">#</a></h2>
+<p>The full Pinch Analysis pipeline runs these steps in sequence:</p>
+<pre  class="mermaid">
+        flowchart TD
+    A[Input: Streams + ΔTmin] --&gt; B[Shift Temperatures ±ΔTmin/2]
+    B --&gt; C[Construct Temperature Intervals]
+    C --&gt; D[Build Problem Table]
+    D --&gt; E[Heat Cascade → Pinch Point]
+    E --&gt; F[Shifted Composite Diagram]
+    F --&gt; G[Composite Diagram]
+    E --&gt; H[Grand Composite Curve]
+    H --&gt; I[Temperature Pocket Deletion]
+    I --&gt; J[Heat Pump Integration &amp; Optimization]
+    </pre><details>
+<summary><b>Source code:</b> <code>backend/app/modules/pinch_main.py</code> (<code>solve_pinch</code>)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="k">def</span><span class="w"> </span><span class="nf">solve_pinch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localisation</span> <span class="o">=</span> <span class="s1">&#39;DE&#39;</span><span class="p">):</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">shift_temperatures</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_temperature_interval</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_problem_table</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_heat_cascade</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_shifted_composite_diagram</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_composite_diagram</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_grand_composite_curve</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;Buffer file for TotalSiteProfile creation.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">newline</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">csvfile</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">newstreamsdata</span> <span class="o">=</span> <span class="n">csv</span><span class="o">.</span><span class="n">writer</span><span class="p">(</span><span class="n">csvfile</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">newstreamsdata</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">_temperatures</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">newstreamsdata</span><span class="o">.</span><span class="n">writerow</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">heat_cascade</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">newstreamsdata</span><span class="o">.</span><span class="n">writerow</span><span class="p">([</span><span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">hot_utility</span><span class="p">])</span>
+
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">_options</span><span class="p">[</span><span class="s1">&#39;draw&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="n">PinchPlot</span><span class="o">.</span><span class="n">show_plots</span><span class="p">()</span>  
+</pre></div>
+</div>
+</details>
+</section>
 <hr class="docutils" />
 <section id="input-process-streams">
 <h2>Input: Process Streams<a class="headerlink" href="#input-process-streams" title="Link to this heading">#</a></h2>
@@ -1183,41 +1224,6 @@ $<span class="math notranslate nohighlight">\(T_{new} = T_{i+2} + \frac{T_{i+1} 
 </details>
 </section>
 </section>
-<hr class="docutils" />
-<section id="pipeline-summary">
-<h2>Pipeline Summary<a class="headerlink" href="#pipeline-summary" title="Link to this heading">#</a></h2>
-<p>The full Pinch Analysis pipeline runs these steps in sequence:</p>
-<pre  class="mermaid">
-        flowchart TD
-    A[Input: Streams + ΔTmin] --&gt; B[Shift Temperatures ±ΔTmin/2]
-    B --&gt; C[Construct Temperature Intervals]
-    C --&gt; D[Build Problem Table]
-    D --&gt; E[Heat Cascade → Pinch Point]
-    E --&gt; F[Shifted Composite Diagram]
-    F --&gt; G[Composite Diagram]
-    E --&gt; H[Grand Composite Curve]
-    H --&gt; I[Temperature Pocket Deletion]
-    I --&gt; J[Heat Pump Integration &amp; Optimization]
-    </pre><details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch_main.py</code></summary>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">PinchMain</span><span class="p">():</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">solve_pinch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">localisation</span><span class="o">=</span><span class="s1">&#39;DE&#39;</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">shift_temperatures</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_temperature_interval</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_problem_table</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_heat_cascade</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_shifted_composite_diagram</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_composite_diagram</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pinch_analyse</span><span class="o">.</span><span class="n">construct_grand_composite_curve</span><span class="p">(</span><span class="n">localisation</span><span class="p">)</span>
-</pre></div>
-</div>
-</details>
-        self.pinch_analyse.construct_shifted_composite_diagram(localisation)
-        self.pinch_analyse.construct_composite_diagram(localisation)
-        self.pinch_analyse.construct_grand_composite_curve(localisation)
-```
-</details>
-</section>
 </section>
 
 
@@ -1267,6 +1273,7 @@ $<span class="math notranslate nohighlight">\(T_{new} = T_{i+2} + \frac{T_{i+1} 
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-summary">Pipeline Summary</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#input-process-streams">Input: Process Streams</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-shift-temperatures-by-tmin-2">Step 1 — Shift Temperatures by ΔTmin/2</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-construct-temperature-intervals">Step 2 — Construct Temperature Intervals</a></li>
@@ -1287,7 +1294,6 @@ $<span class="math notranslate nohighlight">\(T_{new} = T_{i+2} + \frac{T_{i+1} 
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#deletion-algorithm">Deletion Algorithm</a></li>
 </ul>
 </li>
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pipeline-summary">Pipeline Summary</a></li>
 </ul>
   </nav></div>
 

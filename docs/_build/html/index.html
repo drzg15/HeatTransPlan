@@ -372,6 +372,12 @@
             </div>
             <nav aria-label="Page">
                 <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-application-does">What the application does</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-workflow">The workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-numbers-mean">What the numbers mean</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-geographic-dimension">The geographic dimension</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-read-this-document">How to read this document</a></li>
 </ul>
             </nav>
@@ -389,6 +395,60 @@
 <p>This document explains the engineering calculations behind HeatTransPlan, a tool for <strong>Pinch Analysis</strong> and <strong>heat pump integration &amp; optimization</strong> in industrial processes.</p>
 <p>It is written for engineers and researchers who understand energy recovery concepts but do not need to read source code. Every section explains the thermodynamic logic first, with equations and step-by-step descriptions. The actual Python implementation is hidden behind toggle buttons — click <strong>“▶ Show implementation”</strong> to expand the code whenever you want to see exactly how a step is programmed.</p>
 <hr class="docutils" />
+<section id="what-the-application-does">
+<h2>What the application does<a class="headerlink" href="#what-the-application-does" title="Link to this heading">#</a></h2>
+<p>An industrial site heats some streams and cools others. Wherever something hot is being cooled while something else is being heated, that heat is bought twice: once from the boiler and once from the chiller. <strong>HeatTransPlan finds how much of it can be exchanged internally instead, and what a heat pump could do with the rest.</strong></p>
+<p>The tool answers three questions in order:</p>
+<ol class="arabic simple">
+<li><p><strong>How much energy is unavoidable?</strong> Pinch analysis sets the thermodynamic floor — the minimum external heating and cooling the process needs once every feasible internal match has been made. No heat exchanger network can beat it.</p></li>
+<li><p><strong>Where is the bottleneck?</strong> The pinch temperature divides the site into a region that needs heat and one that has heat to spare. Moving heat across that divide is what wastes utility.</p></li>
+<li><p><strong>What can bridge the gap?</strong> A heat pump can lift waste heat from below the pinch to above it. The optimizer searches the feasible operating points for real refrigerants and published technology archetypes, and reports what each would deliver.</p></li>
+</ol>
+<section id="the-workflow">
+<h3>The workflow<a class="headerlink" href="#the-workflow" title="Link to this heading">#</a></h3>
+<p>A user works through four stages:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Stage</p></th>
+<th class="head"><p>What happens</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Data collection</strong></p></td>
+<td><p>Processes, subprocesses and their hot and cold streams are entered — mass flow, heat capacity, inlet and outlet temperatures — and placed on a map of the site.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Stream selection</strong></p></td>
+<td><p>The streams to analyse are chosen, so scenarios can be compared without re-entering data.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Pinch analysis</strong></p></td>
+<td><p>Composite curves, the grand composite curve, the pinch temperature and the minimum utility demands are computed.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Heat pump integration</strong></p></td>
+<td><p>Feasible heat pump operating points are evaluated across the temperature range, with COP, duty and electrical input for each.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="what-the-numbers-mean">
+<h3>What the numbers mean<a class="headerlink" href="#what-the-numbers-mean" title="Link to this heading">#</a></h3>
+<p>Three results carry most of the value:</p>
+<ul class="simple">
+<li><p><strong>Minimum heating and cooling demand</strong> — the external energy still required after maximum internal recovery. The gap between this and what the site buys today is the saving available from heat exchangers alone.</p></li>
+<li><p><strong>Pinch temperature</strong> — the temperature at which the process is most constrained. Heat transferred across it is energy wasted twice over.</p></li>
+<li><p><strong>Heat pump operating points</strong> — for each feasible sink temperature, the COP and duty a machine would achieve, so a high-efficiency pump covering part of the demand can be weighed against a lower-efficiency one covering all of it.</p></li>
+</ul>
+<blockquote>
+<div><p>[!NOTE]
+Everything here describes a thermodynamic <em>potential</em>, not a design. The analysis assumes heat can be exchanged wherever temperatures allow; it does not cost the pipework, check that two streams run at the same time of day, or size equipment. It tells you whether a detailed study is worth commissioning, and where to point it.</p>
+</div></blockquote>
+</section>
+<section id="the-geographic-dimension">
+<h3>The geographic dimension<a class="headerlink" href="#the-geographic-dimension" title="Link to this heading">#</a></h3>
+<p>Streams are placed on a real map rather than an abstract flowsheet, because a match that is thermodynamically ideal may sit half a kilometre away. The distance matrix export gives the separation between subprocesses, so a promising match can be checked against what it would cost to connect.</p>
+</section>
+</section>
+<hr class="docutils" />
 <section id="how-to-read-this-document">
 <h2>How to read this document<a class="headerlink" href="#how-to-read-this-document" title="Link to this heading">#</a></h2>
 <ul class="simple">
@@ -402,6 +462,7 @@
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">Modules</span></p>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="pinch_analysis.html">Pinch Analysis</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#pipeline-summary">Pipeline Summary</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#input-process-streams">Input: Process Streams</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#step-1-shift-temperatures-by-tmin-2">Step 1 — Shift Temperatures by ΔTmin/2</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#step-2-construct-temperature-intervals">Step 2 — Construct Temperature Intervals</a></li>
@@ -411,7 +472,6 @@
 <li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#step-6-composite-diagram-actual-temperatures">Step 6 — Composite Diagram (Actual Temperatures)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#step-7-grand-composite-curve-gcc">Step 7 — Grand Composite Curve (GCC)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#step-8-temperature-pocket-deletion">Step 8 — Temperature Pocket Deletion</a></li>
-<li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#pipeline-summary">Pipeline Summary</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="heat_pump_integration.html">Heat Pump Integration — Classic Method</a><ul>
@@ -425,10 +485,13 @@
 <li class="toctree-l1"><a class="reference internal" href="heat_pump_optimization.html">Heat Pump Optimization — Predictive ML Model &amp; Grid Search</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#predictive-ml-model-refrigerant-alternatives">Predictive ML Model &amp; Refrigerant Alternatives</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#refrigerant-operating-limits">Refrigerant Operating Limits</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#theoretical-technology-archetypes">Theoretical Technology Archetypes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#temperature-approach-corrections">Temperature Approach Corrections</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#custom-cop-formula-evaluation">Custom COP Formula Evaluation</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#d-mesh-grid-search-algorithm">2D Mesh Grid Search Algorithm</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#source-limited-heat-pump-integration">Source-Limited Heat Pump Integration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#selecting-the-maximum-duty-point">Selecting the Maximum-Duty Point</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#demand-limited-heat-pump-integration">Demand-Limited Heat Pump Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#output-summary">Output Summary</a></li>
 </ul>
 </li>
@@ -476,6 +539,12 @@
   </div>
   <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
     <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-application-does">What the application does</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-workflow">The workflow</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-numbers-mean">What the numbers mean</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-geographic-dimension">The geographic dimension</a></li>
+</ul>
+</li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-read-this-document">How to read this document</a></li>
 </ul>
   </nav></div>
