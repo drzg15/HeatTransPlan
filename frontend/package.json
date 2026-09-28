@@ -55,6 +55,10 @@
     ],
     "*.{css,md,json}": [
       "prettier --write"
+    ],
+    "src/locales/*.json": [
+      "prettier --write",
+      "bash -c 'npx vitest run src/locales/locales.test.ts'"
     ]
   }
 }
