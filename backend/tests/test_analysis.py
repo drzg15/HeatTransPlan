@@ -68,3 +68,61 @@ def test_cop_formula_conditional():
     assert abs(res2[0] - 1.96575) < 1e-4
 
 
+
+
+# ---------------------------------------------------------------------------
+# Theoretical archetypes merged into the optimisation results
+# ---------------------------------------------------------------------------
+
+def test_theoretical_alternatives_respect_operating_windows():
+    """Archetypes must report COP <= 0 outside their rated sink/lift window.
+
+    The optimiser discards any COP <= 1, so this is what keeps an archetype from
+    being extrapolated into a regime its published regression never covered.
+    """
+    import numpy as np
+    from app.services.optimization_service import _theoretical_alternatives
+    from app.modules.heat_pump_integration.heat_pump_integration import (
+        HP_OPERATING_WINDOWS,
+    )
+
+    alts = _theoretical_alternatives()
+    assert {a["name"] for a in alts} == set(HP_OPERATING_WINDOWS)
+
+    for alt in alts:
+        window = HP_OPERATING_WINDOWS[alt["name"]]
+        assert alt["refrigerant_type"] == "Theoretical"
+        assert alt["theoretical"] is True
+
+        # Sink below the rated minimum, and a lift under the rated minimum:
+        # both are outside the window and must not look feasible.
+        t_sink = np.array([window["t_sink_min"] - 10.0, 100.0])
+        t_source = np.array([t_sink[0] - 30.0, 100.0 - window["dt_min"] / 2.0])
+        cop = np.asarray(alt["cop_fn"](t_source, t_sink), dtype=float)
+        assert np.all(cop <= 1.0), f"{alt['name']} reported {cop} outside its window"
+
+
+def test_theoretical_archetypes_match_the_hpi_correlation():
+    """Inside the window an archetype must equal the correlation the HPI panel uses.
+
+    The two panels are only comparable because they evaluate the same function;
+    if this drifts, the merged table would rank them against each other wrongly.
+    """
+    import numpy as np
+    from app.services.optimization_service import _theoretical_alternatives
+    from app.modules.heat_pump_integration.heat_pump_integration import (
+        HP_COP_CORRELATIONS,
+        in_operating_window,
+    )
+
+    t_sink, t_source = 98.0, 78.0
+    lift = t_sink - t_source
+
+    for alt in _theoretical_alternatives():
+        if not in_operating_window(alt["name"], t_sink, lift):
+            continue
+        expected = HP_COP_CORRELATIONS[alt["name"]](t_sink, lift)
+        got = float(
+            np.asarray(alt["cop_fn"](np.array([t_source]), np.array([t_sink])))[0]
+        )
+        assert got == pytest.approx(expected, rel=1e-9), alt["name"]

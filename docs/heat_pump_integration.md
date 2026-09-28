@@ -20,11 +20,22 @@ Each heat pump technology has a defined **operating envelope**: a sink temperatu
 
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (HP_OPERATING_WINDOWS and in_operating_window)</summary>
+<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (HP_OPERATING_WINDOWS)</summary>
 
 ```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
 :language: python
-:lines: 10-16, 53-59
+:start-at: HP_OPERATING_WINDOWS = {
+:end-before: HP_COP_CORRELATIONS
+```
+
+</details>
+
+<details>
+<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (in_operating_window)</summary>
+
+```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
+:language: python
+:pyobject: in_operating_window
 ```
 
 </details>
