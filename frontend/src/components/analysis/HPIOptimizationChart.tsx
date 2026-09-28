@@ -139,6 +139,64 @@ export default function HPIOptimizationChart({
   const theoreticalList = Array.from(theoreticalBest.values());
   const theoreticalPoints = keepActive(theoreticalList, collapseVerticals(theoreticalList));
 
+  // Every candidate at one sink temperature carries the same duty, so they all
+  // land on the same pixel. Plotly's 'closest' hovermode breaks that tie by
+  // draw order, which meant the archetype diamonds — pushed last, and drawn
+  // larger — captured the tooltip whatever their COP. Rank the stack by COP
+  // instead and let every point at that temperature report the same winner.
+  const stackAtTemp = new Map<string, OptimizedIntegrationPoint[]>();
+  for (const p of [...filteredPoints, ...theoreticalPoints]) {
+    const key = p.T_sink.toFixed(2);
+    const at = stackAtTemp.get(key);
+    if (at) at.push(p);
+    else stackAtTemp.set(key, [p]);
+  }
+  for (const group of stackAtTemp.values()) {
+    group.sort((a, b) => b.COP - a.COP);
+  }
+
+  const RUNNERS_UP = 3;
+
+  /** The hover text for a point: whichever machine at this sink temperature has
+   *  the best COP, then the next few, so the Carnot ceiling can be read against
+   *  what a real machine actually reaches. `side` picks which half of the
+   *  balance the headline numbers describe. */
+  const stackedHover = (p: OptimizedIntegrationPoint, side: 'sink' | 'source') => {
+    const group = stackAtTemp.get(p.T_sink.toFixed(2)) ?? [p];
+    const [best, ...rest] = group;
+    const kind = best.theoretical ? t('optimization.theoretical') : t('optimization.real');
+    const qSource = (x: OptimizedIntegrationPoint) => (x.Q_demand * (x.COP - 1)) / x.COP;
+
+    const head =
+      side === 'sink'
+        ? `<b>${best.refrigerant} — ${kind}</b><br>` +
+          `T_sink: ${best.T_sink.toFixed(1)}°C<br>` +
+          `Q_sink: ${best.Q_demand.toFixed(1)} kW` +
+          `${best.source_limited && best.Q_demand_total ? ` of ${best.Q_demand_total.toFixed(1)} kW (source-limited)` : ''}<br>` +
+          `COP: ${best.COP.toFixed(2)}`
+        : `<b>${best.refrigerant} — ${kind}</b><br>` +
+          `T_source: ${best.T_source.toFixed(1)}°C<br>` +
+          `Q_source: ${qSource(best).toFixed(1)} kW<br>` +
+          `COP: ${best.COP.toFixed(2)}` +
+          `${best.demand_limited ? `<br>${t('optimization.hover_demand_limited')}` : ''}`;
+
+    if (rest.length === 0) return head;
+
+    // Runners-up are named with their COP only: the point of the list is to
+    // compare efficiency at a fixed duty, and repeating the duty on each row
+    // would say the same number several times.
+    const others = rest
+      .slice(0, RUNNERS_UP)
+      .map((o) => `  ${o.refrigerant}: ${o.COP.toFixed(2)}`)
+      .join('<br>');
+    const more =
+      rest.length > RUNNERS_UP
+        ? `<br>  +${rest.length - RUNNERS_UP} ${t('optimization.hover_more')}`
+        : '';
+
+    return `${head}<br>${t('optimization.hover_also_here')}:<br>${others}${more}`;
+  };
+
   const traces: any[] = [];
 
   // Trace 1: Original GCC, drawn only where it differs from the profiles below.
@@ -215,10 +273,7 @@ export default function HPIOptimizationChart({
         line: { width: 1.5, color: SINK_SOFT },
       },
       showlegend: false, // Don't show legend for each refrigerant if colors are the same
-      text: pointsForRef.map(
-        (p) =>
-          `<b>${refName} - Sink</b><br>T: ${p.T_sink.toFixed(1)}°C<br>Q_demand: ${p.Q_demand.toFixed(1)} kW${p.source_limited && p.Q_demand_total ? ` of ${p.Q_demand_total.toFixed(1)} kW (source-limited)` : ''}<br>COP: ${p.COP.toFixed(2)}`
-      ),
+      text: pointsForRef.map((p) => stackedHover(p, 'sink')),
       hoverinfo: 'text',
       customdata: pointsForRef, // store original points for onClick
     });
@@ -240,10 +295,7 @@ export default function HPIOptimizationChart({
         line: { width: 1.5, color: SOURCE_SOFT },
       },
       showlegend: false, // Don't duplicate legend
-      text: pointsForRef.map(
-        (p) =>
-          `<b>${refName} - Source</b><br>T: ${p.T_source.toFixed(1)}°C<br>Q_source: ${((p.Q_demand * (p.COP - 1)) / p.COP).toFixed(1)} kW<br>COP: ${p.COP.toFixed(2)}${p.demand_limited ? '<br>demand-limited: waste heat left unused at this temperature' : ''}`
-      ),
+      text: pointsForRef.map((p) => stackedHover(p, 'source')),
       hoverinfo: 'text',
       customdata: pointsForRef,
     });
@@ -276,10 +328,7 @@ export default function HPIOptimizationChart({
       // colour, is what marks it as an archetype.
       marker: { size: 7, color: SINK_SOFT, symbol: 'diamond' },
       showlegend: false,
-      text: pts.map(
-        (p) =>
-          `<b>${techName} — ${t('optimization.theoretical')}</b><br>T_sink: ${p.T_sink.toFixed(1)}°C<br>Q_sink: ${p.Q_demand.toFixed(1)} kW<br>COP: ${p.COP.toFixed(2)}`
-      ),
+      text: pts.map((p) => stackedHover(p, 'sink')),
       hoverinfo: 'text',
       customdata: pts,
     });
@@ -294,10 +343,7 @@ export default function HPIOptimizationChart({
       // Source side is red everywhere on this chart.
       marker: { size: 7, color: SOURCE_SOFT, symbol: 'diamond-open' },
       showlegend: false,
-      text: pts.map(
-        (p) =>
-          `<b>${techName} — ${t('optimization.theoretical')}</b><br>T_source: ${p.T_source.toFixed(1)}°C<br>Q_source: ${((p.Q_demand * (p.COP - 1)) / p.COP).toFixed(1)} kW<br>COP: ${p.COP.toFixed(2)}`
-      ),
+      text: pts.map((p) => stackedHover(p, 'source')),
       hoverinfo: 'text',
       customdata: pts,
     });
