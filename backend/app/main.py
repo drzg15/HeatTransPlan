@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.config import CORS_ORIGINS
 from app.routers import projects, processes, streams, analysis, io_routes, assets
 from app.dependencies import verify_api_key
+from app.rate_limit import rate_limit
 
 app = FastAPI(
     title="HeatTransPlan API",
@@ -13,6 +14,11 @@ app = FastAPI(
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
 )
+
+# Per-client rate limits — see rate_limit.py. Registered before CORS so CORS
+# wraps it: a 429 then still carries the CORS headers a cross-origin page needs
+# to read it, and preflight requests are answered without counting.
+app.middleware("http")(rate_limit)
 
 # CORS
 app.add_middleware(
