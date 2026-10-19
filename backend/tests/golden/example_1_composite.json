@@ -1,0 +1,176 @@
+{
+  "pinch": {
+    "pinch_temperature": 73.0,
+    "hot_utility": 375.0,
+    "cold_utility": 500.0,
+    "temperatures": [
+      123.0,
+      118.0,
+      98.0,
+      93.0,
+      73.0,
+      38.0,
+      18.0,
+      13.0
+    ],
+    "grand_composite_curve": {
+      "H": [
+        375.0,
+        450.0,
+        150.0,
+        200.0,
+        0.0,
+        700.0,
+        600.0,
+        500.0
+      ],
+      "T": [
+        123.0,
+        118.0,
+        98.0,
+        93.0,
+        73.0,
+        38.0,
+        18.0,
+        13.0
+      ]
+    }
+  },
+  "heat_pumps": [
+    {
+      "name": "Carnot",
+      "available": true,
+      "cop": 3.191,
+      "t_source": 56.7199999999998,
+      "t_sink": 118.0,
+      "q_source": 2026.0,
+      "q_sink": 2951.0
+    }
+  ],
+  "optimization": {
+    "feasible_points": 2413,
+    "max_q_point": {
+      "refrigerant": "Butane_2",
+      "medium_sink": "Water",
+      "hp_level": "2",
+      "T_source": 53.53660794624442,
+      "T_sink": 118.0,
+      "Q_demand": 2950.0,
+      "COP": 3.703893476331275
+    },
+    "per_refrigerant": {
+      "Butane_1": {
+        "points": 104,
+        "best_cop": 7.698533579627134
+      },
+      "Butane_2": {
+        "points": 104,
+        "best_cop": 7.765950658702385
+      },
+      "Butane_3": {
+        "points": 104,
+        "best_cop": 7.665167466662827
+      },
+      "Carnot": {
+        "points": 180,
+        "best_cop": 14.984782608695651
+      },
+      "Isobutane_1": {
+        "points": 98,
+        "best_cop": 6.63253880953322
+      },
+      "Isobutane_2": {
+        "points": 98,
+        "best_cop": 6.677391813767236
+      },
+      "Isobutane_3": {
+        "points": 98,
+        "best_cop": 6.610478895119912
+      },
+      "Isopentane_1": {
+        "points": 104,
+        "best_cop": 8.250817592902592
+      },
+      "Isopentane_2": {
+        "points": 104,
+        "best_cop": 8.429635976204413
+      },
+      "Isopentane_3": {
+        "points": 104,
+        "best_cop": 8.260646005072147
+      },
+      "Propane_1": {
+        "points": 1,
+        "best_cop": 3.63334681722059
+      },
+      "Propane_2": {
+        "points": 1,
+        "best_cop": 3.659877150159724
+      },
+      "Propane_3": {
+        "points": 1,
+        "best_cop": 3.647955269182454
+      },
+      "R1224yd_1": {
+        "points": 104,
+        "best_cop": 8.39398209010787
+      },
+      "R1224yd_2": {
+        "points": 104,
+        "best_cop": 8.549597102997124
+      },
+      "R1224yd_3": {
+        "points": 104,
+        "best_cop": 8.370741961416241
+      },
+      "R1233zd_1": {
+        "points": 104,
+        "best_cop": 8.335952192910725
+      },
+      "R1233zd_2": {
+        "points": 104,
+        "best_cop": 8.628610136197674
+      },
+      "R1233zd_3": {
+        "points": 104,
+        "best_cop": 8.344466684549703
+      },
+      "R1234ZEE_1": {
+        "points": 41,
+        "best_cop": 5.251959073762096
+      },
+      "R1234ZEE_2": {
+        "points": 41,
+        "best_cop": 5.230797865404224
+      },
+      "R1234ZEE_3": {
+        "points": 41,
+        "best_cop": 5.205162426791232
+      },
+      "R1336mzzZ_1": {
+        "points": 104,
+        "best_cop": 8.166216677050922
+      },
+      "R1336mzzZ_2": {
+        "points": 104,
+        "best_cop": 8.506649286481128
+      },
+      "R1336mzzZ_3": {
+        "points": 104,
+        "best_cop": 8.118717866987742
+      },
+      "SHP and HTHPs (HFC/HFO)": {
+        "points": 145,
+        "best_cop": 8.258799936032199
+      },
+      "SHP and HTHPs (R717)": {
+        "points": 31,
+        "best_cop": 6.272086166588197
+      },
+      "VHTHP (HFC/HFO)": {
+        "points": 77,
+        "best_cop": 5.919355711833113
+      }
+    }
+  }
+}
