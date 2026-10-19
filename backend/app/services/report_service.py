@@ -70,6 +70,12 @@ I18N = {
         "net_delta_h": "Net ΔH (kW)",
         "heat_capacity_q": "Heat Capacity Q (kW)",
         "temperature": "Temperature (°C)",
+        "source_profile": "Source profile",
+        "sink_profile": "Sink profile",
+        "net_enthalpy": "Net Enthalpy flow in kW",
+        "q_source_sink": "Q̇  ← source | sink →  (kW)",
+        "shifted_temp": "Shifted Temperature in °C",
+        "pinch_label": "Pinch: ",
         "map_not_avail": "Map not available"
     },
     "de": {
@@ -129,6 +135,12 @@ I18N = {
         "net_delta_h": "Netto-Wärmestrom ΔH (kW)",
         "heat_capacity_q": "Wärmekapazitätsstrom Q (kW)",
         "temperature": "Temperatur (°C)",
+        "source_profile": "Quellenprofil",
+        "sink_profile": "Senkenprofil",
+        "net_enthalpy": "Netto-Enthalpiestrom in kW",
+        "q_source_sink": "Q̇  ← Quelle | Senke →  (kW)",
+        "shifted_temp": "Verschobene Temperatur in °C",
+        "pinch_label": "Pinch: ",
         "map_not_avail": "Karte nicht verfügbar"
     }
 }
@@ -143,13 +155,229 @@ def _fmt(val: Any, decimals: int = 2) -> str:
         return str(val)
 
 
+# Colours of the optimization chart on the Potential Analysis page. The report
+# renders the same chart, so the two have to agree.
+_SOURCE = 'red'
+_SINK = 'blue'
+_SOURCE_BG = '#E9A8A8'
+_SINK_BG = '#A8BFE4'
+_GCC_BG = '#CBD5E1'
+_EL = '#059669'
+_HP_STROKE = '#7C3AED'
+_HP_FILL = 'rgba(237,233,254,0.95)'
+
+
+def _q_source(p: Any) -> float:
+    """Source duty of an integration point: what the evaporator draws."""
+    return p.Q_demand * (p.COP - 1) / p.COP if p.COP else 0.0
+
+
+def _thin_points(points: List[Any], keep: Optional[Any]) -> List[Any]:
+    """Port of the chart's thinning on the Potential Analysis page.
+
+    Dozens of candidates stack into a near-vertical line on a steep stretch of
+    the sink profile, where tens of degrees of lift buy only a few kW. Keep the
+    best COP per sink temperature, then one point per 2%-of-span duty bucket —
+    the coolest sink temperature in each, i.e. the cheapest lift for that duty.
+    """
+    best: Dict[str, Any] = {}
+    for p in points:
+        key = f"{p.T_sink:.2f}_{p.refrigerant_type}" if not p.theoretical else f"{p.T_sink:.2f}_{p.refrigerant}"
+        cur = best.get(key)
+        if cur is None or p.COP > cur.COP:
+            best[key] = p
+    short_list = list(best.values())
+
+    qs = [p.Q_demand for p in short_list]
+    span = (max(qs) - min(qs)) if qs else 0
+    if span <= 0:
+        return short_list
+    step = span * 0.02
+
+    buckets: Dict[str, Any] = {}
+    for p in short_list:
+        key = f"{round(p.Q_demand / step)}_{p.refrigerant}"
+        cur = buckets.get(key)
+        if cur is None or p.T_sink < cur.T_sink or (p.T_sink == cur.T_sink and p.COP > cur.COP):
+            buckets[key] = p
+    thinned = list(buckets.values())
+
+    # The active point is drawn on top regardless, so it must not be thinned
+    # out of the cloud it belongs to and left standing alone.
+    if keep is not None:
+        k = f"{keep.refrigerant}_{keep.T_sink:.2f}"
+        if all(f"{p.refrigerant}_{p.T_sink:.2f}" != k for p in thinned):
+            match = [p for p in short_list if f"{p.refrigerant}_{p.T_sink:.2f}" == k]
+            thinned += match
+    return thinned
+
+
+def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, str]) -> go.Figure:
+    """Rebuild the page's 'Feasible Heat Pump Solutions' chart for the report.
+
+    Everything here mirrors frontend/src/components/analysis/HPIOptimizationChart.tsx,
+    minus the click interaction: the report highlights the max-Q point, which is
+    what the page highlights before anything is clicked.
+    """
+    mirrored = getattr(opt, "profile_mode", "net_load") != "net_load"
+    sign = -1 if mirrored else 1
+    fig = go.Figure()
+
+    # Original GCC, faint behind the profiles. Below the pinch it mirrors onto
+    # the negative axis so it follows the same source-left convention.
+    gcc = getattr(opt, "original_gcc", None) or {"H": [], "T": []}
+    if gcc.get("H"):
+        fig.add_trace(go.Scatter(
+            x=[(-h if (mirrored and t <= pinch_temperature) else h) for h, t in zip(gcc["H"], gcc["T"])],
+            y=gcc["T"],
+            mode='lines+markers',
+            line=dict(color=_GCC_BG, width=1 if mirrored else 2, dash='dot' if mirrored else None),
+            marker=dict(size=3, color=_GCC_BG),
+            showlegend=False, hoverinfo='skip',
+        ))
+
+    psrc = getattr(opt, "pocketless_source", None) or {"H": [], "T": []}
+    if psrc.get("H"):
+        fig.add_trace(go.Scatter(
+            x=[sign * h for h in psrc["H"]], y=psrc["T"], mode='lines',
+            line=dict(color=_SOURCE_BG, width=3), name=texts['source_profile'], hoverinfo='skip',
+        ))
+    psnk = getattr(opt, "pocketless_sink", None) or {"H": [], "T": []}
+    if psnk.get("H"):
+        fig.add_trace(go.Scatter(
+            x=psnk["H"], y=psnk["T"], mode='lines',
+            line=dict(color=_SINK_BG, width=3), name=texts['sink_profile'], hoverinfo='skip',
+        ))
+
+    active = getattr(opt, "max_q_point", None)
+    feasible = getattr(opt, "feasible_points", None) or []
+
+    # The solution cloud: refrigerants as dots, technology archetypes as
+    # diamonds. Partial solutions (source- or demand-limited) sit off one of the
+    # profiles, so they are drawn hollow and faded.
+    for pts, size, sym_sink, sym_source in (
+        (_thin_points([p for p in feasible if not p.theoretical], active), 5, 'circle', 'circle'),
+        (_thin_points([p for p in feasible if p.theoretical], active), 7, 'diamond', 'diamond-open'),
+    ):
+        if not pts:
+            continue
+        partial = [p.source_limited or p.demand_limited for p in pts]
+        hover = [
+            f"<b>{p.refrigerant}</b><br>T_sink: {p.T_sink:.1f}°C<br>"
+            f"Q_sink: {p.Q_demand:.1f} kW<br>COP: {p.COP:.2f}" for p in pts
+        ]
+        fig.add_trace(go.Scatter(
+            x=[p.Q_demand for p in pts], y=[p.T_sink for p in pts], mode='markers',
+            marker=dict(
+                size=size, color=_SINK,
+                symbol=[f"{sym_sink}-open" if (q and sym_sink == 'circle') else sym_sink for q in partial],
+                opacity=[0.45 if q else 1 for q in partial],
+                line=dict(width=1.5, color=_SINK),
+            ),
+            showlegend=False, text=hover, hoverinfo='text',
+        ))
+        fig.add_trace(go.Scatter(
+            x=[sign * _q_source(p) for p in pts], y=[p.T_source for p in pts], mode='markers',
+            marker=dict(
+                size=size, color=_SOURCE,
+                symbol=[f"{sym_source}-open" if (q and sym_source == 'circle') else sym_source for q in partial],
+                opacity=[0.45 if q else 1 for q in partial],
+                line=dict(width=1.5, color=_SOURCE),
+            ),
+            showlegend=False,
+            text=[f"<b>{p.refrigerant}</b><br>T_source: {p.T_source:.1f}°C<br>"
+                  f"Q_source: {_q_source(p):.1f} kW<br>COP: {p.COP:.2f}" for p in pts],
+            hoverinfo='text',
+        ))
+
+    shapes: List[Dict[str, Any]] = []
+    annotations: List[Dict[str, Any]] = []
+
+    if active:
+        src_x, src_y = sign * _q_source(active), active.T_source
+        snk_x, snk_y = active.Q_demand, active.T_sink
+        # The box sits on the sink's x, halfway up the lift, so the route from
+        # source to sink is a clean rise-then-across with no diagonal.
+        box_x, box_y = snk_x, (src_y + snk_y) / 2
+        half_w, half_h = 30, 22
+
+        for x, y, colour in ((snk_x, snk_y, _SINK), (src_x, src_y, _SOURCE)):
+            fig.add_trace(go.Scatter(
+                x=[x], y=[y], mode='markers',
+                marker=dict(size=9, color=colour, symbol='circle', line=dict(width=2, color='black')),
+                showlegend=False, hoverinfo='text',
+                text=[f"T: {y:.1f}°C<br>Q: {abs(x):.1f} kW<br>COP: {active.COP:.2f}"],
+            ))
+
+        # Source leg across then up into the box, sink leg straight up out of it.
+        fig.add_trace(go.Scatter(x=[src_x, box_x, box_x], y=[src_y, src_y, box_y], mode='lines',
+                                 line=dict(color=_SOURCE, width=2), showlegend=False, hoverinfo='skip'))
+        fig.add_trace(go.Scatter(x=[box_x, snk_x], y=[box_y, snk_y], mode='lines',
+                                 line=dict(color=_SINK, width=2), showlegend=False, hoverinfo='skip'))
+
+        # Source and sink can sit 3 kW or 1500 kW apart, so the box is sized in
+        # pixels and anchored to a data point rather than drawn in data space.
+        shapes.append(dict(
+            type='rect', xref='x', yref='y', xsizemode='pixel', ysizemode='pixel',
+            xanchor=box_x, yanchor=box_y, x0=-half_w, x1=half_w, y0=-half_h, y1=half_h,
+            line=dict(color=_HP_STROKE, width=2), fillcolor=_HP_FILL, layer='above',
+        ))
+        annotations += [
+            dict(x=box_x, y=box_y, xref='x', yref='y', showarrow=False, align='center',
+                 text=f"<b>HP</b><br>COP {active.COP:.2f}", font=dict(size=10, color=_HP_STROKE)),
+            dict(x=src_x, y=src_y, xref='x', yref='y', showarrow=False,
+                 text=f"{abs(src_x):.1f} kW<br>{src_y:.1f} °C",
+                 xanchor='right', yanchor='top', align='right', xshift=-8, yshift=-2,
+                 font=dict(size=10, color=_SOURCE)),
+            dict(x=snk_x, y=snk_y, xref='x', yref='y', showarrow=False,
+                 text=f"{snk_x:.1f} kW<br>{snk_y:.1f} °C",
+                 xanchor='left', yanchor='bottom', align='left', xshift=8, yshift=2,
+                 font=dict(size=10, color=_SINK)),
+            # Arrowheads on both legs, and the electrical input entering from
+            # the right, clear of the source leg.
+            dict(x=box_x, y=snk_y, ax=box_x, ay=snk_y - (snk_y - box_y) * 0.25,
+                 xref='x', yref='y', axref='x', ayref='y', text='',
+                 showarrow=True, arrowhead=3, arrowsize=1.4, arrowwidth=2,
+                 arrowcolor=_SINK, standoff=8),
+            dict(x=box_x, y=box_y, ax=box_x, ay=box_y - (box_y - src_y) * 0.25,
+                 xref='x', yref='y', axref='x', ayref='y', text='',
+                 showarrow=True, arrowhead=3, arrowsize=1.4, arrowwidth=2,
+                 arrowcolor=_SOURCE, standoff=half_h + 1),
+            dict(x=box_x, y=box_y, ax=52, ay=0, xref='x', yref='y', axref='pixel', ayref='pixel',
+                 showarrow=True, arrowhead=3, arrowsize=1.4, arrowwidth=2, arrowcolor=_EL,
+                 standoff=half_w + 2, xanchor='left',
+                 text=f"<b>P<sub>el</sub> {snk_x - src_x:.1f} kW</b>", font=dict(size=10, color=_EL)),
+        ]
+
+    # Only the fully cascaded profiles have a pinch.
+    if not mirrored:
+        shapes.append(dict(type='line', xref='paper', x0=0, x1=1, y0=pinch_temperature,
+                           y1=pinch_temperature, line=dict(dash='dash', color='gray', width=1)))
+        annotations.append(dict(x=1, xref='paper', xanchor='right', y=pinch_temperature,
+                                showarrow=False, font=dict(size=11, color='gray'),
+                                text=f"{texts['pinch_label']}{pinch_temperature:.1f}°C"))
+    shapes.append(dict(type='line', yref='paper', x0=0, x1=0, y0=0, y1=1,
+                       line=dict(color='black', width=1), opacity=0.3))
+
+    fig.update_layout(
+        title=dict(text=texts['opt_hp_title'], font=dict(size=14)),
+        xaxis=dict(title=dict(text=texts['q_source_sink'] if mirrored else texts['net_enthalpy']), automargin=True),
+        yaxis=dict(title=dict(text=texts['shifted_temp']), automargin=True, rangemode='tozero'),
+        height=700, margin=dict(l=80, r=20, t=40, b=80),
+        hovermode='closest', template='plotly_white',
+        showlegend=True,
+        legend=dict(orientation='h', x=1, y=1.02, xanchor='right', yanchor='bottom'),
+        shapes=shapes, annotations=annotations,
+    )
+    return fig
+
+
 def _render_pinch_content(
     name: str,
     id_slug: str,
     t_min: float,
     pinch_result: Any,
     selected_streams: List[ReportStream],
-    heat_pumps: List[Any],
     hpi_optimization_result: Any,
     energy_demands: List[Any],
     map_streams_img_html: str,
@@ -208,12 +436,13 @@ def _render_pinch_content(
         sh_pct = f"{abs(sh)/tot_heat*100:.1f}%" if tot_heat > 0 else "N/A"
         sc_pct = f"{abs(sc)/tot_cool*100:.1f}%" if tot_cool > 0 else "N/A"
 
-        hp_sorted = sorted([hp for hp in heat_pumps if hp.available], key=lambda x: x.cop or 0, reverse=True)
-        best = hp_sorted[0] if hp_sorted else None
-        if best and best.q_sink is not None and best.q_source is not None:
-            hc_heat = min(best.q_sink, pr.hot_utility)
-            hc_cool = min(best.q_source, pr.cold_utility)
-            hp_hdr = texts['hp_hdr_kw'].format(name=best.name)
+        # Coverage comes from the optimized heat pump, the same machine the
+        # table and chart below report.
+        best = getattr(hpi_optimization_result, "max_q_point", None) if hpi_optimization_result else None
+        if best:
+            hc_heat = min(best.Q_demand, pr.hot_utility)
+            hc_cool = min(_q_source(best), pr.cold_utility)
+            hp_hdr = texts['hp_hdr_kw'].format(name=best.refrigerant)
             hc_h_s = f"{hc_heat:.1f}"
             hc_c_s = f"{hc_cool:.1f}"
             hc_h_p = f"{hc_heat/pr.hot_utility*100:.1f}%" if pr.hot_utility > 0 else "N/A"
@@ -230,23 +459,6 @@ def _render_pinch_content(
             <tr><td>{texts['hot']}</td><td>{tot_heat:.1f}</td><td>{pr.hot_utility:.1f}</td><td>{sh:.1f}</td><td>{sh_pct}</td><td>{hc_h_s}</td><td>{hc_h_p}</td></tr>
             <tr><td>{texts['cold']}</td><td>{tot_cool:.1f}</td><td>{pr.cold_utility:.1f}</td><td>{sc:.1f}</td><td>{sc_pct}</td><td>{hc_c_s}</td><td>{hc_c_p}</td></tr>
           </tbody>
-        </table>"""
-
-    # HP table
-    hp_table_html = ""
-    hp_rows = ""
-    for hp in sorted([h for h in heat_pumps if h.available], key=lambda x: x.cop or 0, reverse=True):
-        hp_rows += (
-            f"<tr><td>{hp.name}</td><td>{_fmt(hp.cop)}</td>"
-            f"<td>{_fmt(hp.t_source, 1)}</td><td>{_fmt(hp.t_sink, 1)}</td>"
-            f"<td>{_fmt(hp.q_source, 1)}</td><td>{_fmt(hp.q_sink, 1)}</td></tr>\n"
-        )
-    if hp_rows:
-        hp_table_html = f"""
-        <h3>{texts['hp_integration']} ({display_name})</h3>
-        <table class='data-table'>
-          <thead><tr><th>{texts['hp_table_hdr']}</th><th>COP</th><th>{texts['t_source']} (°C)</th><th>{texts['t_sink']} (°C)</th><th>{texts['q_source']} (kW)</th><th>{texts['q_sink']} (kW)</th></tr></thead>
-          <tbody>{hp_rows}</tbody>
         </table>"""
 
     opt_table_html = ""
@@ -276,7 +488,7 @@ def _render_pinch_content(
         font=dict(size=11), hovermode='closest', template='plotly_white'
     )
     
-    comp_html = gcc_html = hpi_html = int_html = ""
+    comp_html = gcc_html = int_html = ""
     include_js = 'cdn' if include_plotly_js else False
 
     # Composite
@@ -288,77 +500,11 @@ def _render_pinch_content(
         fig.update_layout(**chart_layout_base, title=texts['composite_title'], xaxis_title='H (kW)', yaxis_title='T (°C)')
         comp_html = fig.to_html(full_html=False, include_plotlyjs=include_js)
 
-    # Optimization Chart
+    # Optimization Chart — the same figure the Potential Analysis page draws.
     opt_chart_html = ""
-    if hpi_optimization_result and getattr(hpi_optimization_result, "pocketless_source", None) and getattr(hpi_optimization_result, "pocketless_sink", None):
-        fig = go.Figure()
-        
-        # Original GCC
-        if pr.grand_composite_curve.get("H"):
-            fig.add_trace(go.Scatter(
-                x=pr.grand_composite_curve["H"],
-                y=pr.grand_composite_curve["T"],
-                mode='lines+markers',
-                line=dict(color='gray', width=2),
-                marker=dict(size=3, color='gray'),
-                name=texts['orig_gcc'],
-                showlegend=False
-            ))
-            
-        # Pocketless Source
-        psrc = hpi_optimization_result.pocketless_source
-        if psrc.get("H"):
-            fig.add_trace(go.Scatter(
-                x=psrc["H"],
-                y=psrc["T"],
-                mode='lines',
-                line=dict(color='red', width=3),
-                name=texts['heat_source_pocketless'],
-                showlegend=False
-            ))
-            
-        # Pocketless Sink
-        psnk = hpi_optimization_result.pocketless_sink
-        if psnk.get("H"):
-            fig.add_trace(go.Scatter(
-                x=psnk["H"],
-                y=psnk["T"],
-                mode='lines',
-                line=dict(color='blue', width=3),
-                name=texts['heat_sink_pocketless'],
-                showlegend=False
-            ))
-            
-        # Max Q Point (Active)
-        opt = getattr(hpi_optimization_result, "max_q_point", None)
-        if opt:
-            # Active Sink
-            fig.add_trace(go.Scatter(
-                x=[opt.Q_demand],
-                y=[opt.T_sink],
-                mode='markers',
-                name=texts['active_sink'],
-                showlegend=False,
-                marker=dict(size=9, color='blue', symbol='circle', line=dict(width=2, color='black')),
-                hoverinfo='text',
-                text=[f"{texts['active_sink']}<br>T: {opt.T_sink:.1f}°C<br>{texts['q_demand']}: {opt.Q_demand:.1f} kW<br>COP: {opt.COP:.2f}"]
-            ))
-            # Active Source
-            q_src = opt.Q_demand * (opt.COP - 1) / opt.COP
-            fig.add_trace(go.Scatter(
-                x=[q_src],
-                y=[opt.T_source],
-                mode='markers',
-                name=texts['active_source'],
-                showlegend=False,
-                marker=dict(size=9, color='red', symbol='circle', line=dict(width=2, color='black')),
-                hoverinfo='text',
-                text=[f"{texts['active_source']}<br>T: {opt.T_source:.1f}°C<br>{texts['q_source']}: {q_src:.1f} kW<br>COP: {opt.COP:.2f}"]
-            ))
-            
-        fig.add_hline(y=pr.pinch_temperature, line_dash='dash', line_color='gray', annotation_text=f"Pinch: {pr.pinch_temperature:.1f}°C")
-        fig.update_layout(**chart_layout_base, title=texts['opt_hp_title'], xaxis_title=texts['heat_capacity_q'], yaxis_title=texts['temperature'])
-        opt_chart_html = fig.to_html(full_html=False, include_plotlyjs=False)
+    if hpi_optimization_result and getattr(hpi_optimization_result, "pocketless_sink", None):
+        opt_fig = _optimization_figure(hpi_optimization_result, pr.pinch_temperature, texts)
+        opt_chart_html = opt_fig.to_html(full_html=False, include_plotlyjs=False)
 
     # GCC
     if pr.grand_composite_curve.get("H"):
@@ -380,31 +526,6 @@ def _render_pinch_content(
         fig.add_vline(x=0, line_color='black', line_width=1, opacity=0.3)
         fig.update_layout(**chart_layout_base, title=texts['gcc_title'], xaxis_title=texts['net_delta_h'], yaxis_title=texts['shifted_t'])
         gcc_html = fig.to_html(full_html=False, include_plotlyjs=False)
-
-    # HPI
-    if heat_pumps and pr.grand_composite_curve.get("H"):
-        gcc_H = pr.grand_composite_curve["H"]
-        gcc_T = pr.grand_composite_curve["T"]
-        hc = pr.heat_cascade
-        fig = go.Figure()
-        
-        for i in range(len(gcc_H) - 1):
-            seg_color = 'rgba(255, 0, 0, 0.4)' if i < len(hc) and hc[i].get('deltaH', 0) > 0 else ('rgba(0, 0, 255, 0.4)' if i < len(hc) and hc[i].get('deltaH', 0) < 0 else 'rgba(128, 128, 128, 0.4)')
-            fig.add_trace(go.Scatter(
-                x=[gcc_H[i], gcc_H[i+1]], 
-                y=[gcc_T[i], gcc_T[i+1]], 
-                mode='lines', 
-                line=dict(color=seg_color, width=2), 
-                showlegend=False,
-                hoverinfo='skip'
-            ))
-
-        hp_colors = ['#00CC96', '#AB63FA', '#FFA15A']
-        for idx, hp in enumerate([h for h in heat_pumps if h.available][:3]):
-            c = hp_colors[idx % len(hp_colors)]
-            fig.add_trace(go.Scatter(x=[hp.q_source, hp.q_sink], y=[hp.t_source, hp.t_sink], mode='markers', marker=dict(size=12, color=c, symbol='diamond'), name=hp.name))
-        fig.update_layout(**chart_layout_base, title=texts['hpi_title'])
-        hpi_html = fig.to_html(full_html=False, include_plotlyjs=False)
 
     # Interval
     if pr.temperatures and pr.streams_data:
@@ -433,10 +554,6 @@ def _render_pinch_content(
             <div class="plot-section">{gcc_html}</div>
         </div>
         <div class="hpi-flex-row">
-            <div class="hpi-table-col">{hp_table_html}</div>
-            <div class="hpi-chart-col"><div class="plot-section">{hpi_html}</div></div>
-        </div>
-        <div class="hpi-flex-row" style="margin-top: 20px;">
             <div class="hpi-table-col">{opt_table_html}</div>
             <div class="hpi-chart-col"><div class="plot-section">{opt_chart_html}</div></div>
         </div>
@@ -533,7 +650,7 @@ def generate_html_report(req: ReportRequest) -> str:
 
         # The first scenario page must include Plotly.js to enable charts across all tabs
         scenario_pages_html += _render_pinch_content(
-            sc.name, sc_id, sc.t_min, sc.pinch_result, sc.selected_streams, sc.heat_pumps, sc.hpi_optimization_result, sc.energy_demands, sc_map_html,
+            sc.name, sc_id, sc.t_min, sc.pinch_result, sc.selected_streams, sc.hpi_optimization_result, sc.energy_demands, sc_map_html,
             lang=lang,
             include_plotly_js=(i == 0)
         )
@@ -557,12 +674,11 @@ def generate_html_report(req: ReportRequest) -> str:
             sh = tot_heat - phu
             sh_pct = (abs(sh)/tot_heat*100) if tot_heat > 0 else 0
             
-            hp_sorted = sorted([hp for hp in sc.heat_pumps if hp.available], key=lambda x: x.cop or 0, reverse=True)
-            best = hp_sorted[0] if hp_sorted else None
-            
-            hc_heat = min(best.q_sink, phu) if (best and best.q_sink is not None) else 0
+            best = getattr(sc.hpi_optimization_result, "max_q_point", None) if sc.hpi_optimization_result else None
+
+            hc_heat = min(best.Q_demand, phu) if best else 0
             coverage = (hc_heat / phu * 100) if phu > 0 else 0
-            best_cop = best.cop if best else 0
+            best_cop = best.COP if best else 0
 
             sc_names.append(sc_disp_name)
             sc_hot.append(phu)
