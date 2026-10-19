@@ -97,7 +97,7 @@ export default function ProcessGroupList({
     );
     onProcessesChange(next.processes);
     onGroupsChange(next.groups);
-    useAnalysisStore.getState().setSelectedStreams(next.selection);
+    useAnalysisStore.getState().removeProcessesFromSelections(removed);
   };
 
   const deleteGroup = (gIdx: number) => {
@@ -115,6 +115,21 @@ export default function ProcessGroupList({
     applyRemoval(groups[gIdx] ?? [], newGroups);
     onGroupNamesChange(newNames);
     onGroupCoordinatesChange(reindexed);
+
+    // Which group is expanded, and whose subprocess diagram is open on the map,
+    // are kept by position too: without moving them, the state of the deleted
+    // group passes to the one that slides into its place.
+    onExpandedGroupsChange?.(
+      new Set([...expandedGroups].filter((i) => i !== gIdx).map((i) => (i > gIdx ? i - 1 : i)))
+    );
+    // One diagram is open at a time and each toggle replaces the state, so
+    // closing it or toggling its new position is all it takes.
+    const openMap = Object.keys(subprocessMapExpanded)
+      .map(Number)
+      .find((i) => subprocessMapExpanded[i]);
+    if (openMap === gIdx) onSubprocessMapToggle(gIdx);
+    else if (openMap !== undefined && openMap > gIdx) onSubprocessMapToggle(openMap - 1);
+
     setConfirmDelete(null);
   };
 
