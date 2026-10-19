@@ -370,6 +370,6 @@ The optimization returns hundreds or thousands of points. What the page shows of
 
 ### The report
 
-The generated report draws the same chart and table on the server, with a function-for-function port of these rules ({code}`backend/app/services/report_service.py#_hp_view`). A pump picked on the page is sent along and shown in the report. The report has no filter controls, so it applies the page's defaults: every filter on *All*, archetypes shown, off-profile points hidden.
+The generated report draws the same chart and table on the server, with a function-for-function port of these rules ({code}`backend/app/services/report/hp_rules.py#_hp_view`). A pump picked on the page is sent along and shown in the report. The report has no filter controls, so it applies the page's defaults: every filter on *All*, archetypes shown, off-profile points hidden.
 
 Both implementations are tested against one shared file, {code}`contracts/hp_rules.json`: hand-written points that hit every rule, with the outputs the page's rules give for them. A rule changed on one side and not the other fails a test ({code}`frontend/src/components/analysis/hpRules.test.ts`, {code}`backend/tests/test_hp_rules_contract.py`).

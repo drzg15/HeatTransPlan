@@ -3,7 +3,7 @@
  *
  * These used to live inline in HPIOptimizationPanel and HPIOptimizationChart.
  * The report draws the same table and chart on the server, so it needs the same
- * rules in Python (backend/app/services/report_service.py). Both
+ * rules in Python (backend/app/services/report/hp_rules.py). Both
  * implementations are checked against contracts/hp_rules.json; if one changes
  * and the other does not, a test fails instead of the report quietly
  * disagreeing with the page.

@@ -1,5 +1,5 @@
 {
-  "_about": "Which heat pumps the optimization panel and the report show. Inputs are hand-written to hit every rule; 'expected' is produced by frontend/src/components/analysis/hpRules.ts. Both that file and backend/app/services/report_service.py are tested against it. Re-record with UPDATE_CONTRACT=1 npx vitest run hpRules.",
+  "_about": "Which heat pumps the optimization panel and the report show. Inputs are hand-written to hit every rule; 'expected' is produced by frontend/src/components/analysis/hpRules.ts. Both that file and backend/app/services/report/hp_rules.py are tested against it. Re-record with UPDATE_CONTRACT=1 npx vitest run hpRules.",
   "points": [
     {
       "refrigerant": "Butane_1",
