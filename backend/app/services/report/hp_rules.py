@@ -6,6 +6,8 @@ from decimal import ROUND_HALF_UP, Decimal
 from types import SimpleNamespace
 from typing import Any, List, Optional, Tuple
 
+from app.models.report import HPFilters
+
 
 def _q_source(p: Any) -> float:
     """Source duty of an integration point: what the evaporator draws."""
@@ -19,8 +21,9 @@ def _q_source(p: Any) -> float:
 # against contracts/hp_rules.json, so a rule changed on one side and not the
 # other fails a test instead of the report quietly disagreeing with the page.
 #
-# The report has no filter controls, so it applies the page's defaults: every
-# filter on 'All', archetypes shown, off-profile points hidden from the chart.
+# The page sends its filters with the report (HPFilters); without them the
+# page's defaults apply: every filter on 'All', archetypes shown, off-profile
+# points hidden from the chart.
 
 def _beats(p: Any, best: Optional[Any]) -> bool:
     """Most duty delivered, higher COP breaks a tie."""
@@ -54,15 +57,36 @@ def _js_fixed2(x: float) -> str:
     return str(Decimal(x).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
 
 
-def _chart_points(points: List[Any]) -> List[Any]:
-    """chartPointsOf, with both off-profile boxes unticked.
+def _refrigerant_name(p: Any) -> str:
+    """refrigerantNameOf: the refrigerant without its stage suffix."""
+    return p.refrigerant.rsplit("_", 1)[0] if "_" in p.refrigerant else p.refrigerant
+
+
+def _filter_points(points: List[Any], f: Any) -> List[Any]:
+    """filterPoints: the points the panel's filters let through."""
+    return [
+        p for p in points
+        if not (p.theoretical and not f.show_theoretical)
+        and f.medium_sink in ("All", p.medium_sink)
+        and f.refrigerant_type in ("All", p.refrigerant_type)
+        and (not f.refrigerants or _refrigerant_name(p) in f.refrigerants)
+        and (not f.hp_levels or p.hp_level in f.hp_levels)
+    ]
+
+
+def _chart_points(points: List[Any], show_source_limited: bool = False,
+                  show_demand_limited: bool = False) -> List[Any]:
+    """chartPointsOf.
 
     Source-limited points miss the sink profile and demand-limited ones the
     source profile, so the page keeps them off the chart unless asked. If
     nothing is on profile, it shows everything rather than an empty chart.
     """
     on_profile = [p for p in points if not p.source_limited and not p.demand_limited]
-    return on_profile if on_profile else points
+    if not on_profile:
+        return points
+    return [p for p in points if (not p.source_limited or show_source_limited)
+            and (not p.demand_limited or show_demand_limited)]
 
 
 def _default_highlight(chart_points: List[Any], max_q: Optional[Any]) -> Optional[Any]:
@@ -79,8 +103,8 @@ def _default_highlight(chart_points: List[Any], max_q: Optional[Any]) -> Optiona
     return best_real if best_real is not None else _best(chart_points)
 
 
-def _table_rows(points: List[Any], selected: List[Any]) -> List[Any]:
-    """tableRowsOf with archetypes shown, then the page's default sort.
+def _table_rows(points: List[Any], selected: List[Any], show_theoretical: bool = True) -> List[Any]:
+    """tableRowsOf, then the page's default sort.
 
     The best real machine per refrigerant type — off-profile ones included,
     the page keeps those in the table. Archetypes by technology: Carnot as the
@@ -100,9 +124,13 @@ def _table_rows(points: List[Any], selected: List[Any]) -> List[Any]:
     carnot = next((p for p in archetypes if p.refrigerant == "Carnot"), None)
     others = sorted((p for p in archetypes if p.refrigerant != "Carnot"),
                     key=lambda p: (-p.Q_demand, -p.COP))
-    rows = [p for p in (carnot, others[0] if others else None) if p] + list(by_type.values())
+    archetype_rows = [p for p in (carnot, others[0] if others else None) if p] if show_theoretical else []
+    rows = archetype_rows + list(by_type.values())
 
     for sp in selected:
+        # A point selected while the toggle was on must not linger once it is off.
+        if sp.theoretical and not show_theoretical:
+            continue
         if not any(p.refrigerant == sp.refrigerant and p.T_sink == sp.T_sink for p in rows):
             rows.insert(0, sp)
     return sorted(rows, key=lambda p: (-p.Q_demand, -p.COP))
@@ -172,14 +200,16 @@ def _box_point(active: List[Any]) -> Optional[Any]:
     return _best([p for p in active if abs(p.T_sink - last) < 0.01])
 
 
-def _hp_view(opt: Any, selected: List[Any]) -> SimpleNamespace:
+def _hp_view(opt: Any, selected: List[Any], filters: Optional[Any] = None) -> SimpleNamespace:
     """Everything the report draws about heat pumps, from the page's rules."""
-    points = list(getattr(opt, "feasible_points", None) or [])
-    chart = _chart_points(points)
+    f = filters or HPFilters()
+    points = _filter_points(list(getattr(opt, "feasible_points", None) or []), f)
+    chart = _chart_points(points, f.show_source_limited, f.show_demand_limited)
     highlight = _default_highlight(chart, getattr(opt, "max_q_point", None))
     active = _active_points(highlight, selected)
     real, theoretical = _thinned_cloud(chart, highlight, selected)
     return SimpleNamespace(
         chart_points=chart, highlight=highlight, active=active, box=_box_point(active),
-        cloud_real=real, cloud_theoretical=theoretical, table=_table_rows(points, selected),
+        cloud_real=real, cloud_theoretical=theoretical,
+        table=_table_rows(points, selected, f.show_theoretical),
     )

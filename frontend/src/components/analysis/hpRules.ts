@@ -32,6 +32,73 @@ export type SortConfig = { key: SortKey; direction: 'asc' | 'desc' };
  *  the order everyone sees before clicking a column header. */
 export const DEFAULT_TABLE_SORT: SortConfig[] = [{ key: 'Q_demand', direction: 'desc' }];
 
+/**
+ * The panel's filters. Kept in the store and saved with each scenario, and
+ * sent with the report, so the report shows the pumps the page shows.
+ * Snake case because they go to the backend as they are.
+ */
+export interface HPFilters {
+  medium_sink: string; // 'All' or one sink medium
+  refrigerant_type: string; // 'All' or one type
+  refrigerants: string[]; // empty means all
+  hp_levels: string[]; // empty means all
+  // Theoretical reference rows are shown by default: they are the context the
+  // real machines are read against, and with them hidden a click on the chart
+  // cannot select them either.
+  show_theoretical: boolean;
+  show_source_limited: boolean;
+  show_demand_limited: boolean;
+}
+
+export const DEFAULT_HP_FILTERS: HPFilters = {
+  medium_sink: 'All',
+  refrigerant_type: 'All',
+  refrigerants: [],
+  hp_levels: [],
+  show_theoretical: true,
+  show_source_limited: false,
+  show_demand_limited: false,
+};
+
+/** The refrigerant without its stage suffix: "Butane_2" → "Butane". */
+export const refrigerantNameOf = (p: Point) =>
+  p.refrigerant.includes('_') ? p.refrigerant.substring(0, p.refrigerant.lastIndexOf('_')) : p.refrigerant;
+
+/**
+ * The points the filters let through. Hiding the theoretical rows here keeps
+ * every downstream count, chart trace and best-point pick consistent with what
+ * is on screen.
+ */
+export function filterPoints(points: Point[], f: HPFilters): Point[] {
+  return points.filter(
+    (p) =>
+      !(p.theoretical && !f.show_theoretical) &&
+      (f.medium_sink === 'All' || p.medium_sink === f.medium_sink) &&
+      (f.refrigerant_type === 'All' || p.refrigerant_type === f.refrigerant_type) &&
+      (f.refrigerants.length === 0 || f.refrigerants.includes(refrigerantNameOf(p))) &&
+      (f.hp_levels.length === 0 || f.hp_levels.includes(p.hp_level))
+  );
+}
+
+/** The picks that are still among `points` — what survives a new result or a filter change. */
+export const picksAmong = (selected: Point[], points: Point[]) =>
+  selected.filter((sp) => points.some((p) => isSamePoint(p, sp)));
+
+/**
+ * The filters with any value the new points no longer offer dropped, so a
+ * filter set for one result can never empty the table for the next.
+ */
+export function filtersFor(points: Point[], f: HPFilters): HPFilters {
+  const has = (key: (p: Point) => string, v: string) => points.some((p) => key(p) === v);
+  return {
+    ...f,
+    medium_sink: has((p) => p.medium_sink, f.medium_sink) ? f.medium_sink : 'All',
+    refrigerant_type: has((p) => p.refrigerant_type, f.refrigerant_type) ? f.refrigerant_type : 'All',
+    refrigerants: f.refrigerants.filter((r) => has(refrigerantNameOf, r)),
+    hp_levels: f.hp_levels.filter((l) => has((p) => p.hp_level, l)),
+  };
+}
+
 export function isSamePoint(a: Point, b: Point): boolean {
   return (
     a.refrigerant === b.refrigerant &&
@@ -262,16 +329,22 @@ export function boxPointOf(activePoints: Point[]): Point | null {
 }
 
 /**
- * The pump the chart boxes, with the panel's filters at their defaults. The
- * status quo comparison on the page and the report both rate heat pump
- * coverage with it, so the two can never name different machines.
+ * The pump the chart boxes. The status quo comparison on the page and the
+ * report both rate heat pump coverage with it, so the two can never name
+ * different machines.
  */
 export function highlightedPumpOf(
   points: Point[],
   maxQPoint: Point | null,
-  selectedPoints: Point[]
+  selectedPoints: Point[],
+  filters: HPFilters = DEFAULT_HP_FILTERS
 ): Point | null {
-  const highlight = defaultHighlightOf(chartPointsOf(points), maxQPoint);
+  const chartPoints = chartPointsOf(
+    filterPoints(points, filters),
+    filters.show_source_limited,
+    filters.show_demand_limited
+  );
+  const highlight = defaultHighlightOf(chartPoints, maxQPoint);
   return boxPointOf(activePointsOf(highlight, selectedPoints));
 }
 

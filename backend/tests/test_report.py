@@ -1,7 +1,7 @@
 """The report shows the optimized heat pump only, with the page's chart."""
 
 from app.models.analysis import HPIOptimizationResult, OptimizedIntegrationPoint, PinchResult
-from app.models.report import ReportRequest, ReportStream, ScenarioReportData
+from app.models.report import HPFilters, ReportRequest, ReportStream, ScenarioReportData
 from app.services.report_service import _optimization_figure, generate_html_report, I18N
 
 
@@ -154,3 +154,24 @@ def test_actual_and_shifted_temperatures_are_not_swapped():
     cells = [re.sub(r"<[^>]+>", "", c) for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
     # Actual sink, shifted sink, actual source, shifted source — after Q and P_el.
     assert cells[7:11] == ["113.0", "118.0", "53.0", "48.0"]
+
+
+def test_the_report_applies_the_page_filters_and_says_so():
+    """The page's filters travel with each scenario. The report lists only the
+    pumps they let through, and names them, so a filtered table is not read as
+    the full one. Unfiltered, there is no such line."""
+    import re
+
+    def rows(html):
+        table = re.search(r'<table class="pa-hp-table">(.*?)</table>', html, re.S).group(1)
+        return re.findall(r"<tr[^>]*>(.*?)</tr>", table, re.S)[1:]
+
+    unfiltered = generate_html_report(_request())
+    assert "Filters applied" not in unfiltered
+    assert any("R1224yd" in r for r in rows(unfiltered))
+
+    req = _request()
+    req.scenarios[0].hp_filters = HPFilters(refrigerant_type="Natural", show_theoretical=False)
+    html = generate_html_report(req)
+    assert "Filters applied:</strong> Refrigerant type: Natural · theoretical heat pumps hidden" in html
+    assert rows(html) and not any("R1224yd" in r or "Carnot" in r for r in rows(html))

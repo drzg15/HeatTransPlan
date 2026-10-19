@@ -4,6 +4,7 @@ Includes detailed pages for every saved scenario and a comparison overview.
 """
 
 from __future__ import annotations
+from html import escape
 from datetime import datetime
 from typing import Any, Dict, List
 
@@ -26,6 +27,7 @@ def _render_pinch_content(
     selected_streams: List[ReportStream],
     hpi_optimization_result: Any,
     selected_hp_points: List[Any],
+    hp_filters: Any,
     energy_demands: List[Any],
     map_streams_img_html: str,
     lang: str = "en",
@@ -45,7 +47,7 @@ def _render_pinch_content(
 
     pr = pinch_result
     # Which heat pumps this page shows, by the same rules as the analysis page.
-    hp_view = _hp_view(hpi_optimization_result, selected_hp_points) if hpi_optimization_result else None
+    hp_view = _hp_view(hpi_optimization_result, selected_hp_points, hp_filters) if hpi_optimization_result else None
     total_hot_duty = sum(abs(s.Q) for s in selected_streams if s.Tin > s.Tout)
     heat_recovery = total_hot_duty - pr.hot_utility
 
@@ -166,8 +168,22 @@ def _render_pinch_content(
                 for value, style in cells
             ) + "</tr>"
 
+        # Say which filters shaped the table and chart, or a filtered table
+        # reads as the full one.
+        f = hp_filters
+        names = texts['hp_filter_names']
+        applied = [f"{names[k]}: {escape(v)}" for k, v in
+                   (("medium_sink", f.medium_sink), ("refrigerant_type", f.refrigerant_type)) if v != "All"]
+        applied += [f"{names[k]}: {escape(', '.join(v))}" for k, v in
+                    (("refrigerants", f.refrigerants), ("hp_levels", f.hp_levels)) if v]
+        applied += [texts[k] for k, on in (("hp_filter_theoretical_hidden", not f.show_theoretical),
+                                           ("hp_filter_source_limited", f.show_source_limited),
+                                           ("hp_filter_demand_limited", f.show_demand_limited)) if on]
+        filters_html = (f"<p class='pa-hp-filters'><strong>{texts['hp_filters_applied']}:</strong> "
+                        f"{' · '.join(applied)}</p>") if applied else ""
+
         opt_table_html = f"""
-        <h3>{texts['hp_table_title']} ({display_name})</h3>
+        <h3>{texts['hp_table_title']} ({display_name})</h3>{filters_html}
         <div class="pa-hp-table-wrap">
           <table class="pa-hp-table">
             <thead><tr>{head}</tr></thead>
@@ -197,7 +213,7 @@ def _render_pinch_content(
     opt_chart_html = ""
     if hpi_optimization_result and getattr(hpi_optimization_result, "pocketless_sink", None):
         opt_fig = _optimization_figure(hpi_optimization_result, pr.pinch_temperature, texts,
-                                       selected_hp_points)
+                                       selected_hp_points, hp_filters)
         opt_chart_html = opt_fig.to_html(full_html=False, include_plotlyjs=False)
 
     # GCC
@@ -343,7 +359,7 @@ def generate_html_report(req: ReportRequest) -> str:
         # The first scenario page must include Plotly.js to enable charts across all tabs
         scenario_pages_html += _render_pinch_content(
             sc.name, sc_id, sc.t_min, sc.pinch_result, sc.selected_streams, sc.hpi_optimization_result,
-            sc.selected_hp_points, sc.energy_demands, sc_map_html,
+            sc.selected_hp_points, sc.hp_filters, sc.energy_demands, sc_map_html,
             lang=lang,
             include_plotly_js=(i == 0)
         )
@@ -367,7 +383,7 @@ def generate_html_report(req: ReportRequest) -> str:
             sh = tot_heat - phu
             sh_pct = (abs(sh)/tot_heat*100) if tot_heat > 0 else 0
             
-            best = _hp_view(sc.hpi_optimization_result, sc.selected_hp_points).box if sc.hpi_optimization_result else None
+            best = _hp_view(sc.hpi_optimization_result, sc.selected_hp_points, sc.hp_filters).box if sc.hpi_optimization_result else None
 
             hc_heat = min(best.Q_demand, phu) if best else 0
             coverage = (hc_heat / phu * 100) if phu > 0 else 0

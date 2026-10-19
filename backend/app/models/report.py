@@ -36,6 +36,18 @@ class ReportProcess(BaseModel):
     streams: List[Dict[str, Any]] = Field(default_factory=list)
 
 
+class HPFilters(BaseModel):
+    """The optimization panel's filters, as the page sends them (hpRules.ts HPFilters).
+    The defaults are the page's, so a request without them reads as unfiltered."""
+    medium_sink: str = "All"
+    refrigerant_type: str = "All"
+    refrigerants: List[str] = Field(default_factory=list)  # empty means all
+    hp_levels: List[str] = Field(default_factory=list)  # empty means all
+    show_theoretical: bool = True
+    show_source_limited: bool = False
+    show_demand_limited: bool = False
+
+
 class ScenarioReportData(BaseModel):
     """Data for a single scenario in the report."""
     name: str
@@ -47,6 +59,8 @@ class ScenarioReportData(BaseModel):
     # report falls back to the best real machine, which is what the page
     # highlights before anything is clicked.
     selected_hp_points: List[OptimizedIntegrationPoint] = Field(default_factory=list)
+    # The panel's filters, so the report lists the pumps the page lists.
+    hp_filters: HPFilters = Field(default_factory=HPFilters)
     energy_demands: List[ReportEnergyDemand] = Field(default_factory=list)
     t_min: float = 10.0
 

@@ -31,7 +31,7 @@ _BADGE_THEORETICAL = _BADGE + 'background-color:#D1FAE5;color:#065F46'
 
 
 def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, str],
-                         selected: List[Any] = ()) -> go.Figure:
+                         selected: List[Any] = (), filters: Any = None) -> go.Figure:
     """Rebuild the page's 'Feasible Heat Pump Solutions' chart for the report.
 
     Everything here mirrors frontend/src/components/analysis/HPIOptimizationChart.tsx,
@@ -69,7 +69,7 @@ def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, st
             line=dict(color=_SINK_BG, width=3), name=texts['sink_profile'], hoverinfo='skip',
         ))
 
-    view = _hp_view(opt, list(selected))
+    view = _hp_view(opt, list(selected), filters)
     active_points, active = view.active, view.box
 
     # The solution cloud: refrigerants as dots, technology archetypes as diamonds.
