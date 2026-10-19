@@ -74,3 +74,25 @@ jobs:
             }
             if (errors < max) console.log(`::notice::Down to ${errors} — lower MAX_LINT_ERRORS in ci.yml to lock that in.`);
           '
+
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          # The version the Pages deployment builds with (docs.yml).
+          python-version: '3.11'
+          cache: pip
+          cache-dependency-path: docs/requirements.txt
+
+      - name: Install
+        run: pip install -r docs/requirements.txt
+
+      # Warnings as errors: a {code} link to a renamed function, an included
+      # function that no longer exists or a broken section link fails here,
+      # instead of reaching the published documentation.
+      - name: Build
+        working-directory: docs
+        run: sphinx-build -W --keep-going -b html . _build/ci-html

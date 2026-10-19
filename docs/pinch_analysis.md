@@ -2,13 +2,13 @@
 
 Pinch Analysis is the foundational calculation of HeatTransPlan. It determines the **minimum heating and cooling utility** requirements for a set of process streams, identifies the **Pinch Temperature**, and constructs the diagnostic curves (Composite Curves, Grand Composite Curve) that drive all downstream modules.
 
-The implementation follows the classic methodology from Linnhoff & Hindmarsh (1983), extended to handle edge cases in multi-process industrial settings.
+The implementation follows the classic methodology from Linnhoff & Hindmarsh (1983), extended to handle edge cases in multi-process industrial settings. The core lives in {code}`backend/app/modules/pinch/pinch.py#Pinch`.
 
 ---
 
 ## Pipeline Summary
 
-The full Pinch Analysis pipeline runs these steps in sequence:
+When the stream selection on the Potential Analysis page changes, the browser sends the selected streams and $\Delta T_{min}$ to the `/api/analysis/pinch` endpoint, which runs these steps in sequence:
 
 ```mermaid
 flowchart TD
@@ -23,12 +23,16 @@ flowchart TD
     I --> J[Heat Pump Integration & Optimization]
 ```
 
-<details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch_main.py</code> (<code>solve_pinch</code>)</summary>
+Steps B to H run in {code}`backend/app/services/analysis_service.py#run_pinch`. The heat pump steps rebuild the same analysis with {code}`backend/app/modules/pinch_main.py#PinchMain.solve_pinch_for_hpi`, then delete the temperature pockets (Step 8) and hand the result on — see [Heat Pump Integration](heat_pump_integration.md) and [Heat Pump Optimization](heat_pump_optimization.md).
 
-```{literalinclude} ../backend/app/modules/pinch_main.py
+**Implementation:** {code}`backend/app/services/analysis_service.py#run_pinch`
+
+<details>
+<summary><b>Show the code</b></summary>
+
+```{literalinclude} ../backend/app/services/analysis_service.py
 :language: python
-:pyobject: PinchMain.solve_pinch
+:pyobject: run_pinch
 ```
 
 </details>
@@ -45,6 +49,8 @@ Every stream is defined by three numbers:
 | Supply temperature | $T_S$ | °C | Temperature the stream starts at |
 | Target temperature | $T_T$ | °C | Temperature the stream must reach |
 
+The browser derives them from what was entered in data collection: $\dot{C}_P$ directly if it was given, otherwise mass flow × specific heat, with units converted to °C, kg/s, kJ/(kg·K) and kW/K first ({code}`frontend/src/utils/streamUtils.ts#getStreamInfo`).
+
 A stream is classified automatically:
 
 - **Hot stream**: $T_S > T_T$ — the stream needs to be cooled (releases heat).
@@ -52,22 +58,14 @@ A stream is classified automatically:
 
 The user also supplies a **minimum approach temperature** $\Delta T_{min}$, which is the smallest allowed temperature difference between a hot and a cold stream at any point of heat exchange.
 
+**Implementation:** {code}`backend/app/modules/pinch/streams.py#Streams.create_streams`
+
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch/streams.py</code></summary>
+<summary><b>Show the code</b></summary>
 
-```python
-# Classification logic in Streams.create_streams():
-for rawStream in self._rawStreamsData[2:]:
-    stream = {}
-    if float(rawStream[1]) > float(rawStream[2]):
-        stream["type"] = "HOT"
-    else:
-        stream["type"] = "COLD"
-
-    stream["cp"] = float(rawStream[0])
-    stream["ts"] = float(rawStream[1])
-    stream["tt"] = float(rawStream[2])
-    self.streamsData.append(stream)
+```{literalinclude} ../backend/app/modules/pinch/streams.py
+:language: python
+:pyobject: Streams.create_streams
 ```
 
 </details>
@@ -93,18 +91,14 @@ Both supply and target temperatures of each stream are shifted:
 - A hot stream at 200°C → 150°C with $\Delta T_{min} = 10$°C becomes 195°C → 145°C.
 - A cold stream at 50°C → 120°C becomes 55°C → 125°C.
 
-<details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 62–69)</summary>
+**Implementation:** {code}`backend/app/modules/pinch/pinch.py#Pinch.shift_temperatures`
 
-```python
-def shift_temperatures(self):
-    for stream in self.streams:
-        if stream['type'] == 'HOT':
-            stream['ss'] = stream['ts'] - self.tmin / 2
-            stream['st'] = stream['tt'] - self.tmin / 2
-        else:
-            stream['ss'] = stream['ts'] + self.tmin / 2
-            stream['st'] = stream['tt'] + self.tmin / 2
+<details>
+<summary><b>Show the code</b></summary>
+
+```{literalinclude} ../backend/app/modules/pinch/pinch.py
+:language: python
+:pyobject: Pinch.shift_temperatures
 ```
 
 </details>
@@ -120,37 +114,14 @@ For each interval $[T_i, T_{i+1}]$, we record which streams pass through it:
 - A hot stream passes through the interval if its shifted supply temperature ≥ $T_i$ **and** its shifted target temperature ≤ $T_{i+1}$.
 - A cold stream passes through if its shifted target temperature ≥ $T_i$ **and** its shifted supply temperature ≤ $T_{i+1}$.
 
+**Implementation:** {code}`backend/app/modules/pinch/pinch.py#Pinch.construct_temperature_interval`
+
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 78–129)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def construct_temperature_interval(self):
-    # Collect all shifted temperatures
-    for stream in self.streams:
-        self._temperatures.append(stream['ss'])
-        self._temperatures.append(stream['st'])
-
-    # Remove duplicates and sort descending
-    self._temperatures = list(set(self._temperatures))
-    self._temperatures.sort(reverse=True)
-
-    # For each interval, find which streams are active
-    for i in range(len(self._temperatures) - 1):
-        t1 = self._temperatures[i]
-        t2 = self._temperatures[i + 1]
-        interval = {'t1': t1, 't2': t2, 'streamNumbers': []}
-
-        j = 0
-        for stream in self.streams:
-            if stream['type'] == 'HOT':
-                if stream['ss'] >= t1 and stream['st'] <= t2:
-                    interval['streamNumbers'].append(j)
-            else:
-                if stream['st'] >= t1 and stream['ss'] <= t2:
-                    interval['streamNumbers'].append(j)
-            j += 1
-
-        self.temperatureInterval.append(interval)
+```{literalinclude} ../backend/app/modules/pinch/pinch.py
+:language: python
+:pyobject: Pinch.construct_temperature_interval
 ```
 
 </details>
@@ -170,24 +141,14 @@ The sign convention is:
 - $\Delta H_i > 0$: the interval has a **net surplus** of heat (hot streams dominate).
 - $\Delta H_i < 0$: the interval has a **net deficit** (cold streams dominate).
 
+**Implementation:** {code}`backend/app/modules/pinch/pinch.py#Pinch.construct_problem_table`
+
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 136–164)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def construct_problem_table(self):
-    for interval in self.temperatureInterval:
-        row = {}
-        row['deltaS'] = interval['t1'] - interval['t2']
-        row['deltaCP'] = 0
-
-        for i in interval['streamNumbers']:
-            if self.streams.streamsData[i]['type'] == 'HOT':
-                row['deltaCP'] += self.streams.streamsData[i]['cp']
-            else:
-                row['deltaCP'] -= self.streams.streamsData[i]['cp']
-
-        row['deltaH'] = row['deltaS'] * row['deltaCP']
-        self.problem_table.append(row)
+```{literalinclude} ../backend/app/modules/pinch/pinch.py
+:language: python
+:pyobject: Pinch.construct_problem_table
 ```
 
 </details>
@@ -226,37 +187,20 @@ We re-run the cascade starting with $\dot{Q}_{exit,0} = \dot{Q}_{H,min}$ instead
 | **Minimum hot utility** | $\dot{Q}_{H,min}$ | External heating required (above the pinch) |
 | **Minimum cold utility** | $\dot{Q}_{C,min}$ = final $\dot{Q}_{exit}$ | External cooling required (below the pinch) |
 
+The pinch temperature is reported as a **shifted** temperature: the hot streams sit $\Delta T_{min}/2$ above it, the cold streams $\Delta T_{min}/2$ below.
+
+```{note}
+These results are checked against a worked textbook problem in {code}`backend/tests/test_golden.py#test_textbook_four_stream_problem`: two hot and two cold streams at $\Delta T_{min} = 10$ K, solved by hand in the test — 20 kW hot utility, 60 kW cold utility, pinch at 85 °C shifted (90 °C hot / 80 °C cold). The full chain from pinch to optimization is pinned against golden values in the same file.
+```
+
+**Implementation:** {code}`backend/app/modules/pinch/pinch.py#Pinch.construct_heat_cascade`
+
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 167–223)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def construct_heat_cascade(self):
-    # --- Pass 1: unfeasible cascade (starting from 0) ---
-    exitH = 0
-    lowestExitH = 0
-    pinchInterval = 0
-
-    for i, interval in enumerate(self.problem_table):
-        row = {'deltaH': interval['deltaH']}
-        exitH += row['deltaH']
-        row['exitH'] = exitH
-        if exitH < lowestExitH:
-            lowestExitH = exitH
-            pinchInterval = i
-        self.unfeasible_heat_cascade.append(row)
-
-    # --- Pass 2: feasible cascade (starting from Q_H,min) ---
-    self.hot_utility = -lowestExitH
-    exitH = self.hot_utility
-
-    for interval in self.problem_table:
-        row = {'deltaH': interval['deltaH']}
-        exitH += row['deltaH']
-        row['exitH'] = exitH
-        self.heat_cascade.append(row)
-
-    self.cold_utility = exitH
-    self.pinch_temperature = self.temperatureInterval[pinchInterval]['t2']
+```{literalinclude} ../backend/app/modules/pinch/pinch.py
+:language: python
+:pyobject: Pinch.construct_heat_cascade
 ```
 
 </details>
@@ -285,51 +229,14 @@ The **cold composite** is built by accumulating from the hot end downward, start
 
 After construction, flat segments at the ends (where no streams are active) are trimmed off to produce clean curves.
 
+**Implementation:** {code}`backend/app/modules/pinch/pinch.py#Pinch.construct_shifted_composite_diagram`
+
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 226–321)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def construct_shifted_composite_diagram(self, localisation):
-    for interval in self.temperatureInterval:
-        hotH = 0
-        coldH = 0
-        for i in interval['streamNumbers']:
-            if self.streams.streamsData[i]['type'] == 'HOT':
-                hotH += self.streams.streamsData[i]['cp']
-            else:
-                coldH += self.streams.streamsData[i]['cp']
-
-        hotH = hotH * (interval['t1'] - interval['t2'])
-        self._deltaHHot.append(hotH)
-        coldH = coldH * (interval['t1'] - interval['t2'])
-        self._deltaHCold.append(coldH)
-
-    # Hot composite: accumulate from cold end
-    self._deltaHHot.reverse()
-    self.shifted_composite_diagram['hot']['H'].append(0.0)
-    for i in range(1, len(self._temperatures)):
-        self.shifted_composite_diagram['hot']['H'].append(
-            self.shifted_composite_diagram['hot']['H'][-1] + self._deltaHHot[i-1]
-        )
-        self.shifted_composite_diagram['hot']['T'].append(
-            self._temperatures[len(self._temperatures)-i]
-        )
-    self.shifted_composite_diagram['hot']['T'].append(self._temperatures[0])
-
-    # Cold composite: start at total cold + cold utility
-    coldgesamt = self.cold_utility
-    for dH in self._deltaHCold:
-        coldgesamt += dH
-
-    self.shifted_composite_diagram['cold']['H'].append(coldgesamt)
-    self.shifted_composite_diagram['cold']['T'].append(self._temperatures[0])
-    for i in range(1, len(self._temperatures)):
-        self.shifted_composite_diagram['cold']['H'].append(
-            self.shifted_composite_diagram['cold']['H'][-1] - self._deltaHCold[i-1]
-        )
-        self.shifted_composite_diagram['cold']['T'].append(self._temperatures[i])
-
-    # Trim flat ends off both curves (segments with no active streams)
+```{literalinclude} ../backend/app/modules/pinch/pinch.py
+:language: python
+:pyobject: Pinch.construct_shifted_composite_diagram
 ```
 
 </details>
@@ -348,27 +255,16 @@ $$
 T_{actual}^{cold} = T_{shifted}^{cold} - \frac{\Delta T_{min}}{2}
 $$
 
-The enthalpy values ($H$) remain the same — only the temperature axis changes. The horizontal gap between the two curves at the pinch equals exactly $\Delta T_{min}$.
+The enthalpy values ($H$) remain the same — only the temperature axis changes. At the pinch, the **vertical** gap between the two curves — a temperature difference — equals exactly $\Delta T_{min}$.
+
+**Implementation:** {code}`backend/app/modules/pinch/pinch.py#Pinch.construct_composite_diagram`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 325–342)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def construct_composite_diagram(self, localisation):
-    self.composite_diagram['hot']['T'] = [
-        x + self.tmin / 2
-        for x in self.shifted_composite_diagram['hot']['T']
-    ]
-    self.composite_diagram['hot']['H'] = list(
-        self.shifted_composite_diagram['hot']['H']
-    )
-    self.composite_diagram['cold']['T'] = [
-        x - self.tmin / 2
-        for x in self.shifted_composite_diagram['cold']['T']
-    ]
-    self.composite_diagram['cold']['H'] = list(
-        self.shifted_composite_diagram['cold']['H']
-    )
+```{literalinclude} ../backend/app/modules/pinch/pinch.py
+:language: python
+:pyobject: Pinch.construct_composite_diagram
 ```
 
 </details>
@@ -387,25 +283,19 @@ where $T_i$ are the shifted temperature interval boundaries and $\dot{Q}_{exit,i
 
 The GCC starts at $(\dot{Q}_{H,min},\ T_{max})$ at the top and ends at $(\dot{Q}_{C,min},\ T_{min})$ at the bottom. It touches zero at the **pinch temperature** — this is the defining property of the pinch.
 
-The GCC is the main input for:
+In the app, the GCC is the input for:
 
-- **Heat pump integration** (where does the heat pump source/sink sit?)
-- **Temperature pocket deletion** (where do infeasible pockets appear?)
-- **Total site profiles** (aggregation of multiple processes)
+- **Temperature pocket deletion** (Step 8), which turns it into the source and sink profiles of the default *with heat recovery* mode;
+- **Heat pump integration and optimization**, drawn behind both heat pump charts for reference.
+
+**Implementation:** {code}`backend/app/modules/pinch/pinch.py#Pinch.construct_grand_composite_curve`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/pinch/pinch.py</code> (lines 346–365)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def construct_grand_composite_curve(self, localisation):
-    self.grand_composite_curve['H'].append(self.hot_utility)
-    self.grand_composite_curve['T'].append(self._temperatures[0])
-
-    for i in range(1, len(self._temperatures)):
-        self.grand_composite_curve['H'].append(
-            self.heat_cascade[i - 1]['exitH']
-        )
-        self.grand_composite_curve['T'].append(self._temperatures[i])
+```{literalinclude} ../backend/app/modules/pinch/pinch.py
+:language: python
+:pyobject: Pinch.construct_grand_composite_curve
 ```
 
 </details>
@@ -416,11 +306,11 @@ def construct_grand_composite_curve(self, localisation):
 
 The Grand Composite Curve (GCC) can contain **temperature pockets** — regions where the curve doubles back on itself, creating a local surplus sandwiched between deficits (or vice versa). These pockets represent heat that can be exchanged internally within the process and do **not** need external utility.
 
-Before using the GCC for heat pump integration, these pockets are removed to obtain the **pocket-free GCC**, showing only the truly external utility requirement.
+Before using the GCC for heat pump integration, these pockets are removed to obtain the **pocket-free GCC**, showing only the truly external utility requirement. This runs only in the default *with heat recovery* mode; the *no heat recovery* mode uses the composite curves instead (see [Heat Pump Integration](heat_pump_integration.md#source-and-sink-profiles--heat-recovery-modes)).
 
 ### Deletion Algorithm
 
-The algorithm walks through the heat cascade intervals and eliminates pockets by **linear interpolation**. Three cases arise when a surplus interval ($\Delta H > 0$) is followed by a deficit ($\Delta H < 0$):
+The algorithm works on the heat cascade in two passes: one from the pinch **downward**, and one from the top of the curve **down to the pinch**, so pockets are removed on both sides. Each pass eliminates a pocket by **linear interpolation**. Three cases arise when an interval is followed by one of the opposite sign — below the pinch, a surplus ($\Delta H > 0$) followed by a deficit ($\Delta H < 0$):
 
 1. **Deficit smaller than surplus:** The deficit interval is fully absorbed by interpolating on the surplus interval's temperature range:
    $$T_{new} = T_{i} + \frac{T_{i} - T_{i+1}}{H_{exit,i} - H_{exit,i+1}} \times H_{exit,i+2}$$
@@ -430,30 +320,50 @@ The algorithm walks through the heat cascade intervals and eliminates pockets by
 
 3. **Equal magnitude:** Both intervals cancel exactly and the intermediate temperature point is removed.
 
-<details>
-<summary><b>Source code:</b> <code>backend/app/modules/utility/temperature_pocket_deletion.py</code></summary>
+The same three cases are handled when an interval with no net heat ($\Delta H = 0$) sits between the surplus and the deficit. After every deletion the pass starts over — from the pinch, or from the top — until no pocket is left.
 
-```python
-class TemperaturePocketDeletion:
-    def delete_temperature_pockets(self):
-        # Walk from pinch downward, deleting pockets
-        while j < len(self.heatCascadeexitH) - 1:
-            if self.heatCascadedeltaH[j] > 0:  # surplus
-                if self.heatCascadedeltaH[j + 1] < 0:  # followed by deficit
-                    if abs(self.heatCascadedeltaH[j+1]) < abs(self.heatCascadedeltaH[j]):
-                        # Case 1: deficit smaller — absorb it
-                        self._temperatures[j+1] = (
-                            self._temperatures[j]
-                            + (self._temperatures[j] - self._temperatures[j+1])
-                            / (self.heatCascadeexitH[j] - self.heatCascadeexitH[j+1])
-                            * self.heatCascadeexitH[j+2]
-                        )
-                        self.heatCascadedeltaH[j] = (
-                            self.heatCascadeexitH[j+2] - self.heatCascadeexitH[j]
-                        )
-                        self.heatCascadeexitH[j+1] = self.heatCascadeexitH[j+2]
-                        self.heatCascadedeltaH[j+1] = 0.0
-                        j = i  # restart from pinch
+**Implementation:** {code}`backend/app/modules/utility/temperature_pocket_deletion.py#TemperaturePocketDeletion.delete_temperature_pockets`, called from {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HeatPumpIntegration.delete_temperature_pockets`
+
+<details>
+<summary><b>Show the code</b></summary>
+
+```{literalinclude} ../backend/app/modules/utility/temperature_pocket_deletion.py
+:language: python
+:pyobject: TemperaturePocketDeletion.delete_temperature_pockets
+```
+
+</details>
+
+---
+
+## Status Quo Comparison
+
+The table *Comparison of Status Quo and Proposal* on the Potential Analysis page sets the pinch targets against what the site uses today. The user enters the current heating and cooling supply; the savings are the difference to the pinch minimum:
+
+$$
+\text{Savings}_{heat} = \dot{Q}_{H,current} - \dot{Q}_{H,min} \qquad
+\text{Savings}_{cool} = \dot{Q}_{C,current} - \dot{Q}_{C,min}
+$$
+
+each also given as a percentage of the current supply.
+
+The heat pump columns show how much of the remaining demand a heat pump would cover:
+
+$$
+\text{Coverage}_{heat} = \min(\dot{Q}_{sink},\ \dot{Q}_{H,min}) \qquad
+\text{Coverage}_{cool} = \min(\dot{Q}_{source},\ \dot{Q}_{C,min})
+$$
+
+On the page the pump is the available [single-point integration](heat_pump_integration.md) machine with the highest COP, among the ticked types if any are ticked. The report uses the pump highlighted on the [optimization chart](heat_pump_optimization.md#how-the-results-are-shown) instead.
+
+**Implementation:** {code}`backend/app/services/analysis_service.py#run_status_quo` (savings), {code}`frontend/src/components/analysis/StatusQuoComparison.tsx#getBestHP` (the pump on the page), {code}`backend/app/services/report_service.py#_render_pinch_content` (the report)
+
+<details>
+<summary><b>Show the code</b></summary>
+
+```{literalinclude} ../backend/app/services/analysis_service.py
+:language: python
+:pyobject: run_status_quo
 ```
 
 </details>
