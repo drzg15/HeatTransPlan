@@ -12,6 +12,7 @@ import StreamDataTable from '../components/analysis/StreamDataTable';
 import './DataCollectionPage.css';
 import CollectionHelp from '../components/ui/CollectionHelp';
 import { useIsMobile } from '../hooks/useMediaQuery';
+import { orphanProcesses, removeProcesses } from '../utils/processIndex';
 
 export default function DataCollectionPage() {
   const { t } = useTranslation();
@@ -76,6 +77,16 @@ export default function DataCollectionPage() {
     if (changed) {
       setProcesses(processes);
       useProjectStore.getState().setGroupCoordinates(groups);
+    }
+
+    // Deletes before the fix in ProcessGroupList left the node in `processes`,
+    // so it kept turning up in the potential analysis. Clear those leftovers once.
+    const orphans = orphanProcesses(processes, state.proc_groups);
+    if (orphans.length) {
+      const next = removeProcesses(orphans, processes, state.proc_groups, selectedStreams);
+      setProcesses(next.processes);
+      setGroups(next.groups);
+      setSelectedStreams(next.selection);
     }
   }, []);
 

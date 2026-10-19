@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
 import SubprocessCard from './SubprocessCard';
 import { useUIStore } from '../../store/uiStore';
+import { useAnalysisStore } from '../../store/analysisStore';
+import { removeProcesses } from '../../utils/processIndex';
 import './ProcessGroupList.css';
 
 interface GroupCoords {
@@ -85,6 +87,19 @@ export default function ProcessGroupList({
     onGroupCoordinatesChange(coords);
   };
 
+  /** Drop these processes from the project, keeping group members and stream selection in step. */
+  const applyRemoval = (removed: number[], groupsAfter: number[][]) => {
+    const next = removeProcesses(
+      removed,
+      processes,
+      groupsAfter,
+      useAnalysisStore.getState().selectedStreams
+    );
+    onProcessesChange(next.processes);
+    onGroupsChange(next.groups);
+    useAnalysisStore.getState().setSelectedStreams(next.selection);
+  };
+
   const deleteGroup = (gIdx: number) => {
     const newGroups = groups.filter((_, i) => i !== gIdx);
     const newNames = groupNames.filter((_, i) => i !== gIdx);
@@ -97,7 +112,7 @@ export default function ProcessGroupList({
       const newIdx = oldIdx > gIdx ? oldIdx - 1 : oldIdx;
       reindexed[newIdx] = newCoords[oldIdx];
     });
-    onGroupsChange(newGroups);
+    applyRemoval(groups[gIdx] ?? [], newGroups);
     onGroupNamesChange(newNames);
     onGroupCoordinatesChange(reindexed);
     setConfirmDelete(null);
@@ -133,16 +148,16 @@ export default function ProcessGroupList({
   };
 
   const deleteSubprocess = (gIdx: number, subIdx: number) => {
-    const newGroups = [...groups];
-    newGroups[gIdx] = newGroups[gIdx].filter((i) => i !== subIdx);
-    // Don't remove from processes array to avoid re-indexing issues
-    // Just remove from group
-    if (newGroups[gIdx].length === 0) {
-      // Remove empty group
+    const remaining = groups[gIdx].filter((i) => i !== subIdx);
+    if (remaining.length === 0) {
+      // Last one out: the group goes too, and takes this subprocess with it
       deleteGroup(gIdx);
-    } else {
-      onGroupsChange(newGroups);
+      return;
     }
+    applyRemoval(
+      [subIdx],
+      groups.map((g, i) => (i === gIdx ? remaining : g))
+    );
   };
 
   return (
