@@ -3,6 +3,7 @@ import Plot from 'react-plotly.js';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
+import { activePointsOf, boxPointOf, thinnedCloudOf } from './hpRules';
 
 interface Props {
   originalGCC: { H: number[]; T: number[] };
@@ -60,84 +61,13 @@ export default function HPIOptimizationChart({
   const mirrored = profileMode !== 'net_load';
   const srcSign = mirrored ? -1 : 1;
 
-  // Filter feasible points: For each T_sink temperature level and each refrigerant type, keep only the single point with the highest COP
-  const bestPointsMap = new Map<string, OptimizedIntegrationPoint>();
-  for (const pt of feasiblePoints) {
-    if (pt.theoretical) continue;
-    // Group by T_sink and refrigerant_type (Natural/Synthetic)
-    const key = `${pt.T_sink.toFixed(2)}_${pt.refrigerant_type}`;
-    const existing = bestPointsMap.get(key);
-    if (!existing || pt.COP > existing.COP) {
-      bestPointsMap.set(key, pt);
-    }
-  }
-  // On a steep stretch of the sink profile, tens of degrees of lift cost only
-  // a few kW, so dozens of points stack into a near-vertical line at
-  // effectively the same power. They are not distinct options — the extra
-  // temperature buys no extra duty — and they crowd out the points that do
-  // differ. Thin them by duty, keeping the coolest sink temperature in each
-  // step: the cheapest lift that delivers that power.
-  //
-  // The step is in DUTY, so it only bites where duty is barely changing. A
-  // shallow stretch spreads its points across many steps and keeps them all.
-  const collapseVerticals = (points: OptimizedIntegrationPoint[]) => {
-    const qs = points.map((p) => p.Q_demand);
-    const span = qs.length ? Math.max(...qs) - Math.min(...qs) : 0;
-    if (span <= 0) return points;
-    const step = span * 0.02;
-
-    const perBucket = new Map<string, OptimizedIntegrationPoint>();
-    for (const pt of points) {
-      const key = `${Math.round(pt.Q_demand / step)}_${pt.refrigerant}`;
-      const existing = perBucket.get(key);
-      // Lowest sink temperature wins; COP breaks an exact tie.
-      if (
-        !existing ||
-        pt.T_sink < existing.T_sink ||
-        (pt.T_sink === existing.T_sink && pt.COP > existing.COP)
-      ) {
-        perBucket.set(key, pt);
-      }
-    }
-    return Array.from(perBucket.values());
-  };
-
-  // Active points are drawn as their own markers regardless of thinning, so if
-  // thinning drops one it is left standing alone off the line. Keep whatever is
-  // active in the cloud it belongs to.
-  const activeKeys = new Set(
-    (selectedPoints.length > 0 ? selectedPoints : maxQPoint ? [maxQPoint] : []).map(
-      (p) => `${p.refrigerant}_${p.T_sink.toFixed(2)}`
-    )
+  // The thinned solution cloud: refrigerants and archetypes — see hpRules.ts,
+  // which the report shares.
+  const { real: filteredPoints, theoretical: theoreticalPoints } = thinnedCloudOf(
+    feasiblePoints,
+    maxQPoint,
+    selectedPoints
   );
-  const keepActive = (points: OptimizedIntegrationPoint[], thinned: OptimizedIntegrationPoint[]) => {
-    const have = new Set(thinned.map((p) => `${p.refrigerant}_${p.T_sink.toFixed(2)}`));
-    const extra = points.filter((p) => {
-      const k = `${p.refrigerant}_${p.T_sink.toFixed(2)}`;
-      return activeKeys.has(k) && !have.has(k);
-    });
-    return extra.length ? [...thinned, ...extra] : thinned;
-  };
-
-  const bestPointsList = Array.from(bestPointsMap.values());
-  const filteredPoints = keepActive(bestPointsList, collapseVerticals(bestPointsList));
-
-  // The technology archetypes are grouped per technology instead, so each keeps
-  // its own curve rather than competing with the refrigerants for a T_sink slot.
-  const theoreticalBest = new Map<string, OptimizedIntegrationPoint>();
-  for (const pt of feasiblePoints) {
-    if (!pt.theoretical) continue;
-    const key = `${pt.T_sink.toFixed(2)}_${pt.refrigerant}`;
-    const existing = theoreticalBest.get(key);
-    if (!existing || pt.COP > existing.COP) {
-      theoreticalBest.set(key, pt);
-    }
-  }
-  // Archetypes stack on a steep profile exactly as the refrigerants do, so they
-  // get the same thinning — otherwise the diamonds keep the vertical alive
-  // after the dots have been thinned out of it.
-  const theoreticalList = Array.from(theoreticalBest.values());
-  const theoreticalPoints = keepActive(theoreticalList, collapseVerticals(theoreticalList));
 
   // Every candidate at one sink temperature carries the same duty, so they all
   // land on the same pixel. Plotly's 'closest' hovermode breaks that tie by
@@ -353,19 +283,7 @@ export default function HPIOptimizationChart({
   // The max-Q point is highlighted before anything is clicked. It used to be
   // REPLACED by the first click, so that marker silently shrank back into the
   // cloud — it now stays highlighted alongside the clicked ones.
-  const activePoints = (() => {
-    const out = maxQPoint ? [maxQPoint] : [];
-    for (const sp of selectedPoints) {
-      const dup = out.some(
-        (p) =>
-          p.refrigerant === sp.refrigerant &&
-          Math.abs(p.T_sink - sp.T_sink) < 0.01 &&
-          Math.abs(p.T_source - sp.T_source) < 0.01
-      );
-      if (!dup) out.push(sp);
-    }
-    return out;
-  })();
+  const activePoints = activePointsOf(maxQPoint, selectedPoints);
 
   for (const activePoint of activePoints) {
     // Highlight Active Sink
@@ -421,24 +339,8 @@ export default function HPIOptimizationChart({
   // machine at that sink temperature to the end of the selection, so the last
   // entry's temperature is the one just clicked; the earlier selections stay
   // on the chart as enlarged markers and in the table.
-  const lastTemp = activePoints.length
-    ? activePoints[activePoints.length - 1].T_sink
-    : null;
-  const boxPoints =
-    lastTemp === null
-      ? []
-      : (() => {
-          const atTemp = activePoints.filter((p) => Math.abs(p.T_sink - lastTemp) < 0.01);
-          // The best machine there represents the temperature.
-          const best = atTemp.reduce<OptimizedIntegrationPoint | null>(
-            (b, p) =>
-              !b || p.Q_demand > b.Q_demand || (p.Q_demand === b.Q_demand && p.COP > b.COP)
-                ? p
-                : b,
-            null
-          );
-          return best ? [best] : [];
-        })();
+  const boxPoint = boxPointOf(activePoints);
+  const boxPoints = boxPoint ? [boxPoint] : [];
 
   for (const boxPoint of boxPoints) {
     const srcX = srcSign * ((boxPoint.Q_demand * (boxPoint.COP - 1)) / boxPoint.COP);

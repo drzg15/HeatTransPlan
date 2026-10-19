@@ -5,7 +5,10 @@ Includes detailed pages for every saved scenario and a comparison overview.
 
 from __future__ import annotations
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+import math
+from decimal import ROUND_HALF_UP, Decimal
+from types import SimpleNamespace
+from typing import Any, Dict, List, Optional, Tuple
 
 import plotly.graph_objects as go
 from app.models.report import ReportRequest, ScenarioReportData, ReportStream
@@ -215,132 +218,177 @@ def _q_source(p: Any) -> float:
     return p.Q_demand * (p.COP - 1) / p.COP if p.COP else 0.0
 
 
-def _on_profile(points: List[Any]) -> List[Any]:
-    """The points the page plots with both limit filters off, which is its default.
+# --- Which heat pumps to show -------------------------------------------------
+#
+# A function-for-function port of frontend/src/components/analysis/hpRules.ts,
+# the rules the Potential Analysis page applies. Both implementations are tested
+# against contracts/hp_rules.json, so a rule changed on one side and not the
+# other fails a test instead of the report quietly disagreeing with the page.
+#
+# The report has no filter controls, so it applies the page's defaults: every
+# filter on 'All', archetypes shown, off-profile points hidden from the chart.
 
-    Source-limited points deliver less than the demand above T_sink, so they miss
-    the sink profile; demand-limited ones leave waste heat unused at T_source, so
-    they miss the source profile. Either way they sit off the curves and turn the
-    chart into a cloud. If nothing is on profile, show everything rather than an
-    empty chart — the same fallback the page makes.
-    """
-    on = [p for p in points if not p.source_limited and not p.demand_limited]
-    return on or points
+def _beats(p: Any, best: Optional[Any]) -> bool:
+    """Most duty delivered, higher COP breaks a tie."""
+    return best is None or p.Q_demand > best.Q_demand or (
+        p.Q_demand == best.Q_demand and p.COP > best.COP)
 
 
 def _best(points: List[Any]) -> Optional[Any]:
-    """Most duty delivered, higher COP breaks a tie."""
     best = None
     for p in points:
-        if best is None or p.Q_demand > best.Q_demand or (p.Q_demand == best.Q_demand and p.COP > best.COP):
+        if _beats(p, best):
             best = p
     return best
 
 
-def _same_point(a: Any, b: Any) -> bool:
-    return (a.refrigerant == b.refrigerant
-            and abs(a.T_sink - b.T_sink) < 0.01
-            and abs(a.T_source - b.T_source) < 0.01)
+def _is_same_point(a: Any, b: Any) -> bool:
+    return (a.refrigerant == b.refrigerant and a.medium_sink == b.medium_sink
+            and a.T_sink == b.T_sink and a.T_source == b.T_source)
 
 
-def _active_points(opt: Any, selected: List[Any]) -> List[Any]:
-    """The pumps the chart highlights: the default one, plus whatever was clicked.
+def _js_round(x: float) -> int:
+    """JavaScript's Math.round: halves go up. Python's round() sends them to the
+    even neighbour, which put 50.5 in a different thinning bucket than the page."""
+    return math.floor(x + 0.5)
 
-    The page keeps the default highlighted alongside the selection rather than
-    replacing it, so the source-to-sink link never disappears from the chart.
+
+def _js_fixed2(x: float) -> str:
+    """JavaScript's toFixed(2), which rounds an exact half up where Python's
+    format rounds it to even (0.125 → '0.13', not '0.12'). Sink temperatures
+    are positive, where half-up and JavaScript's 'larger n' agree."""
+    return str(Decimal(x).quantize(Decimal("0.01"), rounding=ROUND_HALF_UP))
+
+
+def _chart_points(points: List[Any]) -> List[Any]:
+    """chartPointsOf, with both off-profile boxes unticked.
+
+    Source-limited points miss the sink profile and demand-limited ones the
+    source profile, so the page keeps them off the chart unless asked. If
+    nothing is on profile, it shows everything rather than an empty chart.
     """
-    points = _on_profile(getattr(opt, "feasible_points", None) or [])
-    default = (_best([p for p in points if not p.theoretical])
-               or _best(points)
-               or getattr(opt, "max_q_point", None))
-    active = [default] if default else []
-    for p in selected:
-        if not any(_same_point(p, a) for a in active):
-            active.append(p)
-    return active
+    on_profile = [p for p in points if not p.source_limited and not p.demand_limited]
+    return on_profile if on_profile else points
 
 
-def _headline_point(opt: Any, selected: List[Any]) -> Optional[Any]:
-    """The pump that gets the box, the legs and the readouts.
+def _default_highlight(chart_points: List[Any], max_q: Optional[Any]) -> Optional[Any]:
+    """defaultHighlightOf: the pump highlighted before anything is clicked.
 
-    A click appends every machine at that sink temperature, so the last entry's
-    temperature is the one just clicked; the best machine there represents it.
+    The backend's max-Q point if it is a real machine and visible; otherwise
+    the best real machine on the chart, else the best point at all. Carnot
+    wins on COP at the top duty and would otherwise always take the box.
     """
-    active = _active_points(opt, selected)
+    if (max_q is not None and not max_q.theoretical
+            and any(_is_same_point(p, max_q) for p in chart_points)):
+        return max_q
+    best_real = _best([p for p in chart_points if not p.theoretical])
+    return best_real if best_real is not None else _best(chart_points)
+
+
+def _table_rows(points: List[Any], selected: List[Any]) -> List[Any]:
+    """tableRowsOf with archetypes shown, then the page's default sort.
+
+    The best real machine per refrigerant type — off-profile ones included,
+    the page keeps those in the table. Archetypes by technology: Carnot as the
+    ceiling, and of the rest only the one with the most duty. Picked pumps are
+    added. Rows come out in the order the page opens the table in
+    (DEFAULT_TABLE_SORT): most duty first, then COP, exact ties in the order
+    they were built.
+    """
+    by_type: Dict[str, Any] = {}
+    by_technology: Dict[str, Any] = {}
+    for p in points:
+        group, k = (by_technology, p.refrigerant) if p.theoretical else (by_type, p.refrigerant_type)
+        if _beats(p, group.get(k)):
+            group[k] = p
+
+    archetypes = list(by_technology.values())
+    carnot = next((p for p in archetypes if p.refrigerant == "Carnot"), None)
+    others = sorted((p for p in archetypes if p.refrigerant != "Carnot"),
+                    key=lambda p: (-p.Q_demand, -p.COP))
+    rows = [p for p in (carnot, others[0] if others else None) if p] + list(by_type.values())
+
+    for sp in selected:
+        if not any(p.refrigerant == sp.refrigerant and p.T_sink == sp.T_sink for p in rows):
+            rows.insert(0, sp)
+    return sorted(rows, key=lambda p: (-p.Q_demand, -p.COP))
+
+
+def _thinned_cloud(points: List[Any], highlight: Optional[Any],
+                   selected: List[Any]) -> Tuple[List[Any], List[Any]]:
+    """thinnedCloudOf: the points the chart draws, as (real, theoretical).
+
+    Real machines keep the best COP per sink temperature and refrigerant type;
+    archetypes per sink temperature and technology. Both are then thinned by
+    duty — on a steep stretch dozens of points stack at practically one power,
+    so each 2%-of-span step keeps its coolest sink, the cheapest lift for that
+    duty. Whatever is highlighted stays in the cloud it belongs to.
+    """
+    def collapse(pts: List[Any]) -> List[Any]:
+        qs = [p.Q_demand for p in pts]
+        span = (max(qs) - min(qs)) if qs else 0
+        if span <= 0:
+            return pts
+        step = span * 0.02
+        per_bucket: Dict[str, Any] = {}
+        for p in pts:
+            k = f"{_js_round(p.Q_demand / step)}_{p.refrigerant}"
+            cur = per_bucket.get(k)
+            if cur is None or p.T_sink < cur.T_sink or (p.T_sink == cur.T_sink and p.COP > cur.COP):
+                per_bucket[k] = p
+        return list(per_bucket.values())
+
+    def active_key(p: Any) -> str:
+        return f"{p.refrigerant}_{_js_fixed2(p.T_sink)}"
+
+    active_keys = {active_key(p) for p in (selected or ([highlight] if highlight else []))}
+
+    def keep_active(pts: List[Any], thinned: List[Any]) -> List[Any]:
+        have = {active_key(p) for p in thinned}
+        return thinned + [p for p in pts if active_key(p) in active_keys and active_key(p) not in have]
+
+    def best_cop_per(pts: List[Any], group: str) -> List[Any]:
+        best: Dict[str, Any] = {}
+        for p in pts:
+            k = f"{_js_fixed2(p.T_sink)}_{getattr(p, group)}"
+            if k not in best or p.COP > best[k].COP:
+                best[k] = p
+        return list(best.values())
+
+    real = best_cop_per([p for p in points if not p.theoretical], "refrigerant_type")
+    theoretical = best_cop_per([p for p in points if p.theoretical], "refrigerant")
+    return keep_active(real, collapse(real)), keep_active(theoretical, collapse(theoretical))
+
+
+def _active_points(highlight: Optional[Any], selected: List[Any]) -> List[Any]:
+    """activePointsOf: the default highlight plus whatever was clicked."""
+    out = [highlight] if highlight else []
+    for sp in selected:
+        if not any(p.refrigerant == sp.refrigerant and abs(p.T_sink - sp.T_sink) < 0.01
+                   and abs(p.T_source - sp.T_source) < 0.01 for p in out):
+            out.append(sp)
+    return out
+
+
+def _box_point(active: List[Any]) -> Optional[Any]:
+    """boxPointOf: the best machine at the last-clicked sink temperature."""
     if not active:
         return None
-    last_temp = active[-1].T_sink
-    return _best([p for p in active if abs(p.T_sink - last_temp) < 0.01])
+    last = active[-1].T_sink
+    return _best([p for p in active if abs(p.T_sink - last) < 0.01])
 
 
-def _table_points(opt: Any, selected: List[Any] = ()) -> List[Any]:
-    """The heat pumps the page's optimization table lists.
-
-    The best real machine per refrigerant type, plus the archetypes: Carnot as
-    the thermodynamic ceiling, and the best of the rest. Listing every
-    technology that fits at some sink temperature buries the table. A pump
-    picked on the chart goes to the top, even when these rules would leave it
-    out — it is the one being asked about.
-    """
-    points = _on_profile(getattr(opt, "feasible_points", None) or [])
-    real = [p for p in points if not p.theoretical]
-    rows = [_best([p for p in real if p.refrigerant_type == rt])
-            for rt in dict.fromkeys(p.refrigerant_type for p in real)]
-
-    theoretical = [p for p in points if p.theoretical]
-    archetypes = [_best([p for p in theoretical if p.refrigerant == name])
-                  for name in dict.fromkeys(p.refrigerant for p in theoretical)]
-    carnot = next((p for p in archetypes if p and p.refrigerant == 'Carnot'), None)
-    other = _best([p for p in archetypes if p and p.refrigerant != 'Carnot'])
-
-    rows += [p for p in (carnot, other) if p]
-    rows = [p for p in rows if p]
-    rows.sort(key=lambda p: (p.Q_demand, p.COP), reverse=True)
-
-    picked = [p for p in selected
-              if not any(p.refrigerant == r.refrigerant and abs(p.T_sink - r.T_sink) < 0.01
-                         for r in rows)]
-    return picked + rows
-
-
-def _thin_points(points: List[Any], keep: Optional[Any]) -> List[Any]:
-    """Port of the chart's thinning on the Potential Analysis page.
-
-    Dozens of candidates stack into a near-vertical line on a steep stretch of
-    the sink profile, where tens of degrees of lift buy only a few kW. Keep the
-    best COP per sink temperature, then one point per 2%-of-span duty bucket —
-    the coolest sink temperature in each, i.e. the cheapest lift for that duty.
-    """
-    best: Dict[str, Any] = {}
-    for p in points:
-        key = f"{p.T_sink:.2f}_{p.refrigerant_type}" if not p.theoretical else f"{p.T_sink:.2f}_{p.refrigerant}"
-        cur = best.get(key)
-        if cur is None or p.COP > cur.COP:
-            best[key] = p
-    short_list = list(best.values())
-
-    qs = [p.Q_demand for p in short_list]
-    span = (max(qs) - min(qs)) if qs else 0
-    if span <= 0:
-        return short_list
-    step = span * 0.02
-
-    buckets: Dict[str, Any] = {}
-    for p in short_list:
-        key = f"{round(p.Q_demand / step)}_{p.refrigerant}"
-        cur = buckets.get(key)
-        if cur is None or p.T_sink < cur.T_sink or (p.T_sink == cur.T_sink and p.COP > cur.COP):
-            buckets[key] = p
-    thinned = list(buckets.values())
-
-    # The active point is drawn on top regardless, so it must not be thinned
-    # out of the cloud it belongs to and left standing alone.
-    if keep is not None:
-        k = f"{keep.refrigerant}_{keep.T_sink:.2f}"
-        if all(f"{p.refrigerant}_{p.T_sink:.2f}" != k for p in thinned):
-            match = [p for p in short_list if f"{p.refrigerant}_{p.T_sink:.2f}" == k]
-            thinned += match
-    return thinned
+def _hp_view(opt: Any, selected: List[Any]) -> SimpleNamespace:
+    """Everything the report draws about heat pumps, from the page's rules."""
+    points = list(getattr(opt, "feasible_points", None) or [])
+    chart = _chart_points(points)
+    highlight = _default_highlight(chart, getattr(opt, "max_q_point", None))
+    active = _active_points(highlight, selected)
+    real, theoretical = _thinned_cloud(chart, highlight, selected)
+    return SimpleNamespace(
+        chart_points=chart, highlight=highlight, active=active, box=_box_point(active),
+        cloud_real=real, cloud_theoretical=theoretical, table=_table_rows(points, selected),
+    )
 
 
 def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, str],
@@ -382,14 +430,13 @@ def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, st
             line=dict(color=_SINK_BG, width=3), name=texts['sink_profile'], hoverinfo='skip',
         ))
 
-    chart_points = _on_profile(getattr(opt, "feasible_points", None) or [])
-    active_points = _active_points(opt, list(selected))
-    active = _headline_point(opt, list(selected))
+    view = _hp_view(opt, list(selected))
+    active_points, active = view.active, view.box
 
     # The solution cloud: refrigerants as dots, technology archetypes as diamonds.
     for pts, size, sym_sink, sym_source in (
-        (_thin_points([p for p in chart_points if not p.theoretical], active), 5, 'circle', 'circle'),
-        (_thin_points([p for p in chart_points if p.theoretical], active), 7, 'diamond', 'diamond-open'),
+        (view.cloud_real, 5, 'circle', 'circle'),
+        (view.cloud_theoretical, 7, 'diamond', 'diamond-open'),
     ):
         if not pts:
             continue
@@ -519,6 +566,8 @@ def _render_pinch_content(
         """
 
     pr = pinch_result
+    # Which heat pumps this page shows, by the same rules as the analysis page.
+    hp_view = _hp_view(hpi_optimization_result, selected_hp_points) if hpi_optimization_result else None
     total_hot_duty = sum(abs(s.Q) for s in selected_streams if s.Tin > s.Tout)
     heat_recovery = total_hot_duty - pr.hot_utility
 
@@ -560,7 +609,7 @@ def _render_pinch_content(
 
         # Coverage comes from the optimized heat pump, the same machine the
         # table and chart below report.
-        best = _headline_point(hpi_optimization_result, selected_hp_points) if hpi_optimization_result else None
+        best = hp_view.box if hp_view else None
         if best:
             hc_heat = min(best.Q_demand, pr.hot_utility)
             hc_cool = min(_q_source(best), pr.cold_utility)
@@ -588,8 +637,7 @@ def _render_pinch_content(
     # the full width and scrolls sideways rather than being squeezed beside the
     # chart.
     opt_table_html = ""
-    opt_rows = _table_points(hpi_optimization_result, selected_hp_points) if hpi_optimization_result else []
-    headline = _headline_point(hpi_optimization_result, selected_hp_points) if hpi_optimization_result else None
+    opt_rows = hp_view.table if hp_view else []
     if opt_rows:
         half = _fmt(t_min / 2, 1).rstrip('0').rstrip('.')
         headers = [
@@ -629,8 +677,9 @@ def _render_pinch_content(
                 ('' if p.theoretical else ref_name, ''),
                 ('' if p.theoretical else p.hp_level, ''),
             ]
-            picked = any(_same_point(p, sp) for sp in selected_hp_points) or (
-                headline is not None and _same_point(p, headline) and bool(selected_hp_points))
+            # The page shades a row when a picked pump matches it.
+            picked = any(sp.refrigerant == p.refrigerant and sp.T_sink == p.T_sink
+                         for sp in selected_hp_points)
             rows += (f"<tr style='background-color:#E2E8F0'>" if picked else "<tr>") + "".join(
                 f"<td style=\"{style}\">{value}</td>" if style else f"<td>{value}</td>"
                 for value, style in cells
@@ -837,7 +886,7 @@ def generate_html_report(req: ReportRequest) -> str:
             sh = tot_heat - phu
             sh_pct = (abs(sh)/tot_heat*100) if tot_heat > 0 else 0
             
-            best = _headline_point(sc.hpi_optimization_result, sc.selected_hp_points) if sc.hpi_optimization_result else None
+            best = _hp_view(sc.hpi_optimization_result, sc.selected_hp_points).box if sc.hpi_optimization_result else None
 
             hc_heat = min(best.Q_demand, phu) if best else 0
             coverage = (hc_heat / phu * 100) if phu > 0 else 0
