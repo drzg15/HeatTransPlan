@@ -10,6 +10,7 @@ import {
   chartPointsOf,
   DEFAULT_TABLE_SORT,
   defaultHighlightOf,
+  highlightedPumpOf,
   sortRows,
   tableRowsOf,
   thinnedCloudOf,
@@ -65,6 +66,19 @@ describe('heat pump display rules', () => {
   for (const name of Object.keys(actual)) {
     it(`matches the contract: ${name}`, () => {
       expect(actual[name]).toEqual(contract.expected[name]);
+    });
+  }
+});
+
+describe('the pump the comparison table rates coverage with', () => {
+  // The status quo comparison and the report must name the machine the chart
+  // boxes: the contract's box_point, case by case.
+  const cases = contract.cases as Record<string, { max_q_point: Point; selected: Point[] }>;
+  for (const [name, c] of Object.entries(cases)) {
+    it(`is the boxed pump: ${name}`, () => {
+      expect(key(highlightedPumpOf(contract.points, c.max_q_point, c.selected))).toBe(
+        contract.expected[name].box_point
+      );
     });
   }
 });
