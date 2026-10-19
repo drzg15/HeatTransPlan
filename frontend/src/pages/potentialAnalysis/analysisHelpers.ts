@@ -8,6 +8,7 @@ import type {
 import type { ProcessNode } from '../../types/process';
 import type { ProjectState } from '../../types/project';
 import { useAnalysisStore } from '../../store/analysisStore';
+import { DEFAULT_HP_FILTERS } from '../../components/analysis/hpRules';
 
 export interface SelectedStream {
   name: string;
@@ -126,6 +127,7 @@ export function buildReportPayload({
       // Whatever was clicked on the optimization chart, so the report shows
       // that pump instead of the default one.
       selected_hp_points: sc.selectedHPPoints || [],
+      hp_filters: sc.hpFilters ?? DEFAULT_HP_FILTERS,
       energy_demands:
         sc.energyDemands?.map((d) => ({
           heat_demand: d.heat_demand,

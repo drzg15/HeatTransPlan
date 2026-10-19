@@ -11,6 +11,7 @@ export default function StatusQuoComparison() {
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
   const hpiOptimizationResult = useAnalysisStore((s) => s.hpiOptimizationResult);
   const selectedHPPoints = useAnalysisStore((s) => s.selectedHPPoints);
+  const hpFilters = useAnalysisStore((s) => s.hpFilters);
   const energyDemands = useAnalysisStore((s) => s.energyDemands);
 
   if (!pinchResult) return null;
@@ -51,7 +52,8 @@ export default function StatusQuoComparison() {
     ? highlightedPumpOf(
         hpiOptimizationResult.feasible_points,
         hpiOptimizationResult.max_q_point,
-        selectedHPPoints
+        selectedHPPoints,
+        hpFilters
       )
     : null;
   const hpLabel = pump

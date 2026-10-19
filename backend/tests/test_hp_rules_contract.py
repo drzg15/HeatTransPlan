@@ -13,6 +13,7 @@ from types import SimpleNamespace
 import pytest
 
 from app.models.analysis import OptimizedIntegrationPoint
+from app.models.report import HPFilters
 from app.services.report_service import _box_point, _hp_view
 
 CONTRACT = json.loads((Path(__file__).parents[2] / "contracts" / "hp_rules.json").read_text())
@@ -23,8 +24,8 @@ def _key(p):
     return p and f"{p.refrigerant}@{p.T_sink:g}@{p.T_source:g}"
 
 
-def _apply(points, max_q, selected):
-    view = _hp_view(SimpleNamespace(feasible_points=points, max_q_point=max_q), selected)
+def _apply(points, max_q, selected, filters=None):
+    view = _hp_view(SimpleNamespace(feasible_points=points, max_q_point=max_q), selected, filters)
     keys = lambda ps: sorted(_key(p) for p in ps)
     return {
         "chart_points": keys(view.chart_points),
@@ -43,10 +44,11 @@ def _points(raw):
 
 
 CASES = {
-    name: (_points(CONTRACT["points"]), OptimizedIntegrationPoint(**c["max_q_point"]), _points(c["selected"]))
+    name: (_points(CONTRACT["points"]), OptimizedIntegrationPoint(**c["max_q_point"]), _points(c["selected"]),
+           HPFilters(**c["filters"]) if "filters" in c else None)
     for name, c in CONTRACT["cases"].items()
 }
-CASES["only_off_profile"] = (_points(CONTRACT["only_off_profile"]), None, [])
+CASES["only_off_profile"] = (_points(CONTRACT["only_off_profile"]), None, [], None)
 
 
 @pytest.mark.parametrize("name", sorted(CASES))

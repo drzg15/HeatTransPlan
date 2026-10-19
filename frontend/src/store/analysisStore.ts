@@ -14,6 +14,13 @@ import type {
 import type { ProcessNode } from '../types/process';
 import { newId } from '../utils/id';
 import { rekeySelection } from '../utils/processIndex';
+import {
+  DEFAULT_HP_FILTERS,
+  filterPoints,
+  filtersFor,
+  picksAmong,
+  type HPFilters,
+} from '../components/analysis/hpRules';
 
 interface AnalysisStore {
   // Stream selection: "stream_{procIdx}_{streamIdx}" → boolean
@@ -26,6 +33,9 @@ interface AnalysisStore {
   // the store rather than in the panel so the report can show the pump the user
   // chose instead of the default one.
   selectedHPPoints: OptimizedIntegrationPoint[];
+  // The optimization panel's filters. In the store for the same reason: the
+  // report applies them, so it lists the pumps the page lists.
+  hpFilters: HPFilters;
 
   // Pinch controls
   tMin: number;
@@ -58,6 +68,8 @@ interface AnalysisStore {
     selectedStreams: Record<string, boolean>;
     energyDemands: EnergyDemandLocal[];
     selectedHPPoints: OptimizedIntegrationPoint[];
+    // Optional: scenarios saved before the filters were kept have none.
+    hpFilters?: HPFilters;
     tMin: number;
     // Results for comparison
     pinchResult?: PinchResult | null;
@@ -76,6 +88,7 @@ interface AnalysisStore {
   initSelectedStreams: (keys: string[]) => void;
   setEnergyDemands: (demands: EnergyDemandLocal[]) => void;
   setSelectedHPPoints: (points: OptimizedIntegrationPoint[]) => void;
+  setHPFilters: (filters: Partial<HPFilters>) => void;
   addEnergyDemand: (demand: EnergyDemandLocal) => void;
   removeEnergyDemand: (index: number) => void;
   updateEnergyDemand: (index: number, demand: Partial<EnergyDemandLocal>) => void;
@@ -110,6 +123,7 @@ const syncScenario = (state: AnalysisStore) => {
             selectedStreams: { ...state.selectedStreams },
             energyDemands: JSON.parse(JSON.stringify(state.energyDemands)),
             selectedHPPoints: JSON.parse(JSON.stringify(state.selectedHPPoints)),
+            hpFilters: state.hpFilters,
             tMin: state.tMin,
             pinchResult: state.pinchResult ? JSON.parse(JSON.stringify(state.pinchResult)) : null,
             hpiResult: state.hpiResult ? JSON.parse(JSON.stringify(state.hpiResult)) : null,
@@ -128,6 +142,7 @@ const syncScenario = (state: AnalysisStore) => {
 export const useAnalysisStore = create<AnalysisStore>((set) => ({
   selectedStreams: {},
   selectedHPPoints: [],
+  hpFilters: DEFAULT_HP_FILTERS,
   energyDemands: [
     {
       heat_demand: 0,
@@ -214,6 +229,18 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
     set((s) => syncScenario(s));
   },
 
+  // A pick the new filters hide is dropped; the rest stay picked.
+  setHPFilters: (filters) => {
+    set((s) => {
+      const hpFilters = { ...s.hpFilters, ...filters };
+      return {
+        hpFilters,
+        selectedHPPoints: filterPoints(s.selectedHPPoints, hpFilters),
+      };
+    });
+    set((s) => syncScenario(s));
+  },
+
   addEnergyDemand: (demand) => {
     set((s) => ({ energyDemands: [...s.energyDemands, demand] }));
     set((s) => syncScenario(s));
@@ -253,14 +280,15 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
           name: 'All streams',
           selectedStreams: { ...s.selectedStreams },
           energyDemands: JSON.parse(JSON.stringify(s.energyDemands)),
+          selectedHPPoints: [],
+          hpFilters: s.hpFilters,
           tMin: s.tMin,
           pinchResult: JSON.parse(JSON.stringify(result)),
           hpiResult: null,
           hpiOptimizationResult: null,
           statusQuoResult: null,
         };
-        // selectedHPPoints is deliberately absent: the scenario is saved before any pump is picked.
-        newState.scenarios = [newScen as AnalysisStore['scenarios'][number]];
+        newState.scenarios = [newScen];
         newState.activeScenarioId = newScen.id;
       }
 
@@ -274,8 +302,19 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
     set((s) => syncScenario(s));
   },
 
+  // A new result (other streams, ΔTmin, COP formula…) keeps the picks and
+  // filters that still apply to it. A pick survives only if that exact pump is
+  // in the new result; a filter value only if the new result offers it.
   setHPIOptimizationResult: (result) => {
-    set({ hpiOptimizationResult: result });
+    set((s) =>
+      result
+        ? {
+            hpiOptimizationResult: result,
+            selectedHPPoints: picksAmong(s.selectedHPPoints, result.feasible_points),
+            hpFilters: filtersFor(result.feasible_points, s.hpFilters),
+          }
+        : { hpiOptimizationResult: result }
+    );
     set((s) => syncScenario(s));
   },
 
@@ -299,6 +338,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
         selectedStreams: { ...s.selectedStreams },
         energyDemands: JSON.parse(JSON.stringify(s.energyDemands)),
         selectedHPPoints: JSON.parse(JSON.stringify(s.selectedHPPoints)),
+        hpFilters: s.hpFilters,
         tMin: s.tMin,
         pinchResult: s.pinchResult ? JSON.parse(JSON.stringify(s.pinchResult)) : null,
         hpiResult: s.hpiResult ? JSON.parse(JSON.stringify(s.hpiResult)) : null,
@@ -322,6 +362,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
         selectedStreams: { ...sc.selectedStreams },
         energyDemands: JSON.parse(JSON.stringify(sc.energyDemands)),
         selectedHPPoints: JSON.parse(JSON.stringify(sc.selectedHPPoints ?? [])),
+        hpFilters: sc.hpFilters ?? DEFAULT_HP_FILTERS,
         tMin: sc.tMin,
         pinchResult: sc.pinchResult ? JSON.parse(JSON.stringify(sc.pinchResult)) : null,
         hpiResult: sc.hpiResult ? JSON.parse(JSON.stringify(sc.hpiResult)) : null,

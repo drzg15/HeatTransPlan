@@ -4,6 +4,8 @@ import {
   chartPointsOf,
   DEFAULT_TABLE_SORT,
   defaultHighlightOf,
+  filterPoints,
+  refrigerantNameOf,
   sortRows,
   tableRowsOf,
   type SortConfig,
@@ -33,41 +35,26 @@ export default function HPIOptimizationPanel() {
   const setCopFormula = useAnalysisStore((s) => s.setCopFormula);
   const [formulaOpen, setFormulaOpen] = useState(false);
 
-  // Filter states
-  const [mediumSinkFilter, setMediumSinkFilter] = useState<string>('All');
-  const [refrigerantTypeFilter, setRefrigerantTypeFilter] = useState<string>('All');
-  const [refrigerantFilter, setRefrigerantFilter] = useState<string[]>([]); // Empty means 'All'
-  const [hpLevelFilter, setHpLevelFilter] = useState<string[]>([]); // Empty means 'All'
-  // Theoretical reference rows are shown by default: they are the context the
-  // real machines are read against, and with them hidden a click on the chart
-  // cannot select them either. Untick to get the modelled machines alone.
-  const [showTheoretical, setShowTheoretical] = useState(true);
-  const [showSourceLimited, setShowSourceLimited] = useState(false);
-  const [showDemandLimited, setShowDemandLimited] = useState(false);
+  // Filters. In the store, saved with each scenario and sent with the report;
+  // changing one drops only the picks it hides (see the store).
+  const filters = useAnalysisStore((s) => s.hpFilters);
+  const setFilters = useAnalysisStore((s) => s.setHPFilters);
+  const {
+    medium_sink: mediumSinkFilter,
+    refrigerant_type: refrigerantTypeFilter,
+    refrigerants: refrigerantFilter,
+    hp_levels: hpLevelFilter,
+    show_theoretical: showTheoretical,
+    show_source_limited: showSourceLimited,
+    show_demand_limited: showDemandLimited,
+  } = filters;
 
   // Sort state (supports multi-column)
-  const [sortConfigs, setSortConfigs] = useState<SortConfig[]>([{ key: 'COP', direction: 'desc' }]);
+  const [sortConfigs, setSortConfigs] = useState<SortConfig[]>(DEFAULT_TABLE_SORT);
   const [hpDropdownOpen, setHpDropdownOpen] = useState(false);
   const [refDropdownOpen, setRefDropdownOpen] = useState(false);
   const hpDropdownRef = useRef<HTMLDivElement>(null);
   const refDropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (hpiOptimizationResult?.max_q_point) {
-      setSelectedPoints([]);
-      setMediumSinkFilter('All');
-      setRefrigerantTypeFilter('All');
-      setRefrigerantFilter([]);
-      setHpLevelFilter([]);
-      setShowSourceLimited(false);
-      setShowDemandLimited(false);
-      setSortConfigs(DEFAULT_TABLE_SORT);
-    }
-  }, [hpiOptimizationResult]);
-
-  useEffect(() => {
-    setSelectedPoints([]);
-  }, [mediumSinkFilter, refrigerantTypeFilter, refrigerantFilter, hpLevelFilter]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -91,31 +78,10 @@ export default function HPIOptimizationPanel() {
   const uniqueRefrigerantTypes = Array.from(
     new Set(feasible_points.map((p) => p.refrigerant_type))
   ).sort();
-  const uniqueRefrigerants = Array.from(
-    new Set(
-      feasible_points.map((p) =>
-        p.refrigerant.includes('_')
-          ? p.refrigerant.substring(0, p.refrigerant.lastIndexOf('_'))
-          : p.refrigerant
-      )
-    )
-  ).sort();
+  const uniqueRefrigerants = Array.from(new Set(feasible_points.map(refrigerantNameOf))).sort();
   const uniqueHpLevels = Array.from(new Set(feasible_points.map((p) => p.hp_level))).sort();
 
-  const filteredPoints = feasible_points.filter((p) => {
-    // Hiding the theoretical rows here keeps every downstream count, chart
-    // trace and best-point pick consistent with what is on screen.
-    if (p.theoretical && !showTheoretical) return false;
-    const refName = p.refrigerant.includes('_')
-      ? p.refrigerant.substring(0, p.refrigerant.lastIndexOf('_'))
-      : p.refrigerant;
-    if (mediumSinkFilter !== 'All' && p.medium_sink !== mediumSinkFilter) return false;
-    if (refrigerantTypeFilter !== 'All' && p.refrigerant_type !== refrigerantTypeFilter)
-      return false;
-    if (refrigerantFilter.length > 0 && !refrigerantFilter.includes(refName)) return false;
-    if (hpLevelFilter.length > 0 && !hpLevelFilter.includes(p.hp_level)) return false;
-    return true;
-  });
+  const filteredPoints = filterPoints(feasible_points, filters);
 
   // Counted on the raw results, so the checkbox can say how many rows it would
   // bring back while they are hidden.
@@ -157,17 +123,11 @@ export default function HPIOptimizationPanel() {
     });
   };
 
-  const toggleHpLevel = (level: string) => {
-    setHpLevelFilter((prev) =>
-      prev.includes(level) ? prev.filter((l) => l !== level) : [...prev, level]
-    );
-  };
-
-  const toggleRefrigerant = (refName: string) => {
-    setRefrigerantFilter((prev) =>
-      prev.includes(refName) ? prev.filter((r) => r !== refName) : [...prev, refName]
-    );
-  };
+  const toggle = (list: string[], v: string) =>
+    list.includes(v) ? list.filter((x) => x !== v) : [...list, v];
+  const toggleHpLevel = (level: string) => setFilters({ hp_levels: toggle(hpLevelFilter, level) });
+  const toggleRefrigerant = (refName: string) =>
+    setFilters({ refrigerants: toggle(refrigerantFilter, refName) });
 
   return (
     <div className={`analysis-panel ${isDark ? 'dark-mode' : ''}`} style={{ marginTop: '2rem' }}>
@@ -197,9 +157,9 @@ export default function HPIOptimizationPanel() {
               uniqueRefrigerants={uniqueRefrigerants}
               uniqueHpLevels={uniqueHpLevels}
               mediumSinkFilter={mediumSinkFilter}
-              setMediumSinkFilter={setMediumSinkFilter}
+              setMediumSinkFilter={(v) => setFilters({ medium_sink: v })}
               refrigerantTypeFilter={refrigerantTypeFilter}
-              setRefrigerantTypeFilter={setRefrigerantTypeFilter}
+              setRefrigerantTypeFilter={(v) => setFilters({ refrigerant_type: v })}
               refrigerantFilter={refrigerantFilter}
               hpLevelFilter={hpLevelFilter}
               toggleRefrigerant={toggleRefrigerant}
@@ -211,11 +171,11 @@ export default function HPIOptimizationPanel() {
               hpDropdownOpen={hpDropdownOpen}
               setHpDropdownOpen={setHpDropdownOpen}
               showTheoretical={showTheoretical}
-              setShowTheoretical={setShowTheoretical}
+              setShowTheoretical={(v) => setFilters({ show_theoretical: v })}
               showSourceLimited={showSourceLimited}
-              setShowSourceLimited={setShowSourceLimited}
+              setShowSourceLimited={(v) => setFilters({ show_source_limited: v })}
               showDemandLimited={showDemandLimited}
-              setShowDemandLimited={setShowDemandLimited}
+              setShowDemandLimited={(v) => setFilters({ show_demand_limited: v })}
               theoreticalCount={theoreticalCount}
               sourceLimitedCount={sourceLimitedCount}
               demandLimitedCount={demandLimitedCount}
