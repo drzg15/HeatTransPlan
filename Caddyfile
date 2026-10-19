@@ -1,4 +1,11 @@
 heattransplan.uni-paderborn.de {
+    # The interactive API docs stay in the backend for development
+    # (http://localhost:8000/api/docs) but are not published on the live site:
+    # they list every endpoint with a form to call it. `respond` runs before
+    # `reverse_proxy` in Caddy's directive order, so these never reach the backend.
+    @apidocs path /api/docs /api/docs/* /api/redoc /api/redoc/* /api/openapi.json
+    respond @apidocs 404
+
     reverse_proxy /api/* backend:8000
     reverse_proxy frontend:5173
 }
