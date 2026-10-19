@@ -181,3 +181,20 @@ def test_chain_matches_golden(case, mode):
     assert actual["heat_pumps"] == _approx(expected["heat_pumps"], rel=1e-9)
     assert actual["optimization"] == _approx(expected["optimization"], rel=1e-6)
 
+
+def test_analysis_leaves_no_charts_behind():
+    """The legacy modules can draw matplotlib figures, which nobody sees on a
+    server and pyplot keeps until they are closed. Two switches had drawing on
+    for every request — about 6–13 figures per page refresh, held for the life
+    of the process. Nothing in the request path may draw."""
+    import matplotlib.pyplot as plt
+
+    before = set(plt.get_fignums())
+    for streams, t_min in (CASES["example_1"](), CASES["textbook"]()):
+        p = client.post("/api/analysis/pinch", json={"streams": streams, "T_min": t_min}).json()
+        for mode in ("net_load", "composite"):
+            client.post("/api/analysis/hpi",
+                        json={"pinch_result": p, "hp_types": HP_TYPES, "profile_mode": mode})
+            client.post("/api/analysis/hpi-optimization",
+                        json={"pinch_result": p, "profile_mode": mode})
+    assert set(plt.get_fignums()) == before

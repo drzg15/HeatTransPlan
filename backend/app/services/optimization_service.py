@@ -363,7 +363,10 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         from app.modules.heat_pump_integration.heat_pump_integration import HeatPumpIntegration
         from app.modules.utility.heat_profiles import resolve_profiles
 
-        pm = PinchMain(tmp.name, options={"draw": False})
+        # Pinch switches an option on when its name is present at all, so
+        # {"draw": False} meant draw: seven matplotlib figures per request,
+        # rendered for nobody and never closed. No options means no drawing.
+        pm = PinchMain(tmp.name, options={})
         pm.solve_pinch_for_hpi("EN")
 
         hpi = HeatPumpIntegration(tmp.name, None, pm)

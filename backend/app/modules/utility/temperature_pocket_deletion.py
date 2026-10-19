@@ -5,7 +5,9 @@ class TemperaturePocketDeletion:
         self.hot_utility = hot_utility
         self.heat_cascade = heat_cascade
         self._temperatures = _temperatures
-        self._options = {'draw': True}
+        # Drawing was hardwired on: one matplotlib figure per call, never shown
+        # and never closed, so a server process kept every one of them.
+        self._options = {'draw': False}
 
     def delete_double_empty(self,u):
         if u < len(self.heatCascadedeltaH)-2:
