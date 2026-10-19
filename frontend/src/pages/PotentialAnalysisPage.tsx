@@ -2,7 +2,7 @@
  *  1:1 port of the original Streamlit potential_analysis.py layout.
  */
 
-import { useCallback, useEffect, useMemo, useState, useRef, type ChangeEvent } from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef } from 'react';
 import { useProjectStore } from '../store/projectStore';
 import { useAnalysisStore } from '../store/analysisStore';
 import {
@@ -12,7 +12,6 @@ import {
   generateReport,
   runHPIOptimization,
 } from '../api/analysis';
-import { getStreamInfo } from '../utils/streamUtils';
 import type { PinchStream } from '../types/analysis';
 
 import StreamSelector from '../components/analysis/StreamSelector';
@@ -21,8 +20,6 @@ import MapViewer from '../components/map/MapViewer';
 import PinchMetrics from '../components/analysis/PinchMetrics';
 import CompositeCurvesChart from '../components/analysis/CompositeCurvesChart';
 import GrandCompositeCurveChart from '../components/analysis/GrandCompositeCurveChart';
-import HeatPumpTable from '../components/analysis/HeatPumpTable';
-import HPIChart from '../components/analysis/HPIChart';
 import StatusQuoComparison from '../components/analysis/StatusQuoComparison';
 import TemperatureIntervalDiagram from '../components/analysis/TemperatureIntervalDiagram';
 import ScenarioComparison from '../components/analysis/ScenarioComparison';
@@ -31,6 +28,15 @@ import CopCoverageChart from '../components/analysis/CopCoverageChart';
 import HeatRecoveryToggle from '../components/analysis/HeatRecoveryToggle';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../hooks/useMediaQuery';
+import ScenarioBar from './potentialAnalysis/ScenarioBar';
+import HeaderActions from './potentialAnalysis/HeaderActions';
+import DataStatus from './potentialAnalysis/DataStatus';
+import ClassicHPISection from './potentialAnalysis/ClassicHPISection';
+import {
+  buildReportPayload as buildReportPayloadOf,
+  normalizeEnergyDemands,
+  streamsFromSelection,
+} from './potentialAnalysis/analysisHelpers';
 
 import './PotentialAnalysisPage.css';
 
@@ -83,10 +89,8 @@ export default function PotentialAnalysisPage() {
   // removed, so it is one click away while it is still being compared against.
   const [showClassicHPI, setShowClassicHPI] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
-  const fileRef = useRef<HTMLInputElement>(null);
-
+  
   // Store actions
-  const setState = useProjectStore((s) => s.setState);
   const setAnalysisSelection = useProjectStore((s) => s.setAnalysisSelection);
   const setAnalysisDemands = useProjectStore((s) => s.setAnalysisDemands);
   const setAnalysisTMin = useProjectStore((s) => s.setAnalysisTMin);
@@ -115,12 +119,7 @@ export default function PotentialAnalysisPage() {
       useAnalysisStore.setState({ selectedStreams: currentAnalysisData.selected_streams });
 
       // Energy Demands (normalize for compatibility)
-      const mappedDemands = currentAnalysisData.energy_demands.map((d: any) => ({
-        heat_demand: d.heat_demand ?? d.heating_kW ?? 0,
-        cooling_demand: d.cooling_demand ?? d.cooling_kW ?? 0,
-        selected_heat_streams: d.selected_heat_streams ?? [],
-        selected_cooling_streams: d.selected_cooling_streams ?? [],
-      }));
+      const mappedDemands = normalizeEnergyDemands(currentAnalysisData.energy_demands);
       useAnalysisStore.setState({
         energyDemands:
           mappedDemands.length > 0 ? mappedDemands : useAnalysisStore.getState().energyDemands,
@@ -159,74 +158,9 @@ export default function PotentialAnalysisPage() {
     setAnalysisTMin,
   ]);
 
-  const handleSaveProject = useCallback(() => {
-    const blob = new Blob([JSON.stringify(projectState, null, 2)], {
-      type: 'application/json',
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `heattransplan_state_${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }, [projectState]);
-
-  const handleLoadProject = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const data = JSON.parse(reader.result as string);
-          setState({ ...data, map_locked: true });
-        } catch (err) {
-          alert('Invalid JSON file');
-        }
-      };
-      reader.readAsText(file);
-      if (fileRef.current) fileRef.current.value = '';
-    },
-    [setState]
-  );
-
   // Helper to extract valid streams from a selection object
   const getStreamsFromSelection = useCallback(
-    (selection: Record<string, boolean>) => {
-      const result: Array<{
-        name: string;
-        CP: number;
-        Tin: number;
-        Tout: number;
-        Q: number;
-        type: 'Hot' | 'Cold';
-      }> = [];
-      for (const [key, selected] of Object.entries(selection)) {
-        if (!selected || !key.startsWith('stream_')) continue;
-        const parts = key.split('_');
-        const pIdx = parseInt(parts[1], 10);
-        const sIdx = parseInt(parts[2], 10);
-        if (pIdx >= processes.length) continue;
-        const proc = processes[pIdx];
-        const streams = proc.streams ?? [];
-        if (sIdx >= streams.length) continue;
-        const stream = streams[sIdx];
-        const info = getStreamInfo(stream);
-        if (info.tin !== null && info.tout !== null && info.CP !== null) {
-          const procName = proc.name || `Subprocess ${pIdx + 1}`;
-          const streamName = stream.name || `Stream ${sIdx + 1}`;
-          result.push({
-            name: `${procName} - ${streamName}`,
-            CP: info.CP,
-            Tin: info.tin,
-            Tout: info.tout,
-            Q: info.Q ?? 0,
-            type: info.tin > info.tout ? 'Hot' : 'Cold',
-          });
-        }
-      }
-      return result;
-    },
+    (selection: Record<string, boolean>) => streamsFromSelection(selection, processes),
     [processes]
   );
 
@@ -252,7 +186,7 @@ export default function PotentialAnalysisPage() {
       setPinchLoading(true);
       setPinchError(null);
       try {
-        const pinchStreams: PinchStream[] = streamsData.map((s: any) => ({
+        const pinchStreams: PinchStream[] = streamsData.map((s) => ({
           name: s.name,
           CP: s.CP,
           T_supply: s.Tin,
@@ -331,7 +265,7 @@ export default function PotentialAnalysisPage() {
         setHPIResult(result);
         // Auto-select first available HP if current selection is invalid or empty
         const currentSelection = useAnalysisStore.getState().selectedHPTypes;
-        const availableNames = result.heat_pumps.filter((hp: any) => hp.available).map((hp: any) => hp.name);
+        const availableNames = result.heat_pumps.filter((hp) => hp.available).map((hp) => hp.name);
         const validSelection = currentSelection.filter(name => availableNames.includes(name));
         
         if (validSelection.length === 0 && availableNames.length > 0) {
@@ -413,52 +347,24 @@ export default function PotentialAnalysisPage() {
   const availableHPNames = useMemo(() => {
     if (!hpiResult) return [];
     return hpiResult.heat_pumps
-      .filter((hp: any) => hp.available)
-      .sort((a: any, b: any) => (b.cop ?? 0) - (a.cop ?? 0))
-      .map((hp: any) => hp.name);
+      .filter((hp) => hp.available)
+      .sort((a, b) => (b.cop ?? 0) - (a.cop ?? 0))
+      .map((hp) => hp.name);
   }, [hpiResult]);
 
   // Helper to build payload for report and map preview
   const buildReportPayload = useCallback(() => {
-    return {
+    return buildReportPayloadOf({
       language: i18n.language || 'en',
-      project_notes: projectState.project_notes || '',
-      pinch_notes: projectState.pinch_notes || '',
-      map_snapshots_encoded: projectState.map_snapshots_encoded || {},
-      map_center: projectState.map_center || [],
-      map_zoom: projectState.map_zoom || 17.5,
-      current_base: projectState.current_base || 'OpenStreetMap',
-      processes: projectState.processes.map((p) => ({
-        name: p.name || '',
-        streams: p.streams || [],
-      })),
-      proc_groups: projectState.proc_groups || [],
-      proc_group_names: projectState.proc_group_names || [],
-      proc_group_coordinates: projectState.proc_group_coordinates || {},
-      selected_streams: streamsData,
-      pinch_result: pinchResult,
-      heat_pumps: hpiResult?.heat_pumps || [],
-      hpi_optimization_result: hpiOptimizationResult,
-      energy_demands: energyDemands,
-      t_min: tMin,
-      // Include all saved scenarios in the report for comparison
-      scenarios: (useAnalysisStore.getState().scenarios || []).map((sc) => ({
-        name: sc.name,
-        selected_streams: getStreamsFromSelection(sc.selectedStreams),
-        pinch_result: sc.pinchResult,
-        heat_pumps: sc.hpiResult?.heat_pumps || [],
-        hpi_optimization_result: sc.hpiOptimizationResult || null,
-        // Whatever was clicked on the optimization chart, so the report shows
-        // that pump instead of the default one.
-        selected_hp_points: sc.selectedHPPoints || [],
-        energy_demands:
-          sc.energyDemands?.map((d) => ({
-            heat_demand: d.heat_demand,
-            cooling_demand: d.cooling_demand,
-          })) || [],
-        t_min: sc.tMin,
-      })),
-    };
+      projectState,
+      streamsData,
+      pinchResult,
+      hpiResult,
+      hpiOptimizationResult,
+      energyDemands,
+      tMin,
+      getStreamsFromSelection,
+    });
   }, [
     projectState,
     streamsData,
@@ -491,33 +397,12 @@ export default function PotentialAnalysisPage() {
   }, [buildReportPayload]);
 
   const scenarios = useAnalysisStore((s) => s.scenarios);
-  const activeScenarioId = useAnalysisStore((s) => s.activeScenarioId);
-  const saveScenario = useAnalysisStore((s) => s.saveScenario);
-  const loadScenario = useAnalysisStore((s) => s.loadScenario);
-  const deleteScenario = useAnalysisStore((s) => s.deleteScenario);
-  const renameScenario = useAnalysisStore((s) => s.renameScenario);
   const setStreamsForProcess = useAnalysisStore((s) => s.setStreamsForProcess);
   const toggleStreamSelection = useAnalysisStore((s) => s.toggleStreamSelection);
 
-  const [scenarioName, setScenarioName] = useState('');
-  const [editingScenarioIdx, setEditingScenarioIdx] = useState<number | null>(null);
   const [selectionActive] = useState(true);
   const [showHelp, setShowHelp] = useState(false);
   const isMobile = useIsMobile();
-
-  // Auto-calculated default scenario name
-  const defaultScenarioName = `Scenario ${scenarios.length + 1}`;
-
-  const handleSaveScenario = () => {
-    saveScenario(scenarioName.trim() || defaultScenarioName);
-    setScenarioName('');
-  };
-
-  const handleRenameScenario = (idx: number, newName: string) => {
-    if (!newName.trim()) return;
-    renameScenario(idx, newName.trim());
-    setEditingScenarioIdx(null);
-  };
 
   const handleMapProcessesSelect = useCallback(
     (pIdxs: number[], val: boolean) => {
@@ -541,133 +426,14 @@ export default function PotentialAnalysisPage() {
         <h1 className="pa-title">{t('analysis.title')}</h1>
 
         {/* Scenarios - Inline */}
-        <div className="pa-scenario-bar">
-          <div className="pa-scenario-pills">
-            {scenarios.map((scen: any, idx: number) => {
-              const isActive = scen.id === activeScenarioId;
-              return (
-                <div
-                  key={scen.id || idx}
-                  className={`pa-scenario-pill ${isActive ? 'active' : ''}`}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 6,
-                    background: isActive ? 'var(--primary)' : 'var(--bg)',
-                    color: isActive ? 'var(--text-on-primary)' : 'var(--text-main)',
-                    border: '1px solid',
-                    borderColor: isActive ? 'var(--primary-hover)' : 'var(--border)',
-                    padding: '3px 10px',
-                    borderRadius: '16px',
-                    fontSize: '0.8rem',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.2s',
-                  }}
-                >
-                  {editingScenarioIdx === idx ? (
-                    <input
-                      autoFocus
-                      defaultValue={scen.name}
-                      onBlur={(e) => handleRenameScenario(idx, e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleRenameScenario(idx, e.currentTarget.value);
-                        if (e.key === 'Escape') setEditingScenarioIdx(null);
-                      }}
-                      style={{
-                        border: 'none',
-                        background: 'var(--bg)',
-                        padding: '0 4px',
-                        fontSize: 'inherit',
-                        width: '80px',
-                        color: 'var(--text-main)',
-                      }}
-                    />
-                  ) : (
-                    <span
-                      style={{ cursor: 'pointer', fontWeight: 600 }}
-                      onClick={() => loadScenario(idx)}
-                      onDoubleClick={() => setEditingScenarioIdx(idx)}
-                      title="Click to load, double-click to rename"
-                    >
-                      {scen.name}
-                    </span>
-                  )}
-                  <button
-                    className="pa-scenario-delete"
-                    aria-label={`Delete ${scen.name}`}
-                    onClick={() => deleteScenario(idx)}
-                    style={{ color: isActive ? '#bfdbfe' : '#94a3b8' }}
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                </div>
-              );
-            })}
-          </div>
+        <ScenarioBar />
 
-          <div className="pa-scenario-save">
-            <input
-              type="text"
-              className="pa-scenario-input"
-              placeholder={t('analysis.placeholders.scenario_name')}
-              value={scenarioName}
-              onChange={(e) => setScenarioName(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSaveScenario()}
-            />
-            <button className="pa-scenario-save-btn" onClick={handleSaveScenario}>
-              {t('analysis.buttons.save')}
-            </button>
-          </div>
-        </div>
-
-        <div className="pa-header-actions">
-          <button className="btn btn-sm" onClick={handleSaveProject} title="Save project to JSON">
-            💾 {t('analysis.buttons.save')}
-          </button>
-          <label
-            className="btn btn-sm"
-            style={{ cursor: 'pointer' }}
-            title="Load project from JSON"
-          >
-            📂 {t('analysis.buttons.load')}
-            <input
-              ref={fileRef}
-              type="file"
-              accept=".json"
-              onChange={handleLoadProject}
-              style={{ display: 'none' }}
-            />
-          </label>
-          <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px' }} />
-          <button
-            className="pa-btn-report"
-            disabled={reportLoading}
-            onClick={handleGenerateReport}
-            style={{ padding: '6px 14px', fontSize: '0.8rem' }}
-          >
-            {reportLoading
-              ? `⏳ ${t('analysis.buttons.generating')}`
-              : `📄 ${t('analysis.buttons.report')}`}
-          </button>
-          <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px' }} />
-          <button
-            className={`btn btn-sm icon-btn ${showHelp ? 'btn-primary' : ''}`}
-            onClick={() => setShowHelp(!showHelp)}
-            title="Toggle Analysis Guide"
-          >
-            💡
-          </button>
-        </div>
+        <HeaderActions
+          reportLoading={reportLoading}
+          onGenerateReport={handleGenerateReport}
+          showHelp={showHelp}
+          onToggleHelp={() => setShowHelp(!showHelp)}
+        />
       </div>
 
       {/* Top row: Streams | Energy Demands | Map */}
@@ -717,40 +483,7 @@ export default function PotentialAnalysisPage() {
         <div className="pa-info-box">
           {t('analysis.messages.need_more_streams')}
           {selectedCount > 0 && (
-            <div className="pa-data-status">
-              <strong>Data status for selected items:</strong>
-              {Object.entries(selectedStreams)
-                .filter(([, v]) => v)
-                .map(([key]) => {
-                  if (!key.startsWith('stream_')) return null;
-                  const parts = key.split('_');
-                  const pIdx = parseInt(parts[1], 10);
-                  const sIdx = parseInt(parts[2], 10);
-                  if (pIdx >= processes.length) return null;
-                  const proc = processes[pIdx];
-                  const streams = proc.streams ?? [];
-                  if (sIdx >= streams.length) return null;
-                  const stream = streams[sIdx];
-                  const info = getStreamInfo(stream);
-                  const procName = proc.name || `Subprocess ${pIdx + 1}`;
-                  const streamName = stream.name || `Stream ${sIdx + 1}`;
-                  const missing: string[] = [];
-                  if (info.tin === null) missing.push('Tin');
-                  if (info.tout === null) missing.push('Tout');
-                  if (info.CP === null) {
-                    if (info.mdot === null) missing.push('ṁ');
-                    if (info.cp === null) missing.push('cp');
-                    missing.push('(or CP)');
-                  }
-                  return (
-                    <div key={key} className={missing.length > 0 ? 'pa-missing' : 'pa-complete'}>
-                      {missing.length > 0
-                        ? `⚠️ ${procName} - ${streamName}: Missing ${missing.join(', ')}`
-                        : `✅ ${procName} - ${streamName}: Complete data`}
-                    </div>
-                  );
-                })}
-            </div>
+            <DataStatus selectedStreams={selectedStreams} processes={processes} />
           )}
         </div>
       ) : (
@@ -832,37 +565,7 @@ export default function PotentialAnalysisPage() {
               {showClassicHPI && hpiError && <div className="pa-warning">⚠️ {hpiError}</div>}
 
               {showClassicHPI && hpiResult && (
-                <div className="pa-hpi-layout">
-                  <div className="pa-hpi-table-col">
-                    <HeatPumpTable />
-                  </div>
-                  <div className="pa-hpi-chart-col">
-                    {availableHPNames.length > 0 && (
-                      <div className="pa-hp-select">
-                        <label>{t('analysis.charts.select_hp')}</label>
-                        <div className="pa-multi-select">
-                          {availableHPNames.map((name: any) => (
-                            <label key={name} className="pa-multi-option">
-                              <input
-                                type="checkbox"
-                                checked={selectedHPTypes.includes(name)}
-                                onChange={() => {
-                                  setSelectedHPTypes(
-                                    selectedHPTypes.includes(name)
-                                      ? selectedHPTypes.filter((n) => n !== name)
-                                      : [...selectedHPTypes, name]
-                                  );
-                                }}
-                              />
-                              {name}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <HPIChart />
-                  </div>
-                </div>
+                <ClassicHPISection availableHPNames={availableHPNames} />
               )}
 
               {/* Heat Integration Analysis Optimization */}
