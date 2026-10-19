@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ProjectState } from '../types/project';
 import type { ProcessNode } from '../types/process';
+import { snapshotsOffloaded, startSnapshotPersistence } from './snapshotStorage';
 
 interface ProjectStore {
   projectId: string | null;
@@ -88,6 +89,12 @@ export const useProjectStore = create<ProjectStore>()(
     }),
     {
       name: 'heattransplan-storage', // name of the item in the storage (must be unique)
+      // The map snapshots are persisted to IndexedDB instead, once it has proven
+      // to work — see snapshotStorage.ts. They stay in the store either way.
+      partialize: (s) =>
+        snapshotsOffloaded() ? { ...s, state: { ...s.state, map_snapshots_encoded: {} } } : s,
     }
   )
 );
+
+startSnapshotPersistence(useProjectStore);
