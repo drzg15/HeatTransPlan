@@ -580,10 +580,13 @@ export default function HPIOptimizationPanel() {
                             {((pt.Q_demand * (pt.COP - 1)) / pt.COP).toFixed(1)}
                           </td>
                           <td style={elCell}>{(pt.Q_demand / pt.COP).toFixed(1)}</td>
+                          {/* The point's temperatures are the Grand Composite Curve's
+                              shifted ones, which the COP is computed at; the actual
+                              ones sit ΔTmin/2 below the sink, above the source. */}
+                          <td style={sinkCell}>{(pt.T_sink - tMin / 2).toFixed(1)}</td>
                           <td style={sinkCell}>{pt.T_sink.toFixed(1)}</td>
-                          <td style={sinkCell}>{(pt.T_sink + tMin / 2).toFixed(1)}</td>
+                          <td style={sourceCell}>{(pt.T_source + tMin / 2).toFixed(1)}</td>
                           <td style={sourceCell}>{pt.T_source.toFixed(1)}</td>
-                          <td style={sourceCell}>{(pt.T_source - tMin / 2).toFixed(1)}</td>
                           <td>{pt.theoretical ? '' : refName}</td>
                           <td>{pt.theoretical ? '' : pt.hp_level}</td>
                         </tr>

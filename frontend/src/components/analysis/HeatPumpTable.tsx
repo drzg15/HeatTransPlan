@@ -87,10 +87,13 @@ export default function HeatPumpTable() {
                       </div>
                     </td>
                     <td>{hp.cop?.toFixed(2) ?? '—'}</td>
+                    {/* t_source and t_sink are the Grand Composite Curve's shifted
+                        temperatures, which the COP is computed at; the actual ones
+                        sit ΔTmin/2 above the source, below the sink. */}
+                    <td>{hp.t_source != null ? (hp.t_source + tMin / 2).toFixed(1) : '—'}</td>
                     <td>{hp.t_source?.toFixed(1) ?? '—'}</td>
-                    <td>{hp.t_source != null ? (hp.t_source - tMin/2).toFixed(1) : '—'}</td>
+                    <td>{hp.t_sink != null ? (hp.t_sink - tMin / 2).toFixed(1) : '—'}</td>
                     <td>{hp.t_sink?.toFixed(1) ?? '—'}</td>
-                    <td>{hp.t_sink != null ? (hp.t_sink + tMin/2).toFixed(1) : '—'}</td>
                     <td>{hp.q_source?.toFixed(1) ?? '—'}</td>
                     <td>{hp.q_sink?.toFixed(1) ?? '—'}</td>
                   </tr>

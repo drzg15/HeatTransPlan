@@ -139,3 +139,18 @@ def test_report_shows_the_picked_pump():
     fig = _optimization_figure(_opt(), 73.0, I18N["en"], [picked])
     box = [a.text for a in fig.layout.annotations if a.text and "COP" in a.text]
     assert box and "COP 3.40" in box[0]
+
+
+def test_actual_and_shifted_temperatures_are_not_swapped():
+    """A point's temperatures are the Grand Composite Curve's shifted ones —
+    the COP is computed at them. The column headed Shifted shows them as they
+    are; Actual sits ΔTmin/2 below them for the sink and above for the source.
+    The table used to show them as Actual and shift them a second time."""
+    import re
+
+    html = generate_html_report(_request())  # ΔTmin = 10 K
+    table = re.search(r'<table class="pa-hp-table">(.*?)</table>', html, re.S).group(1)
+    row = next(r for r in re.findall(r"<tr[^>]*>(.*?)</tr>", table, re.S) if "R1224yd" in r)
+    cells = [re.sub(r"<[^>]+>", "", c) for c in re.findall(r"<td[^>]*>(.*?)</td>", row, re.S)]
+    # Actual sink, shifted sink, actual source, shifted source — after Q and P_el.
+    assert cells[7:11] == ["113.0", "118.0", "53.0", "48.0"]

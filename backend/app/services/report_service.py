@@ -670,10 +670,13 @@ def _render_pinch_content(
                 (_fmt(p.Q_demand, 1), _SINK_CELL),
                 (_fmt(_q_source(p), 1), _SOURCE_CELL),
                 (_fmt(p.Q_demand / p.COP if p.COP else 0, 1), _EL_CELL),
+                # The point's temperatures are the Grand Composite Curve's
+                # shifted ones, which the COP is computed at; the actual ones sit
+                # ΔTmin/2 below the sink, above the source.
+                (_fmt(p.T_sink - t_min / 2, 1), _SINK_CELL),
                 (_fmt(p.T_sink, 1), _SINK_CELL),
-                (_fmt(p.T_sink + t_min / 2, 1), _SINK_CELL),
+                (_fmt(p.T_source + t_min / 2, 1), _SOURCE_CELL),
                 (_fmt(p.T_source, 1), _SOURCE_CELL),
-                (_fmt(p.T_source - t_min / 2, 1), _SOURCE_CELL),
                 ('' if p.theoretical else ref_name, ''),
                 ('' if p.theoretical else p.hp_level, ''),
             ]
