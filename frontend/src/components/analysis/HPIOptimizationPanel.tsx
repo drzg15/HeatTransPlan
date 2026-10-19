@@ -40,7 +40,10 @@ export default function HPIOptimizationPanel() {
   const isDark = theme === 'dark';
   const { t } = useTranslation();
 
-  const [selectedPoints, setSelectedPoints] = useState<OptimizedIntegrationPoint[]>([]);
+  // In the store, not in this component: the report sends the selection so it
+  // can show the pump that was picked rather than the default one.
+  const selectedPoints = useAnalysisStore((s) => s.selectedHPPoints);
+  const setSelectedPoints = useAnalysisStore((s) => s.setSelectedHPPoints);
 
   // Custom COP formula. Lives in the store so the page can send it with the
   // optimisation request and re-run when it changes.

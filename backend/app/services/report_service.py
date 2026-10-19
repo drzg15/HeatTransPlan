@@ -237,12 +237,50 @@ def _best(points: List[Any]) -> Optional[Any]:
     return best
 
 
-def _table_points(opt: Any) -> List[Any]:
+def _same_point(a: Any, b: Any) -> bool:
+    return (a.refrigerant == b.refrigerant
+            and abs(a.T_sink - b.T_sink) < 0.01
+            and abs(a.T_source - b.T_source) < 0.01)
+
+
+def _active_points(opt: Any, selected: List[Any]) -> List[Any]:
+    """The pumps the chart highlights: the default one, plus whatever was clicked.
+
+    The page keeps the default highlighted alongside the selection rather than
+    replacing it, so the source-to-sink link never disappears from the chart.
+    """
+    points = _on_profile(getattr(opt, "feasible_points", None) or [])
+    default = (_best([p for p in points if not p.theoretical])
+               or _best(points)
+               or getattr(opt, "max_q_point", None))
+    active = [default] if default else []
+    for p in selected:
+        if not any(_same_point(p, a) for a in active):
+            active.append(p)
+    return active
+
+
+def _headline_point(opt: Any, selected: List[Any]) -> Optional[Any]:
+    """The pump that gets the box, the legs and the readouts.
+
+    A click appends every machine at that sink temperature, so the last entry's
+    temperature is the one just clicked; the best machine there represents it.
+    """
+    active = _active_points(opt, selected)
+    if not active:
+        return None
+    last_temp = active[-1].T_sink
+    return _best([p for p in active if abs(p.T_sink - last_temp) < 0.01])
+
+
+def _table_points(opt: Any, selected: List[Any] = ()) -> List[Any]:
     """The heat pumps the page's optimization table lists.
 
     The best real machine per refrigerant type, plus the archetypes: Carnot as
     the thermodynamic ceiling, and the best of the rest. Listing every
-    technology that fits at some sink temperature buries the table.
+    technology that fits at some sink temperature buries the table. A pump
+    picked on the chart goes to the top, even when these rules would leave it
+    out — it is the one being asked about.
     """
     points = _on_profile(getattr(opt, "feasible_points", None) or [])
     real = [p for p in points if not p.theoretical]
@@ -258,7 +296,11 @@ def _table_points(opt: Any) -> List[Any]:
     rows += [p for p in (carnot, other) if p]
     rows = [p for p in rows if p]
     rows.sort(key=lambda p: (p.Q_demand, p.COP), reverse=True)
-    return rows
+
+    picked = [p for p in selected
+              if not any(p.refrigerant == r.refrigerant and abs(p.T_sink - r.T_sink) < 0.01
+                         for r in rows)]
+    return picked + rows
 
 
 def _thin_points(points: List[Any], keep: Optional[Any]) -> List[Any]:
@@ -301,12 +343,14 @@ def _thin_points(points: List[Any], keep: Optional[Any]) -> List[Any]:
     return thinned
 
 
-def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, str]) -> go.Figure:
+def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, str],
+                         selected: List[Any] = ()) -> go.Figure:
     """Rebuild the page's 'Feasible Heat Pump Solutions' chart for the report.
 
     Everything here mirrors frontend/src/components/analysis/HPIOptimizationChart.tsx,
-    minus the click interaction: the report highlights the max-Q point, which is
-    what the page highlights before anything is clicked.
+    The pumps clicked on the page come in as `selected`; with none, it falls
+    back to the best real machine, which is what the page highlights before
+    anything is clicked.
     """
     mirrored = getattr(opt, "profile_mode", "net_load") != "net_load"
     sign = -1 if mirrored else 1
@@ -339,13 +383,8 @@ def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, st
         ))
 
     chart_points = _on_profile(getattr(opt, "feasible_points", None) or [])
-
-    # The headline pump is one you could actually buy, so the highlight skips
-    # the archetypes — Carnot wins on COP at the top duty and would otherwise
-    # always be the one in the box.
-    active = (_best([p for p in chart_points if not p.theoretical])
-              or _best(chart_points)
-              or getattr(opt, "max_q_point", None))
+    active_points = _active_points(opt, list(selected))
+    active = _headline_point(opt, list(selected))
 
     # The solution cloud: refrigerants as dots, technology archetypes as diamonds.
     for pts, size, sym_sink, sym_source in (
@@ -372,6 +411,17 @@ def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, st
     shapes: List[Dict[str, Any]] = []
     annotations: List[Dict[str, Any]] = []
 
+    for point in active_points:
+        for x, y, colour in ((point.Q_demand, point.T_sink, _SINK),
+                             (sign * _q_source(point), point.T_source, _SOURCE)):
+            fig.add_trace(go.Scatter(
+                x=[x], y=[y], mode='markers',
+                marker=dict(size=9, color=colour, symbol='circle', line=dict(width=2, color='black')),
+                showlegend=False, hoverinfo='text',
+                text=[f"<b>{point.refrigerant}</b><br>T: {y:.1f}°C<br>"
+                      f"Q: {abs(x):.1f} kW<br>COP: {point.COP:.2f}"],
+            ))
+
     if active:
         src_x, src_y = sign * _q_source(active), active.T_source
         snk_x, snk_y = active.Q_demand, active.T_sink
@@ -379,14 +429,6 @@ def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, st
         # source to sink is a clean rise-then-across with no diagonal.
         box_x, box_y = snk_x, (src_y + snk_y) / 2
         half_w, half_h = 30, 22
-
-        for x, y, colour in ((snk_x, snk_y, _SINK), (src_x, src_y, _SOURCE)):
-            fig.add_trace(go.Scatter(
-                x=[x], y=[y], mode='markers',
-                marker=dict(size=9, color=colour, symbol='circle', line=dict(width=2, color='black')),
-                showlegend=False, hoverinfo='text',
-                text=[f"T: {y:.1f}°C<br>Q: {abs(x):.1f} kW<br>COP: {active.COP:.2f}"],
-            ))
 
         # Source leg across then up into the box, sink leg straight up out of it.
         fig.add_trace(go.Scatter(x=[src_x, box_x, box_x], y=[src_y, src_y, box_y], mode='lines',
@@ -458,6 +500,7 @@ def _render_pinch_content(
     pinch_result: Any,
     selected_streams: List[ReportStream],
     hpi_optimization_result: Any,
+    selected_hp_points: List[Any],
     energy_demands: List[Any],
     map_streams_img_html: str,
     lang: str = "en",
@@ -517,7 +560,7 @@ def _render_pinch_content(
 
         # Coverage comes from the optimized heat pump, the same machine the
         # table and chart below report.
-        best = getattr(hpi_optimization_result, "max_q_point", None) if hpi_optimization_result else None
+        best = _headline_point(hpi_optimization_result, selected_hp_points) if hpi_optimization_result else None
         if best:
             hc_heat = min(best.Q_demand, pr.hot_utility)
             hc_cool = min(_q_source(best), pr.cold_utility)
@@ -545,7 +588,8 @@ def _render_pinch_content(
     # the full width and scrolls sideways rather than being squeezed beside the
     # chart.
     opt_table_html = ""
-    opt_rows = _table_points(hpi_optimization_result) if hpi_optimization_result else []
+    opt_rows = _table_points(hpi_optimization_result, selected_hp_points) if hpi_optimization_result else []
+    headline = _headline_point(hpi_optimization_result, selected_hp_points) if hpi_optimization_result else None
     if opt_rows:
         half = _fmt(t_min / 2, 1).rstrip('0').rstrip('.')
         headers = [
@@ -585,7 +629,9 @@ def _render_pinch_content(
                 ('' if p.theoretical else ref_name, ''),
                 ('' if p.theoretical else p.hp_level, ''),
             ]
-            rows += "<tr>" + "".join(
+            picked = any(_same_point(p, sp) for sp in selected_hp_points) or (
+                headline is not None and _same_point(p, headline) and bool(selected_hp_points))
+            rows += (f"<tr style='background-color:#E2E8F0'>" if picked else "<tr>") + "".join(
                 f"<td style=\"{style}\">{value}</td>" if style else f"<td>{value}</td>"
                 for value, style in cells
             ) + "</tr>"
@@ -620,7 +666,8 @@ def _render_pinch_content(
     # Optimization Chart — the same figure the Potential Analysis page draws.
     opt_chart_html = ""
     if hpi_optimization_result and getattr(hpi_optimization_result, "pocketless_sink", None):
-        opt_fig = _optimization_figure(hpi_optimization_result, pr.pinch_temperature, texts)
+        opt_fig = _optimization_figure(hpi_optimization_result, pr.pinch_temperature, texts,
+                                       selected_hp_points)
         opt_chart_html = opt_fig.to_html(full_html=False, include_plotlyjs=False)
 
     # GCC
@@ -765,7 +812,8 @@ def generate_html_report(req: ReportRequest) -> str:
 
         # The first scenario page must include Plotly.js to enable charts across all tabs
         scenario_pages_html += _render_pinch_content(
-            sc.name, sc_id, sc.t_min, sc.pinch_result, sc.selected_streams, sc.hpi_optimization_result, sc.energy_demands, sc_map_html,
+            sc.name, sc_id, sc.t_min, sc.pinch_result, sc.selected_streams, sc.hpi_optimization_result,
+            sc.selected_hp_points, sc.energy_demands, sc_map_html,
             lang=lang,
             include_plotly_js=(i == 0)
         )
@@ -789,7 +837,7 @@ def generate_html_report(req: ReportRequest) -> str:
             sh = tot_heat - phu
             sh_pct = (abs(sh)/tot_heat*100) if tot_heat > 0 else 0
             
-            best = getattr(sc.hpi_optimization_result, "max_q_point", None) if sc.hpi_optimization_result else None
+            best = _headline_point(sc.hpi_optimization_result, sc.selected_hp_points) if sc.hpi_optimization_result else None
 
             hc_heat = min(best.Q_demand, phu) if best else 0
             coverage = (hc_heat / phu * 100) if phu > 0 else 0

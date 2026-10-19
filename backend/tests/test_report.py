@@ -110,3 +110,30 @@ def test_report_lists_every_pump_row():
         assert header in html
     for name in ("Butane", "R1224yd", "Carnot", "VHTHP"):
         assert name in html
+
+
+def test_a_picked_pump_takes_the_box_and_the_top_row():
+    from app.services.report_service import _headline_point, _table_points
+
+    opt = _opt()
+    picked = _point(T_sink=100.0, Q_demand=600.0, COP=3.4)
+
+    # Nothing clicked: the best real machine, which is what the page highlights.
+    assert _headline_point(opt, []).T_sink == 118.0
+    # Clicked: that one, even though it delivers less duty.
+    assert _headline_point(opt, [picked]).T_sink == 100.0
+    assert _table_points(opt, [picked])[0].T_sink == 100.0
+
+
+def test_report_shows_the_picked_pump():
+    picked = _point(T_sink=100.0, Q_demand=600.0, COP=3.4)
+    req = _request()
+    req.scenarios[0].selected_hp_points = [picked]
+    html = generate_html_report(req)
+    # The coverage column names the pump in the box, and the picked row is shaded.
+    assert "#E2E8F0" in html
+    assert "600.0" in html
+
+    fig = _optimization_figure(_opt(), 73.0, I18N["en"], [picked])
+    box = [a.text for a in fig.layout.annotations if a.text and "COP" in a.text]
+    assert box and "COP 3.40" in box[0]
