@@ -1,9 +1,13 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ProjectState } from '../types/project';
-import type { EnergyDemandLocal } from '../types/analysis';
+import type { EnergyDemandLocal, SavedScenarios } from '../types/analysis';
 import type { ProcessNode } from '../types/process';
-import { snapshotsOffloaded, startSnapshotPersistence } from './snapshotStorage';
+import {
+  snapshotsOffloaded,
+  startScenarioPersistence,
+  startSnapshotPersistence,
+} from './snapshotStorage';
 
 interface ProjectStore {
   projectId: string | null;
@@ -30,6 +34,7 @@ interface ProjectStore {
   setAnalysisSelection: (streams: Record<string, boolean>) => void;
   setAnalysisDemands: (demands: EnergyDemandLocal[]) => void;
   setAnalysisTMin: (val: number) => void;
+  setAnalysisScenarios: (saved: SavedScenarios) => void;
 }
 
 const defaultState: ProjectState = {
@@ -87,15 +92,25 @@ export const useProjectStore = create<ProjectStore>()(
       setAnalysisDemands: (demands) =>
         set((s) => ({ state: { ...s.state, energy_demands: demands } })),
       setAnalysisTMin: (val) => set((s) => ({ state: { ...s.state, t_min: val } })),
+      setAnalysisScenarios: (saved) =>
+        set((s) => ({ state: { ...s.state, analysis_scenarios: saved } })),
     }),
     {
       name: 'heattransplan-storage', // name of the item in the storage (must be unique)
       // The map snapshots are persisted to IndexedDB instead, once it has proven
-      // to work — see snapshotStorage.ts. They stay in the store either way.
-      partialize: (s) =>
-        snapshotsOffloaded() ? { ...s, state: { ...s.state, map_snapshots_encoded: {} } } : s,
+      // to work, and the scenarios always are — see snapshotStorage.ts. Both
+      // stay in the store either way.
+      partialize: (s) => ({
+        ...s,
+        state: {
+          ...s.state,
+          analysis_scenarios: undefined,
+          ...(snapshotsOffloaded() ? { map_snapshots_encoded: {} } : {}),
+        },
+      }),
     }
   )
 );
 
 startSnapshotPersistence(useProjectStore);
+startScenarioPersistence(useProjectStore);

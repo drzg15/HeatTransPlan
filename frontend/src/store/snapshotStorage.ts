@@ -14,6 +14,7 @@
  */
 
 import type { useProjectStore } from './projectStore';
+import type { SavedScenarios } from '../types/analysis';
 
 type Snapshots = Record<string, string>;
 
@@ -56,6 +57,17 @@ export const idbSnapshots: SnapshotIO = {
   set: (snapshots) => run('readwrite', (s) => s.put(snapshots, KEY)).then(() => undefined),
 };
 
+export interface ScenarioIO {
+  get: () => Promise<SavedScenarios | null | undefined>;
+  set: (saved: SavedScenarios | null) => Promise<void>;
+}
+
+const SCENARIOS_KEY = 'analysis_scenarios';
+export const idbScenarios: ScenarioIO = {
+  get: () => run('readonly', (s) => s.get(SCENARIOS_KEY)),
+  set: (saved) => run('readwrite', (s) => s.put(saved, SCENARIOS_KEY)).then(() => undefined),
+};
+
 // Only true once IndexedDB has proven it works. Until then the snapshots stay
 // in localStorage, so a browser without IndexedDB behaves exactly as before.
 let offloaded = false;
@@ -95,4 +107,32 @@ export async function startSnapshotPersistence(
   // Rewrite the localStorage entry now, without the images, rather than
   // waiting for the next edit to do it.
   store.setState({});
+}
+
+/**
+ * The saved scenarios, same idea. Each carries the full results it was
+ * computed with — megabytes with the optimization points — so they never go
+ * to localStorage at all (see projectStore's partialize). Without IndexedDB
+ * they last until the page is closed, as they always did.
+ */
+export async function startScenarioPersistence(
+  store: typeof useProjectStore,
+  io: ScenarioIO = idbScenarios
+) {
+  try {
+    const saved = await io.get();
+    // A project loaded or a scenario saved in the meantime is newer; keep it.
+    if (saved && !store.getState().state.analysis_scenarios?.scenarios.length) {
+      store.getState().setAnalysisScenarios(saved);
+    }
+  } catch {
+    return;
+  }
+  // ponytail: rewrites every scenario on each change (the active one tracks
+  // every edit); per-scenario keys if that ever shows up as lag.
+  store.subscribe((next, prev) => {
+    if (next.state.analysis_scenarios !== prev.state.analysis_scenarios) {
+      io.set(next.state.analysis_scenarios ?? null).catch(() => {});
+    }
+  });
 }

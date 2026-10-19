@@ -112,4 +112,8 @@ export const projectStateSchema = z.object({
   selected_streams: z.record(z.string(), z.boolean()).optional(),
   energy_demands: z.array(z.any()).optional(),
   t_min: z.number().optional(),
+  // Results the app computed itself and wrote to the file; passed through as is.
+  analysis_scenarios: z
+    .object({ scenarios: z.array(z.any()), active_id: z.string().nullable() })
+    .optional(),
 });

@@ -1,7 +1,7 @@
 /** Project state model — mirrors backend ProjectState. */
 
 import type { ProcessNode } from './process';
-import type { EnergyDemandLocal } from './analysis';
+import type { EnergyDemandLocal, SavedScenarios } from './analysis';
 
 export interface GroupCoordinates {
   lat?: string | number | null;
@@ -29,4 +29,7 @@ export interface ProjectState {
   selected_streams?: Record<string, boolean>;
   energy_demands?: EnergyDemandLocal[];
   t_min?: number;
+  // Saved scenarios, so they reach the Save file and survive a reload. The
+  // analysis store works on them; see the sync at the end of analysisStore.ts.
+  analysis_scenarios?: SavedScenarios;
 }
