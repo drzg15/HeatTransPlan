@@ -393,7 +393,7 @@
   <section class="tex2jax_ignore mathjax_ignore" id="heattransplan-calculation-logic">
 <h1>HeatTransPlan — Calculation Logic<a class="headerlink" href="#heattransplan-calculation-logic" title="Link to this heading">#</a></h1>
 <p>This document explains the engineering calculations behind HeatTransPlan, a tool for <strong>Pinch Analysis</strong> and <strong>heat pump integration &amp; optimization</strong> in industrial processes.</p>
-<p>It is written for engineers and researchers who understand energy recovery concepts but do not need to read source code. Every section explains the thermodynamic logic first, with equations and step-by-step descriptions. The actual Python implementation is hidden behind toggle buttons — click <strong>“▶ Show implementation”</strong> to expand the code whenever you want to see exactly how a step is programmed.</p>
+<p>It is written for engineers and researchers who understand energy recovery concepts but do not need to read source code. Every section explains the thermodynamic logic first, with equations and step-by-step descriptions. Each one then names the code that does it — a link to the exact function on GitHub — and <strong>Show the code</strong> expands the implementation itself, whenever you want to see exactly how a step is programmed.</p>
 <hr class="docutils" />
 <section id="what-the-application-does">
 <h2>What the application does<a class="headerlink" href="#what-the-application-does" title="Link to this heading">#</a></h2>
@@ -418,13 +418,16 @@
 <td><p>Processes, subprocesses and their hot and cold streams are entered — mass flow, heat capacity, inlet and outlet temperatures — and placed on a map of the site.</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Stream selection</strong></p></td>
-<td><p>The streams to analyse are chosen, so scenarios can be compared without re-entering data.</p></td>
+<td><p>The streams to analyse are chosen, on a list or directly on the map, and saved as scenarios to compare without re-entering data.</p></td>
 </tr>
 <tr class="row-even"><td><p><strong>Pinch analysis</strong></p></td>
 <td><p>Composite curves, the grand composite curve, the pinch temperature and the minimum utility demands are computed.</p></td>
 </tr>
 <tr class="row-odd"><td><p><strong>Heat pump integration</strong></p></td>
 <td><p>Feasible heat pump operating points are evaluated across the temperature range, with COP, duty and electrical input for each.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Report</strong></p></td>
+<td><p>Everything above is exported as a self-contained HTML report, one page per saved scenario.</p></td>
 </tr>
 </tbody>
 </table>
@@ -438,14 +441,14 @@
 <li><p><strong>Pinch temperature</strong> — the temperature at which the process is most constrained. Heat transferred across it is energy wasted twice over.</p></li>
 <li><p><strong>Heat pump operating points</strong> — for each feasible sink temperature, the COP and duty a machine would achieve, so a high-efficiency pump covering part of the demand can be weighed against a lower-efficiency one covering all of it.</p></li>
 </ul>
-<blockquote>
-<div><p>[!NOTE]
-Everything here describes a thermodynamic <em>potential</em>, not a design. The analysis assumes heat can be exchanged wherever temperatures allow; it does not cost the pipework, check that two streams run at the same time of day, or size equipment. It tells you whether a detailed study is worth commissioning, and where to point it.</p>
-</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Everything here describes a thermodynamic <em>potential</em>, not a design. The analysis assumes heat can be exchanged wherever temperatures allow; it does not cost the pipework, check that two streams run at the same time of day, or size equipment. It tells you whether a detailed study is worth commissioning, and where to point it.</p>
+</div>
 </section>
 <section id="the-geographic-dimension">
 <h3>The geographic dimension<a class="headerlink" href="#the-geographic-dimension" title="Link to this heading">#</a></h3>
-<p>Streams are placed on a real map rather than an abstract flowsheet, because a match that is thermodynamically ideal may sit half a kilometre away. The distance matrix export gives the separation between subprocesses, so a promising match can be checked against what it would cost to connect.</p>
+<p>Streams are placed on a real map rather than an abstract flowsheet, because a match that is thermodynamically ideal may sit half a kilometre away. The distance matrix export gives the separation between subprocesses — as a Manhattan distance (north–south plus east–west legs) or a straight line — so a promising match can be checked against what it would cost to connect (<a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/utils/csvExport.ts#L176"><code class="docutils literal notranslate"><span class="pre">exportDistanceMatrixToCsv()</span></code></a>).</p>
 </section>
 </section>
 <hr class="docutils" />
@@ -453,9 +456,10 @@ Everything here describes a thermodynamic <em>potential</em>, not a design. The 
 <h2>How to read this document<a class="headerlink" href="#how-to-read-this-document" title="Link to this heading">#</a></h2>
 <ul class="simple">
 <li><p><strong>Equations</strong> use standard engineering notation (LaTeX).</p></li>
-<li><p><strong>Toggle blocks</strong> contain the real source code from the repository — they stay in sync automatically.</p></li>
-<li><p>If you only care about the methodology, ignore all toggle blocks.</p></li>
-<li><p>If you want to audit the implementation, expand the blocks that interest you.</p></li>
+<li><p><strong>Code links</strong> point at the function on GitHub, at the line where it is defined in the version these pages were built from.</p></li>
+<li><p><strong>Show the code</strong> blocks include that function straight from the repository when the documentation is built, so they can never fall out of step with it.</p></li>
+<li><p>If you only care about the methodology, ignore both.</p></li>
+<li><p>If you want to audit the implementation, follow the links or expand the blocks that interest you.</p></li>
 </ul>
 <hr class="docutils" />
 <div class="toctree-wrapper compound">
@@ -472,14 +476,16 @@ Everything here describes a thermodynamic <em>potential</em>, not a design. The 
 <li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#step-6-composite-diagram-actual-temperatures">Step 6 — Composite Diagram (Actual Temperatures)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#step-7-grand-composite-curve-gcc">Step 7 — Grand Composite Curve (GCC)</a></li>
 <li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#step-8-temperature-pocket-deletion">Step 8 — Temperature Pocket Deletion</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pinch_analysis.html#status-quo-comparison">Status Quo Comparison</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="heat_pump_integration.html">Heat Pump Integration — Classic Method</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_integration.html#heat-pump-technologies-and-operating-windows">Heat Pump Technologies and Operating Windows</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_integration.html#regressions-of-prototypical-heat-pumps">Regressions of Prototypical Heat Pumps</a></li>
-<li class="toctree-l2"><a class="reference internal" href="heat_pump_integration.html#best-available-cop-selection">Best-Available COP Selection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_integration.html#cop-selection">COP Selection</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_integration.html#source-and-sink-profiles-heat-recovery-modes">Source and Sink Profiles &amp; Heat Recovery Modes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_integration.html#integration-walk-finding-the-operating-point">Integration Walk: Finding the Operating Point</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_integration.html#on-the-page">On the Page</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="heat_pump_optimization.html">Heat Pump Optimization — Predictive ML Model &amp; Grid Search</a><ul>
@@ -493,6 +499,7 @@ Everything here describes a thermodynamic <em>potential</em>, not a design. The 
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#selecting-the-maximum-duty-point">Selecting the Maximum-Duty Point</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#demand-limited-heat-pump-integration">Demand-Limited Heat Pump Integration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#output-summary">Output Summary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html#how-the-results-are-shown">How the results are shown</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="refrigerant_limits.html">Refrigerant Operating Limits</a></li>

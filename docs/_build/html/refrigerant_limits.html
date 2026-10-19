@@ -372,14 +372,14 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="refrigerant-operating-limits">
 <h1>Refrigerant Operating Limits<a class="headerlink" href="#refrigerant-operating-limits" title="Link to this heading">#</a></h1>
-<p>The following table lists the operating temperature ranges and COP bounds for all refrigerant alternatives defined in <code class="docutils literal notranslate"><span class="pre">models/cop/cop_ranges.json</span></code>. These limits are used by the Heat Pump Optimization engine to filter feasible candidates.</p>
+<p>The following table lists the operating temperature ranges and COP bounds for all refrigerant alternatives in <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/models/cop/cop_ranges.json"><code class="docutils literal notranslate"><span class="pre">models/cop/cop_ranges.json</span></code></a>. These limits are used by the <a class="reference internal" href="heat_pump_optimization.html"><span class="std std-doc">Heat Pump Optimization</span></a> engine to filter feasible candidates: a grid point outside a refrigerant’s source or sink range, or with a predicted COP outside its COP range, is not an operating point for that refrigerant.</p>
+<p>The table is generated from that file each time the documentation is built, so it always shows the limits the app is actually using. The name is the refrigerant and its number of compression stages, the form the trained model takes as input.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Name</p></th>
-<th class="head"><p>Stage</p></th>
-<th class="head"><p>Medium Sink</p></th>
-<th class="head"><p>Refrigerant Type</p></th>
-<th class="head"><p>HP Level</p></th>
+<th class="head"><p>Medium sink</p></th>
+<th class="head"><p>Refrigerant type</p></th>
+<th class="head"><p>HP stages</p></th>
 <th class="head"><p><span class="math notranslate nohighlight">\(T_{src\,min}\)</span> (°C)</p></th>
 <th class="head"><p><span class="math notranslate nohighlight">\(T_{src\,max}\)</span> (°C)</p></th>
 <th class="head"><p><span class="math notranslate nohighlight">\(T_{sink\,min}\)</span> (°C)</p></th>
@@ -390,7 +390,6 @@
 </thead>
 <tbody>
 <tr class="row-even"><td><p>Butane_1</p></td>
-<td><p>1</p></td>
 <td><p>Steam</p></td>
 <td><p>Natural</p></td>
 <td><p>1</p></td>
@@ -402,7 +401,6 @@
 <td><p>4.806</p></td>
 </tr>
 <tr class="row-odd"><td><p>Butane_1</p></td>
-<td><p>1</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>1</p></td>
@@ -414,7 +412,6 @@
 <td><p>8.439</p></td>
 </tr>
 <tr class="row-even"><td><p>Butane_2</p></td>
-<td><p>2</p></td>
 <td><p>Steam</p></td>
 <td><p>Natural</p></td>
 <td><p>2</p></td>
@@ -426,7 +423,6 @@
 <td><p>4.938</p></td>
 </tr>
 <tr class="row-odd"><td><p>Butane_2</p></td>
-<td><p>2</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>2</p></td>
@@ -438,7 +434,6 @@
 <td><p>8.915</p></td>
 </tr>
 <tr class="row-even"><td><p>Butane_3</p></td>
-<td><p>3</p></td>
 <td><p>Steam</p></td>
 <td><p>Natural</p></td>
 <td><p>3</p></td>
@@ -450,7 +445,6 @@
 <td><p>4.975</p></td>
 </tr>
 <tr class="row-odd"><td><p>Butane_3</p></td>
-<td><p>3</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>3</p></td>
@@ -462,7 +456,6 @@
 <td><p>8.439</p></td>
 </tr>
 <tr class="row-even"><td><p>Isobutane_1</p></td>
-<td><p>1</p></td>
 <td><p>Steam</p></td>
 <td><p>Natural</p></td>
 <td><p>1</p></td>
@@ -474,7 +467,6 @@
 <td><p>4.203</p></td>
 </tr>
 <tr class="row-odd"><td><p>Isobutane_1</p></td>
-<td><p>1</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>1</p></td>
@@ -486,7 +478,6 @@
 <td><p>6.775</p></td>
 </tr>
 <tr class="row-even"><td><p>Isobutane_2</p></td>
-<td><p>2</p></td>
 <td><p>Steam</p></td>
 <td><p>Natural</p></td>
 <td><p>2</p></td>
@@ -498,7 +489,6 @@
 <td><p>4.203</p></td>
 </tr>
 <tr class="row-odd"><td><p>Isobutane_2</p></td>
-<td><p>2</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>2</p></td>
@@ -510,7 +500,6 @@
 <td><p>6.775</p></td>
 </tr>
 <tr class="row-even"><td><p>Isobutane_3</p></td>
-<td><p>3</p></td>
 <td><p>Steam</p></td>
 <td><p>Natural</p></td>
 <td><p>3</p></td>
@@ -522,7 +511,6 @@
 <td><p>4.203</p></td>
 </tr>
 <tr class="row-odd"><td><p>Isobutane_3</p></td>
-<td><p>3</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>3</p></td>
@@ -534,7 +522,6 @@
 <td><p>6.775</p></td>
 </tr>
 <tr class="row-even"><td><p>Isopentane_1</p></td>
-<td><p>1</p></td>
 <td><p>Steam</p></td>
 <td><p>Natural</p></td>
 <td><p>1</p></td>
@@ -546,7 +533,6 @@
 <td><p>5.027</p></td>
 </tr>
 <tr class="row-odd"><td><p>Isopentane_1</p></td>
-<td><p>1</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>1</p></td>
@@ -558,7 +544,6 @@
 <td><p>8.492</p></td>
 </tr>
 <tr class="row-even"><td><p>Isopentane_2</p></td>
-<td><p>2</p></td>
 <td><p>Steam</p></td>
 <td><p>Natural</p></td>
 <td><p>2</p></td>
@@ -570,7 +555,6 @@
 <td><p>5.179</p></td>
 </tr>
 <tr class="row-odd"><td><p>Isopentane_2</p></td>
-<td><p>2</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>2</p></td>
@@ -582,7 +566,6 @@
 <td><p>9.255</p></td>
 </tr>
 <tr class="row-even"><td><p>Isopentane_3</p></td>
-<td><p>3</p></td>
 <td><p>Steam</p></td>
 <td><p>Natural</p></td>
 <td><p>3</p></td>
@@ -594,7 +577,6 @@
 <td><p>5.222</p></td>
 </tr>
 <tr class="row-odd"><td><p>Isopentane_3</p></td>
-<td><p>3</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>3</p></td>
@@ -606,7 +588,6 @@
 <td><p>8.492</p></td>
 </tr>
 <tr class="row-even"><td><p>Propane_1</p></td>
-<td><p>1</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>1</p></td>
@@ -618,7 +599,6 @@
 <td><p>3.660</p></td>
 </tr>
 <tr class="row-odd"><td><p>Propane_2</p></td>
-<td><p>2</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>2</p></td>
@@ -630,7 +610,6 @@
 <td><p>3.660</p></td>
 </tr>
 <tr class="row-even"><td><p>Propane_3</p></td>
-<td><p>3</p></td>
 <td><p>Water</p></td>
 <td><p>Natural</p></td>
 <td><p>3</p></td>
@@ -642,7 +621,6 @@
 <td><p>3.660</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1224yd_1</p></td>
-<td><p>1</p></td>
 <td><p>Steam</p></td>
 <td><p>Synthetic</p></td>
 <td><p>1</p></td>
@@ -654,7 +632,6 @@
 <td><p>4.865</p></td>
 </tr>
 <tr class="row-even"><td><p>R1224yd_1</p></td>
-<td><p>1</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>1</p></td>
@@ -666,7 +643,6 @@
 <td><p>8.731</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1224yd_2</p></td>
-<td><p>2</p></td>
 <td><p>Steam</p></td>
 <td><p>Synthetic</p></td>
 <td><p>2</p></td>
@@ -678,7 +654,6 @@
 <td><p>4.962</p></td>
 </tr>
 <tr class="row-even"><td><p>R1224yd_2</p></td>
-<td><p>2</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>2</p></td>
@@ -690,7 +665,6 @@
 <td><p>9.584</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1224yd_3</p></td>
-<td><p>3</p></td>
 <td><p>Steam</p></td>
 <td><p>Synthetic</p></td>
 <td><p>3</p></td>
@@ -702,7 +676,6 @@
 <td><p>4.995</p></td>
 </tr>
 <tr class="row-even"><td><p>R1224yd_3</p></td>
-<td><p>3</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>3</p></td>
@@ -714,7 +687,6 @@
 <td><p>8.731</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1233zd_1</p></td>
-<td><p>1</p></td>
 <td><p>Steam</p></td>
 <td><p>Synthetic</p></td>
 <td><p>1</p></td>
@@ -726,7 +698,6 @@
 <td><p>4.906</p></td>
 </tr>
 <tr class="row-even"><td><p>R1233zd_1</p></td>
-<td><p>1</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>1</p></td>
@@ -738,7 +709,6 @@
 <td><p>8.769</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1233zd_2</p></td>
-<td><p>2</p></td>
 <td><p>Steam</p></td>
 <td><p>Synthetic</p></td>
 <td><p>2</p></td>
@@ -750,7 +720,6 @@
 <td><p>5.061</p></td>
 </tr>
 <tr class="row-even"><td><p>R1233zd_2</p></td>
-<td><p>2</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>2</p></td>
@@ -762,7 +731,6 @@
 <td><p>9.594</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1233zd_3</p></td>
-<td><p>3</p></td>
 <td><p>Steam</p></td>
 <td><p>Synthetic</p></td>
 <td><p>3</p></td>
@@ -774,7 +742,6 @@
 <td><p>5.102</p></td>
 </tr>
 <tr class="row-even"><td><p>R1233zd_3</p></td>
-<td><p>3</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>3</p></td>
@@ -786,7 +753,6 @@
 <td><p>8.769</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1234ZEE_1</p></td>
-<td><p>1</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>1</p></td>
@@ -798,7 +764,6 @@
 <td><p>5.864</p></td>
 </tr>
 <tr class="row-even"><td><p>R1234ZEE_2</p></td>
-<td><p>2</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>2</p></td>
@@ -810,7 +775,6 @@
 <td><p>5.864</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1234ZEE_3</p></td>
-<td><p>3</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>3</p></td>
@@ -822,7 +786,6 @@
 <td><p>5.864</p></td>
 </tr>
 <tr class="row-even"><td><p>R1336mzzZ_1</p></td>
-<td><p>1</p></td>
 <td><p>Steam</p></td>
 <td><p>Synthetic</p></td>
 <td><p>1</p></td>
@@ -834,7 +797,6 @@
 <td><p>4.849</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1336mzzZ_1</p></td>
-<td><p>1</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>1</p></td>
@@ -846,7 +808,6 @@
 <td><p>8.876</p></td>
 </tr>
 <tr class="row-even"><td><p>R1336mzzZ_2</p></td>
-<td><p>2</p></td>
 <td><p>Steam</p></td>
 <td><p>Synthetic</p></td>
 <td><p>2</p></td>
@@ -858,7 +819,6 @@
 <td><p>5.010</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1336mzzZ_2</p></td>
-<td><p>2</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>2</p></td>
@@ -870,7 +830,6 @@
 <td><p>9.574</p></td>
 </tr>
 <tr class="row-even"><td><p>R1336mzzZ_3</p></td>
-<td><p>3</p></td>
 <td><p>Steam</p></td>
 <td><p>Synthetic</p></td>
 <td><p>3</p></td>
@@ -882,7 +841,6 @@
 <td><p>5.057</p></td>
 </tr>
 <tr class="row-odd"><td><p>R1336mzzZ_3</p></td>
-<td><p>3</p></td>
 <td><p>Water</p></td>
 <td><p>Synthetic</p></td>
 <td><p>3</p></td>
@@ -896,7 +854,7 @@
 </tbody>
 </table>
 </div>
-<p><em>All temperatures are in degrees °C. COP bounds are dimensionless.</em></p>
+<p><strong>Implementation:</strong> loaded by <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L36"><code class="docutils literal notranslate"><span class="pre">_load_model_and_data()</span></code></a>; exported from the modelling data by <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/cop_analysis/export_cop_ranges.py"><code class="docutils literal notranslate"><span class="pre">cop_analysis/export_cop_ranges.py</span></code></a></p>
 </section>
 
 

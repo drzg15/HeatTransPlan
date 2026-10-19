@@ -385,6 +385,7 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temperature-approach-corrections">Temperature Approach Corrections</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-cop-formula-evaluation">Custom COP Formula Evaluation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-mesh-grid-search-algorithm">2D Mesh Grid Search Algorithm</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-grid">The grid</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#source-sink-energy-balance">1. Source-Sink Energy Balance</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#zero-crossing-exact-point-detection">2. Zero-Crossing Exact Point Detection</a></li>
 </ul>
@@ -393,6 +394,10 @@
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-the-maximum-duty-point">Selecting the Maximum-Duty Point</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#demand-limited-heat-pump-integration">Demand-Limited Heat Pump Integration</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-summary">Output Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-results-are-shown">How the results are shown</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-report">The report</a></li>
+</ul>
+</li>
 </ul>
             </nav>
         </div>
@@ -406,86 +411,155 @@
                   
   <section class="tex2jax_ignore mathjax_ignore" id="heat-pump-optimization-predictive-ml-model-grid-search">
 <h1>Heat Pump Optimization — Predictive ML Model &amp; Grid Search<a class="headerlink" href="#heat-pump-optimization-predictive-ml-model-grid-search" title="Link to this heading">#</a></h1>
-<p>While classic Heat Pump Integration uses empirical regressions of prototypical heat pumps, <strong>Heat Pump Optimization</strong> evaluates a wide spectrum of <strong>refrigerants and multi-stage heat pump designs</strong> using a <strong>trained Machine Learning model</strong> or custom COP mathematical expressions.</p>
-<p>It evaluates every candidate across a 2D mesh of <span class="math notranslate nohighlight">\((T_{source}, T_{sink})\)</span> operating points to discover the exact thermal matching conditions.</p>
+<p>While classic <a class="reference internal" href="heat_pump_integration.html"><span class="std std-doc">Heat Pump Integration</span></a> uses empirical regressions of prototypical heat pumps at a single operating point, <strong>Heat Pump Optimization</strong> evaluates a wide spectrum of <strong>refrigerants and multi-stage heat pump designs</strong> using a <strong>trained Machine Learning model</strong>, together with the published technology archetypes and, optionally, a COP formula of the user’s own.</p>
+<p>It evaluates every candidate across a 2D mesh of <span class="math notranslate nohighlight">\((T_{source}, T_{sink})\)</span> operating points to discover the exact thermal matching conditions. This is the main heat pump view of the Potential Analysis page, and the one the generated report shows.</p>
+<p>The whole calculation is <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L327"><code class="docutils literal notranslate"><span class="pre">run_hpi_optimization()</span></code></a>, behind the <code class="docutils literal notranslate"><span class="pre">/api/analysis/hpi-optimization</span></code> endpoint.</p>
 <hr class="docutils" />
 <section id="predictive-ml-model-refrigerant-alternatives">
 <h2>Predictive ML Model &amp; Refrigerant Alternatives<a class="headerlink" href="#predictive-ml-model-refrigerant-alternatives" title="Link to this heading">#</a></h2>
-<p>The optimization engine loads a trained Scikit-Learn regressor model (persisted via <code class="docutils literal notranslate"><span class="pre">joblib</span></code>) along with a pre-configured database of refrigerant alternatives (<code class="docutils literal notranslate"><span class="pre">cop_ranges.json</span></code>).</p>
-<section id="refrigerant-data-schema">
-<h3>Refrigerant Data Schema<a class="headerlink" href="#refrigerant-data-schema" title="Link to this heading">#</a></h3>
-<p>Each alternative defines its operational envelope:</p>
+<p>The optimization engine loads a trained Scikit-Learn regressor model (persisted via <code class="docutils literal notranslate"><span class="pre">joblib</span></code>, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/models/cop/best_model.joblib"><code class="docutils literal notranslate"><span class="pre">models/cop/best_model.joblib</span></code></a>) along with a database of refrigerant alternatives (<a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/models/cop/cop_ranges.json"><code class="docutils literal notranslate"><span class="pre">models/cop/cop_ranges.json</span></code></a>). Both are loaded once and cached.</p>
+<p>The model predicts the COP from four inputs:</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Parameter</p></th>
-<th class="head"><p>Symbol</p></th>
+<tr class="row-odd"><th class="head"><p>Model input</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_Rücklauf_Quelle</span></code></p></td>
+<td><p>Source return temperature (°C)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_Vorlauf_Senke</span></code></p></td>
+<td><p>Sink supply temperature (°C)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Medium_Senke</span></code></p></td>
+<td><p>Sink medium: <code class="docutils literal notranslate"><span class="pre">Water</span></code> or <code class="docutils literal notranslate"><span class="pre">Steam</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Kältemittel_stufen</span></code></p></td>
+<td><p>Refrigerant and number of compression stages, e.g. <code class="docutils literal notranslate"><span class="pre">Butane_2</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<section id="refrigerant-data-schema">
+<h3>Refrigerant Data Schema<a class="headerlink" href="#refrigerant-data-schema" title="Link to this heading">#</a></h3>
+<p>The ranges file lists 42 alternatives — each refrigerant in each stage count and sink medium. Each defines its operational envelope:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
 <th class="head"><p>Unit</p></th>
 <th class="head"><p>Meaning</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p>Source temperature range</p></td>
-<td><p><span class="math notranslate nohighlight">\([T_{src,min}, T_{src,max}]\)</span></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">Kältemittel_stufen</span></code></p></td>
+<td><p>—</p></td>
+<td><p>Refrigerant and stage count, e.g. <code class="docutils literal notranslate"><span class="pre">Butane_2</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refrigerant_type</span></code></p></td>
+<td><p>—</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Natural</span></code> or <code class="docutils literal notranslate"><span class="pre">Synthetic</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">hp_level</span></code></p></td>
+<td><p>—</p></td>
+<td><p>Number of compression stages: 1, 2 or 3</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">medium_sink</span></code></p></td>
+<td><p>—</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Water</span></code> or <code class="docutils literal notranslate"><span class="pre">Steam</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_src_min</span></code>, <code class="docutils literal notranslate"><span class="pre">T_src_max</span></code></p></td>
 <td><p>°C</p></td>
-<td><p>Valid evaporator inlet temperatures</p></td>
+<td><p>Valid source temperatures</p></td>
 </tr>
-<tr class="row-odd"><td><p>Sink temperature range</p></td>
-<td><p><span class="math notranslate nohighlight">\([T_{sink,min}, T_{sink,max}]\)</span></p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_sink_min</span></code>, <code class="docutils literal notranslate"><span class="pre">T_sink_max</span></code></p></td>
 <td><p>°C</p></td>
-<td><p>Valid condenser outlet temperatures</p></td>
+<td><p>Valid sink temperatures</p></td>
 </tr>
-<tr class="row-even"><td><p>COP range bounds</p></td>
-<td><p><span class="math notranslate nohighlight">\([COP_{min}, COP_{max}]\)</span></p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">cop_min</span></code>, <code class="docutils literal notranslate"><span class="pre">cop_max</span></code></p></td>
 <td><p>—</p></td>
-<td><p>Valid COP physical limits</p></td>
-</tr>
-<tr class="row-odd"><td><p>Heat pump design level</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">Kältemittel_stufen</span></code></p></td>
-<td><p>—</p></td>
-<td><p>Single-stage, two-stage, cascade configuration</p></td>
-</tr>
-<tr class="row-even"><td><p>Sink medium</p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">medium_sink</span></code></p></td>
-<td><p>—</p></td>
-<td><p>Water, steam, or air loop</p></td>
+<td><p>COP range the model was fitted on</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>The file is exported from the modelling data by <code class="docutils literal notranslate"><span class="pre">cop_analysis/export_cop_ranges.py</span></code>; the training data itself is not deployed.</p>
 </section>
 </section>
 <section id="refrigerant-operating-limits">
 <h2>Refrigerant Operating Limits<a class="headerlink" href="#refrigerant-operating-limits" title="Link to this heading">#</a></h2>
 <p>For the complete list of operating temperature ranges and COP bounds for all refrigerant alternatives, see <a class="reference internal" href="refrigerant_limits.html"><span class="std std-doc">Refrigerant Operating Limits</span></a>.</p>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L36"><code class="docutils literal notranslate"><span class="pre">_load_model_and_data()</span></code></a>, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L92"><code class="docutils literal notranslate"><span class="pre">_model_cop_fn()</span></code></a></p>
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 36–90)</summary>
+<summary><b>Show the code</b></summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_load_model_and_data</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load joblib ML regressor and refrigerant alternatives configuration.&quot;&quot;&quot;</span>
-    <span class="n">_model_cache</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">&quot;model_path&quot;</span><span class="p">])</span>
+    <span class="k">global</span> <span class="n">_model_cache</span><span class="p">,</span> <span class="n">_alternatives_cache</span>
+    <span class="k">if</span> <span class="n">_model_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">_alternatives_cache</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_model_cache</span><span class="p">,</span> <span class="n">_alternatives_cache</span>
 
-    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">&quot;ranges_path&quot;</span><span class="p">],</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+    <span class="n">model_path</span> <span class="o">=</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">"model_path"</span><span class="p">]</span>
+    <span class="n">ranges_path</span> <span class="o">=</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">"ranges_path"</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">model_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Model file not found at </span><span class="si">{</span><span class="n">model_path</span><span class="si">}</span><span class="s2">. Make sure it is mounted or copied."</span><span class="p">)</span>
+
+    <span class="n">_model_cache</span> <span class="o">=</span> <span class="n">joblib</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">model_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">ranges_path</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">FileNotFoundError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"COP ranges file not found at </span><span class="si">{</span><span class="n">ranges_path</span><span class="si">}</span><span class="s2">. "</span>
+            <span class="s2">"Regenerate it with cop_analysis/export_cop_ranges.py and commit it."</span>
+        <span class="p">)</span>
+
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">ranges_path</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
         <span class="n">payload</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">fh</span><span class="p">)</span>
 
+    <span class="n">entries</span> <span class="o">=</span> <span class="n">payload</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"alternatives"</span><span class="p">)</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">payload</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="n">payload</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">entries</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"COP ranges file at </span><span class="si">{</span><span class="n">ranges_path</span><span class="si">}</span><span class="s2"> contains no alternatives."</span><span class="p">)</span>
+
+    <span class="n">required</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">"name"</span><span class="p">,</span> <span class="s2">"Kältemittel_stufen"</span><span class="p">,</span> <span class="s2">"medium_sink"</span><span class="p">,</span> <span class="s2">"refrigerant_type"</span><span class="p">,</span>
+        <span class="s2">"hp_level"</span><span class="p">,</span> <span class="s2">"T_src_min"</span><span class="p">,</span> <span class="s2">"T_src_max"</span><span class="p">,</span> <span class="s2">"T_sink_min"</span><span class="p">,</span> <span class="s2">"T_sink_max"</span><span class="p">,</span>
+        <span class="s2">"cop_min"</span><span class="p">,</span> <span class="s2">"cop_max"</span><span class="p">,</span>
+    <span class="p">)</span>
+
     <span class="n">alts</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">payload</span><span class="p">[</span><span class="s2">&quot;alternatives&quot;</span><span class="p">]:</span>
-        <span class="n">alt</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;refrigerant_type&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;refrigerant_type&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;medium_sink&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;medium_sink&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;Kältemittel_stufen&quot;</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;Kältemittel_stufen&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;T_src_min&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;T_src_min&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;T_src_max&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;T_src_max&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;T_sink_min&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;T_sink_min&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;T_sink_max&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;T_sink_max&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;cop_min&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;cop_min&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;cop_max&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">entry</span><span class="p">[</span><span class="s2">&quot;cop_max&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;deltaT_evap&quot;</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">&quot;deltaT_evap&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;deltaT_cond&quot;</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">&quot;deltaT_cond&quot;</span><span class="p">],</span>
-        <span class="p">}</span>
-        <span class="n">alt</span><span class="p">[</span><span class="s2">&quot;cop_fn&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">_model_cop_fn</span><span class="p">(</span><span class="n">alt</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">missing</span> <span class="o">:=</span> <span class="p">[</span><span class="n">key</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required</span> <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">entry</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Entry </span><span class="si">{</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'name'</span><span class="p">,</span><span class="w"> </span><span class="s1">'?'</span><span class="p">)</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">ranges_path</span><span class="si">}</span><span class="s2"> is missing: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">. "</span>
+                <span class="s2">"Regenerate the file with cop_analysis/export_cop_ranges.py."</span>
+            <span class="p">)</span>
+        <span class="n">alt</span> <span class="o">=</span> <span class="p">{</span><span class="n">key</span><span class="p">:</span> <span class="n">entry</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">required</span><span class="p">}</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"T_src_min"</span><span class="p">,</span> <span class="s2">"T_src_max"</span><span class="p">,</span> <span class="s2">"T_sink_min"</span><span class="p">,</span> <span class="s2">"T_sink_max"</span><span class="p">,</span> <span class="s2">"cop_min"</span><span class="p">,</span> <span class="s2">"cop_max"</span><span class="p">):</span>
+            <span class="n">alt</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">alt</span><span class="p">[</span><span class="n">key</span><span class="p">])</span>
+        <span class="c1"># The temperature approaches are an operating assumption, not a property</span>
+        <span class="c1"># of the training data, so they stay in the config.</span>
+        <span class="n">alt</span><span class="p">[</span><span class="s2">"deltaT_evap"</span><span class="p">]</span> <span class="o">=</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">"deltaT_evap"</span><span class="p">]</span>
+        <span class="n">alt</span><span class="p">[</span><span class="s2">"deltaT_cond"</span><span class="p">]</span> <span class="o">=</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">"deltaT_cond"</span><span class="p">]</span>
+        <span class="c1"># Every alternative carries its own COP source. Model-backed ones call</span>
+        <span class="c1"># the regressor; a user formula supplies its own callable with the same</span>
+        <span class="c1"># signature, so the optimisation loop below never has to branch.</span>
+        <span class="n">alt</span><span class="p">[</span><span class="s2">"cop_fn"</span><span class="p">]</span> <span class="o">=</span> <span class="n">_model_cop_fn</span><span class="p">(</span><span class="n">alt</span><span class="p">)</span>
         <span class="n">alts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">alt</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">_model_cache</span><span class="p">,</span> <span class="n">alts</span>
+    <span class="n">_alternatives_cache</span> <span class="o">=</span> <span class="n">alts</span>
+    <span class="k">return</span> <span class="n">_model_cache</span><span class="p">,</span> <span class="n">_alternatives_cache</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_model_cop_fn</span><span class="p">(</span><span class="n">alt</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""COP callable backed by the trained regressor, for one alternative."""</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">,</span> <span class="n">t_sink_model</span><span class="p">):</span>
+        <span class="n">model</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_load_model_and_data</span><span class="p">()</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+            <span class="s2">"T_Rücklauf_Quelle"</span><span class="p">:</span> <span class="n">t_source_model</span><span class="p">,</span>
+            <span class="s2">"T_Vorlauf_Senke"</span><span class="p">:</span> <span class="n">t_sink_model</span><span class="p">,</span>
+            <span class="s2">"Medium_Senke"</span><span class="p">:</span> <span class="p">[</span><span class="n">alt</span><span class="p">[</span><span class="s2">"medium_sink"</span><span class="p">]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">),</span>
+            <span class="s2">"Kältemittel_stufen"</span><span class="p">:</span> <span class="p">[</span><span class="n">alt</span><span class="p">[</span><span class="s2">"Kältemittel_stufen"</span><span class="p">]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">),</span>
+        <span class="p">})</span>
+        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">predict</span>
 </pre></div>
 </div>
 </details>
@@ -509,17 +583,19 @@ f_{tech}(T_{sink}, \Delta T) &amp; \text{inside the rated window} \\
 \end{cases}
 \end{split}\]</div>
 <p>Archetype points carry <code class="docutils literal notranslate"><span class="pre">theoretical</span> <span class="pre">=</span> <span class="pre">true</span></code> in the output, which is what separates them from measured machines in the results table and gives them their own marker on the chart.</p>
-<blockquote>
-<div><p>[!IMPORTANT]
-The Carnot archetype is the formula <span class="math notranslate nohighlight">\(\frac{T_{sink} + 273.15}{\Delta T} \times 0.5\)</span> evaluated at the point’s own temperatures — <strong>not</strong> a regression. Because it is deliberately <strong>half</strong> the thermodynamic ceiling rather than the ceiling itself, a real refrigerant scoring above it is expected and is not a physics violation. The same COP cap of <strong>15.0</strong> used by the integration module applies here.</p>
-</div></blockquote>
+<div class="admonition important">
+<p class="admonition-title">Important</p>
+<p>The Carnot archetype is the formula <span class="math notranslate nohighlight">\(\frac{T_{sink} + 273.15}{\Delta T} \times 0.5\)</span> evaluated at the point’s own temperatures — <strong>not</strong> a regression. Because it is deliberately <strong>half</strong> the thermodynamic ceiling rather than the ceiling itself, a real refrigerant scoring above it is expected and is not a physics violation.</p>
+<p>The archetypes accept COPs between 1 and <strong>15.0</strong>. Unlike in the integration module, where a higher COP is capped at 15.0, a point above 15.0 is <strong>discarded</strong> here rather than capped.</p>
+</div>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L137"><code class="docutils literal notranslate"><span class="pre">_theoretical_alternatives()</span></code></a></p>
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_theoretical_alternatives</code>)</summary>
+<summary><b>Show the code</b></summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_theoretical_alternatives</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The literature technology archetypes, shaped like model alternatives.</span>
+<span class="w">    </span><span class="sd">"""The literature technology archetypes, shaped like model alternatives.</span>
 
 <span class="sd">    The HPI panel above evaluates these same five correlations at a single sink</span>
-<span class="sd">    temperature. Here they are swept through the optimiser&#39;s full grid so they</span>
+<span class="sd">    temperature. Here they are swept through the optimiser's full grid so they</span>
 <span class="sd">    appear as curves alongside the trained refrigerants, which is only valid</span>
 <span class="sd">    because both sides use the identical shifted-temperature convention and the</span>
 <span class="sd">    identical duty relation Q_sink = Q_source * COP/(COP-1).</span>
@@ -527,7 +603,7 @@ The Carnot archetype is the formula <span class="math notranslate nohighlight">\
 <span class="sd">    Each archetype is only rated inside its own sink/lift window, so the COP</span>
 <span class="sd">    callable returns -1 outside it: the optimiser already discards any COP &lt;= 1,</span>
 <span class="sd">    which enforces the window without touching its loop.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">app.modules.heat_pump_integration.heat_pump_integration</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
         <span class="n">HP_OPERATING_WINDOWS</span><span class="p">,</span>
         <span class="n">HP_COP_CORRELATIONS</span><span class="p">,</span>
@@ -543,37 +619,37 @@ The Carnot archetype is the formula <span class="math notranslate nohighlight">\
                 <span class="n">t_src</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
                 <span class="n">t_snk</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">t_sink_model</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
                 <span class="n">lift</span> <span class="o">=</span> <span class="n">t_snk</span> <span class="o">-</span> <span class="n">t_src</span>
-                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">):</span>
+                <span class="k">with</span> <span class="n">np</span><span class="o">.</span><span class="n">errstate</span><span class="p">(</span><span class="nb">all</span><span class="o">=</span><span class="s2">"ignore"</span><span class="p">):</span>
                     <span class="n">cop</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">correlation</span><span class="p">(</span><span class="n">t_snk</span><span class="p">,</span> <span class="n">lift</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
                 <span class="c1"># Outside the rated window the regression is extrapolation, not</span>
                 <span class="c1"># a machine anyone can buy. -1 makes the optimiser drop it.</span>
                 <span class="n">in_window</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="p">(</span><span class="n">t_snk</span> <span class="o">&gt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">&quot;t_sink_min&quot;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t_snk</span> <span class="o">&lt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">&quot;t_sink_max&quot;</span><span class="p">])</span>
-                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">lift</span> <span class="o">&gt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">&quot;dt_min&quot;</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lift</span> <span class="o">&lt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">&quot;dt_max&quot;</span><span class="p">])</span>
+                    <span class="p">(</span><span class="n">t_snk</span> <span class="o">&gt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">"t_sink_min"</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t_snk</span> <span class="o">&lt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">"t_sink_max"</span><span class="p">])</span>
+                    <span class="o">&amp;</span> <span class="p">(</span><span class="n">lift</span> <span class="o">&gt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">"dt_min"</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">lift</span> <span class="o">&lt;=</span> <span class="n">window</span><span class="p">[</span><span class="s2">"dt_max"</span><span class="p">])</span>
                 <span class="p">)</span>
                 <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">in_window</span> <span class="o">&amp;</span> <span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cop</span><span class="p">),</span> <span class="n">cop</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
             <span class="k">return</span> <span class="n">predict</span>
 
         <span class="n">alts</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
-            <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;Kältemittel_stufen&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
-            <span class="s2">&quot;medium_sink&quot;</span><span class="p">:</span> <span class="s2">&quot;—&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;refrigerant_type&quot;</span><span class="p">:</span> <span class="s2">&quot;Theoretical&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;hp_level&quot;</span><span class="p">:</span> <span class="s2">&quot;—&quot;</span><span class="p">,</span>
-            <span class="s2">&quot;T_src_min&quot;</span><span class="p">:</span> <span class="o">-</span><span class="mf">273.0</span><span class="p">,</span>
-            <span class="s2">&quot;T_src_max&quot;</span><span class="p">:</span> <span class="mf">10000.0</span><span class="p">,</span>
-            <span class="s2">&quot;T_sink_min&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="s2">&quot;t_sink_min&quot;</span><span class="p">]),</span>
-            <span class="s2">&quot;T_sink_max&quot;</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="s2">&quot;t_sink_max&quot;</span><span class="p">]),</span>
+            <span class="s2">"name"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s2">"Kältemittel_stufen"</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span>
+            <span class="s2">"medium_sink"</span><span class="p">:</span> <span class="s2">"—"</span><span class="p">,</span>
+            <span class="s2">"refrigerant_type"</span><span class="p">:</span> <span class="s2">"Theoretical"</span><span class="p">,</span>
+            <span class="s2">"hp_level"</span><span class="p">:</span> <span class="s2">"—"</span><span class="p">,</span>
+            <span class="s2">"T_src_min"</span><span class="p">:</span> <span class="o">-</span><span class="mf">273.0</span><span class="p">,</span>
+            <span class="s2">"T_src_max"</span><span class="p">:</span> <span class="mf">10000.0</span><span class="p">,</span>
+            <span class="s2">"T_sink_min"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="s2">"t_sink_min"</span><span class="p">]),</span>
+            <span class="s2">"T_sink_max"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">window</span><span class="p">[</span><span class="s2">"t_sink_max"</span><span class="p">]),</span>
             <span class="c1"># The same ceiling the HPI panel clamps to, so a technology cannot</span>
             <span class="c1"># look better here than it does above.</span>
-            <span class="s2">&quot;cop_min&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
-            <span class="s2">&quot;cop_max&quot;</span><span class="p">:</span> <span class="mf">15.0</span><span class="p">,</span>
-            <span class="s2">&quot;deltaT_evap&quot;</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">&quot;deltaT_evap&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;deltaT_cond&quot;</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">&quot;deltaT_cond&quot;</span><span class="p">],</span>
-            <span class="s2">&quot;cop_fn&quot;</span><span class="p">:</span> <span class="n">make_fn</span><span class="p">(),</span>
-            <span class="s2">&quot;theoretical&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
-            <span class="c1"># Renders the published formula with a point&#39;s own temperatures.</span>
-            <span class="s2">&quot;formula_fn&quot;</span><span class="p">:</span> <span class="n">HP_COP_FORMULAS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
+            <span class="s2">"cop_min"</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+            <span class="s2">"cop_max"</span><span class="p">:</span> <span class="mf">15.0</span><span class="p">,</span>
+            <span class="s2">"deltaT_evap"</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">"deltaT_evap"</span><span class="p">],</span>
+            <span class="s2">"deltaT_cond"</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">"deltaT_cond"</span><span class="p">],</span>
+            <span class="s2">"cop_fn"</span><span class="p">:</span> <span class="n">make_fn</span><span class="p">(),</span>
+            <span class="s2">"theoretical"</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+            <span class="c1"># Renders the published formula with a point's own temperatures.</span>
+            <span class="s2">"formula_fn"</span><span class="p">:</span> <span class="n">HP_COP_FORMULAS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">),</span>
         <span class="p">})</span>
     <span class="k">return</span> <span class="n">alts</span>
 </pre></div>
@@ -581,21 +657,22 @@ The Carnot archetype is the formula <span class="math notranslate nohighlight">\
 </details>
 <section id="provenance-of-each-cop">
 <h3>Provenance of each COP<a class="headerlink" href="#provenance-of-each-cop" title="Link to this heading">#</a></h3>
-<p>Every reported point records <strong>how its COP was arrived at</strong>, so a number can be traced back to its source without reading code. For an archetype this is the published formula with the point’s own temperatures substituted; for a trained refrigerant it names the regression, the sink medium and the number of compression stages.</p>
-<blockquote>
-<div><p>[!NOTE]
-The trained model is a regression over a heat pump manufacturer’s <strong>simulation</strong> parameter study — not measurements of operating machines.</p>
-</div></blockquote>
+<p>Every reported point records <strong>how its COP was arrived at</strong>, so a number can be traced back to its source without reading code. For an archetype this is the published formula with the point’s own temperatures substituted; for a trained refrigerant it names the regression, the sink medium and the number of compression stages. In the results table it sits behind the help bulb in each row.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The trained model is a regression over a heat pump manufacturer’s <strong>simulation</strong> parameter study — not measurements of operating machines.</p>
+</div>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L200"><code class="docutils literal notranslate"><span class="pre">_calculation_details()</span></code></a></p>
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_calculation_details</code>)</summary>
+<summary><b>Show the code</b></summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_calculation_details</span><span class="p">(</span><span class="n">alt</span><span class="p">,</span> <span class="n">t_source</span><span class="p">,</span> <span class="n">t_sink</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;The formula behind one point&#39;s COP, with its own temperatures filled in.</span>
+<span class="w">    </span><span class="sd">"""The formula behind one point's COP, with its own temperatures filled in.</span>
 
 <span class="sd">    Archetypes carry a published correlation that can be written out; a trained</span>
 <span class="sd">    refrigerant does not, so it gets a short statement of where its COP came</span>
 <span class="sd">    from instead of a fake formula.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">formula_fn</span> <span class="o">=</span> <span class="n">alt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;formula_fn&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="n">formula_fn</span> <span class="o">=</span> <span class="n">alt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"formula_fn"</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">formula_fn</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">formula_fn</span><span class="p">(</span><span class="n">t_sink</span><span class="p">,</span> <span class="n">t_sink</span> <span class="o">-</span> <span class="n">t_source</span><span class="p">)</span>
@@ -603,10 +680,10 @@ The trained model is a regression over a heat pump manufacturer’s <strong>simu
             <span class="c1"># A help bubble is never worth failing an analysis over.</span>
             <span class="k">return</span> <span class="kc">None</span>
     <span class="k">return</span> <span class="p">(</span>
-        <span class="sa">f</span><span class="s2">&quot;Regression over heat pump simulation data from a manufacturer &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;parameter study, evaluated for </span><span class="si">{</span><span class="n">alt</span><span class="p">[</span><span class="s1">&#39;name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> (sink medium &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">alt</span><span class="p">[</span><span class="s1">&#39;medium_sink&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">alt</span><span class="p">[</span><span class="s1">&#39;hp_level&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> stage(s)) at &quot;</span>
-        <span class="sa">f</span><span class="s2">&quot;T_source = </span><span class="si">{</span><span class="n">t_source</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> °C, T_sink = </span><span class="si">{</span><span class="n">t_sink</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> °C.&quot;</span>
+        <span class="sa">f</span><span class="s2">"Regression over heat pump simulation data from a manufacturer "</span>
+        <span class="sa">f</span><span class="s2">"parameter study, evaluated for </span><span class="si">{</span><span class="n">alt</span><span class="p">[</span><span class="s1">'name'</span><span class="p">]</span><span class="si">}</span><span class="s2"> (sink medium "</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">alt</span><span class="p">[</span><span class="s1">'medium_sink'</span><span class="p">]</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="n">alt</span><span class="p">[</span><span class="s1">'hp_level'</span><span class="p">]</span><span class="si">}</span><span class="s2"> stage(s)) at "</span>
+        <span class="sa">f</span><span class="s2">"T_source = </span><span class="si">{</span><span class="n">t_source</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> °C, T_sink = </span><span class="si">{</span><span class="n">t_sink</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> °C."</span>
     <span class="p">)</span>
 </pre></div>
 </div>
@@ -616,7 +693,7 @@ The trained model is a regression over a heat pump manufacturer’s <strong>simu
 <hr class="docutils" />
 <section id="temperature-approach-corrections">
 <h2>Temperature Approach Corrections<a class="headerlink" href="#temperature-approach-corrections" title="Link to this heading">#</a></h2>
-<p>Before predicting the COP, process temperatures are corrected for heat exchanger approach temperature differences:</p>
+<p>The optimizer can correct process temperatures for heat exchanger approach temperature differences before predicting the COP:</p>
 <div class="math notranslate nohighlight">
 \[
 T_{source,model} = T_{source,process} - \Delta T_{evap}
@@ -625,21 +702,22 @@ T_{source,model} = T_{source,process} - \Delta T_{evap}
 \[
 T_{sink,model} = T_{sink,process} + \Delta T_{cond}
 \]</div>
-<p>where <span class="math notranslate nohighlight">\(\Delta T_{evap}\)</span> and <span class="math notranslate nohighlight">\(\Delta T_{cond}\)</span> are the minimum approach temperature drops across the evaporator and condenser heat exchangers (typically 5 K each).</p>
+<p>where <span class="math notranslate nohighlight">\(\Delta T_{evap}\)</span> and <span class="math notranslate nohighlight">\(\Delta T_{cond}\)</span> are the approach temperature drops across the evaporator and condenser.</p>
+<p><strong>Both are currently set to 0 K</strong>, so the model is evaluated at the profile temperatures directly. They are operating assumptions rather than properties of the training data, so they live in the configuration and apply to every alternative alike.</p>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/config_optimization.py#L30"><code class="docutils literal notranslate"><span class="pre">OPTIMIZATION_CONFIG</span></code></a></p>
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 92–110)</summary>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_model_cop_fn</span><span class="p">(</span><span class="n">alt</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;COP prediction callable backed by the trained ML regressor.&quot;&quot;&quot;</span>
-    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">,</span> <span class="n">t_sink_model</span><span class="p">):</span>
-        <span class="n">model</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_load_model_and_data</span><span class="p">()</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
-            <span class="s2">&quot;T_Rücklauf_Quelle&quot;</span><span class="p">:</span> <span class="n">t_source_model</span><span class="p">,</span>
-            <span class="s2">&quot;T_Vorlauf_Senke&quot;</span><span class="p">:</span> <span class="n">t_sink_model</span><span class="p">,</span>
-            <span class="s2">&quot;Medium_Senke&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">alt</span><span class="p">[</span><span class="s2">&quot;medium_sink&quot;</span><span class="p">]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">),</span>
-            <span class="s2">&quot;Kältemittel_stufen&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">alt</span><span class="p">[</span><span class="s2">&quot;Kältemittel_stufen&quot;</span><span class="p">]]</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">),</span>
-        <span class="p">})</span>
-        <span class="k">return</span> <span class="n">model</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">predict</span>
+<summary><b>Show the code</b></summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">OPTIMIZATION_CONFIG</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"T_min"</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span>
+    <span class="s2">"step_size"</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">"deltaT_evap"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">"deltaT_cond"</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="s2">"model_path"</span><span class="p">:</span> <span class="n">_resolve</span><span class="p">(</span><span class="s2">"models"</span><span class="p">,</span> <span class="s2">"cop"</span><span class="p">,</span> <span class="s2">"best_model.joblib"</span><span class="p">,</span> <span class="n">env_var</span><span class="o">=</span><span class="s2">"COP_MODEL_PATH"</span><span class="p">),</span>
+    <span class="c1"># Validity envelope per refrigerant/medium, exported from the modelling data</span>
+    <span class="c1"># by cop_analysis/export_cop_ranges.py. The training data itself is not</span>
+    <span class="c1"># deployed — only the model and this file.</span>
+    <span class="s2">"ranges_path"</span><span class="p">:</span> <span class="n">_resolve</span><span class="p">(</span><span class="s2">"models"</span><span class="p">,</span> <span class="s2">"cop"</span><span class="p">,</span> <span class="s2">"cop_ranges.json"</span><span class="p">,</span> <span class="n">env_var</span><span class="o">=</span><span class="s2">"COP_RANGES_PATH"</span><span class="p">),</span>
+<span class="p">}</span>
 </pre></div>
 </div>
 </details>
@@ -647,19 +725,132 @@ T_{sink,model} = T_{sink,process} + \Delta T_{cond}
 <hr class="docutils" />
 <section id="custom-cop-formula-evaluation">
 <h2>Custom COP Formula Evaluation<a class="headerlink" href="#custom-cop-formula-evaluation" title="Link to this heading">#</a></h2>
-<p>Users can also specify custom mathematical COP formulas using standard algebraic operations and variables (<code class="docutils literal notranslate"><span class="pre">T_src</span></code>, <code class="docutils literal notranslate"><span class="pre">T_sink</span></code>, <code class="docutils literal notranslate"><span class="pre">dT</span></code>). Custom expressions are compiled into an AST (Abstract Syntax Tree) to prevent arbitrary code execution before evaluation:</p>
+<p>Users can enter a COP formula of their own under <em>COP source → Use my own COP formula</em>. It is <strong>added as one more candidate</strong> next to the trained refrigerants and the archetypes — not a replacement — so it lands in the same table and chart and can be compared against them directly. Its rows are tagged <code class="docutils literal notranslate"><span class="pre">Custom</span> <span class="pre">formula</span></code>.</p>
+<p>Along with the expression, the user gives the formula’s own operating window (source and sink temperature ranges), its valid COP range, the sink medium and the number of stages; the grid search treats these exactly like a trained refrigerant’s envelope.</p>
+<p>The expression may use:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Name</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_source</span></code></p></td>
+<td><p>Source (evaporator) temperature in °C</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_sink</span></code></p></td>
+<td><p>Sink (condenser) temperature in °C</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">T_lift</span></code></p></td>
+<td><p>Temperature lift, <span class="math notranslate nohighlight">\(T_{sink} - T_{source}\)</span>, in K</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">carnot</span></code></p></td>
+<td><p>Carnot COP: <span class="math notranslate nohighlight">\(T_{sink}\)</span> in K divided by <span class="math notranslate nohighlight">\(T_{lift}\)</span></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">pi</span></code>, <code class="docutils literal notranslate"><span class="pre">e</span></code></p></td>
+<td><p>The mathematical constants</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">exp</span></code>, <code class="docutils literal notranslate"><span class="pre">log</span></code>, <code class="docutils literal notranslate"><span class="pre">log10</span></code>, <code class="docutils literal notranslate"><span class="pre">sqrt</span></code>, <code class="docutils literal notranslate"><span class="pre">sin</span></code>, <code class="docutils literal notranslate"><span class="pre">cos</span></code>, <code class="docutils literal notranslate"><span class="pre">tan</span></code>, <code class="docutils literal notranslate"><span class="pre">abs</span></code>, <code class="docutils literal notranslate"><span class="pre">min</span></code>, <code class="docutils literal notranslate"><span class="pre">max</span></code>, <code class="docutils literal notranslate"><span class="pre">clip</span></code>, <code class="docutils literal notranslate"><span class="pre">where</span></code></p></td>
+<td><p>Functions</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>with the usual arithmetic, comparisons and <code class="docutils literal notranslate"><span class="pre">a</span> <span class="pre">if</span> <span class="pre">condition</span> <span class="pre">else</span> <span class="pre">b</span></code>. For example <code class="docutils literal notranslate"><span class="pre">0.5</span> <span class="pre">*</span> <span class="pre">carnot</span></code> reproduces the 50 % Carnot baseline.</p>
 <div class="math notranslate nohighlight">
 \[
-COP_{custom} = f(T_{src}, T_{sink}, \Delta T)
+COP_{custom} = f(T_{source}, T_{sink}, T_{lift})
 \]</div>
+<p>The expression is parsed into an AST (Abstract Syntax Tree) and every node checked before anything runs: only the names and operations above are accepted, so a formula cannot execute arbitrary code. While typing, the formula is checked and its COP previewed at a probe point the user can move, 60 °C → 110 °C by default.</p>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/utils/cop_formula.py#L125"><code class="docutils literal notranslate"><span class="pre">compile_formula()</span></code></a>, turned into a candidate by <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L106"><code class="docutils literal notranslate"><span class="pre">_formula_alternative()</span></code></a>; entered in <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/CopFormulaModal.tsx"><code class="docutils literal notranslate"><span class="pre">frontend/src/components/analysis/CopFormulaModal.tsx</span></code></a></p>
 <details>
-<summary><b>Source code:</b> <code>backend/app/utils/cop_formula.py</code> (lines 15–45)</summary>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compile_formula</span><span class="p">(</span><span class="n">formula_str</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Safely compile user-provided COP mathematical expression into executable AST.&quot;&quot;&quot;</span>
-    <span class="n">parsed</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">formula_str</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">)</span>
-    <span class="c1"># Verify AST nodes contain only safe math operators (+, -, *, /, **, numbers, symbols)</span>
-    <span class="n">_validate_ast_safety</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
-    <span class="k">return</span> <span class="nb">compile</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="n">filename</span><span class="o">=</span><span class="s2">&quot;&lt;cop_formula&gt;&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;eval&quot;</span><span class="p">)</span>
+<summary><b>Show the code</b></summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">compile_formula</span><span class="p">(</span><span class="n">expression</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">variables</span><span class="p">:</span> <span class="n">Iterable</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Validate `expression` and return a compiled code object.</span>
+
+<span class="sd">    Raises FormulaError with a message meant for the person who typed it.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">expression</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">expression</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+        <span class="k">raise</span> <span class="n">FormulaError</span><span class="p">(</span><span class="s2">"The formula is empty."</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">expression</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">MAX_FORMULA_LENGTH</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">FormulaError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"The formula is longer than </span><span class="si">{</span><span class="n">MAX_FORMULA_LENGTH</span><span class="si">}</span><span class="s2"> characters."</span>
+        <span class="p">)</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">expression</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">"eval"</span><span class="p">)</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">_IfExpToWhere</span><span class="p">()</span><span class="o">.</span><span class="n">visit</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+        <span class="n">ast</span><span class="o">.</span><span class="n">fix_missing_locations</span><span class="p">(</span><span class="n">tree</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">SyntaxError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">FormulaError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Syntax error: </span><span class="si">{</span><span class="n">exc</span><span class="o">.</span><span class="n">msg</span><span class="si">}</span><span class="s2">."</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+
+    <span class="c1"># Suggested in error messages; the hidden names resolve but are not</span>
+    <span class="c1"># advertised, so nobody starts writing new formulas against them.</span>
+    <span class="n">suggested_names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">variables</span> <span class="k">if</span> <span class="n">variables</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">FORMULA_VARIABLES</span><span class="p">)</span>
+    <span class="n">allowed_names</span> <span class="o">=</span> <span class="n">suggested_names</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">HIDDEN_VARIABLES</span><span class="p">)</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">ALLOWED_CONSTANTS</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">_ALLOWED_NODES</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">FormulaError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"'</span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">node</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">' is not allowed. The formula may only "</span>
+                <span class="s2">"combine the listed variables with arithmetic and the allowed "</span>
+                <span class="s2">"functions."</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
+            <span class="k">raise</span> <span class="n">FormulaError</span><span class="p">(</span><span class="s2">"Only numbers may be used as literal values."</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">allowed_names</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALLOWED_FUNCS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">FormulaError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"Unknown name '</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">id</span><span class="si">}</span><span class="s2">'. Available variables: "</span>
+                    <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">suggested_names</span><span class="p">))</span>
+                    <span class="o">+</span> <span class="s2">"."</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span> <span class="ow">or</span> <span class="n">node</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="n">id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">ALLOWED_FUNCS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">FormulaError</span><span class="p">(</span>
+                    <span class="s2">"Allowed functions are: "</span> <span class="o">+</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">ALLOWED_FUNCS</span><span class="p">))</span> <span class="o">+</span> <span class="s2">"."</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">FormulaError</span><span class="p">(</span><span class="s2">"Functions do not take keyword arguments here."</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">BinOp</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">op</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Pow</span><span class="p">):</span>
+            <span class="n">_check_pow</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="nb">compile</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="s2">"&lt;cop-formula&gt;"</span><span class="p">,</span> <span class="s2">"eval"</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_formula_alternative</span><span class="p">(</span><span class="n">spec</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Turn a user's CopFormulaSpec into an entry the optimiser understands.</span>
+
+<span class="sd">    Raises FormulaError if the expression is not acceptable; the caller turns</span>
+<span class="sd">    that into a 400 rather than a 500.</span>
+<span class="sd">    """</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">compile_formula</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">expression</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">,</span> <span class="n">t_sink_model</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">evaluate_formula</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">build_variables</span><span class="p">(</span><span class="n">t_source_model</span><span class="p">,</span> <span class="n">t_sink_model</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">"name"</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">"Custom formula"</span><span class="p">,</span>
+        <span class="s2">"Kältemittel_stufen"</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">"Custom formula"</span><span class="p">,</span>
+        <span class="s2">"medium_sink"</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">medium_sink</span><span class="p">,</span>
+        <span class="c1"># Tags the point in the results table and colours it apart from the</span>
+        <span class="c1"># Natural/Synthetic families that come from the model.</span>
+        <span class="s2">"refrigerant_type"</span><span class="p">:</span> <span class="s2">"Custom formula"</span><span class="p">,</span>
+        <span class="s2">"hp_level"</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">hp_level</span><span class="p">,</span>
+        <span class="s2">"T_src_min"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">T_source_min</span><span class="p">),</span>
+        <span class="s2">"T_src_max"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">T_source_max</span><span class="p">),</span>
+        <span class="s2">"T_sink_min"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">T_sink_min</span><span class="p">),</span>
+        <span class="s2">"T_sink_max"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">T_sink_max</span><span class="p">),</span>
+        <span class="s2">"cop_min"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">cop_min</span><span class="p">),</span>
+        <span class="s2">"cop_max"</span><span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">spec</span><span class="o">.</span><span class="n">cop_max</span><span class="p">),</span>
+        <span class="s2">"deltaT_evap"</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">"deltaT_evap"</span><span class="p">],</span>
+        <span class="s2">"deltaT_cond"</span><span class="p">:</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">"deltaT_cond"</span><span class="p">],</span>
+        <span class="s2">"cop_fn"</span><span class="p">:</span> <span class="n">predict</span><span class="p">,</span>
+    <span class="p">}</span>
 </pre></div>
 </div>
 </details>
@@ -667,7 +858,17 @@ COP_{custom} = f(T_{src}, T_{sink}, \Delta T)
 <hr class="docutils" />
 <section id="d-mesh-grid-search-algorithm">
 <h2>2D Mesh Grid Search Algorithm<a class="headerlink" href="#d-mesh-grid-search-algorithm" title="Link to this heading">#</a></h2>
-<p>The optimization algorithm evaluates candidates across a 2D mesh of all valid <span class="math notranslate nohighlight">\((T_{source}, T_{sink})\)</span> pairs extracted from the process GCC source and sink profiles.</p>
+<p>The optimization algorithm evaluates candidates across a 2D mesh of all valid <span class="math notranslate nohighlight">\((T_{source}, T_{sink})\)</span> pairs extracted from the source and sink profiles of the selected <a class="reference internal" href="heat_pump_integration.html#source-and-sink-profiles-heat-recovery-modes"><span class="std std-ref">heat recovery mode</span></a>.</p>
+<section id="the-grid">
+<h3>The grid<a class="headerlink" href="#the-grid" title="Link to this heading">#</a></h3>
+<p>Both temperature axes run from the coldest to the hottest point of their profile in <strong>0.5 K</strong> steps, with the profile’s own breakpoints added so no corner is missed. Available waste heat and sink demand are read off the profiles by linear interpolation.</p>
+<p>A grid point is a valid operating point for a candidate only if:</p>
+<ul class="simple">
+<li><p>the COP is above 1 and inside the candidate’s COP range;</p></li>
+<li><p>the source and sink temperatures are inside the candidate’s operating window;</p></li>
+<li><p>the lift is at least <strong>10 K</strong> (<span class="math notranslate nohighlight">\(T_{source} \leq T_{sink} - 10\)</span>).</p></li>
+</ul>
+</section>
 <section id="source-sink-energy-balance">
 <h3>1. Source-Sink Energy Balance<a class="headerlink" href="#source-sink-energy-balance" title="Link to this heading">#</a></h3>
 <p>At each target sink temperature <span class="math notranslate nohighlight">\(T_{sink}\)</span> requiring heating duty <span class="math notranslate nohighlight">\(\dot{Q}_{demand}\)</span>, the required waste heat supply <span class="math notranslate nohighlight">\(\dot{Q}_{source,req}\)</span> is:</p>
@@ -692,19 +893,139 @@ f_{fraction} = \frac{-D_{idx}}{D_{idx+1} - D_{idx}}
 \[
 T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{source,idx})
 \]</div>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L327"><code class="docutils literal notranslate"><span class="pre">run_hpi_optimization()</span></code></a></p>
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 370–425)</summary>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Detect zero-crossings where available waste heat equals required waste heat</span>
-<span class="n">diff</span> <span class="o">=</span> <span class="n">q_avail_valid</span> <span class="o">-</span> <span class="n">q_src_req</span>
-<span class="n">crossings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">diff</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+<summary><b>Show the code</b></summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">"step_size"</span><span class="p">]</span>
+<span class="n">source_grid</span> <span class="o">=</span> <span class="n">_make_temperature_grid</span><span class="p">(</span><span class="n">t_source_clean</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">t_source_clean</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">step</span><span class="p">)</span>
+<span class="n">source_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">source_grid</span><span class="p">,</span> <span class="n">t_source_clean</span><span class="p">]))</span>
 
-<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">crossings</span><span class="p">:</span>
-    <span class="n">denom</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">diff</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
-    <span class="k">if</span> <span class="nb">abs</span><span class="p">(</span><span class="n">denom</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mf">1e-12</span><span class="p">:</span>
-        <span class="k">continue</span>
-    <span class="n">fraction</span> <span class="o">=</span> <span class="o">-</span><span class="n">diff</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">/</span> <span class="n">denom</span>
-    <span class="n">t_src_exact</span> <span class="o">=</span> <span class="n">t_src_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">fraction</span> <span class="o">*</span> <span class="p">(</span><span class="n">t_src_valid</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">t_src_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
-    <span class="n">cop_exact</span> <span class="o">=</span> <span class="n">cop_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">fraction</span> <span class="o">*</span> <span class="p">(</span><span class="n">cop_valid</span><span class="p">[</span><span class="n">idx</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cop_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+<span class="n">sink_grid</span> <span class="o">=</span> <span class="n">_make_temperature_grid</span><span class="p">(</span><span class="n">t_sink_clean</span><span class="o">.</span><span class="n">min</span><span class="p">(),</span> <span class="n">t_sink_clean</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="n">step</span><span class="p">)</span>
+<span class="n">sink_grid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span><span class="n">sink_grid</span><span class="p">,</span> <span class="n">t_sink_clean</span><span class="p">]))</span>
+
+<span class="n">T_quelle_mesh</span><span class="p">,</span> <span class="n">T_senke_mesh</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">meshgrid</span><span class="p">(</span><span class="n">source_grid</span><span class="p">,</span> <span class="n">sink_grid</span><span class="p">,</span> <span class="n">indexing</span><span class="o">=</span><span class="s1">'ij'</span><span class="p">)</span>
+<span class="n">T_quelle_flat</span> <span class="o">=</span> <span class="n">T_quelle_mesh</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+<span class="n">T_senke_flat</span> <span class="o">=</span> <span class="n">T_senke_mesh</span><span class="o">.</span><span class="n">ravel</span><span class="p">()</span>
+
+<span class="n">q_avail_flat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">T_quelle_flat</span><span class="p">,</span> <span class="n">t_source_clean</span><span class="p">,</span> <span class="n">q_avail_clean</span><span class="p">)</span>
+<span class="n">q_demand_flat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">interp</span><span class="p">(</span><span class="n">T_senke_flat</span><span class="p">,</span> <span class="n">t_sink_clean</span><span class="p">,</span> <span class="n">q_demand_clean</span><span class="p">)</span>
+
+<span class="n">feasible_points</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">max_q</span> <span class="o">=</span> <span class="o">-</span><span class="mf">1.0</span>
+<span class="n">max_q_point</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">diag</span> <span class="o">=</span> <span class="n">HPIOptimizationDiagnostics</span><span class="p">(</span>
+    <span class="n">source_T_min</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">t_source_clean</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span>
+    <span class="n">source_T_max</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">t_source_clean</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+    <span class="n">source_Q_max</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">q_avail_clean</span><span class="p">)),</span>
+    <span class="n">sink_T_min</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">t_sink_clean</span><span class="o">.</span><span class="n">min</span><span class="p">()),</span>
+    <span class="n">sink_T_max</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">t_sink_clean</span><span class="o">.</span><span class="n">max</span><span class="p">()),</span>
+    <span class="n">sink_Q_max</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">q_demand_clean</span><span class="p">)),</span>
+    <span class="n">model_T_source_min</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">"T_src_min"</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">alternatives</span><span class="p">)),</span>
+    <span class="n">model_T_sink_min</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="nb">min</span><span class="p">(</span><span class="n">a</span><span class="p">[</span><span class="s2">"T_sink_min"</span><span class="p">]</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">alternatives</span><span class="p">)),</span>
+<span class="p">)</span>
+
+<span class="k">for</span> <span class="n">alt</span> <span class="ow">in</span> <span class="n">alternatives</span><span class="p">:</span>
+    <span class="c1"># COP over the entire grid, from the model or from a user formula —</span>
+    <span class="c1"># both expose the same (t_source, t_sink) -&gt; array signature.</span>
+    <span class="n">T_quelle_model</span> <span class="o">=</span> <span class="n">T_quelle_flat</span> <span class="o">-</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"deltaT_evap"</span><span class="p">]</span>
+    <span class="n">T_senke_model</span> <span class="o">=</span> <span class="n">T_senke_flat</span> <span class="o">+</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"deltaT_cond"</span><span class="p">]</span>
+
+    <span class="n">cop_preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">alt</span><span class="p">[</span><span class="s2">"cop_fn"</span><span class="p">](</span><span class="n">T_quelle_model</span><span class="p">,</span> <span class="n">T_senke_model</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="nb">float</span><span class="p">)</span>
+
+    <span class="c1"># A formula can return NaN/inf where it is undefined (zero lift, a</span>
+    <span class="c1"># log of a negative number). Those must never look feasible.</span>
+    <span class="n">cop_preds</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">isfinite</span><span class="p">(</span><span class="n">cop_preds</span><span class="p">),</span> <span class="n">cop_preds</span><span class="p">,</span> <span class="o">-</span><span class="mf">1.0</span><span class="p">)</span>
+
+    <span class="c1"># We want to find points where q_src_req == q_avail.</span>
+    <span class="c1"># For each unique T_sink, find the T_source that satisfies this.</span>
+    <span class="n">unique_t_sinks</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">T_senke_flat</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">t_snk</span> <span class="ow">in</span> <span class="n">unique_t_sinks</span><span class="p">:</span>
+        <span class="n">diag</span><span class="o">.</span><span class="n">candidates_total</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">t_senke_model</span> <span class="o">=</span> <span class="n">t_snk</span> <span class="o">+</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"deltaT_cond"</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">t_senke_model</span> <span class="o">&lt;</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"T_sink_min"</span><span class="p">]</span> <span class="ow">or</span> <span class="n">t_senke_model</span> <span class="o">&gt;</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"T_sink_max"</span><span class="p">]:</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">rejected_sink_range</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Extract the 1D slice for this T_sink</span>
+        <span class="n">mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">T_senke_flat</span> <span class="o">==</span> <span class="n">t_snk</span><span class="p">)</span>
+        <span class="n">t_src_slice</span> <span class="o">=</span> <span class="n">T_quelle_flat</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">q_avail_slice</span> <span class="o">=</span> <span class="n">q_avail_flat</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+        <span class="n">q_dem</span> <span class="o">=</span> <span class="n">q_demand_flat</span><span class="p">[</span><span class="n">mask</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>  <span class="c1"># constant for this t_snk</span>
+        <span class="n">cop_slice</span> <span class="o">=</span> <span class="n">cop_preds</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span>
+
+        <span class="k">if</span> <span class="n">q_dem</span> <span class="o">&lt;=</span> <span class="mf">0.0</span><span class="p">:</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">rejected_no_demand</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># We need q_src_req = q_dem * (cop - 1) / cop</span>
+        <span class="c1"># We find where q_avail_slice - q_src_req crosses 0</span>
+        <span class="n">t_src_model_slice</span> <span class="o">=</span> <span class="n">t_src_slice</span> <span class="o">-</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"deltaT_evap"</span><span class="p">]</span>
+        <span class="n">valid_mask</span> <span class="o">=</span> <span class="p">(</span><span class="n">cop_slice</span> <span class="o">&gt;</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">cop_slice</span> <span class="o">&gt;=</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"cop_min"</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">cop_slice</span> <span class="o">&lt;=</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"cop_max"</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t_src_slice</span> <span class="o">&lt;=</span> <span class="n">t_snk</span> <span class="o">-</span> <span class="mf">10.0</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t_src_model_slice</span> <span class="o">&gt;=</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"T_src_min"</span><span class="p">])</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">t_src_model_slice</span> <span class="o">&lt;=</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"T_src_max"</span><span class="p">])</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">valid_mask</span><span class="p">):</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">rejected_source_range</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">continue</span>
+
+        <span class="n">t_src_valid</span> <span class="o">=</span> <span class="n">t_src_slice</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>
+        <span class="n">q_avail_valid</span> <span class="o">=</span> <span class="n">q_avail_slice</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>
+        <span class="n">cop_valid</span> <span class="o">=</span> <span class="n">cop_slice</span><span class="p">[</span><span class="n">valid_mask</span><span class="p">]</span>
+        <span class="n">q_src_req_valid</span> <span class="o">=</span> <span class="n">q_dem</span> <span class="o">*</span> <span class="p">(</span><span class="n">cop_valid</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">cop_valid</span>
+
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">q_avail_valid</span> <span class="o">-</span> <span class="n">q_src_req_valid</span>
+
+        <span class="c1"># Find zero crossings</span>
+        <span class="n">crossings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">diff</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">found_full</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">crossings</span><span class="p">:</span>
+            <span class="c1"># Linear interpolation to find the exact T_source</span>
+            <span class="n">t1</span><span class="p">,</span> <span class="n">t2</span> <span class="o">=</span> <span class="n">t_src_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">t_src_valid</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+            <span class="n">d1</span><span class="p">,</span> <span class="n">d2</span> <span class="o">=</span> <span class="n">diff</span><span class="p">[</span><span class="n">idx</span><span class="p">],</span> <span class="n">diff</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span>
+
+            <span class="k">if</span> <span class="n">d1</span> <span class="o">==</span> <span class="n">d2</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">fraction</span> <span class="o">=</span> <span class="o">-</span><span class="n">d1</span> <span class="o">/</span> <span class="p">(</span><span class="n">d2</span> <span class="o">-</span> <span class="n">d1</span><span class="p">)</span>
+            <span class="n">t_src_exact</span> <span class="o">=</span> <span class="n">t1</span> <span class="o">+</span> <span class="n">fraction</span> <span class="o">*</span> <span class="p">(</span><span class="n">t2</span> <span class="o">-</span> <span class="n">t1</span><span class="p">)</span>
+            <span class="n">cop_exact</span> <span class="o">=</span> <span class="n">cop_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">fraction</span> <span class="o">*</span> <span class="p">(</span><span class="n">cop_valid</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">cop_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+            <span class="n">q_avail_exact</span> <span class="o">=</span> <span class="n">q_avail_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">+</span> <span class="n">fraction</span> <span class="o">*</span> <span class="p">(</span><span class="n">q_avail_valid</span><span class="p">[</span><span class="n">idx</span><span class="o">+</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">q_avail_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+
+            <span class="c1"># Double check constraints</span>
+            <span class="k">if</span> <span class="n">cop_exact</span> <span class="o">&lt;</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"cop_min"</span><span class="p">]</span> <span class="ow">or</span> <span class="n">cop_exact</span> <span class="o">&gt;</span> <span class="n">alt</span><span class="p">[</span><span class="s2">"cop_max"</span><span class="p">]</span> <span class="ow">or</span> <span class="n">t_src_exact</span> <span class="o">&gt;</span> <span class="n">t_snk</span> <span class="o">-</span> <span class="mf">10.0</span><span class="p">:</span>
+                <span class="k">continue</span>
+
+            <span class="n">pt</span> <span class="o">=</span> <span class="n">OptimizedIntegrationPoint</span><span class="p">(</span>
+                <span class="n">T_source</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">t_src_exact</span><span class="p">),</span>
+                <span class="n">T_sink</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">t_snk</span><span class="p">),</span>
+                <span class="n">Q_source</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">q_avail_exact</span><span class="p">),</span>
+                <span class="n">Q_demand</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">q_dem</span><span class="p">),</span>
+                <span class="n">Q_demand_total</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">q_dem</span><span class="p">),</span>
+                <span class="n">source_limited</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="n">COP</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">cop_exact</span><span class="p">),</span>
+                <span class="n">refrigerant</span><span class="o">=</span><span class="n">alt</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span>
+                <span class="n">medium_sink</span><span class="o">=</span><span class="n">alt</span><span class="p">[</span><span class="s2">"medium_sink"</span><span class="p">],</span>
+                <span class="n">refrigerant_type</span><span class="o">=</span><span class="n">alt</span><span class="p">[</span><span class="s2">"refrigerant_type"</span><span class="p">],</span>
+                <span class="n">hp_level</span><span class="o">=</span><span class="n">alt</span><span class="p">[</span><span class="s2">"hp_level"</span><span class="p">],</span>
+                <span class="n">theoretical</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"theoretical"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                <span class="n">calculation_details</span><span class="o">=</span><span class="n">_calculation_details</span><span class="p">(</span><span class="n">alt</span><span class="p">,</span> <span class="n">t_src_exact</span><span class="p">,</span> <span class="n">t_snk</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">feasible_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+            <span class="n">found_full</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">diag</span><span class="o">.</span><span class="n">accepted_full</span> <span class="o">+=</span> <span class="mi">1</span>
+
+            <span class="c1"># Dozens of machines can deliver the same maximum duty, so</span>
+            <span class="c1"># duty alone leaves the pick to iteration order — it showed</span>
+            <span class="c1"># a mid-range COP while the table listed a better one at the</span>
+            <span class="c1"># identical duty. COP breaks the tie.</span>
+            <span class="k">if</span> <span class="n">q_dem</span> <span class="o">&gt;</span> <span class="n">max_q</span> <span class="ow">or</span> <span class="p">(</span>
+                <span class="n">q_dem</span> <span class="o">==</span> <span class="n">max_q</span>
+                <span class="ow">and</span> <span class="n">max_q_point</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="n">pt</span><span class="o">.</span><span class="n">COP</span> <span class="o">&gt;</span> <span class="n">max_q_point</span><span class="o">.</span><span class="n">COP</span>
+            <span class="p">):</span>
+                <span class="n">max_q</span> <span class="o">=</span> <span class="n">q_dem</span>
+                <span class="n">max_q_point</span> <span class="o">=</span> <span class="n">pt</span>
+
 </pre></div>
 </div>
 </details>
@@ -719,19 +1040,71 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 \[
 \dot{Q}_{sink,achievable} = \min\left(\dot{Q}_{available} \cdot \frac{COP}{COP - 1},\ \dot{Q}_{demand}\right)
 \]</div>
-<p>A candidate is reported as a valid source-limited option if its coverage ratio exceeds the threshold:</p>
+<p>For each candidate and sink temperature, the grid point delivering the most heat is kept (the higher COP breaks a tie). It is reported as a valid source-limited option if its coverage ratio reaches the threshold:</p>
 <div class="math notranslate nohighlight">
 \[
 \frac{\dot{Q}_{sink,achievable}}{\dot{Q}_{demand}} \ge 0.01 \quad (1\%)
 \]</div>
+<p>Points below it are not design options; they are left out but counted in the diagnostics, so the omission stays visible.</p>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L327"><code class="docutils literal notranslate"><span class="pre">run_hpi_optimization()</span></code></a>, threshold <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L30"><code class="docutils literal notranslate"><span class="pre">MIN_COVERAGE</span></code></a></p>
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 430–475)</summary>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Source-limited check: when waste heat is insufficient to fully satisfy Q_demand</span>
-<span class="n">q_sink_achievable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">q_avail_valid</span> <span class="o">*</span> <span class="n">cop_valid</span> <span class="o">/</span> <span class="p">(</span><span class="n">cop_valid</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">),</span> <span class="n">q_dem</span><span class="p">)</span>
-<span class="n">coverage</span> <span class="o">=</span> <span class="n">q_sink_achievable</span> <span class="o">/</span> <span class="n">q_dem</span>
+<summary><b>Show the code</b></summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># No exact match between available source heat and what the full</span>
+<span class="c1"># sink requirement would draw. That does not make the heat pump</span>
+<span class="c1"># impossible — it only means it cannot cover the whole demand</span>
+<span class="c1"># above T_sink (source-limited) or that source heat is abundant</span>
+<span class="c1"># (demand-limited). Report the best such operating point instead</span>
+<span class="c1"># of dropping the candidate silently.</span>
+<span class="n">q_sink_possible</span> <span class="o">=</span> <span class="n">q_avail_valid</span> <span class="o">*</span> <span class="n">cop_valid</span> <span class="o">/</span> <span class="p">(</span><span class="n">cop_valid</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span>
+<span class="n">q_sink_achievable</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">minimum</span><span class="p">(</span><span class="n">q_sink_possible</span><span class="p">,</span> <span class="n">q_dem</span><span class="p">)</span>
 
-<span class="c1"># Filter out candidates covering less than 1% of target demand</span>
-<span class="n">valid_indices</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">coverage</span> <span class="o">&gt;=</span> <span class="n">MIN_COVERAGE</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">q_sink_achievable</span> <span class="o">&gt;</span> <span class="mf">0.0</span><span class="p">):</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">rejected_no_source_heat</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">continue</span>
+
+<span class="c1"># Best = most heat delivered; ties (e.g. everything capped at the</span>
+<span class="c1"># full demand) go to the higher COP.</span>
+<span class="n">best_duty</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">q_sink_achievable</span><span class="p">))</span>
+<span class="n">tie</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">isclose</span><span class="p">(</span><span class="n">q_sink_achievable</span><span class="p">,</span> <span class="n">best_duty</span><span class="p">,</span> <span class="n">rtol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-9</span><span class="p">)</span>
+<span class="n">idx</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">flatnonzero</span><span class="p">(</span><span class="n">tie</span><span class="p">)[</span><span class="n">np</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">cop_valid</span><span class="p">[</span><span class="n">tie</span><span class="p">])])</span>
+
+<span class="n">q_sink_best</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">q_sink_achievable</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+<span class="n">cop_best</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">cop_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">])</span>
+<span class="n">limited</span> <span class="o">=</span> <span class="n">q_sink_best</span> <span class="o">&lt;</span> <span class="n">q_dem</span> <span class="o">-</span> <span class="mf">1e-6</span>
+
+<span class="c1"># A heat pump covering a fraction of a percent of the demand is</span>
+<span class="c1"># not a design option — keep it out of the result set, but count</span>
+<span class="c1"># it so the omission stays visible.</span>
+<span class="k">if</span> <span class="n">limited</span> <span class="ow">and</span> <span class="n">q_sink_best</span> <span class="o">&lt;</span> <span class="n">MIN_COVERAGE</span> <span class="o">*</span> <span class="n">q_dem</span><span class="p">:</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">dropped_negligible</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">continue</span>
+
+<span class="n">pt</span> <span class="o">=</span> <span class="n">OptimizedIntegrationPoint</span><span class="p">(</span>
+    <span class="n">T_source</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">t_src_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">]),</span>
+    <span class="n">T_sink</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">t_snk</span><span class="p">),</span>
+    <span class="n">Q_source</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">q_sink_best</span> <span class="o">*</span> <span class="p">(</span><span class="n">cop_best</span> <span class="o">-</span> <span class="mf">1.0</span><span class="p">)</span> <span class="o">/</span> <span class="n">cop_best</span><span class="p">),</span>
+    <span class="n">Q_demand</span><span class="o">=</span><span class="n">q_sink_best</span><span class="p">,</span>
+    <span class="n">Q_demand_total</span><span class="o">=</span><span class="nb">float</span><span class="p">(</span><span class="n">q_dem</span><span class="p">),</span>
+    <span class="n">source_limited</span><span class="o">=</span><span class="n">limited</span><span class="p">,</span>
+    <span class="c1"># Reaching this branch without being source-limited means the</span>
+    <span class="c1"># duty was capped at the sink demand while source heat was</span>
+    <span class="c1"># still available, so the point sits off the source profile.</span>
+    <span class="n">demand_limited</span><span class="o">=</span><span class="ow">not</span> <span class="n">limited</span><span class="p">,</span>
+    <span class="n">COP</span><span class="o">=</span><span class="n">cop_best</span><span class="p">,</span>
+    <span class="n">refrigerant</span><span class="o">=</span><span class="n">alt</span><span class="p">[</span><span class="s2">"name"</span><span class="p">],</span>
+    <span class="n">medium_sink</span><span class="o">=</span><span class="n">alt</span><span class="p">[</span><span class="s2">"medium_sink"</span><span class="p">],</span>
+    <span class="n">refrigerant_type</span><span class="o">=</span><span class="n">alt</span><span class="p">[</span><span class="s2">"refrigerant_type"</span><span class="p">],</span>
+    <span class="n">hp_level</span><span class="o">=</span><span class="n">alt</span><span class="p">[</span><span class="s2">"hp_level"</span><span class="p">],</span>
+    <span class="n">theoretical</span><span class="o">=</span><span class="n">alt</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"theoretical"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="n">calculation_details</span><span class="o">=</span><span class="n">_calculation_details</span><span class="p">(</span>
+        <span class="n">alt</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="n">t_src_valid</span><span class="p">[</span><span class="n">idx</span><span class="p">]),</span> <span class="n">t_snk</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="n">feasible_points</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">pt</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">limited</span><span class="p">:</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">accepted_source_limited</span> <span class="o">+=</span> <span class="mi">1</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">diag</span><span class="o">.</span><span class="n">accepted_demand_limited</span> <span class="o">+=</span> <span class="mi">1</span>
 </pre></div>
 </div>
 </details>
@@ -739,16 +1112,16 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 <hr class="docutils" />
 <section id="selecting-the-maximum-duty-point">
 <h2>Selecting the Maximum-Duty Point<a class="headerlink" href="#selecting-the-maximum-duty-point" title="Link to this heading">#</a></h2>
-<p>The results highlight the point delivering the <strong>greatest sink duty</strong> — the largest heat pump the process can absorb. Many candidates typically reach that same maximum: in a representative case 48 machines tie at the top duty, with COPs spanning 2.57 to 9.08, because the duty ceiling is set by the process profile rather than by the machine.</p>
+<p>The result names the point delivering the <strong>greatest sink duty</strong> — the largest heat pump the process can absorb — as <code class="docutils literal notranslate"><span class="pre">max_q_point</span></code>. Many candidates typically reach that same maximum: in a representative case 48 machines tie at the top duty, with COPs spanning 2.57 to 9.08, because the duty ceiling is set by the process profile rather than by the machine.</p>
 <p>A plain <code class="docutils literal notranslate"><span class="pre">&gt;</span></code> comparison therefore left the winner to iteration order, and could report a markedly worse machine than an equally large one sitting beside it. Ties are broken by COP:</p>
 <div class="math notranslate nohighlight">
 \[
 \text{select } p \quad \text{if} \quad \dot{Q}_p &gt; \dot{Q}_{max} \quad \text{or} \quad \left( \dot{Q}_p = \dot{Q}_{max} \ \text{and} \ COP_p &gt; COP_{max} \right)
 \]</div>
-<blockquote>
-<div><p>[!NOTE]
-This is an API-level selection rule, so it applies to every consumer of the optimization result, not only the chart.</p>
-</div></blockquote>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><code class="docutils literal notranslate"><span class="pre">max_q_point</span></code> can be an archetype or an off-profile point. The page and the report highlight a real machine on the chart, so they use it only when it is one — see <a class="reference internal" href="#how-the-results-are-shown">How the results are shown</a>.</p>
+</div>
 </section>
 <hr class="docutils" />
 <section id="demand-limited-heat-pump-integration">
@@ -758,7 +1131,7 @@ This is an API-level selection rule, so it applies to every consumer of the opti
 \[
 \dot{Q}_{sink} = \dot{Q}_{demand} \quad \text{while} \quad \dot{Q}_{available} &gt; \dot{Q}_{demand} \cdot \frac{COP - 1}{COP}
 \]</div>
-<p>The distinction matters for reading the charts. A <strong>source-limited</strong> point sits off the <em>sink</em> profile, because it cannot reach the demand; a <strong>demand-limited</strong> point sits off the <em>source</em> profile, because it does not consume all the waste heat available. Both are drawn as hollow markers to mark them as partial solutions, and both are excluded from the COP-versus-coverage frontier — a capped machine would otherwise put a dip in that curve at the coverage where it happens to be the only candidate.</p>
+<p>The distinction matters for reading the charts. A <strong>source-limited</strong> point sits off the <em>sink</em> profile, because it cannot reach the demand; a <strong>demand-limited</strong> point sits off the <em>source</em> profile, because it does not consume all the waste heat available. Both are partial solutions: they are <strong>hidden from the chart by default</strong> — the checkboxes <em>Plot source-limited points</em> and <em>Plot demand-limited points</em> bring them back, drawn as hollow markers — and both are excluded from the COP-versus-coverage frontier, where a capped machine would otherwise put a dip in the curve at the coverage where it happens to be the only candidate. They stay in the results table.</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
 <tr class="row-odd"><th class="head"><p>Flag</p></th>
@@ -781,45 +1154,100 @@ This is an API-level selection rule, so it applies to every consumer of the opti
 </tbody>
 </table>
 </div>
+<p><strong>Implementation:</strong> the COP-versus-coverage frontier is <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/CopCoverageChart.tsx"><code class="docutils literal notranslate"><span class="pre">frontend/src/components/analysis/CopCoverageChart.tsx</span></code></a></p>
 </section>
 <hr class="docutils" />
 <section id="output-summary">
 <h2>Output Summary<a class="headerlink" href="#output-summary" title="Link to this heading">#</a></h2>
-<p>The optimization service ranks candidates by <strong>COP</strong>, <strong>condenser thermal output (<span class="math notranslate nohighlight">\(\dot{Q}_{sink}\)</span>)</strong>, and <strong>electrical power input (<span class="math notranslate nohighlight">\(W_{el} = \dot{Q}_{sink} / COP\)</span>)</strong>, returning:</p>
+<p>The service returns every feasible operating point; sorting and filtering are left to the page. The result (<a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/models/analysis.py#L266"><code class="docutils literal notranslate"><span class="pre">HPIOptimizationResult</span></code></a>):</p>
 <div class="pst-scrollable-table-container"><table class="table">
 <thead>
-<tr class="row-odd"><th class="head"><p>Output Parameter</p></th>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
 <th class="head"><p>Meaning</p></th>
 </tr>
 </thead>
 <tbody>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">best_cop_points</span></code></p></td>
-<td><p>Exact zero-crossing operating points with highest COP</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">feasible_points</span></code></p></td>
+<td><p>Every accepted operating point — full, source-limited and demand-limited — for every candidate</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">source_limited_points</span></code></p></td>
-<td><p>Maximum heat delivery points when waste heat is constrained</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">max_q_point</span></code></p></td>
+<td><p>The point delivering the greatest sink duty, ties broken by COP</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">refrigerant_type</span></code></p></td>
-<td><p>Selected fluid (e.g. R1233zd(E), R290, R717)</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">original_gcc</span></code></p></td>
+<td><p>The grand composite curve, drawn faint behind the chart</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">theoretical</span></code></p></td>
-<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code> for a technology archetype, <code class="docutils literal notranslate"><span class="pre">false</span></code> for a trained refrigerant</p></td>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">pocketless_source</span></code>, <code class="docutils literal notranslate"><span class="pre">pocketless_sink</span></code></p></td>
+<td><p>The source and sink profiles the search ran on, for the selected mode</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">calculation_details</span></code></p></td>
-<td><p>How this point’s COP was arrived at — the formula, or the regression and its inputs</p></td>
-</tr>
-<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">demand_limited</span></code></p></td>
-<td><p>Duty capped by the sink demand, leaving waste heat unused</p></td>
-</tr>
-<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Q_demand_total</span></code></p></td>
-<td><p>The full sink demand at this temperature, against which a limited point’s coverage is read</p></td>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">profile_mode</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">net_load</span></code> (with heat recovery) or <code class="docutils literal notranslate"><span class="pre">composite</span></code> (no heat recovery)</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">diagnostics</span></code></p></td>
-<td><p>Count of evaluated mesh points, skipped points outside operating envelope, and zero-crossing solutions</p></td>
+<td><p>The profile ranges, and how many candidates were accepted or rejected and why — so an empty result can explain itself</p></td>
 </tr>
 </tbody>
 </table>
 </div>
+<p>Each operating point (<a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/models/analysis.py#L153"><code class="docutils literal notranslate"><span class="pre">OptimizedIntegrationPoint</span></code></a>):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Field</p></th>
+<th class="head"><p>Meaning</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">refrigerant</span></code></p></td>
+<td><p>Refrigerant and stage count (e.g. <code class="docutils literal notranslate"><span class="pre">Butane_2</span></code>), archetype name, or the custom formula’s name</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">refrigerant_type</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Natural</span></code>, <code class="docutils literal notranslate"><span class="pre">Synthetic</span></code>, <code class="docutils literal notranslate"><span class="pre">Theoretical</span></code> or <code class="docutils literal notranslate"><span class="pre">Custom</span> <span class="pre">formula</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">medium_sink</span></code>, <code class="docutils literal notranslate"><span class="pre">hp_level</span></code></p></td>
+<td><p>Sink medium and number of compression stages</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">T_source</span></code>, <code class="docutils literal notranslate"><span class="pre">T_sink</span></code></p></td>
+<td><p>Operating temperatures, on the shifted scale of the profiles</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">COP</span></code></p></td>
+<td><p>Coefficient of performance at that point</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Q_demand</span></code></p></td>
+<td><p>Heat delivered to the sink</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">Q_source</span></code></p></td>
+<td><p>Heat drawn from the source</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">Q_demand_total</span></code></p></td>
+<td><p>The full sink demand at this temperature, against which a limited point’s coverage is read</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">source_limited</span></code>, <code class="docutils literal notranslate"><span class="pre">demand_limited</span></code></p></td>
+<td><p>The partial-solution flags above</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">theoretical</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">true</span></code> for a technology archetype</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">calculation_details</span></code></p></td>
+<td><p>How this point’s COP was arrived at — the formula, or the regression and its inputs</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The table on the page derives the remaining columns: the electrical input <span class="math notranslate nohighlight">\(W_{el} = \dot{Q}_{sink} / COP\)</span>, and each temperature a second time with <span class="math notranslate nohighlight">\(\Delta T_{min}/2\)</span> added (sink) or subtracted (source), in the columns headed <em>Shifted</em>.</p>
+</section>
+<hr class="docutils" />
+<section id="how-the-results-are-shown">
+<h2>How the results are shown<a class="headerlink" href="#how-the-results-are-shown" title="Link to this heading">#</a></h2>
+<p>The optimization returns hundreds or thousands of points. What the page shows of them follows a fixed set of rules, and the <a class="reference internal" href="#the-report">generated report</a> applies the same ones.</p>
+<p><strong>The chart</strong> plots only on-profile points by default (see <a class="reference internal" href="#demand-limited-heat-pump-integration">Demand-Limited Heat Pump Integration</a>), falling back to every point if none is on a profile. It then <strong>thins</strong> them: per sink temperature, the best COP for each refrigerant type (each technology, for the archetypes); and where dozens of points stack at practically the same duty on a steep stretch of the profile, only the coolest sink in each step of 2 % of the duty range is kept — the cheapest lift for that duty.</p>
+<p><strong>The highlighted pump</strong> — the one drawn with the box, the COP and the electrical input — is <code class="docutils literal notranslate"><span class="pre">max_q_point</span></code> if it is a real machine on the chart. Otherwise it is the real machine on the chart delivering the most heat, ties broken by COP. Carnot would otherwise always take the box at the top duty.</p>
+<p><strong>Clicking a point</strong> picks every machine at that sink temperature. The box moves to the best of them, and they join the table, shaded.</p>
+<p><strong>The table</strong> lists the best real machine per refrigerant type, plus Carnot and the best of the other archetypes — best meaning most heat delivered, COP breaking a tie — plus any picked pump. It opens sorted by heat delivered, highest first; clicking a column header re-sorts it.</p>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/hpRules.ts"><code class="docutils literal notranslate"><span class="pre">frontend/src/components/analysis/hpRules.ts</span></code></a> — <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/hpRules.ts#L59"><code class="docutils literal notranslate"><span class="pre">chartPointsOf()</span></code></a>, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/hpRules.ts#L166"><code class="docutils literal notranslate"><span class="pre">thinnedCloudOf()</span></code></a>, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/hpRules.ts#L83"><code class="docutils literal notranslate"><span class="pre">defaultHighlightOf()</span></code></a>, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/hpRules.ts#L237"><code class="docutils literal notranslate"><span class="pre">activePointsOf()</span></code></a>, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/hpRules.ts#L256"><code class="docutils literal notranslate"><span class="pre">boxPointOf()</span></code></a>, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/hpRules.ts#L109"><code class="docutils literal notranslate"><span class="pre">tableRowsOf()</span></code></a>, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/hpRules.ts#L33"><code class="docutils literal notranslate"><span class="pre">DEFAULT_TABLE_SORT</span></code></a>; used by <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/HPIOptimizationPanel.tsx"><code class="docutils literal notranslate"><span class="pre">frontend/src/components/analysis/HPIOptimizationPanel.tsx</span></code></a> and <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/HPIOptimizationChart.tsx"><code class="docutils literal notranslate"><span class="pre">frontend/src/components/analysis/HPIOptimizationChart.tsx</span></code></a></p>
+<section id="the-report">
+<h3>The report<a class="headerlink" href="#the-report" title="Link to this heading">#</a></h3>
+<p>The generated report draws the same chart and table on the server, with a function-for-function port of these rules (<a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/report_service.py#L381"><code class="docutils literal notranslate"><span class="pre">_hp_view()</span></code></a>). A pump picked on the page is sent along and shown in the report. The report has no filter controls, so it applies the page’s defaults: every filter on <em>All</em>, archetypes shown, off-profile points hidden.</p>
+<p>Both implementations are tested against one shared file, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/contracts/hp_rules.json"><code class="docutils literal notranslate"><span class="pre">contracts/hp_rules.json</span></code></a>: hand-written points that hit every rule, with the outputs the page’s rules give for them. A rule changed on one side and not the other fails a test (<a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/frontend/src/components/analysis/hpRules.test.ts"><code class="docutils literal notranslate"><span class="pre">frontend/src/components/analysis/hpRules.test.ts</span></code></a>, <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/tests/test_hp_rules_contract.py"><code class="docutils literal notranslate"><span class="pre">backend/tests/test_hp_rules_contract.py</span></code></a>).</p>
+</section>
 </section>
 </section>
 
@@ -882,6 +1310,7 @@ This is an API-level selection rule, so it applies to every consumer of the opti
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#temperature-approach-corrections">Temperature Approach Corrections</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#custom-cop-formula-evaluation">Custom COP Formula Evaluation</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d-mesh-grid-search-algorithm">2D Mesh Grid Search Algorithm</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-grid">The grid</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#source-sink-energy-balance">1. Source-Sink Energy Balance</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#zero-crossing-exact-point-detection">2. Zero-Crossing Exact Point Detection</a></li>
 </ul>
@@ -890,6 +1319,10 @@ This is an API-level selection rule, so it applies to every consumer of the opti
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#selecting-the-maximum-duty-point">Selecting the Maximum-Duty Point</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#demand-limited-heat-pump-integration">Demand-Limited Heat Pump Integration</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#output-summary">Output Summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-the-results-are-shown">How the results are shown</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-report">The report</a></li>
+</ul>
+</li>
 </ul>
   </nav></div>
 
