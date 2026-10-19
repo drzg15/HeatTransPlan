@@ -448,6 +448,9 @@ export default function PotentialAnalysisPage() {
         pinch_result: sc.pinchResult,
         heat_pumps: sc.hpiResult?.heat_pumps || [],
         hpi_optimization_result: sc.hpiOptimizationResult || null,
+        // Whatever was clicked on the optimization chart, so the report shows
+        // that pump instead of the default one.
+        selected_hp_points: sc.selectedHPPoints || [],
         energy_demands:
           sc.energyDemands?.map((d) => ({
             heat_demand: d.heat_demand,

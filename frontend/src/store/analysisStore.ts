@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import type {
   CopFormulaSpec,
   EnergyDemandLocal,
+  OptimizedIntegrationPoint,
   HPIOptimizationResult,
   HPIResult,
   PinchResult,
@@ -18,6 +19,11 @@ interface AnalysisStore {
 
   // Energy demands (user-entered)
   energyDemands: EnergyDemandLocal[];
+
+  // Heat pumps picked by clicking the optimization chart or its table. Kept in
+  // the store rather than in the panel so the report can show the pump the user
+  // chose instead of the default one.
+  selectedHPPoints: OptimizedIntegrationPoint[];
 
   // Pinch controls
   tMin: number;
@@ -49,6 +55,7 @@ interface AnalysisStore {
     name: string;
     selectedStreams: Record<string, boolean>;
     energyDemands: EnergyDemandLocal[];
+    selectedHPPoints: OptimizedIntegrationPoint[];
     tMin: number;
     // Results for comparison
     pinchResult?: PinchResult | null;
@@ -65,6 +72,7 @@ interface AnalysisStore {
   toggleStreamSelection: (pIdx: number, sIdx: number) => void;
   initSelectedStreams: (keys: string[]) => void;
   setEnergyDemands: (demands: EnergyDemandLocal[]) => void;
+  setSelectedHPPoints: (points: OptimizedIntegrationPoint[]) => void;
   addEnergyDemand: (demand: EnergyDemandLocal) => void;
   removeEnergyDemand: (index: number) => void;
   updateEnergyDemand: (index: number, demand: Partial<EnergyDemandLocal>) => void;
@@ -98,6 +106,7 @@ const syncScenario = (state: AnalysisStore) => {
             ...sc,
             selectedStreams: { ...state.selectedStreams },
             energyDemands: JSON.parse(JSON.stringify(state.energyDemands)),
+            selectedHPPoints: JSON.parse(JSON.stringify(state.selectedHPPoints)),
             tMin: state.tMin,
             pinchResult: state.pinchResult ? JSON.parse(JSON.stringify(state.pinchResult)) : null,
             hpiResult: state.hpiResult ? JSON.parse(JSON.stringify(state.hpiResult)) : null,
@@ -115,6 +124,7 @@ const syncScenario = (state: AnalysisStore) => {
 
 export const useAnalysisStore = create<AnalysisStore>((set) => ({
   selectedStreams: {},
+  selectedHPPoints: [],
   energyDemands: [
     {
       heat_demand: 0,
@@ -180,6 +190,11 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
 
   setEnergyDemands: (demands) => {
     set({ energyDemands: demands });
+    set((s) => syncScenario(s));
+  },
+
+  setSelectedHPPoints: (points) => {
+    set({ selectedHPPoints: points });
     set((s) => syncScenario(s));
   },
 
@@ -266,6 +281,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
         name: finalName,
         selectedStreams: { ...s.selectedStreams },
         energyDemands: JSON.parse(JSON.stringify(s.energyDemands)),
+        selectedHPPoints: JSON.parse(JSON.stringify(s.selectedHPPoints)),
         tMin: s.tMin,
         pinchResult: s.pinchResult ? JSON.parse(JSON.stringify(s.pinchResult)) : null,
         hpiResult: s.hpiResult ? JSON.parse(JSON.stringify(s.hpiResult)) : null,
@@ -288,6 +304,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
         activeScenarioId: sc.id,
         selectedStreams: { ...sc.selectedStreams },
         energyDemands: JSON.parse(JSON.stringify(sc.energyDemands)),
+        selectedHPPoints: JSON.parse(JSON.stringify(sc.selectedHPPoints ?? [])),
         tMin: sc.tMin,
         pinchResult: sc.pinchResult ? JSON.parse(JSON.stringify(sc.pinchResult)) : null,
         hpiResult: sc.hpiResult ? JSON.parse(JSON.stringify(sc.hpiResult)) : null,
