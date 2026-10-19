@@ -1,7 +1,7 @@
 import type { TFunction } from 'i18next';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 import { boxPointOf } from './hpRules';
-import type { PlotlyObject } from './plotlyTypes';
+import type { PlotlyObject } from 'react-plotly.js';
 
 export interface HpBoxColors {
   source: string;

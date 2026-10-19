@@ -5,7 +5,7 @@ import HPIOptimizationChartHelp from './HPIOptimizationChartHelp';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 import { activePointsOf, thinnedCloudOf } from './hpRules';
 import { buildHpBox } from './hpBox';
-import type { PlotlyObject } from './plotlyTypes';
+import type { PlotlyObject } from 'react-plotly.js';
 
 interface Props {
   originalGCC: { H: number[]; T: number[] };
