@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { ProjectState } from '../types/project';
+import type { EnergyDemandLocal } from '../types/analysis';
 import type { ProcessNode } from '../types/process';
 import { snapshotsOffloaded, startSnapshotPersistence } from './snapshotStorage';
 
@@ -27,7 +28,7 @@ interface ProjectStore {
 
   // Potential Analysis
   setAnalysisSelection: (streams: Record<string, boolean>) => void;
-  setAnalysisDemands: (demands: any[]) => void;
+  setAnalysisDemands: (demands: EnergyDemandLocal[]) => void;
   setAnalysisTMin: (val: number) => void;
 }
 

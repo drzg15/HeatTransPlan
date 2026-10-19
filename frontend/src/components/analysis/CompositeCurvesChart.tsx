@@ -1,6 +1,6 @@
 /** CompositeCurvesChart — hot/cold composite curves via Plotly. */
 
-import Plot from 'react-plotly.js';
+import Plot, { type PlotlyObject } from 'react-plotly.js';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
@@ -21,7 +21,7 @@ export default function CompositeCurvesChart() {
     : pinchResult.composite_diagram;
   const titleText = showShifted ? t('analysis.charts.shifted_composite_curves') : t('analysis.charts.composite_curves');
 
-  const traces: any[] = [
+  const traces: PlotlyObject[] = [
     {
       x: diagram.hot.H,
       y: diagram.hot.T,
@@ -40,7 +40,7 @@ export default function CompositeCurvesChart() {
     },
   ];
 
-  const layout: any = {
+  const layout: PlotlyObject = {
     title: {
       text: titleText,
       x: 0,

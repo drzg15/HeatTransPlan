@@ -79,7 +79,7 @@ export default function ActionBar({
 
         const data = parsed.data;
         
-        const isLegacy = (scale: any, threshold: number) => {
+        const isLegacy = (scale: unknown, threshold: number) => {
           if (scale == null) return true;
           const num = parseFloat(String(scale));
           if (isNaN(num)) return true;
@@ -109,7 +109,7 @@ export default function ActionBar({
 
         // If it succeeds, parsed.data is heavily typed and guaranteed to be clean
         setState({ ...data, map_locked: true });
-      } catch (err) {
+      } catch {
         alert('Could not parse the file. It is not a valid JSON document.');
       }
     };
