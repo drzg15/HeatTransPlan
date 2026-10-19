@@ -89,7 +89,7 @@ export default function StreamEditor({ id, stream, onChange, onDelete }: Props) 
     }
     // fallback 1: properties/values mapping
     if (stream.properties && stream.values) {
-      const propEntry = Object.entries(stream.properties).find(([_, v]) => v === key);
+      const propEntry = Object.entries(stream.properties).find(([, v]) => v === key);
       if (propEntry) {
         const valKey = propEntry[0].replace('prop', 'val');
         if ((stream.values as Record<string, string>)[valKey] !== undefined) {
@@ -98,7 +98,7 @@ export default function StreamEditor({ id, stream, onChange, onDelete }: Props) 
       }
     }
     // fallback 2: direct legacy fields
-    const s = stream as any;
+    const s = stream;
     if (key === 'Tin' && s.temp_in !== undefined) return String(s.temp_in);
     if (key === 'Tout' && s.temp_out !== undefined) return String(s.temp_out);
     if (key === 'ṁ' && s.mdot !== undefined) return String(s.mdot);

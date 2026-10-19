@@ -1,6 +1,7 @@
 /** Project state model — mirrors backend ProjectState. */
 
 import type { ProcessNode } from './process';
+import type { EnergyDemandLocal } from './analysis';
 
 export interface GroupCoordinates {
   lat?: string | number | null;
@@ -26,6 +27,6 @@ export interface ProjectState {
   map_snapshots_encoded?: Record<string, string>;
   // Potential Analysis
   selected_streams?: Record<string, boolean>;
-  energy_demands?: any[];
+  energy_demands?: EnergyDemandLocal[];
   t_min?: number;
 }

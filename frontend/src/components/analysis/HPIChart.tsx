@@ -1,6 +1,6 @@
 /** HPIChart — GCC with diamond markers for selected heat pumps. */
 
-import Plot from 'react-plotly.js';
+import Plot, { type PlotlyObject } from 'react-plotly.js';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
@@ -33,7 +33,7 @@ export default function HPIChart() {
   const gccT = hpiResult.gcc_data.T;
 
   // GCC segment traces
-  const traces: any[] = [];
+  const traces: PlotlyObject[] = [];
   const heatCascade = pinchResult.heat_cascade;
 
   const profileMode = hpiResult.profile_mode ?? 'net_load';
@@ -168,7 +168,7 @@ export default function HPIChart() {
       ? t('analysis.charts.hpi_partial')
       : t('analysis.charts.hpi_none');
 
-  const layout: any = {
+  const layout: PlotlyObject = {
     title: {
       text: titleText,
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },

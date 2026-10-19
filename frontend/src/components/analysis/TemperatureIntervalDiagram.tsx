@@ -1,6 +1,6 @@
 /** TemperatureIntervalDiagram — shifted temperature interval diagram via Plotly. */
 
-import Plot from 'react-plotly.js';
+import Plot, { type PlotlyObject } from 'react-plotly.js';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 
@@ -18,9 +18,9 @@ export default function TemperatureIntervalDiagram() {
   const numStreams = pinchStreams.length;
   const xPositions = pinchStreams.map((_, i) => (i + 1) * 1.0);
 
-  const traces: any[] = [];
-  const shapes: any[] = [];
-  const annotations: any[] = [];
+  const traces: PlotlyObject[] = [];
+  const shapes: PlotlyObject[] = [];
+  const annotations: PlotlyObject[] = [];
 
   // Horizontal temperature lines
   temps.forEach((temperature) => {
@@ -113,7 +113,7 @@ export default function TemperatureIntervalDiagram() {
     });
   });
 
-  const layout: any = {
+  const layout: PlotlyObject = {
     title: { text: t('analysis.charts.shifted_temp_diagram'), font: { size: 14 } },
     xaxis: {
       title: 'Streams',

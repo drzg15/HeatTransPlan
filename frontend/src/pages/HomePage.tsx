@@ -32,8 +32,8 @@ export default function HomePage() {
       setState(data);
       setSuccessMsg(t('home.example_success'));
       setTimeout(() => navigate('/data-collection'), 800);
-    } catch (e: any) {
-      setError(e.message || t('home.example_error'));
+    } catch (e) {
+      setError((e as { message?: string }).message || t('home.example_error'));
     } finally {
       setLoadingExample(false);
     }
