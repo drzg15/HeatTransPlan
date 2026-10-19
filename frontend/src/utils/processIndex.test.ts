@@ -34,3 +34,38 @@ describe('orphanProcesses', () => {
     expect(orphanProcesses(procs, [[0, 1], [2, 3]])).toEqual([]);
   });
 });
+
+describe('deleting a subprocess with saved scenarios', () => {
+  it('moves the selections of every scenario, not only the active one', async () => {
+    const { useAnalysisStore } = await import('../store/analysisStore');
+    type Scenario = ReturnType<typeof useAnalysisStore.getState>['scenarios'][number];
+    const scenario = (id: string, selectedStreams: Record<string, boolean>): Scenario => ({
+      id,
+      name: id,
+      selectedStreams,
+      energyDemands: [],
+      selectedHPPoints: [],
+      tMin: 10,
+    });
+
+    useAnalysisStore.setState({
+      selectedStreams: { stream_0_0: true, stream_2_0: false },
+      activeScenarioId: 'active',
+      scenarios: [
+        scenario('active', { stream_0_0: true, stream_2_0: false }),
+        // A scenario saved earlier, with subprocess 2's stream switched on.
+        scenario('saved', { stream_1_0: false, stream_2_0: true }),
+      ],
+    });
+
+    // Subprocess 1 is deleted; subprocess 2 becomes subprocess 1.
+    useAnalysisStore.getState().removeProcessesFromSelections([1]);
+
+    const s = useAnalysisStore.getState();
+    expect(s.selectedStreams).toEqual({ stream_0_0: true, stream_1_0: false });
+    expect(s.scenarios[0].selectedStreams).toEqual({ stream_0_0: true, stream_1_0: false });
+    // Before, this one kept stream_2_0: pointing past the end, or at whatever
+    // subprocess moved into position 2.
+    expect(s.scenarios[1].selectedStreams).toEqual({ stream_1_0: true });
+  });
+});

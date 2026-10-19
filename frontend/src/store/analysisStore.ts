@@ -12,6 +12,7 @@ import type {
   StatusQuoResult,
 } from '../types/analysis';
 import { newId } from '../utils/id';
+import { rekeySelection } from '../utils/processIndex';
 
 interface AnalysisStore {
   // Stream selection: "stream_{procIdx}_{streamIdx}" → boolean
@@ -68,6 +69,7 @@ interface AnalysisStore {
   // Actions
   setSelectedStream: (key: string, val: boolean) => void;
   setSelectedStreams: (streams: Record<string, boolean>) => void;
+  removeProcessesFromSelections: (removed: number[]) => void;
   setStreamsForProcess: (pIdx: number, val: boolean, processes: any[]) => void;
   toggleStreamSelection: (pIdx: number, sIdx: number) => void;
   initSelectedStreams: (keys: string[]) => void;
@@ -157,6 +159,19 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
     set({ selectedStreams: streams });
     set((s) => syncScenario(s));
   },
+
+  // Selections refer to streams by their process's position, so removing
+  // processes moves every later one up. The live selection only reaches the
+  // active scenario; the other saved scenarios have to move too, or they end
+  // up pointing at the wrong streams.
+  removeProcessesFromSelections: (removed) =>
+    set((s) => ({
+      selectedStreams: rekeySelection(removed, s.selectedStreams),
+      scenarios: s.scenarios.map((sc) => ({
+        ...sc,
+        selectedStreams: rekeySelection(removed, sc.selectedStreams),
+      })),
+    })),
 
   setStreamsForProcess: (pIdx, val, processes) => {
     set((s) => {

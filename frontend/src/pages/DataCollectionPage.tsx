@@ -86,7 +86,7 @@ export default function DataCollectionPage() {
       const next = removeProcesses(orphans, processes, state.proc_groups, selectedStreams);
       setProcesses(next.processes);
       setGroups(next.groups);
-      setSelectedStreams(next.selection);
+      useAnalysisStore.getState().removeProcessesFromSelections(orphans);
     }
   }, []);
 
