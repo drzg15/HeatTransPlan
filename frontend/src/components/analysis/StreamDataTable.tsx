@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
+import type { GroupCoordinates } from '../../types/project';
 import { extractStreamInfo } from '../../utils/streamInfo';
 import {
   exportProjectToCsv,
@@ -12,7 +13,7 @@ interface Props {
   processes: ProcessNode[];
   groups: number[][];
   groupNames: string[];
-  groupCoordinates?: Record<string, { lat?: any; lon?: any; hours?: any }>;
+  groupCoordinates?: Record<string, GroupCoordinates>;
 }
 
 type SortKey =
@@ -35,6 +36,27 @@ type SortKey =
   | 'pressure'
   | 'notes';
 
+interface Row {
+  group: string;
+  subprocess: string;
+  streamName: string;
+  type: 'hot' | 'cold' | '' | null;
+  tin: number | null;
+  tout: number | null;
+  mdot: number | null;
+  cp: number | null;
+  CP: number | null;
+  Q: number | null;
+  lat: string | number;
+  lon: string | number;
+  hours: string | number;
+  water_in: string | null;
+  water_out: string | null;
+  density: string | null;
+  pressure: string | null;
+  notes: string;
+}
+
 export default function StreamDataTable({
   processes,
   groups = [],
@@ -48,7 +70,7 @@ export default function StreamDataTable({
 
   // Flatten streams
   const allRows = useMemo(() => {
-    const res: any[] = [];
+    const res: Row[] = [];
     groups.forEach((subIdxs, gIdx) => {
       const gName = groupNames[gIdx] || `Process ${gIdx + 1}`;
       const gCoord = groupCoordinates[gIdx] || {};
@@ -91,7 +113,7 @@ export default function StreamDataTable({
         }
 
         (sub.streams || []).forEach((s) => {
-          const si = extractStreamInfo(s as any);
+          const si = extractStreamInfo(s);
           res.push({
             ...baseInfo,
             ...si,
@@ -118,7 +140,7 @@ export default function StreamDataTable({
             notes: child.extra_info?.notes || sub.extra_info?.notes || '',
           };
           (child.streams || []).forEach((s) => {
-            const si = extractStreamInfo(s as any);
+            const si = extractStreamInfo(s);
             res.push({
               ...childBase,
               ...si,
@@ -142,7 +164,7 @@ export default function StreamDataTable({
       if (vA === vB) return 0;
       if (vA == null) return 1;
       if (vB == null) return -1;
-      let res = vA < vB ? -1 : 1;
+      const res = vA < vB ? -1 : 1;
       return sortDir === 'asc' ? res : -res;
     });
   }, [allRows, sortKey, sortDir]);
@@ -212,8 +234,8 @@ export default function StreamDataTable({
                 processes,
                 proc_groups: groups,
                 proc_group_names: groupNames,
-                proc_group_coordinates: groupCoordinates as any,
-              } as any)
+                proc_group_coordinates: groupCoordinates,
+              })
             }
             style={{ fontSize: '10px', padding: '2px 8px' }}
           >
@@ -272,8 +294,8 @@ export default function StreamDataTable({
                         processes,
                         proc_groups: groups,
                         proc_group_names: groupNames,
-                        proc_group_coordinates: groupCoordinates as any,
-                      } as any,
+                        proc_group_coordinates: groupCoordinates,
+                      },
                       'manhattan'
                     );
                   }}
@@ -299,8 +321,8 @@ export default function StreamDataTable({
                         processes,
                         proc_groups: groups,
                         proc_group_names: groupNames,
-                        proc_group_coordinates: groupCoordinates as any,
-                      } as any,
+                        proc_group_coordinates: groupCoordinates,
+                      },
                       'euclidean'
                     );
                   }}

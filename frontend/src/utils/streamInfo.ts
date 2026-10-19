@@ -27,10 +27,24 @@ function tryFloat(v: unknown): number | null {
   return isNaN(n) ? null : n;
 }
 
-export function extractStreamInfo(stream: Record<string, any>): StreamInfo {
-  const sv: Record<string, any> = stream.stream_values || stream.product_values || {};
-  const properties: Record<string, string> = stream.properties || {};
-  const values: Record<string, string> = stream.values || {};
+/** The fields read from a stream; a `Stream` fits, and so do legacy objects
+ *  that still carry `product_values`. */
+export interface StreamInfoSource {
+  stream_values?: Record<string, string>;
+  product_values?: Record<string, string>;
+  properties?: object;
+  values?: object;
+  stream_units?: Record<string, string>;
+  temp_in?: unknown;
+  temp_out?: unknown;
+  mdot?: unknown;
+  cp?: unknown;
+}
+
+export function extractStreamInfo(stream: StreamInfoSource): StreamInfo {
+  const sv: Record<string, string> = stream.stream_values || stream.product_values || {};
+  const properties = (stream.properties || {}) as Record<string, string>;
+  const values = (stream.values || {}) as Record<string, string>;
   const units = stream.stream_units || {};
 
   let tin: number | null = null;
@@ -100,7 +114,7 @@ export function extractStreamInfo(stream: Record<string, any>): StreamInfo {
   const water_out = sv['Water Content Out'] || null;
 
   // Compute CP (heat capacity flow rate)
-  let CP: number | null = cpDirect ?? (mdot != null && cpVal != null ? mdot * cpVal : null);
+  const CP: number | null = cpDirect ?? (mdot != null && cpVal != null ? mdot * cpVal : null);
 
   // Compute Q
   const Q = CP != null && tin != null && tout != null ? Math.abs(CP * (tout - tin)) : null;

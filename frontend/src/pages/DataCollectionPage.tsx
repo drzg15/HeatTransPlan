@@ -14,6 +14,13 @@ import CollectionHelp from '../components/ui/CollectionHelp';
 import { useIsMobile } from '../hooks/useMediaQuery';
 import { orphanProcesses, removeProcesses } from '../utils/processIndex';
 
+/** The fields read from a nominatim search hit. */
+interface NominatimResult {
+  lat: string;
+  lon: string;
+  display_name: string;
+}
+
 export default function DataCollectionPage() {
   const { t } = useTranslation();
   const state = useProjectStore((s) => s.state);
@@ -38,7 +45,7 @@ export default function DataCollectionPage() {
   const [mobilePane, setMobilePane] = useState<'editor' | 'map'>('map');
 
   const [addressSearch, setAddressSearch] = useState('');
-  const [_searchResults, setSearchResults] = useState<any[]>([]);
+  const [, setSearchResults] = useState<NominatimResult[]>([]);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   // Auto-sync UI mode with map_locked state (e.g., when loading files)
@@ -106,19 +113,19 @@ export default function DataCollectionPage() {
   const setExpandedGroups = (val: Set<number>) => useUIStore.getState().setGroupsExpanded(val);
 
   const handleElementDoubleClick = useCallback(
-    (type: 'group' | 'sub' | 'child' | 'stream', id: any, subId?: any) => {
+    (type: 'group' | 'sub' | 'child' | 'stream', id: number | { subIdx: number }, subId?: number | string) => {
       let pIdx = -1;
       let targetGIdx = -1;
 
-      if (type === 'group') targetGIdx = id;
+      if (type === 'group') targetGIdx = id as number;
       else if (type === 'sub') {
-        pIdx = id;
+        pIdx = id as number;
         targetGIdx = state.proc_groups.findIndex((g) => g.includes(pIdx));
       } else if (type === 'child') {
-        pIdx = id.subIdx;
+        pIdx = (id as { subIdx: number }).subIdx;
         targetGIdx = state.proc_groups.findIndex((g) => g.includes(pIdx));
       } else if (type === 'stream') {
-        pIdx = id;
+        pIdx = id as number;
         targetGIdx = state.proc_groups.findIndex((g) => g.includes(pIdx));
       }
 
@@ -257,7 +264,7 @@ export default function DataCollectionPage() {
           addressSearch
         )}`
       );
-      const data = await resp.json();
+      const data: NominatimResult[] = await resp.json();
       if (data.length > 0) {
         setSearchResults(data);
         const lat = parseFloat(data[0].lat);

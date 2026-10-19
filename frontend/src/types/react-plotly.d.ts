@@ -1,23 +1,36 @@
 declare module 'react-plotly.js' {
-  import { Component } from 'react';
-  import { PlotParams } from 'plotly.js';
+  // No @types/plotly.js is installed, so traces, layouts and configs stay
+  // open-ended records; only the fields the app reads back are typed.
+  export type PlotlyObject = Record<string, unknown>;
+
+  export interface PlotPoint {
+    x?: unknown;
+    y?: unknown;
+    customdata?: unknown;
+    [key: string]: unknown;
+  }
+
+  export interface PlotEvent {
+    points?: PlotPoint[];
+    [key: string]: unknown;
+  }
 
   interface PlotProps {
-    data: any[];
-    layout?: any;
-    config?: any;
+    data: PlotlyObject[];
+    layout?: PlotlyObject;
+    config?: PlotlyObject;
     style?: React.CSSProperties;
     className?: string;
     useResizeHandler?: boolean;
-    onInitialized?: (figure: any, graphDiv: HTMLElement) => void;
-    onUpdate?: (figure: any, graphDiv: HTMLElement) => void;
-    onPurge?: (figure: any, graphDiv: HTMLElement) => void;
+    onInitialized?: (figure: PlotlyObject, graphDiv: HTMLElement) => void;
+    onUpdate?: (figure: PlotlyObject, graphDiv: HTMLElement) => void;
+    onPurge?: (figure: PlotlyObject, graphDiv: HTMLElement) => void;
     onError?: (err: Error) => void;
-    onClick?: (event: any) => void;
-    onHover?: (event: any) => void;
-    onUnhover?: (event: any) => void;
-    onSelected?: (event: any) => void;
-    onRelayout?: (event: any) => void;
+    onClick?: (event: PlotEvent) => void;
+    onHover?: (event: PlotEvent) => void;
+    onUnhover?: (event: PlotEvent) => void;
+    onSelected?: (event: PlotEvent) => void;
+    onRelayout?: (event: PlotlyObject) => void;
     revision?: number;
   }
 

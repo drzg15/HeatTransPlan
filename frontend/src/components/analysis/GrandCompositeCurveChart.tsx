@@ -1,6 +1,6 @@
 /** GrandCompositeCurveChart — color-segmented GCC via Plotly. */
 
-import Plot from 'react-plotly.js';
+import Plot, { type PlotlyObject } from 'react-plotly.js';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
@@ -22,7 +22,7 @@ export default function GrandCompositeCurveChart() {
   const heatCascade = pinchResult.heat_cascade;
 
   // Build one trace per segment for color
-  const traces: any[] = [];
+  const traces: PlotlyObject[] = [];
   // The curve is drawn segment by segment, so each colour would otherwise
   // appear in the legend once per segment. Let the first segment of each
   // colour carry the entry and silence the rest.
@@ -57,7 +57,7 @@ export default function GrandCompositeCurveChart() {
     });
   }
 
-  const layout: any = {
+  const layout: PlotlyObject = {
     title: {
       text: t('optimization.title_grand_composite_curve'),
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
