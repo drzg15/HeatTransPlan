@@ -30,7 +30,11 @@ REF = os.environ.get("GITHUB_SHA") or "main"
 _PY_FUNC = r"^\s*(?:async\s+)?def\s+{name}\b"
 _PY_OTHER = (r"^\s*class\s+{name}\b", r"^{name}\s*(?::[^=]*)?=")
 _TS_FUNC = r"^\s*(?:export\s+)?(?:default\s+)?(?:async\s+)?function\s+{name}\b"
-_TS_OTHER = (r"^\s*(?:export\s+)?(?:const|let|type|interface|class)\s+{name}\b",)
+_TS_OTHER = (
+    r"^\s*(?:export\s+)?(?:const|let|type|interface|class)\s+{name}\b",
+    # A method in an object literal, such as a store action: `useStore.action`.
+    r"^\s*{name}\s*:\s*(?:async\s+)?\(",
+)
 
 
 def _find(lines, patterns, name, start=0):

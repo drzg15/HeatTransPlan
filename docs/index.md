@@ -23,7 +23,7 @@ A user works through four stages:
 | Stage | What happens |
 |---|---|
 | **Data collection** | Processes, subprocesses and their hot and cold streams are entered — mass flow, heat capacity, inlet and outlet temperatures — and placed on a map of the site. |
-| **Stream selection** | The streams to analyse are chosen, on a list or directly on the map, and saved as scenarios to compare without re-entering data. |
+| **Stream selection** | The streams to analyse are chosen, on a list or directly on the map, and saved as scenarios to compare without re-entering data. Scenarios are kept with the project: in the Save file and across a reload. |
 | **Pinch analysis** | Composite curves, the grand composite curve, the pinch temperature and the minimum utility demands are computed. |
 | **Heat pump integration** | Feasible heat pump operating points are evaluated across the temperature range, with COP, duty and electrical input for each. |
 | **Report** | Everything above is exported as a self-contained HTML report, one page per saved scenario. |
