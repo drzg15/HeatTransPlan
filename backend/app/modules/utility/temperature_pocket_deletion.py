@@ -78,7 +78,10 @@ class TemperaturePocketDeletion:
                                     break
                             j=i
                         else:
-                            self.heatCascadedeltaH = 0.0
+                            # The two intervals cancel: the merged one carries
+                            # no net heat. This used to drop the index and
+                            # replace the whole list with 0.0, crashing below.
+                            self.heatCascadedeltaH[j] = 0.0
                             self.heatCascadedeltaH.pop(j+1)
                             self.heatCascadeexitH.pop(j+1)
                             self._temperatures.pop(j+1)

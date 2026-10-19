@@ -198,3 +198,34 @@ def test_analysis_leaves_no_charts_behind():
             client.post("/api/analysis/hpi-optimization",
                         json={"pinch_result": p, "profile_mode": mode})
     assert set(plt.get_fignums()) == before
+
+
+
+def test_a_pocket_that_cancels_exactly_is_removed():
+    """Below the pinch, a 30 kW surplus followed by a 30 kW deficit: the case
+    where pocket deletion merges two intervals that cancel exactly. It used to
+    overwrite the whole cascade with a number and crash, so the optimization
+    in the default mode answered 500 — an empty heat pump view on the page.
+
+    Worked by hand (shifted temperatures): the cascade from the pinch down is
+    0 → 20 → 50 → 20 → 30 kW at 100, 90, 80, 70, 60 °C. The +30/−30 pair
+    between 90 and 70 °C cancels, so the pocket-free source profile is
+    (100, 0) → (90, 20) → (70, 20) → (60, 30).
+    """
+    streams = [
+        {"name": "H1", "CP": 2.0, "T_supply": 105, "T_target": 65},
+        {"name": "H2", "CP": 1.0, "T_supply": 95, "T_target": 85},
+        {"name": "C1", "CP": 5.0, "T_supply": 65, "T_target": 75},
+        {"name": "C2", "CP": 1.0, "T_supply": 55, "T_target": 65},
+        {"name": "C3", "CP": 3.0, "T_supply": 95, "T_target": 115},
+    ]
+    p = client.post("/api/analysis/pinch", json={"streams": streams, "T_min": 10}).json()
+    assert p["pinch_temperature"] == pytest.approx(100)
+    assert p["grand_composite_curve"]["H"] == pytest.approx([60, 0, 20, 50, 20, 30])
+
+    r = client.post("/api/analysis/hpi-optimization", json={"pinch_result": p, "profile_mode": "net_load"})
+    assert r.status_code == 200, r.text
+    source = r.json()["pocketless_source"]
+    assert source["T"] == pytest.approx([60, 70, 90, 100])
+    assert source["H"] == pytest.approx([30, 20, 20, 0])
+    assert r.json()["feasible_points"]
