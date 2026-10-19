@@ -78,6 +78,20 @@ I18N = {
         "pinch_label": "Pinch: ",
         "real": "Real",
         "theoretical": "Theoretical",
+        "hp_table_title": "Integration with Heat Pump model and optimization",
+        "hdr_type": "TYPE",
+        "hdr_refrig": "REFRIG.",
+        "hdr_medium_sink": "MEDIUM SINK",
+        "hdr_q_sink": "Q_SINK (KW)",
+        "hdr_q_source": "Q_SOURCE (KW)",
+        "hdr_p_el": "P_EL (KW)",
+        "hdr_actual_sink": "Actual Sink Temp [\u00b0C]",
+        "hdr_shifted_sink": "Shifted Sink (T+{half}K) [\u00b0C]",
+        "hdr_actual_source": "Actual Source Temp [\u00b0C]",
+        "hdr_shifted_source": "Shifted Source (T-{half}K) [\u00b0C]",
+        "hdr_refrigerant": "REFRIGERANT",
+        "hdr_hp_stages": "HP STAGES",
+        "carnot_50": "Carnot (50 %)",
         "map_not_avail": "Map not available"
     },
     "de": {
@@ -145,6 +159,20 @@ I18N = {
         "pinch_label": "Pinch: ",
         "real": "Real",
         "theoretical": "Theoretisch",
+        "hp_table_title": "Integration in W\u00e4rmepumpenmodell und Optimierung",
+        "hdr_type": "TYP",
+        "hdr_refrig": "K\u00c4LTEM.",
+        "hdr_medium_sink": "MEDIUM SENKE",
+        "hdr_q_sink": "Q_SENKE (KW)",
+        "hdr_q_source": "Q_QUELLE (KW)",
+        "hdr_p_el": "P_EL (KW)",
+        "hdr_actual_sink": "Senkentemperatur [\u00b0C]",
+        "hdr_shifted_sink": "Verschobene Senke (T+{half}K) [\u00b0C]",
+        "hdr_actual_source": "Quellentemperatur [\u00b0C]",
+        "hdr_shifted_source": "Verschobene Quelle (T-{half}K) [\u00b0C]",
+        "hdr_refrigerant": "K\u00c4LTEMITTEL",
+        "hdr_hp_stages": "WP STUFEN",
+        "carnot_50": "Carnot (50 %)",
         "map_not_avail": "Karte nicht verfügbar"
     }
 }
@@ -169,6 +197,17 @@ _GCC_BG = '#CBD5E1'
 _EL = '#059669'
 _HP_STROKE = '#7C3AED'
 _HP_FILL = 'rgba(237,233,254,0.95)'
+
+# Column tints from the page's table, matching the heat pump overlay in the
+# chart so a column can be read back to the arrow it belongs to.
+_SINK_CELL = 'background-color:rgba(143,174,224,0.20)'
+_SOURCE_CELL = 'background-color:rgba(232,139,139,0.20)'
+_EL_CELL = 'background-color:rgba(95,174,140,0.18)'
+_COP_CELL = 'background-color:rgba(124,58,237,0.13);font-weight:600'
+_BADGE = ('display:inline-block;padding:0.1rem 0.4rem;border-radius:4px;'
+          'font-size:0.75rem;font-weight:600;')
+_BADGE_REAL = _BADGE + 'background-color:#DBEAFE;color:#1E3A8A'
+_BADGE_THEORETICAL = _BADGE + 'background-color:#D1FAE5;color:#065F46'
 
 
 def _q_source(p: Any) -> float:
@@ -501,30 +540,64 @@ def _render_pinch_content(
           </tbody>
         </table>"""
 
+    # The same table the Potential Analysis page shows above its chart: same
+    # columns, same column tints, same Real/Theoretical badge. Wide, so it gets
+    # the full width and scrolls sideways rather than being squeezed beside the
+    # chart.
     opt_table_html = ""
     opt_rows = _table_points(hpi_optimization_result) if hpi_optimization_result else []
     if opt_rows:
+        half = _fmt(t_min / 2, 1).rstrip('0').rstrip('.')
+        headers = [
+            (texts['hdr_type'], ''), (texts['hdr_refrig'], ''), (texts['hdr_medium_sink'], ''),
+            ('COP', _COP_CELL), (texts['hdr_q_sink'], _SINK_CELL),
+            (texts['hdr_q_source'], _SOURCE_CELL), (texts['hdr_p_el'], _EL_CELL),
+            (texts['hdr_actual_sink'], _SINK_CELL),
+            (texts['hdr_shifted_sink'].format(half=half), _SINK_CELL),
+            (texts['hdr_actual_source'], _SOURCE_CELL),
+            (texts['hdr_shifted_source'].format(half=half), _SOURCE_CELL),
+            (texts['hdr_refrigerant'], ''), (texts['hdr_hp_stages'], ''),
+        ]
+        head = "".join(f"<th>{label}</th>" for label, _ in headers)
+
         rows = ""
         for p in opt_rows:
-            kind = f"{texts['theoretical']} ({p.refrigerant})" if p.theoretical else texts['real']
-            rows += f"""
-            <tr>
-              <td>{kind}</td>
-              <td>{p.medium_sink}</td>
-              <td>{p.refrigerant}</td>
-              <td>{_fmt(p.COP)}</td>
-              <td>{_fmt(p.T_source, 1)}</td>
-              <td>{_fmt(p.T_sink, 1)}</td>
-              <td>{_fmt(p.Q_source, 1)}</td>
-              <td>{_fmt(p.Q_demand, 1)}</td>
-            </tr>"""
+            # The refrigerant column is blank for archetypes, so the technology
+            # name rides in the type cell — otherwise Carnot and VHTHP rows look
+            # identical.
+            badge = _BADGE_THEORETICAL if p.theoretical else _BADGE_REAL
+            label = texts['theoretical'] if p.theoretical else texts['real']
+            tech = (texts['carnot_50'] if p.refrigerant == 'Carnot' else p.refrigerant) if p.theoretical else ''
+            ref_name = p.refrigerant.rsplit('_', 1)[0] if '_' in p.refrigerant else p.refrigerant
+            cells = [
+                (f"<span style=\"{badge}\">{label}</span>"
+                 f"<span style='font-size:0.75rem;color:#64748B;margin-left:0.35rem'>{tech}</span>", ''),
+                ('' if p.theoretical else p.refrigerant_type, ''),
+                ('' if p.theoretical else p.medium_sink, ''),
+                (_fmt(p.COP), _COP_CELL),
+                (_fmt(p.Q_demand, 1), _SINK_CELL),
+                (_fmt(_q_source(p), 1), _SOURCE_CELL),
+                (_fmt(p.Q_demand / p.COP if p.COP else 0, 1), _EL_CELL),
+                (_fmt(p.T_sink, 1), _SINK_CELL),
+                (_fmt(p.T_sink + t_min / 2, 1), _SINK_CELL),
+                (_fmt(p.T_source, 1), _SOURCE_CELL),
+                (_fmt(p.T_source - t_min / 2, 1), _SOURCE_CELL),
+                ('' if p.theoretical else ref_name, ''),
+                ('' if p.theoretical else p.hp_level, ''),
+            ]
+            rows += "<tr>" + "".join(
+                f"<td style=\"{style}\">{value}</td>" if style else f"<td>{value}</td>"
+                for value, style in cells
+            ) + "</tr>"
+
         opt_table_html = f"""
-        <h3>{texts['opt_hp']} ({display_name})</h3>
-        <table class='data-table'>
-          <thead><tr><th>{texts['type']}</th><th>{texts['medium_sink']}</th><th>{texts['refrigerant']}</th><th>COP</th><th>{texts['t_source']} (°C)</th><th>{texts['t_sink']} (°C)</th><th>{texts['q_source']} (kW)</th><th>{texts['q_demand']} (kW)</th></tr></thead>
-          <tbody>{rows}
-          </tbody>
-        </table>"""
+        <h3>{texts['hp_table_title']} ({display_name})</h3>
+        <div class="pa-hp-table-wrap">
+          <table class="pa-hp-table">
+            <thead><tr>{head}</tr></thead>
+            <tbody>{rows}</tbody>
+          </table>
+        </div>"""
 
     # Charts
     chart_layout_base = dict(
@@ -597,10 +670,8 @@ def _render_pinch_content(
             <div class="plot-section">{comp_html}</div>
             <div class="plot-section">{gcc_html}</div>
         </div>
-        <div class="hpi-flex-row">
-            <div class="hpi-table-col">{opt_table_html}</div>
-            <div class="hpi-chart-col"><div class="plot-section">{opt_chart_html}</div></div>
-        </div>
+        {opt_table_html}
+        <div class="plot-section" style="width:100%">{opt_chart_html}</div>
         <h3>{texts['interval_diagram']}</h3>
         <div class="plot-section" style="width:100%">{int_html}</div>
     </div>
@@ -813,6 +884,11 @@ def generate_html_report(req: ReportRequest) -> str:
     .stream-list-section {{ flex:1; }} .map-display-section {{ flex:1; text-align:center; }}
     .map-display-section img {{ max-width:100%; border-radius:5px; border:1px solid #ddd; }}
     .hpi-flex-row {{ display:flex; gap:20px; flex-wrap:wrap; }}
+    .pa-hp-table-wrap {{ margin:8px 0; overflow-x:auto; -webkit-overflow-scrolling:touch; }}
+    .pa-hp-table {{ width:100%; border-collapse:collapse; font-size:0.75rem; margin:8px 0; }}
+    .pa-hp-table th, .pa-hp-table td {{ border:1px solid #e2e8f0; padding:6px 8px; text-align:left; white-space:nowrap; }}
+    .pa-hp-table th {{ background:#2b589c; color:#fff; font-weight:600; }}
+    .pa-hp-table tr:nth-child(even) {{ background:#f8fafc; }}
     .hpi-table-col {{ flex:1; }} .hpi-chart-col {{ flex:1.5; }}
     @media print {{ .nav-tabs {{ display:none; }} .page-content {{ display:block !important; page-break-after:always; }} }}
 </style>
