@@ -1,0 +1,669 @@
+{
+  "_about": "Which heat pumps the optimization panel and the report show. Inputs are hand-written to hit every rule; 'expected' is produced by frontend/src/components/analysis/hpRules.ts. Both that file and backend/app/services/report_service.py are tested against it. Re-record with UPDATE_CONTRACT=1 npx vitest run hpRules.",
+  "points": [
+    {
+      "refrigerant": "Butane_1",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 118,
+      "Q_demand": 150,
+      "COP": 2.98,
+      "Q_source": 99.66443,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Butane_2",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 118,
+      "Q_demand": 150,
+      "COP": 3.05,
+      "Q_source": 100.819672,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Butane_2",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 110,
+      "Q_demand": 120,
+      "COP": 3.4,
+      "Q_source": 84.705882,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Butane_2",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 100,
+      "Q_demand": 100,
+      "COP": 3.9,
+      "Q_source": 74.358974,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Butane_2",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 99,
+      "Q_demand": 101,
+      "COP": 4,
+      "Q_source": 75.75,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Isobutane_1",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 90,
+      "Q_demand": 80,
+      "COP": 4.6,
+      "Q_source": 62.608696,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Isobutane_1",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 94,
+      "Q_demand": 80.4,
+      "COP": 4.4,
+      "Q_source": 62.127273,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Isobutane_1",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 97,
+      "Q_demand": 80.8,
+      "COP": 4.2,
+      "Q_source": 61.561905,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Isobutane_1",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 75,
+      "Q_demand": 50,
+      "COP": 5.8,
+      "Q_source": 41.37931,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "R1224yd_1",
+      "refrigerant_type": "Synthetic",
+      "medium_sink": "Steam",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 118,
+      "Q_demand": 150,
+      "COP": 2.94,
+      "Q_source": 98.979592,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "R1224yd_1",
+      "refrigerant_type": "Synthetic",
+      "medium_sink": "Steam",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 105,
+      "Q_demand": 110,
+      "COP": 3.6,
+      "Q_source": 79.444444,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Pentane_1",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 125,
+      "Q_demand": 160,
+      "COP": 2.7,
+      "Q_source": 100.740741,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": true
+    },
+    {
+      "refrigerant": "Pentane_1",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 130,
+      "Q_demand": 90,
+      "COP": 2.4,
+      "Q_source": 52.5,
+      "theoretical": false,
+      "source_limited": true,
+      "demand_limited": false,
+      "Q_demand_total": 170
+    },
+    {
+      "refrigerant": "Carnot",
+      "refrigerant_type": "Theoretical",
+      "medium_sink": "",
+      "hp_level": "",
+      "T_source": 48,
+      "T_sink": 118,
+      "Q_demand": 150,
+      "COP": 3.61,
+      "Q_source": 108.448753,
+      "theoretical": true,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Carnot",
+      "refrigerant_type": "Theoretical",
+      "medium_sink": "",
+      "hp_level": "",
+      "T_source": 48,
+      "T_sink": 100,
+      "Q_demand": 100,
+      "COP": 4.8,
+      "Q_source": 79.166667,
+      "theoretical": true,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "VHTHP (HFC/HFO)",
+      "refrigerant_type": "Theoretical",
+      "medium_sink": "",
+      "hp_level": "",
+      "T_source": 48,
+      "T_sink": 118,
+      "Q_demand": 150,
+      "COP": 2.56,
+      "Q_source": 91.40625,
+      "theoretical": true,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "VHTHP (HFC/HFO)",
+      "refrigerant_type": "Theoretical",
+      "medium_sink": "",
+      "hp_level": "",
+      "T_source": 48,
+      "T_sink": 99,
+      "Q_demand": 101,
+      "COP": 3.5,
+      "Q_source": 72.142857,
+      "theoretical": true,
+      "source_limited": false,
+      "demand_limited": false
+    },
+    {
+      "refrigerant": "Prototypical Stirling",
+      "refrigerant_type": "Theoretical",
+      "medium_sink": "",
+      "hp_level": "",
+      "T_source": 48,
+      "T_sink": 90,
+      "Q_demand": 80,
+      "COP": 6.1,
+      "Q_source": 66.885246,
+      "theoretical": true,
+      "source_limited": false,
+      "demand_limited": false
+    }
+  ],
+  "cases": {
+    "default": {
+      "max_q_point": {
+        "refrigerant": "Carnot",
+        "refrigerant_type": "Theoretical",
+        "medium_sink": "",
+        "hp_level": "",
+        "T_source": 48,
+        "T_sink": 118,
+        "Q_demand": 150,
+        "COP": 3.61,
+        "Q_source": 108.448753,
+        "theoretical": true,
+        "source_limited": false,
+        "demand_limited": false
+      },
+      "selected": []
+    },
+    "picked_at_99": {
+      "max_q_point": {
+        "refrigerant": "Carnot",
+        "refrigerant_type": "Theoretical",
+        "medium_sink": "",
+        "hp_level": "",
+        "T_source": 48,
+        "T_sink": 118,
+        "Q_demand": 150,
+        "COP": 3.61,
+        "Q_source": 108.448753,
+        "theoretical": true,
+        "source_limited": false,
+        "demand_limited": false
+      },
+      "selected": [
+        {
+          "refrigerant": "Butane_2",
+          "refrigerant_type": "Natural",
+          "medium_sink": "Water",
+          "hp_level": "1",
+          "T_source": 48,
+          "T_sink": 99,
+          "Q_demand": 101,
+          "COP": 4,
+          "Q_source": 75.75,
+          "theoretical": false,
+          "source_limited": false,
+          "demand_limited": false
+        },
+        {
+          "refrigerant": "VHTHP (HFC/HFO)",
+          "refrigerant_type": "Theoretical",
+          "medium_sink": "",
+          "hp_level": "",
+          "T_source": 48,
+          "T_sink": 99,
+          "Q_demand": 101,
+          "COP": 3.5,
+          "Q_source": 72.142857,
+          "theoretical": true,
+          "source_limited": false,
+          "demand_limited": false
+        }
+      ]
+    },
+    "max_q_hidden": {
+      "max_q_point": {
+        "refrigerant": "Pentane_1",
+        "refrigerant_type": "Natural",
+        "medium_sink": "Water",
+        "hp_level": "1",
+        "T_source": 48,
+        "T_sink": 125,
+        "Q_demand": 160,
+        "COP": 2.7,
+        "Q_source": 100.740741,
+        "theoretical": false,
+        "source_limited": false,
+        "demand_limited": true
+      },
+      "selected": []
+    },
+    "picked_twice": {
+      "max_q_point": {
+        "refrigerant": "Butane_2",
+        "refrigerant_type": "Natural",
+        "medium_sink": "Water",
+        "hp_level": "1",
+        "T_source": 48,
+        "T_sink": 118,
+        "Q_demand": 150,
+        "COP": 3.05,
+        "Q_source": 100.819672,
+        "theoretical": false,
+        "source_limited": false,
+        "demand_limited": false
+      },
+      "selected": [
+        {
+          "refrigerant": "Butane_2",
+          "refrigerant_type": "Natural",
+          "medium_sink": "Water",
+          "hp_level": "1",
+          "T_source": 48,
+          "T_sink": 110,
+          "Q_demand": 120,
+          "COP": 3.4,
+          "Q_source": 84.705882,
+          "theoretical": false,
+          "source_limited": false,
+          "demand_limited": false
+        },
+        {
+          "refrigerant": "R1224yd_1",
+          "refrigerant_type": "Synthetic",
+          "medium_sink": "Steam",
+          "hp_level": "1",
+          "T_source": 48,
+          "T_sink": 105,
+          "Q_demand": 110,
+          "COP": 3.6,
+          "Q_source": 79.444444,
+          "theoretical": false,
+          "source_limited": false,
+          "demand_limited": false
+        }
+      ]
+    }
+  },
+  "only_off_profile": [
+    {
+      "refrigerant": "Pentane_1",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 125,
+      "Q_demand": 160,
+      "COP": 2.7,
+      "Q_source": 100.740741,
+      "theoretical": false,
+      "source_limited": false,
+      "demand_limited": true
+    },
+    {
+      "refrigerant": "Pentane_1",
+      "refrigerant_type": "Natural",
+      "medium_sink": "Water",
+      "hp_level": "1",
+      "T_source": 48,
+      "T_sink": 130,
+      "Q_demand": 90,
+      "COP": 2.4,
+      "Q_source": 52.5,
+      "theoretical": false,
+      "source_limited": true,
+      "demand_limited": false,
+      "Q_demand_total": 170
+    }
+  ],
+  "expected": {
+    "default": {
+      "chart_points": [
+        "Butane_1@118@48",
+        "Butane_2@100@48",
+        "Butane_2@110@48",
+        "Butane_2@118@48",
+        "Butane_2@99@48",
+        "Carnot@100@48",
+        "Carnot@118@48",
+        "Isobutane_1@75@48",
+        "Isobutane_1@90@48",
+        "Isobutane_1@94@48",
+        "Isobutane_1@97@48",
+        "Prototypical Stirling@90@48",
+        "R1224yd_1@105@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "default_highlight": "Butane_2@118@48",
+      "table_rows": [
+        "Carnot@118@48",
+        "Pentane_1@125@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48"
+      ],
+      "table_order": [
+        "Pentane_1@125@48",
+        "Carnot@118@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48"
+      ],
+      "cloud_real": [
+        "Butane_2@100@48",
+        "Butane_2@110@48",
+        "Butane_2@118@48",
+        "Butane_2@99@48",
+        "Isobutane_1@75@48",
+        "Isobutane_1@90@48",
+        "R1224yd_1@105@48",
+        "R1224yd_1@118@48"
+      ],
+      "cloud_theoretical": [
+        "Carnot@100@48",
+        "Carnot@118@48",
+        "Prototypical Stirling@90@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "active_points": [
+        "Butane_2@118@48"
+      ],
+      "box_point": "Butane_2@118@48"
+    },
+    "picked_at_99": {
+      "chart_points": [
+        "Butane_1@118@48",
+        "Butane_2@100@48",
+        "Butane_2@110@48",
+        "Butane_2@118@48",
+        "Butane_2@99@48",
+        "Carnot@100@48",
+        "Carnot@118@48",
+        "Isobutane_1@75@48",
+        "Isobutane_1@90@48",
+        "Isobutane_1@94@48",
+        "Isobutane_1@97@48",
+        "Prototypical Stirling@90@48",
+        "R1224yd_1@105@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "default_highlight": "Butane_2@118@48",
+      "table_rows": [
+        "Butane_2@99@48",
+        "Carnot@118@48",
+        "Pentane_1@125@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "table_order": [
+        "Pentane_1@125@48",
+        "Carnot@118@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "Butane_2@99@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "cloud_real": [
+        "Butane_2@100@48",
+        "Butane_2@110@48",
+        "Butane_2@118@48",
+        "Butane_2@99@48",
+        "Isobutane_1@75@48",
+        "Isobutane_1@90@48",
+        "R1224yd_1@105@48",
+        "R1224yd_1@118@48"
+      ],
+      "cloud_theoretical": [
+        "Carnot@100@48",
+        "Carnot@118@48",
+        "Prototypical Stirling@90@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "active_points": [
+        "Butane_2@118@48",
+        "Butane_2@99@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "box_point": "Butane_2@99@48"
+    },
+    "max_q_hidden": {
+      "chart_points": [
+        "Butane_1@118@48",
+        "Butane_2@100@48",
+        "Butane_2@110@48",
+        "Butane_2@118@48",
+        "Butane_2@99@48",
+        "Carnot@100@48",
+        "Carnot@118@48",
+        "Isobutane_1@75@48",
+        "Isobutane_1@90@48",
+        "Isobutane_1@94@48",
+        "Isobutane_1@97@48",
+        "Prototypical Stirling@90@48",
+        "R1224yd_1@105@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "default_highlight": "Butane_2@118@48",
+      "table_rows": [
+        "Carnot@118@48",
+        "Pentane_1@125@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48"
+      ],
+      "table_order": [
+        "Pentane_1@125@48",
+        "Carnot@118@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48"
+      ],
+      "cloud_real": [
+        "Butane_2@100@48",
+        "Butane_2@110@48",
+        "Butane_2@118@48",
+        "Butane_2@99@48",
+        "Isobutane_1@75@48",
+        "Isobutane_1@90@48",
+        "R1224yd_1@105@48",
+        "R1224yd_1@118@48"
+      ],
+      "cloud_theoretical": [
+        "Carnot@100@48",
+        "Carnot@118@48",
+        "Prototypical Stirling@90@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "active_points": [
+        "Butane_2@118@48"
+      ],
+      "box_point": "Butane_2@118@48"
+    },
+    "picked_twice": {
+      "chart_points": [
+        "Butane_1@118@48",
+        "Butane_2@100@48",
+        "Butane_2@110@48",
+        "Butane_2@118@48",
+        "Butane_2@99@48",
+        "Carnot@100@48",
+        "Carnot@118@48",
+        "Isobutane_1@75@48",
+        "Isobutane_1@90@48",
+        "Isobutane_1@94@48",
+        "Isobutane_1@97@48",
+        "Prototypical Stirling@90@48",
+        "R1224yd_1@105@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "default_highlight": "Butane_2@118@48",
+      "table_rows": [
+        "Butane_2@110@48",
+        "Carnot@118@48",
+        "Pentane_1@125@48",
+        "R1224yd_1@105@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48"
+      ],
+      "table_order": [
+        "Pentane_1@125@48",
+        "Carnot@118@48",
+        "R1224yd_1@118@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "Butane_2@110@48",
+        "R1224yd_1@105@48"
+      ],
+      "cloud_real": [
+        "Butane_2@100@48",
+        "Butane_2@110@48",
+        "Butane_2@118@48",
+        "Butane_2@99@48",
+        "Isobutane_1@75@48",
+        "Isobutane_1@90@48",
+        "R1224yd_1@105@48",
+        "R1224yd_1@118@48"
+      ],
+      "cloud_theoretical": [
+        "Carnot@100@48",
+        "Carnot@118@48",
+        "Prototypical Stirling@90@48",
+        "VHTHP (HFC/HFO)@118@48",
+        "VHTHP (HFC/HFO)@99@48"
+      ],
+      "active_points": [
+        "Butane_2@118@48",
+        "Butane_2@110@48",
+        "R1224yd_1@105@48"
+      ],
+      "box_point": "R1224yd_1@105@48"
+    },
+    "only_off_profile": {
+      "chart_points": [
+        "Pentane_1@125@48",
+        "Pentane_1@130@48"
+      ],
+      "default_highlight": "Pentane_1@125@48",
+      "table_rows": [
+        "Pentane_1@125@48"
+      ],
+      "table_order": [
+        "Pentane_1@125@48"
+      ],
+      "cloud_real": [
+        "Pentane_1@125@48",
+        "Pentane_1@130@48"
+      ],
+      "cloud_theoretical": [],
+      "active_points": [
+        "Pentane_1@125@48"
+      ],
+      "box_point": "Pentane_1@125@48"
+    }
+  }
+}

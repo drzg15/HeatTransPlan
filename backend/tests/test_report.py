@@ -80,15 +80,16 @@ def test_german_report_has_every_label():
 
 
 def test_table_lists_the_pumps_the_page_lists():
-    from app.services.report_service import _table_points
+    from app.services.report_service import _hp_view
 
-    rows = _table_points(_opt())
-    names = [p.refrigerant for p in rows]
-    # Best real machine per refrigerant type, plus Carnot and the best other
-    # archetype. Stirling fits only at a low sink temperature, so it loses to
-    # VHTHP on duty despite the higher COP.
-    assert names == ["Butane_1", "R1224yd", "Carnot", "VHTHP"]
-    assert all(not p.source_limited and not p.demand_limited for p in rows)
+    rows = _hp_view(_opt(), []).table
+    # Best machine per refrigerant type — here the source-limited one, which
+    # delivers the most duty; the page keeps off-profile machines in the table
+    # and only hides them from the chart. Plus Carnot and the best other
+    # archetype: Stirling fits only at a low sink temperature, so it loses to
+    # VHTHP on duty despite the higher COP. In the order the page opens the
+    # table in: most duty first. (Every rule is pinned in contracts/hp_rules.json.)
+    assert [p.refrigerant for p in rows] == ["Limited", "R1224yd", "Carnot", "VHTHP"]
 
 
 def test_chart_hides_the_off_profile_points():
@@ -112,17 +113,18 @@ def test_report_lists_every_pump_row():
         assert name in html
 
 
-def test_a_picked_pump_takes_the_box_and_the_top_row():
-    from app.services.report_service import _headline_point, _table_points
+def test_a_picked_pump_takes_the_box_and_joins_the_table():
+    from app.services.report_service import _hp_view
 
     opt = _opt()
     picked = _point(T_sink=100.0, Q_demand=600.0, COP=3.4)
 
     # Nothing clicked: the best real machine, which is what the page highlights.
-    assert _headline_point(opt, []).T_sink == 118.0
+    assert _hp_view(opt, []).box.T_sink == 118.0
     # Clicked: that one, even though it delivers less duty.
-    assert _headline_point(opt, [picked]).T_sink == 100.0
-    assert _table_points(opt, [picked])[0].T_sink == 100.0
+    view = _hp_view(opt, [picked])
+    assert view.box.T_sink == 100.0
+    assert any(p.T_sink == 100.0 for p in view.table)
 
 
 def test_report_shows_the_picked_pump():

@@ -1,36 +1,20 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAnalysisStore } from '../../store/analysisStore';
+import {
+  chartPointsOf,
+  DEFAULT_TABLE_SORT,
+  defaultHighlightOf,
+  sortRows,
+  tableRowsOf,
+  type SortConfig,
+  type SortKey,
+} from './hpRules';
 import { useUIStore } from '../../store/uiStore';
 import { useTranslation } from 'react-i18next';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 import HPIOptimizationChart from './HPIOptimizationChart';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import CopFormulaModal from './CopFormulaModal';
-
-type SortKey =
-  | 'refrigerant_type'
-  | 'medium_sink'
-  | 'refrigerant'
-  | 'hp_level'
-  | 'COP'
-  | 'T_source'
-  | 'T_sink'
-  | 'Q_source'
-  | 'W_el'
-  | 'Q_demand'
-  | 'theoretical';
-
-/** An operating point is identified by its refrigerant and the temperature
- *  pair it runs between — the backend sends max_q_point as its own object, so
- *  it never matches a point in the list by reference. */
-function isSamePoint(a: OptimizedIntegrationPoint, b: OptimizedIntegrationPoint): boolean {
-  return (
-    a.refrigerant === b.refrigerant &&
-    a.medium_sink === b.medium_sink &&
-    a.T_sink === b.T_sink &&
-    a.T_source === b.T_source
-  );
-}
 
 export default function HPIOptimizationPanel() {
   const hpiOptimizationResult = useAnalysisStore((s) => s.hpiOptimizationResult);
@@ -64,9 +48,7 @@ export default function HPIOptimizationPanel() {
   const [showDemandLimited, setShowDemandLimited] = useState(false);
 
   // Sort state (supports multi-column)
-  const [sortConfigs, setSortConfigs] = useState<
-    Array<{ key: SortKey; direction: 'asc' | 'desc' }>
-  >([{ key: 'COP', direction: 'desc' }]);
+  const [sortConfigs, setSortConfigs] = useState<SortConfig[]>([{ key: 'COP', direction: 'desc' }]);
   const [hpDropdownOpen, setHpDropdownOpen] = useState(false);
   const [refDropdownOpen, setRefDropdownOpen] = useState(false);
   const hpDropdownRef = useRef<HTMLDivElement>(null);
@@ -81,7 +63,7 @@ export default function HPIOptimizationPanel() {
       setHpLevelFilter([]);
       setShowSourceLimited(false);
       setShowDemandLimited(false);
-      setSortConfigs([{ key: 'Q_demand', direction: 'desc' }]);
+      setSortConfigs(DEFAULT_TABLE_SORT);
     }
   }, [hpiOptimizationResult]);
 
@@ -143,151 +125,18 @@ export default function HPIOptimizationPanel() {
     feasible_points.filter((p) => p.theoretical).map((p) => p.refrigerant)
   ).size;
 
-  // Two kinds of point sit off a profile and turn the chart into a cloud when
-  // plotted by default. Source-limited ones deliver less than the demand above
-  // T_sink, so they miss the sink profile; demand-limited ones leave waste heat
-  // unused at T_source, so they miss the source profile. Both stay in the table
-  // and can be switched on explicitly.
-  const onProfilePoints = filteredPoints.filter((p) => !p.source_limited && !p.demand_limited);
+  // Which points the chart plots and which pump it highlights by default —
+  // see hpRules.ts, which the report shares.
   const sourceLimitedCount = filteredPoints.filter((p) => p.source_limited).length;
   const demandLimitedCount = filteredPoints.filter((p) => p.demand_limited).length;
-  // If nothing sits on the profiles, a chart with no points at all would be
-  // worse than a busy one — fall back to showing everything.
-  const chartPoints =
-    onProfilePoints.length === 0
-      ? filteredPoints
-      : filteredPoints.filter(
-          (p) =>
-            (!p.source_limited || showSourceLimited) && (!p.demand_limited || showDemandLimited)
-        );
+  const chartPoints = chartPointsOf(filteredPoints, showSourceLimited, showDemandLimited);
+  const chartMaxQPoint = defaultHighlightOf(chartPoints, max_q_point);
 
-  // The max-Q point is highlighted by default, so it has to follow the same
-  // visibility rules as the cloud — otherwise it draws an off-profile marker
-  // while the source/demand-limited boxes are unticked, which reads as a bug.
-  // An explicitly selected point is left alone: hiding what was just clicked
-  // would be worse than showing it off-profile.
-  //
-  // When the backend's max-Q point is one of the hidden ones, highlight the
-  // best point that *is* visible rather than dropping the highlight — the
-  // source→sink connector is drawn only for the active point, so leaving it
-  // empty loses the link between the two dots. Same rule as the backend: most
-  // duty delivered, higher COP breaks a tie.
-  const bestVisiblePoint = chartPoints.reduce<OptimizedIntegrationPoint | null>(
-    (best, p) =>
-      !best || p.Q_demand > best.Q_demand || (p.Q_demand === best.Q_demand && p.COP > best.COP)
-        ? p
-        : best,
-    null
-  );
-  // The headline pump is a machine you could actually buy, so the default
-  // highlight skips the theoretical references — Carnot wins on COP at the top
-  // duty and would otherwise always be the one in the box.
-  const bestRealPoint = chartPoints.reduce<OptimizedIntegrationPoint | null>(
-    (best, p) =>
-      p.theoretical
-        ? best
-        : !best || p.Q_demand > best.Q_demand || (p.Q_demand === best.Q_demand && p.COP > best.COP)
-          ? p
-          : best,
-    null
-  );
-  const chartMaxQPoint =
-    max_q_point && !max_q_point.theoretical && chartPoints.some((p) => isSamePoint(p, max_q_point))
-      ? max_q_point
-      : (bestRealPoint ?? bestVisiblePoint);
-
-  const bestByType = new Map<string, OptimizedIntegrationPoint>();
-  for (const pt of filteredPoints) {
-    if (pt.theoretical) continue;
-    const existing = bestByType.get(pt.refrigerant_type);
-    if (
-      !existing ||
-      pt.Q_demand > existing.Q_demand ||
-      (pt.Q_demand === existing.Q_demand && pt.COP > existing.COP)
-    ) {
-      bestByType.set(pt.refrigerant_type, pt);
-    }
-  }
-  let tableData = Array.from(bestByType.values());
-
-  // Every archetype shares the one "Theoretical" type, so grouping them by type
-  // would collapse five technologies into a single row. Group by technology.
-  const bestTheoretical = new Map<string, OptimizedIntegrationPoint>();
-  for (const pt of filteredPoints) {
-    if (!pt.theoretical) continue;
-    const existing = bestTheoretical.get(pt.refrigerant);
-    if (
-      !existing ||
-      pt.Q_demand > existing.Q_demand ||
-      (pt.Q_demand === existing.Q_demand && pt.COP > existing.COP)
-    ) {
-      bestTheoretical.set(pt.refrigerant, pt);
-    }
-  }
-  // Carnot is the thermodynamic ceiling, so it always stays as the reference.
-  // Of the remaining archetypes only the best one is shown — listing every
-  // technology that happens to fit at some sink temperature buried the table.
-  //
-  // "Best" is the one at the maximum integration point, not the highest COP:
-  // an archetype that only fits at a low sink temperature covers a fraction of
-  // the demand, and its COP is high precisely because it does less work. Duty
-  // first, COP as the tie-break — the same order bestByType uses above.
-  const allTheoretical = Array.from(bestTheoretical.values());
-  const carnotRow = allTheoretical.find((p) => p.refrigerant === 'Carnot');
-  const bestOtherRow = allTheoretical
-    .filter((p) => p.refrigerant !== 'Carnot')
-    .sort((a, b) => b.Q_demand - a.Q_demand || b.COP - a.COP)[0];
-  const theoreticalRows = showTheoretical
-    ? [carnotRow, bestOtherRow].filter((p): p is OptimizedIntegrationPoint => Boolean(p))
-    : [];
-
-  // Archetypes take part in the table's own sort rather than sitting in a
-  // pinned block, so one click on a header orders every row consistently.
-  const pointsToShow = [...theoreticalRows, ...tableData];
-  selectedPoints.forEach((sp) => {
-    // A point selected while the toggle was on must not linger once it is off.
-    if (sp.theoretical && !showTheoretical) return;
-    if (!pointsToShow.some((p) => p.refrigerant === sp.refrigerant && p.T_sink === sp.T_sink)) {
-      pointsToShow.unshift(sp);
-    }
-  });
+  // The rows of the table, before the user's column sort — see hpRules.ts.
+  const pointsToShow = tableRowsOf(filteredPoints, showTheoretical, selectedPoints);
 
   // Sorting
-  pointsToShow.sort((a, b) => {
-    for (const config of sortConfigs) {
-      // Q_source and P_el are derived rather than stored on the point, so they
-      // are computed here instead of read off the object.
-      const valueFor = (p: OptimizedIntegrationPoint): string | number | boolean | undefined => {
-        switch (config.key) {
-          case 'Q_source':
-            return (p.Q_demand * (p.COP - 1)) / p.COP;
-          // Electrical input closes the balance: Q_sink - Q_source = Q_sink/COP.
-          case 'W_el':
-            return p.Q_demand / p.COP;
-          default:
-            return p[config.key];
-        }
-      };
-      let valA = valueFor(a);
-      let valB = valueFor(b);
-
-      // theoretical is an optional boolean; compare it as 0/1 so undefined
-      // sorts with the real machines rather than below everything.
-      if (config.key === 'theoretical') {
-        valA = a.theoretical ? 1 : 0;
-        valB = b.theoretical ? 1 : 0;
-      }
-      if (valA === undefined || valB === undefined) continue;
-
-      if (valA < valB) return config.direction === 'asc' ? -1 : 1;
-      if (valA > valB) return config.direction === 'asc' ? 1 : -1;
-    }
-    // Every sort key can tie — Q_sink especially, since several machines often
-    // cover the same duty. Without a final tie-break the rows keep the order
-    // they were built in, which puts the archetypes on top and reads as an
-    // unsorted table. COP descending is the meaningful second key.
-    return b.COP - a.COP;
-  });
+  sortRows(pointsToShow, sortConfigs);
 
 
   const rowsToRender = pointsToShow;
