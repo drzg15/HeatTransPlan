@@ -362,7 +362,9 @@ The optimization returns hundreds or thousands of points. What the page shows of
 
 **The highlighted pump** — the one drawn with the box, the COP and the electrical input — is `max_q_point` if it is a real machine on the chart. Otherwise it is the real machine on the chart delivering the most heat, ties broken by COP. Carnot would otherwise always take the box at the top duty.
 
-**Clicking a point** picks every machine at that sink temperature. The box moves to the best of them, and they join the table, shaded.
+**The filters** — sink medium, refrigerant type, refrigerant, stages, the archetypes, the off-profile points — narrow the points before any of the rules below apply ({code}`frontend/src/components/analysis/hpRules.ts#filterPoints`). They are saved with each scenario.
+
+**Clicking a point** picks every machine at that sink temperature. The box moves to the best of them, and they join the table, shaded. A pick lasts until it is cleared: a new result keeps it if that exact pump is in it, and a filter change keeps it if the filter still lets it through ({code}`frontend/src/components/analysis/hpRules.ts#picksAmong`, {code}`frontend/src/store/analysisStore.ts#useAnalysisStore.setHPIOptimizationResult`). A filter value the new result no longer offers falls back to *All* ({code}`frontend/src/components/analysis/hpRules.ts#filtersFor`).
 
 **The table** lists the best real machine per refrigerant type, plus Carnot and the best of the other archetypes — best meaning most heat delivered, COP breaking a tie — plus any picked pump. It opens sorted by heat delivered, highest first; clicking a column header re-sorts it.
 
@@ -370,6 +372,6 @@ The optimization returns hundreds or thousands of points. What the page shows of
 
 ### The report
 
-The generated report draws the same chart and table on the server, with a function-for-function port of these rules ({code}`backend/app/services/report_service.py#_hp_view`). A pump picked on the page is sent along and shown in the report. The report has no filter controls, so it applies the page's defaults: every filter on *All*, archetypes shown, off-profile points hidden.
+The generated report draws the same chart and table on the server, with a function-for-function port of these rules ({code}`backend/app/services/report/hp_rules.py#_hp_view`). Each scenario's picked pumps and filters are sent along, so the report shows the same rows, chart and boxed pump as the page; above the table it lists the filters that were on, so a filtered table is not read as the full one. A request without filters gets the page's defaults ({code}`backend/app/models/report.py#HPFilters`).
 
 Both implementations are tested against one shared file, {code}`contracts/hp_rules.json`: hand-written points that hit every rule, with the outputs the page's rules give for them. A rule changed on one side and not the other fails a test ({code}`frontend/src/components/analysis/hpRules.test.ts`, {code}`backend/tests/test_hp_rules_contract.py`).

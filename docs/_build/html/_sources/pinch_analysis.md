@@ -354,9 +354,9 @@ $$
 \text{Coverage}_{cool} = \min(\dot{Q}_{source},\ \dot{Q}_{C,min})
 $$
 
-The pump is the one boxed on the [optimization chart](heat_pump_optimization.md#how-the-results-are-shown) — the pump picked there, if one was clicked — with $\dot{Q}_{source} = \dot{Q}_{sink}\,(COP - 1)/COP$. The page and the report use the same rule, so they always name the same machine.
+The pump is the one boxed on the [optimization chart](heat_pump_optimization.md#how-the-results-are-shown) — the pump picked there, if one was clicked, among the points the panel's filters let through — with $\dot{Q}_{source} = \dot{Q}_{sink}\,(COP - 1)/COP$. The page and the report use the same rule, so they always name the same machine.
 
-**Implementation:** {code}`backend/app/services/analysis_service.py#run_status_quo` (savings), {code}`frontend/src/components/analysis/hpRules.ts#highlightedPumpOf` (the pump, on the page), {code}`backend/app/services/report_service.py#_hp_view` (the pump, in the report)
+**Implementation:** {code}`backend/app/services/analysis_service.py#run_status_quo` (savings), {code}`frontend/src/components/analysis/hpRules.ts#highlightedPumpOf` (the pump, on the page), {code}`backend/app/services/report/hp_rules.py#_hp_view` (the pump, in the report)
 
 <details>
 <summary><b>Show the code</b></summary>
