@@ -2,15 +2,15 @@
 
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
-import type { HPIResult } from '../../types/analysis';
+import { highlightedPumpOf } from './hpRules';
 import ChartHelpButton from '../ui/ChartHelpButton';
 
 export default function StatusQuoComparison() {
   const { t } = useTranslation();
   const statusQuoResult = useAnalysisStore((s) => s.statusQuoResult);
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
-  const hpiResult = useAnalysisStore((s) => s.hpiResult);
-  const selectedHPTypes = useAnalysisStore((s) => s.selectedHPTypes);
+  const hpiOptimizationResult = useAnalysisStore((s) => s.hpiOptimizationResult);
+  const selectedHPPoints = useAnalysisStore((s) => s.selectedHPPoints);
   const energyDemands = useAnalysisStore((s) => s.energyDemands);
 
   if (!pinchResult) return null;
@@ -45,17 +45,27 @@ export default function StatusQuoComparison() {
       ? `${((Math.abs(cooling_savings_kW) / total_current_cooling) * 100).toFixed(1)}%`
       : 'N/A';
 
-  // Find best HP for coverage columns
-  const bestHP = getBestHP(hpiResult, selectedHPTypes);
-  const hpLabel = bestHP ? `${t('analysis.tables.status_quo.hp_cov_kw')} – ${bestHP.name}` : t('analysis.tables.status_quo.hp_cov_kw');
+  // Coverage is rated with the pump boxed on the optimization chart — the main
+  // heat pump view, and the one the report uses too.
+  const pump = hpiOptimizationResult
+    ? highlightedPumpOf(
+        hpiOptimizationResult.feasible_points,
+        hpiOptimizationResult.max_q_point,
+        selectedHPPoints
+      )
+    : null;
+  const hpLabel = pump
+    ? `${t('analysis.tables.status_quo.hp_cov_kw')} – ${pump.refrigerant}`
+    : t('analysis.tables.status_quo.hp_cov_kw');
   let hpHeatCov = 'N/A',
     hpCoolCov = 'N/A',
     hpHeatPct = 'N/A',
     hpCoolPct = 'N/A';
 
-  if (bestHP && bestHP.q_sink != null && bestHP.q_source != null) {
-    const hCov = Math.min(bestHP.q_sink, pinch_hot_utility);
-    const cCov = Math.min(bestHP.q_source, pinch_cold_utility);
+  if (pump) {
+    const qSource = (pump.Q_demand * (pump.COP - 1)) / pump.COP;
+    const hCov = Math.min(pump.Q_demand, pinch_hot_utility);
+    const cCov = Math.min(qSource, pinch_cold_utility);
     hpHeatCov = hCov.toFixed(1);
     hpCoolCov = cCov.toFixed(1);
     hpHeatPct = pinch_hot_utility > 0 ? `${((hCov / pinch_hot_utility) * 100).toFixed(1)}%` : 'N/A';
@@ -111,16 +121,4 @@ export default function StatusQuoComparison() {
       </div>
     </div>
   );
-}
-
-function getBestHP(hpiResult: HPIResult | null, selectedHPTypes: string[]) {
-  if (!hpiResult) return null;
-  const available = hpiResult.heat_pumps
-    .filter((hp) => hp.available)
-    .sort((a, b) => (b.cop ?? 0) - (a.cop ?? 0));
-  if (selectedHPTypes.length > 0) {
-    const sel = available.filter((hp) => selectedHPTypes.includes(hp.name));
-    if (sel.length > 0) return sel[0];
-  }
-  return available[0] ?? null;
 }

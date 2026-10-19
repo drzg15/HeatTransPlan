@@ -261,6 +261,20 @@ export function boxPointOf(activePoints: Point[]): Point | null {
     .reduce<Point | null>((b, p) => (beats(p, b) ? p : b), null);
 }
 
+/**
+ * The pump the chart boxes, with the panel's filters at their defaults. The
+ * status quo comparison on the page and the report both rate heat pump
+ * coverage with it, so the two can never name different machines.
+ */
+export function highlightedPumpOf(
+  points: Point[],
+  maxQPoint: Point | null,
+  selectedPoints: Point[]
+): Point | null {
+  const highlight = defaultHighlightOf(chartPointsOf(points), maxQPoint);
+  return boxPointOf(activePointsOf(highlight, selectedPoints));
+}
+
 /** Sorts the table rows in place by the given columns, as the header clicks set them. */
 export function sortRows(pointsToShow: Point[], sortConfigs: SortConfig[]): Point[] {
   return pointsToShow.sort((a, b) => {
