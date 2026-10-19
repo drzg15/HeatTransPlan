@@ -50,7 +50,8 @@ function apply(points: Point[], maxQ: Point | null, selected: Point[]) {
 
 describe('heat pump display rules', () => {
   const actual: Record<string, ReturnType<typeof apply>> = {};
-  for (const [name, c] of Object.entries<any>(contract.cases)) {
+  const cases = contract.cases as Record<string, { max_q_point: Point; selected: Point[] }>;
+  for (const [name, c] of Object.entries(cases)) {
     actual[name] = apply(contract.points, c.max_q_point, c.selected);
   }
   // With nothing on the profiles, the chart falls back to every point.
