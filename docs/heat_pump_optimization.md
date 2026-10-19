@@ -350,7 +350,7 @@ Each operating point ({code}`backend/app/models/analysis.py#OptimizedIntegration
 | `theoretical` | `true` for a technology archetype |
 | `calculation_details` | How this point's COP was arrived at — the formula, or the regression and its inputs |
 
-The table on the page derives the remaining columns: the electrical input $W_{el} = \dot{Q}_{sink} / COP$, and each temperature a second time with $\Delta T_{min}/2$ added (sink) or subtracted (source), in the columns headed *Shifted*.
+The table on the page derives the remaining columns: the electrical input $W_{el} = \dot{Q}_{sink} / COP$, and the **actual** temperatures. `T_source` and `T_sink` are the shifted ones the COP is computed at, shown as they are in the columns headed *Shifted*; the actual sink temperature is $\Delta T_{min}/2$ below the shifted one, the actual source temperature $\Delta T_{min}/2$ above.
 
 ---
 
