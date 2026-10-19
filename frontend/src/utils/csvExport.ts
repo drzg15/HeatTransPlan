@@ -77,7 +77,7 @@ export function exportProjectToCsv(state: ProjectState) {
         ]);
       } else {
         (sub.streams || []).forEach((s) => {
-          const si = extractStreamInfo(s as any);
+          const si = extractStreamInfo(s);
           rows.push([
             `${gName}_${sub.name}_${s.name}`,
             String(si.cp ?? ''),
@@ -135,7 +135,7 @@ export function exportProjectToCsv(state: ProjectState) {
             ]);
           } else {
             (child.streams || []).forEach((s) => {
-              const si = extractStreamInfo(s as any);
+              const si = extractStreamInfo(s);
               rows.push([
                 `${gName}_${c_name}_${s.name}`,
                 String(si.cp ?? ''),

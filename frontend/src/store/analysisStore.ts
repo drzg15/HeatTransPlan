@@ -11,6 +11,7 @@ import type {
   ProfileMode,
   StatusQuoResult,
 } from '../types/analysis';
+import type { ProcessNode } from '../types/process';
 import { newId } from '../utils/id';
 import { rekeySelection } from '../utils/processIndex';
 
@@ -70,7 +71,7 @@ interface AnalysisStore {
   setSelectedStream: (key: string, val: boolean) => void;
   setSelectedStreams: (streams: Record<string, boolean>) => void;
   removeProcessesFromSelections: (removed: number[]) => void;
-  setStreamsForProcess: (pIdx: number, val: boolean, processes: any[]) => void;
+  setStreamsForProcess: (pIdx: number, val: boolean, processes: ProcessNode[]) => void;
   toggleStreamSelection: (pIdx: number, sIdx: number) => void;
   initSelectedStreams: (keys: string[]) => void;
   setEnergyDemands: (demands: EnergyDemandLocal[]) => void;
@@ -178,7 +179,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
       const next = { ...s.selectedStreams };
       const proc = processes[pIdx];
       if (proc) {
-        (proc.streams || []).forEach((_: any, si: number) => {
+        (proc.streams || []).forEach((_, si) => {
           next[`stream_${pIdx}_${si}`] = val;
         });
       }
@@ -243,7 +244,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
 
   setPinchResult: (result) => {
     set((s) => {
-      const newState: any = { pinchResult: result };
+      const newState: Partial<AnalysisStore> = { pinchResult: result };
 
       // Auto-save "All streams" if it's the first time we get a result and no scenarios exist
       if (result && s.scenarios.length === 0 && !s.activeScenarioId) {
@@ -258,7 +259,8 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
           hpiOptimizationResult: null,
           statusQuoResult: null,
         };
-        newState.scenarios = [newScen];
+        // selectedHPPoints is deliberately absent: the scenario is saved before any pump is picked.
+        newState.scenarios = [newScen as AnalysisStore['scenarios'][number]];
         newState.activeScenarioId = newScen.id;
       }
 

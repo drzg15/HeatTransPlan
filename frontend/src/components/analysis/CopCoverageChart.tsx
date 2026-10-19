@@ -6,7 +6,7 @@
  *  which is cheap, so its COP is high. Pushing coverage towards 100 % forces
  *  the sink temperature up and the COP down. This chart is that trade-off. */
 
-import Plot from 'react-plotly.js';
+import Plot, { type PlotlyObject } from 'react-plotly.js';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
@@ -47,7 +47,7 @@ export default function CopCoverageChart() {
   // Only the frontier is plotted. The full cloud was thousands of dominated
   // points: for any one of them there is a machine at the same coverage with a
   // better COP, so it says nothing about the trade-off.
-  const traces: any[] = [
+  const traces: PlotlyObject[] = [
     {
       x: frontier.map(([c]) => c),
       y: frontier.map(([, p]) => p.COP),
@@ -75,7 +75,7 @@ export default function CopCoverageChart() {
     .filter((_, i) => i % Math.max(1, Math.round(frontier.length / 8)) === 0)
     .map(([c, p]) => ({ c, kw: p.Q_demand, t: p.T_sink }));
 
-  const layout: any = {
+  const layout: PlotlyObject = {
     title: {
       text: t('optimization.cop_coverage_title'),
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
