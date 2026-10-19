@@ -49,3 +49,6 @@ graphify-out/
 
 # Written by the CI lint step
 frontend/eslint.json
+
+# Generated when the docs are built (conf.py)
+docs/_generated/

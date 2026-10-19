@@ -2,7 +2,12 @@
 
 Heat Pump Integration (HPI) determines the **operating point** for a heat pump placed on the Grand Composite Curve (GCC). It answers the key engineering questions: *At what source temperature should the heat pump extract waste heat? How much condenser duty can it deliver? And what is the resulting COP?*
 
-The module supports both a **best-available** mode (picks whichever technology gives the highest COP at each operating point) and a **technology-specific** mode (evaluates one named heat pump type across its full operating window).
+In the app this is the **single-point heat pump analysis**: on the Potential Analysis page it sits behind the *Show single-point heat pump analysis* button, below the [optimization](heat_pump_optimization.md), which is the main view. It is not part of the generated report.
+
+The module supports two modes:
+
+- **Technology-specific** — one named heat pump type, across its own operating window. This is what the app runs: each of the five technologies below is integrated separately ({code}`backend/app/services/analysis_service.py#run_hpi`), and one that leaves its rated window during the walk is listed as unavailable, with the reason.
+- **Best-available** — at each operating point, whichever technology gives the highest COP. Available in the module; the app does not use it.
 
 ---
 
@@ -18,20 +23,18 @@ Each heat pump technology has a defined **operating envelope**: a sink temperatu
 | SHP and HTHPs (R717) | 70 | 85 | 30 | 75 |
 | Theoretical Carnot ($\times 0.5$ efficiency) | $-\infty$ | $+\infty$ | $0$ | $+\infty$ |
 
+The table is the single source of truth: the COP functions, the list of available heat pumps and the exclusion messages all read it.
+
+**Implementation:** {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HP_OPERATING_WINDOWS`, checked by {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#in_operating_window`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (HP_OPERATING_WINDOWS)</summary>
+<summary><b>Show the code</b></summary>
 
 ```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
 :language: python
 :start-at: HP_OPERATING_WINDOWS = {
 :end-before: HP_COP_CORRELATIONS
 ```
-
-</details>
-
-<details>
-<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (in_operating_window)</summary>
 
 ```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
 :language: python
@@ -54,10 +57,11 @@ Each prototypical technology model represents a specific heat pump architecture,
 - **SHP and HTHPs (R717)**: **Standard & High Temperature Heat Pumps** using natural Ammonia (R717) refrigerant ($T_{sink}$: 70°C–85°C, $\Delta T$: 30–75 K).
 - **Theoretical Carnot (50% Carnot / 0.5 Carnot)**: Theoretical Carnot baseline operating at 50% exergetic second-law efficiency factor ($\eta_{Carnot} = 0.5$).
 
-> [!IMPORTANT]
-> **Physical Lift and Shifted Temperatures**: The source and sink temperatures taken from the Grand Composite Curve are shifted temperatures ($T_{hot} - \Delta T_{min}/2$ and $T_{cold} + \Delta T_{min}/2$). Because of this opposite shift, the difference between them ($T_{sink} - T_{source}$) exactly equals the true physical temperature lift the heat pump must overcome ($T_{cold} - T_{hot} + \Delta T_{min}$). Therefore, no additional $\Delta T_{min}$ penalty is needed in the COP calculation; it is mathematically built into the curve.
-> 
-> **COP Limit**: To prevent mathematically unrealistic values when the temperature lift approaches zero, the final calculated COP is strictly capped at a maximum of **15.0**.
+```{important}
+**Physical Lift and Shifted Temperatures**: The source and sink temperatures taken from the Grand Composite Curve are shifted temperatures ($T_{hot} - \Delta T_{min}/2$ and $T_{cold} + \Delta T_{min}/2$). Because of this opposite shift, the difference between them ($T_{sink} - T_{source}$) exactly equals the true physical temperature lift the heat pump must overcome ($T_{cold} - T_{hot} + \Delta T_{min}$). Therefore, no additional $\Delta T_{min}$ penalty is needed in the COP calculation; it is mathematically built into the curve.
+
+**COP Limit**: To prevent mathematically unrealistic values when the temperature lift approaches zero, the calculated COP is capped at **15.0** — a higher value is reported as 15.0.
+```
 
 These regression formulas take the form:
 
@@ -65,7 +69,7 @@ $$
 COP = a \cdot (\Delta T + 2c)^b \cdot (T_{sink} + 273 + c)^d
 $$
 
-where $a, b, c, d$ are fitted regression coefficients specific to each prototypical technology. The temperature is converted to Kelvin ($+273$) for the sink term.
+where $a, b, c, d$ are fitted regression coefficients specific to each prototypical technology. The temperature is converted to Kelvin ($+273$) for the sink term. *SHP and HTHPs (HFC/HFO)* is the exception: its fit depends on the lift alone, $COP = a \cdot (\Delta T + 2c)^b$.
 
 For example, the **VHTHP (HFC/HFO)** regression model is:
 
@@ -73,73 +77,66 @@ $$
 COP_{VHTHP} = 1.9118 \cdot (\Delta T + 2 \times 0.04419)^{-0.89094} \cdot (T_{sink} + 273 + 0.04419)^{0.67895}
 $$
 
-### Carnot Fallback
+The app shows the formula behind every number: each technology's COP comes with the regression written out and the point's own temperatures substituted ({code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HP_COP_FORMULAS`).
 
-When no named technology can operate at a given point, the system falls back to a **generic Carnot COP** at 50% efficiency factor ($\times 0.5$):
+### The 50 % Carnot Baseline
+
+Alongside the regressions, every operating point is also rated by a **generic Carnot COP** at 50 % efficiency ($\times 0.5$):
 
 $$
 COP_{Carnot} = \frac{T_{sink} + 273.15}{\Delta T} \times 0.5
 $$
 
-This represents "any theoretical heat pump" — it is not a real machine, but an upper bound for comparison.
+This represents "any heat pump" — not a real machine. It is deliberately **half** the thermodynamic ceiling, a rule of thumb for a realistically achievable machine rather than an upper bound: a real refrigerant scoring above it is expected and is not a physics violation.
+
+**Implementation:** {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HP_COP_CORRELATIONS`, {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#carnot_cop`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (lines 19–33)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-HP_COP_CORRELATIONS = {
-    'Prototypical Stirling':
-        lambda t_sink, dt: (1.28792 * (dt + 2 * 0.54103) ** (-0.37606)
-                            * (t_sink + 273 + 0.54103) ** 0.35992),
-    'VHTHP (HFC/HFO)':
-        lambda t_sink, dt: (1.9118 * (dt + 2 * 0.04419) ** (-0.89094)
-                            * (t_sink + 273 + 0.04419) ** 0.67895),
-    'SHP and HTHPs (HFC/HFO)':
-        lambda t_sink, dt: 1.4480 * (10 ** 12) * (dt + 2 * 88.73) ** (-4.9469),
-    'SHP and HTHPs (R717)':
-        lambda t_sink, dt: (40.789 * (dt + 2 * 1.0305) ** (-1.0489)
-                            * (t_sink + 273 + 1.0305) ** 0.29998),
-}
+```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
+:language: python
+:start-at: HP_COP_CORRELATIONS = {
+:end-before: "# String templates"
+```
 
-def carnot_cop(t_sink, dt):
-    """Carnot COP at 50% efficiency — generic fallback."""
-    return (t_sink + 273.15) / dt * 0.5
+```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
+:language: python
+:pyobject: carnot_cop
 ```
 
 </details>
 
 ---
 
-## Best-Available COP Selection
+## COP Selection
 
-When asked for the COP at a source temperature $T_{source}$, the system:
+In the **technology-specific** mode the app uses, the COP at a source temperature $T_{source}$ is that technology's correlation at the lift $\Delta T = T_{sink} - T_{source}$. If the point falls outside the technology's operating window, the calculation stops with an error instead of quietly substituting another number, and the technology is reported as unavailable with the reason.
+
+In the **best-available** mode, the system:
 
 1. Computes the temperature lift: $\Delta T = T_{sink} - T_{source}$
 2. Checks which technologies have this point inside their operating window
 3. Evaluates the COP correlation for each valid technology
 4. Returns the **highest COP** among all candidates
 
-If no named technology applies, the Carnot fallback is returned.
+The 50 % Carnot baseline is always among the candidates, since its window is unbounded: it is returned whenever no named technology applies, or when it scores highest.
+
+Either way, a lift of zero or less is rejected — there is no heat pump to place.
+
+**Implementation:** {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HeatPumpIntegration.COP_specific`, {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HeatPumpIntegration.COP`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (lines 98–118)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def COP(self, T):
-    """Best COP available at source temperature T, across all technologies."""
-    self._check_lift(T)
-    delta_T = self.t_sink_out - T
+```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
+:language: python
+:pyobject: HeatPumpIntegration.COP_specific
+```
 
-    candidates = [
-        (correlation(self.t_sink_out, delta_T), hp_type)
-        for hp_type, correlation in HP_COP_CORRELATIONS.items()
-        if in_operating_window(hp_type, self.t_sink_out, delta_T)
-    ]
-    if not candidates:
-        cop, hp = carnot_cop(self.t_sink_out, delta_T), 'Carnot'
-    else:
-        cop, hp = max(candidates, key=lambda c: c[0])
-    return min(cop, 15.0), hp
+```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
+:language: python
+:pyobject: HeatPumpIntegration.COP
 ```
 
 </details>
@@ -150,37 +147,38 @@ def COP(self, T):
 
 Before integrating the heat pump, process heat curves are converted into a **source profile** (below the pinch — heat available for the evaporator) and a **sink profile** (above the pinch — heat demand for the condenser).
 
-The application supports **two primary heat recovery modes** depending on how much internal heat exchange is assumed to happen between process streams before placing the heat pump:
+The application supports **two heat recovery modes**, chosen on the Potential Analysis page, depending on how much internal heat exchange is assumed to happen between process streams before placing the heat pump:
 
 | Mode | Heat Recovery Assumption | What the Heat Pump Sees |
 |---|---|---|
 | **With heat recovery** (default) | **Full recovery (100%)** | Residual utility demand only (pocket-free GCC) |
-| **No heat recovery** | **No heat recovery (0%)** | Full raw stream duties directly |
+| **No heat recovery** | **No heat recovery (0%)** | Full raw stream duties directly (composite curves) |
 
 ### Detailed Mode Breakdown
 
 1. **With heat recovery (Full Heat Recovery - Default)**
-   - All internal process heat recovery takes place first. Temperature pockets are deleted.
+   - All internal process heat recovery takes place first. [Temperature pockets are deleted](pinch_analysis.md#step-8--temperature-pocket-deletion).
    - The heat pump only sees the **residual net utility demand** remaining above and below the pinch point.
 
 2. **No heat recovery (Raw Composite Curves)**
    - Assumes **zero internal heat exchange** between streams.
    - Every hot stream dumps 100% of its thermal duty into the heat pump evaporator (or cold utility).
    - Every cold stream receives 100% of its thermal duty from the heat pump condenser (or hot utility).
+   - The composite curves have no pinch, so the source and sink temperature ranges can overlap; points without a positive lift are skipped.
+
+**Implementation:** {code}`backend/app/modules/utility/heat_profiles.py#resolve_profiles`, with {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HeatPumpIntegration.split_hot_and_cold` for the default mode and {code}`backend/app/modules/utility/heat_profiles.py#_composite_profiles` for the other
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/utility/heat_profiles.py</code> (lines 170–202)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def resolve_profiles(pinch, hpi, mode="net_load"):
-    """Return (source, sink) profiles for the given mode."""
-    if mode == "net_load":
-        # Standard: delete temperature pockets, then split GCC
-        hpi.delete_temperature_pockets()
-        return hpi.split_hot_and_cold()
+```{literalinclude} ../backend/app/modules/utility/heat_profiles.py
+:language: python
+:pyobject: resolve_profiles
+```
 
-    # Non-default modes use the problem table directly
-    return build_heat_profiles(pinch, mode)
+```{literalinclude} ../backend/app/modules/utility/heat_profiles.py
+:language: python
+:pyobject: _composite_profiles
 ```
 
 </details>
@@ -213,50 +211,38 @@ This formula comes from the heat pump energy balance: $\dot{Q}_{ko} = \dot{Q}_{e
 
 The walk continues until the condenser duty meets the sink demand. When it gets close, the **step size is refined** (divided by 200) for precision. The iteration converges when $\dot{Q}_{ko}$ matches the sink profile at the target sink temperature.
 
+The reported operating point is the last point of the walk — the converged one — unless the very first (hottest) source point already covers the hot utility requirement, in which case the heat pump over-delivers straight away and that point is reported.
+
 ### Iterative sink temperature mode
 
-When no sink temperature is specified, the system iterates: it starts at the top of the sink profile, computes $\dot{Q}_{ko}$, reads back what temperature that corresponds to on the sink curve, and repeats until the sink temperature converges within 1°C.
+When no sink temperature is specified — as in the app — the system iterates: it starts at the top of the sink profile, computes $\dot{Q}_{ko}$, reads back what temperature that corresponds to on the sink curve, and repeats until the sink temperature converges within 1°C.
+
+**Implementation:** {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HeatPumpIntegration.integrate_heat_pump`, pinned to one technology by {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HeatPumpIntegration.integrate_heat_pump_specific`; the reported point is picked by {code}`backend/app/modules/heat_pump_integration/heat_pump_integration.py#HeatPumpIntegration.find_integration`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/modules/heat_pump_integration/heat_pump_integration.py</code> (lines 252–339)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def integrate_heat_pump(self):
-    # Starting at the top of the source profile
-    Quelle = 0
-    self.step_size_temp = (
-        self.gcc_source['T'][Quelle] - self.gcc_source['T'][Quelle+1]
-    ) / 10
-    T = self.gcc_source['T'][Quelle] - self.step_size_temp
+```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
+:language: python
+:pyobject: HeatPumpIntegration.integrate_heat_pump
+```
 
-    while T > self.gcc_source['T'][-1]:
-        # Move to next segment if needed
-        if T <= self.gcc_source['T'][Quelle+1]:
-            Quelle += 1
+```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
+:language: python
+:pyobject: HeatPumpIntegration.integrate_heat_pump_specific
+```
 
-        # Skip points with no temperature lift
-        if self.t_sink_out is not None and T >= self.t_sink_out:
-            T -= max(self.step_size_temp, 1e-6)
-            continue
-
-        COP = self.COP(T)
-        q_punkt_ev = self.q_punkt_ev(T, Quelle)  # interpolate on source
-        q_punkt_ko = q_punkt_ev * ((1 - (1/COP[0])) ** (-1))
-
-        self.cop_werte.append(round(COP[0], 3))
-        self.ev_wp.append(round(q_punkt_ev))
-        self.ko_wp.append(round(q_punkt_ko))
-        self.cop_t.append(T)
-
-        # Refine step size near convergence
-        if q_punkt_ko >= self.gcc_sink['H'][0] and Test == 0:
-            T += self.step_size_temp
-            self.step_size_temp = self.step_size_temp / 200
-            Test = 1
-        elif q_punkt_ko >= self.gcc_sink['H'][0] and Test == 1:
-            break
-
-        T -= max(self.step_size_temp, 1e-6)
+```{literalinclude} ../backend/app/modules/heat_pump_integration/heat_pump_integration.py
+:language: python
+:pyobject: HeatPumpIntegration.find_integration
 ```
 
 </details>
+
+---
+
+## On the Page
+
+The single-point analysis draws each available technology's operating point on the GCC — or, in the *no heat recovery* mode, between the mirrored source and sink profiles — and lists them with their COP, temperatures and duties.
+
+**Implementation:** {code}`frontend/src/components/analysis/HPIChart.tsx#HPIChart`, {code}`frontend/src/components/analysis/HeatPumpTable.tsx`

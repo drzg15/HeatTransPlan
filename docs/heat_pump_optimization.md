@@ -1,64 +1,59 @@
 # Heat Pump Optimization — Predictive ML Model & Grid Search
 
-While classic Heat Pump Integration uses empirical regressions of prototypical heat pumps, **Heat Pump Optimization** evaluates a wide spectrum of **refrigerants and multi-stage heat pump designs** using a **trained Machine Learning model** or custom COP mathematical expressions.
+While classic [Heat Pump Integration](heat_pump_integration.md) uses empirical regressions of prototypical heat pumps at a single operating point, **Heat Pump Optimization** evaluates a wide spectrum of **refrigerants and multi-stage heat pump designs** using a **trained Machine Learning model**, together with the published technology archetypes and, optionally, a COP formula of the user's own.
 
-It evaluates every candidate across a 2D mesh of $(T_{source}, T_{sink})$ operating points to discover the exact thermal matching conditions.
+It evaluates every candidate across a 2D mesh of $(T_{source}, T_{sink})$ operating points to discover the exact thermal matching conditions. This is the main heat pump view of the Potential Analysis page, and the one the generated report shows.
+
+The whole calculation is {code}`backend/app/services/optimization_service.py#run_hpi_optimization`, behind the `/api/analysis/hpi-optimization` endpoint.
 
 ---
 
 ## Predictive ML Model & Refrigerant Alternatives
 
-The optimization engine loads a trained Scikit-Learn regressor model (persisted via `joblib`) along with a pre-configured database of refrigerant alternatives (`cop_ranges.json`).
+The optimization engine loads a trained Scikit-Learn regressor model (persisted via `joblib`, {code}`models/cop/best_model.joblib`) along with a database of refrigerant alternatives ({code}`models/cop/cop_ranges.json`). Both are loaded once and cached.
+
+The model predicts the COP from four inputs:
+
+| Model input | Meaning |
+|---|---|
+| `T_Rücklauf_Quelle` | Source return temperature (°C) |
+| `T_Vorlauf_Senke` | Sink supply temperature (°C) |
+| `Medium_Senke` | Sink medium: `Water` or `Steam` |
+| `Kältemittel_stufen` | Refrigerant and number of compression stages, e.g. `Butane_2` |
 
 ### Refrigerant Data Schema
 
-Each alternative defines its operational envelope:
+The ranges file lists 42 alternatives — each refrigerant in each stage count and sink medium. Each defines its operational envelope:
 
-| Parameter | Symbol | Unit | Meaning |
-|---|---|---|---|
-| Source temperature range | $[T_{src,min}, T_{src,max}]$ | °C | Valid evaporator inlet temperatures |
-| Sink temperature range | $[T_{sink,min}, T_{sink,max}]$ | °C | Valid condenser outlet temperatures |
-| COP range bounds | $[COP_{min}, COP_{max}]$ | — | Valid COP physical limits |
-| Heat pump design level | `Kältemittel_stufen` | — | Single-stage, two-stage, cascade configuration |
-| Sink medium | `medium_sink` | — | Water, steam, or air loop |
+| Field | Unit | Meaning |
+|---|---|---|
+| `name`, `Kältemittel_stufen` | — | Refrigerant and stage count, e.g. `Butane_2` |
+| `refrigerant_type` | — | `Natural` or `Synthetic` |
+| `hp_level` | — | Number of compression stages: 1, 2 or 3 |
+| `medium_sink` | — | `Water` or `Steam` |
+| `T_src_min`, `T_src_max` | °C | Valid source temperatures |
+| `T_sink_min`, `T_sink_max` | °C | Valid sink temperatures |
+| `cop_min`, `cop_max` | — | COP range the model was fitted on |
 
+The file is exported from the modelling data by `cop_analysis/export_cop_ranges.py`; the training data itself is not deployed.
 
 ## Refrigerant Operating Limits
 
 For the complete list of operating temperature ranges and COP bounds for all refrigerant alternatives, see [Refrigerant Operating Limits](refrigerant_limits.md).
 
+**Implementation:** {code}`backend/app/services/optimization_service.py#_load_model_and_data`, {code}`backend/app/services/optimization_service.py#_model_cop_fn`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 36–90)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def _load_model_and_data():
-    """Load joblib ML regressor and refrigerant alternatives configuration."""
-    _model_cache = joblib.load(OPTIMIZATION_CONFIG["model_path"])
+```{literalinclude} ../backend/app/services/optimization_service.py
+:language: python
+:pyobject: _load_model_and_data
+```
 
-    with open(OPTIMIZATION_CONFIG["ranges_path"], encoding="utf-8") as fh:
-        payload = json.load(fh)
-
-    alts = []
-    for entry in payload["alternatives"]:
-        alt = {
-            "name": entry["name"],
-            "refrigerant_type": entry["refrigerant_type"],
-            "medium_sink": entry["medium_sink"],
-            "Kältemittel_stufen": entry["Kältemittel_stufen"],
-            "T_src_min": float(entry["T_src_min"]),
-            "T_src_max": float(entry["T_src_max"]),
-            "T_sink_min": float(entry["T_sink_min"]),
-            "T_sink_max": float(entry["T_sink_max"]),
-            "cop_min": float(entry["cop_min"]),
-            "cop_max": float(entry["cop_max"]),
-            "deltaT_evap": OPTIMIZATION_CONFIG["deltaT_evap"],
-            "deltaT_cond": OPTIMIZATION_CONFIG["deltaT_cond"],
-        }
-        alt["cop_fn"] = _model_cop_fn(alt)
-        alts.append(alt)
-
-    return _model_cache, alts
+```{literalinclude} ../backend/app/services/optimization_service.py
+:language: python
+:pyobject: _model_cop_fn
 ```
 
 </details>
@@ -87,11 +82,16 @@ $$
 
 Archetype points carry `theoretical = true` in the output, which is what separates them from measured machines in the results table and gives them their own marker on the chart.
 
-> [!IMPORTANT]
-> The Carnot archetype is the formula $\frac{T_{sink} + 273.15}{\Delta T} \times 0.5$ evaluated at the point's own temperatures — **not** a regression. Because it is deliberately **half** the thermodynamic ceiling rather than the ceiling itself, a real refrigerant scoring above it is expected and is not a physics violation. The same COP cap of **15.0** used by the integration module applies here.
+```{important}
+The Carnot archetype is the formula $\frac{T_{sink} + 273.15}{\Delta T} \times 0.5$ evaluated at the point's own temperatures — **not** a regression. Because it is deliberately **half** the thermodynamic ceiling rather than the ceiling itself, a real refrigerant scoring above it is expected and is not a physics violation.
+
+The archetypes accept COPs between 1 and **15.0**. Unlike in the integration module, where a higher COP is capped at 15.0, a point above 15.0 is **discarded** here rather than capped.
+```
+
+**Implementation:** {code}`backend/app/services/optimization_service.py#_theoretical_alternatives`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_theoretical_alternatives</code>)</summary>
+<summary><b>Show the code</b></summary>
 
 ```{literalinclude} ../backend/app/services/optimization_service.py
 :language: python
@@ -102,13 +102,16 @@ Archetype points carry `theoretical = true` in the output, which is what separat
 
 ### Provenance of each COP
 
-Every reported point records **how its COP was arrived at**, so a number can be traced back to its source without reading code. For an archetype this is the published formula with the point's own temperatures substituted; for a trained refrigerant it names the regression, the sink medium and the number of compression stages.
+Every reported point records **how its COP was arrived at**, so a number can be traced back to its source without reading code. For an archetype this is the published formula with the point's own temperatures substituted; for a trained refrigerant it names the regression, the sink medium and the number of compression stages. In the results table it sits behind the help bulb in each row.
 
-> [!NOTE]
-> The trained model is a regression over a heat pump manufacturer's **simulation** parameter study — not measurements of operating machines.
+```{note}
+The trained model is a regression over a heat pump manufacturer's **simulation** parameter study — not measurements of operating machines.
+```
+
+**Implementation:** {code}`backend/app/services/optimization_service.py#_calculation_details`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_calculation_details</code>)</summary>
+<summary><b>Show the code</b></summary>
 
 ```{literalinclude} ../backend/app/services/optimization_service.py
 :language: python
@@ -121,7 +124,7 @@ Every reported point records **how its COP was arrived at**, so a number can be 
 
 ## Temperature Approach Corrections
 
-Before predicting the COP, process temperatures are corrected for heat exchanger approach temperature differences:
+The optimizer can correct process temperatures for heat exchanger approach temperature differences before predicting the COP:
 
 $$
 T_{source,model} = T_{source,process} - \Delta T_{evap}
@@ -131,24 +134,18 @@ $$
 T_{sink,model} = T_{sink,process} + \Delta T_{cond}
 $$
 
-where $\Delta T_{evap}$ and $\Delta T_{cond}$ are the minimum approach temperature drops across the evaporator and condenser heat exchangers (typically 5 K each).
+where $\Delta T_{evap}$ and $\Delta T_{cond}$ are the approach temperature drops across the evaporator and condenser.
+
+**Both are currently set to 0 K**, so the model is evaluated at the profile temperatures directly. They are operating assumptions rather than properties of the training data, so they live in the configuration and apply to every alternative alike.
+
+**Implementation:** {code}`backend/app/config_optimization.py#OPTIMIZATION_CONFIG`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 92–110)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def _model_cop_fn(alt):
-    """COP prediction callable backed by the trained ML regressor."""
-    def predict(t_source_model, t_sink_model):
-        model, _ = _load_model_and_data()
-        X = pd.DataFrame({
-            "T_Rücklauf_Quelle": t_source_model,
-            "T_Vorlauf_Senke": t_sink_model,
-            "Medium_Senke": [alt["medium_sink"]] * len(t_source_model),
-            "Kältemittel_stufen": [alt["Kältemittel_stufen"]] * len(t_source_model),
-        })
-        return model.predict(X)
-    return predict
+```{literalinclude} ../backend/app/config_optimization.py
+:language: python
+:start-at: OPTIMIZATION_CONFIG = {
 ```
 
 </details>
@@ -157,22 +154,42 @@ def _model_cop_fn(alt):
 
 ## Custom COP Formula Evaluation
 
-Users can also specify custom mathematical COP formulas using standard algebraic operations and variables (`T_src`, `T_sink`, `dT`). Custom expressions are compiled into an AST (Abstract Syntax Tree) to prevent arbitrary code execution before evaluation:
+Users can enter a COP formula of their own under *COP source → Use my own COP formula*. It is **added as one more candidate** next to the trained refrigerants and the archetypes — not a replacement — so it lands in the same table and chart and can be compared against them directly. Its rows are tagged `Custom formula`.
+
+Along with the expression, the user gives the formula's own operating window (source and sink temperature ranges), its valid COP range, the sink medium and the number of stages; the grid search treats these exactly like a trained refrigerant's envelope.
+
+The expression may use:
+
+| Name | Meaning |
+|---|---|
+| `T_source` | Source (evaporator) temperature in °C |
+| `T_sink` | Sink (condenser) temperature in °C |
+| `T_lift` | Temperature lift, $T_{sink} - T_{source}$, in K |
+| `carnot` | Carnot COP: $T_{sink}$ in K divided by $T_{lift}$ |
+| `pi`, `e` | The mathematical constants |
+| `exp`, `log`, `log10`, `sqrt`, `sin`, `cos`, `tan`, `abs`, `min`, `max`, `clip`, `where` | Functions |
+
+with the usual arithmetic, comparisons and `a if condition else b`. For example `0.5 * carnot` reproduces the 50 % Carnot baseline.
 
 $$
-COP_{custom} = f(T_{src}, T_{sink}, \Delta T)
+COP_{custom} = f(T_{source}, T_{sink}, T_{lift})
 $$
+
+The expression is parsed into an AST (Abstract Syntax Tree) and every node checked before anything runs: only the names and operations above are accepted, so a formula cannot execute arbitrary code. While typing, the formula is checked and its COP previewed at a probe point the user can move, 60 °C → 110 °C by default.
+
+**Implementation:** {code}`backend/app/utils/cop_formula.py#compile_formula`, turned into a candidate by {code}`backend/app/services/optimization_service.py#_formula_alternative`; entered in {code}`frontend/src/components/analysis/CopFormulaModal.tsx`
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/utils/cop_formula.py</code> (lines 15–45)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-def compile_formula(formula_str: str):
-    """Safely compile user-provided COP mathematical expression into executable AST."""
-    parsed = ast.parse(formula_str, mode="eval")
-    # Verify AST nodes contain only safe math operators (+, -, *, /, **, numbers, symbols)
-    _validate_ast_safety(parsed)
-    return compile(parsed, filename="<cop_formula>", mode="eval")
+```{literalinclude} ../backend/app/utils/cop_formula.py
+:language: python
+:pyobject: compile_formula
+```
+
+```{literalinclude} ../backend/app/services/optimization_service.py
+:language: python
+:pyobject: _formula_alternative
 ```
 
 </details>
@@ -181,7 +198,17 @@ def compile_formula(formula_str: str):
 
 ## 2D Mesh Grid Search Algorithm
 
-The optimization algorithm evaluates candidates across a 2D mesh of all valid $(T_{source}, T_{sink})$ pairs extracted from the process GCC source and sink profiles.
+The optimization algorithm evaluates candidates across a 2D mesh of all valid $(T_{source}, T_{sink})$ pairs extracted from the source and sink profiles of the selected [heat recovery mode](heat_pump_integration.md#source-and-sink-profiles--heat-recovery-modes).
+
+### The grid
+
+Both temperature axes run from the coldest to the hottest point of their profile in **0.5 K** steps, with the profile's own breakpoints added so no corner is missed. Available waste heat and sink demand are read off the profiles by linear interpolation.
+
+A grid point is a valid operating point for a candidate only if:
+
+- the COP is above 1 and inside the candidate's COP range;
+- the source and sink temperatures are inside the candidate's operating window;
+- the lift is at least **10 K** ($T_{source} \leq T_{sink} - 10$).
 
 ### 1. Source-Sink Energy Balance
 
@@ -209,21 +236,16 @@ $$
 T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{source,idx})
 $$
 
+**Implementation:** {code}`backend/app/services/optimization_service.py#run_hpi_optimization`
+
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 370–425)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-# Detect zero-crossings where available waste heat equals required waste heat
-diff = q_avail_valid - q_src_req
-crossings = np.where(np.diff(np.sign(diff)))[0]
-
-for idx in crossings:
-    denom = diff[idx + 1] - diff[idx]
-    if abs(denom) < 1e-12:
-        continue
-    fraction = -diff[idx] / denom
-    t_src_exact = t_src_valid[idx] + fraction * (t_src_valid[idx + 1] - t_src_valid[idx])
-    cop_exact = cop_valid[idx] + fraction * (cop_valid[idx + 1] - cop_valid[idx])
+```{literalinclude} ../backend/app/services/optimization_service.py
+:language: python
+:start-at: step = OPTIMIZATION_CONFIG
+:end-before: if found_full:
+:dedent:
 ```
 
 </details>
@@ -240,22 +262,24 @@ $$
 \dot{Q}_{sink,achievable} = \min\left(\dot{Q}_{available} \cdot \frac{COP}{COP - 1},\ \dot{Q}_{demand}\right)
 $$
 
-A candidate is reported as a valid source-limited option if its coverage ratio exceeds the threshold:
+For each candidate and sink temperature, the grid point delivering the most heat is kept (the higher COP breaks a tie). It is reported as a valid source-limited option if its coverage ratio reaches the threshold:
 
 $$
 \frac{\dot{Q}_{sink,achievable}}{\dot{Q}_{demand}} \ge 0.01 \quad (1\%)
 $$
 
+Points below it are not design options; they are left out but counted in the diagnostics, so the omission stays visible.
+
+**Implementation:** {code}`backend/app/services/optimization_service.py#run_hpi_optimization`, threshold {code}`backend/app/services/optimization_service.py#MIN_COVERAGE`
+
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 430–475)</summary>
+<summary><b>Show the code</b></summary>
 
-```python
-# Source-limited check: when waste heat is insufficient to fully satisfy Q_demand
-q_sink_achievable = np.minimum(q_avail_valid * cop_valid / (cop_valid - 1.0), q_dem)
-coverage = q_sink_achievable / q_dem
-
-# Filter out candidates covering less than 1% of target demand
-valid_indices = np.where(coverage >= MIN_COVERAGE)[0]
+```{literalinclude} ../backend/app/services/optimization_service.py
+:language: python
+:start-at: "# No exact match between available source heat"
+:end-at: diag.accepted_demand_limited += 1
+:dedent:
 ```
 
 </details>
@@ -264,7 +288,7 @@ valid_indices = np.where(coverage >= MIN_COVERAGE)[0]
 
 ## Selecting the Maximum-Duty Point
 
-The results highlight the point delivering the **greatest sink duty** — the largest heat pump the process can absorb. Many candidates typically reach that same maximum: in a representative case 48 machines tie at the top duty, with COPs spanning 2.57 to 9.08, because the duty ceiling is set by the process profile rather than by the machine.
+The result names the point delivering the **greatest sink duty** — the largest heat pump the process can absorb — as `max_q_point`. Many candidates typically reach that same maximum: in a representative case 48 machines tie at the top duty, with COPs spanning 2.57 to 9.08, because the duty ceiling is set by the process profile rather than by the machine.
 
 A plain `>` comparison therefore left the winner to iteration order, and could report a markedly worse machine than an equally large one sitting beside it. Ties are broken by COP:
 
@@ -272,8 +296,9 @@ $$
 \text{select } p \quad \text{if} \quad \dot{Q}_p > \dot{Q}_{max} \quad \text{or} \quad \left( \dot{Q}_p = \dot{Q}_{max} \ \text{and} \ COP_p > COP_{max} \right)
 $$
 
-> [!NOTE]
-> This is an API-level selection rule, so it applies to every consumer of the optimization result, not only the chart.
+```{note}
+`max_q_point` can be an archetype or an off-profile point. The page and the report highlight a real machine on the chart, so they use it only when it is one — see [How the results are shown](#how-the-results-are-shown).
+```
 
 ---
 
@@ -285,26 +310,66 @@ $$
 \dot{Q}_{sink} = \dot{Q}_{demand} \quad \text{while} \quad \dot{Q}_{available} > \dot{Q}_{demand} \cdot \frac{COP - 1}{COP}
 $$
 
-The distinction matters for reading the charts. A **source-limited** point sits off the *sink* profile, because it cannot reach the demand; a **demand-limited** point sits off the *source* profile, because it does not consume all the waste heat available. Both are drawn as hollow markers to mark them as partial solutions, and both are excluded from the COP-versus-coverage frontier — a capped machine would otherwise put a dip in that curve at the coverage where it happens to be the only candidate.
+The distinction matters for reading the charts. A **source-limited** point sits off the *sink* profile, because it cannot reach the demand; a **demand-limited** point sits off the *source* profile, because it does not consume all the waste heat available. Both are partial solutions: they are **hidden from the chart by default** — the checkboxes *Plot source-limited points* and *Plot demand-limited points* bring them back, drawn as hollow markers — and both are excluded from the COP-versus-coverage frontier, where a capped machine would otherwise put a dip in the curve at the coverage where it happens to be the only candidate. They stay in the results table.
 
 | Flag | Constraint | Sits off | Meaning |
 |---|---|---|---|
 | `source_limited` | Waste heat runs out | Sink profile | Cannot meet the full demand |
 | `demand_limited` | Sink demand runs out | Source profile | Leaves waste heat unused |
 
+**Implementation:** the COP-versus-coverage frontier is {code}`frontend/src/components/analysis/CopCoverageChart.tsx`
+
 ---
 
 ## Output Summary
 
-The optimization service ranks candidates by **COP**, **condenser thermal output ($\dot{Q}_{sink}$)**, and **electrical power input ($W_{el} = \dot{Q}_{sink} / COP$)**, returning:
+The service returns every feasible operating point; sorting and filtering are left to the page. The result ({code}`backend/app/models/analysis.py#HPIOptimizationResult`):
 
-| Output Parameter | Meaning |
+| Field | Meaning |
 |---|---|
-| `best_cop_points` | Exact zero-crossing operating points with highest COP |
-| `source_limited_points` | Maximum heat delivery points when waste heat is constrained |
-| `refrigerant_type` | Selected fluid (e.g. R1233zd(E), R290, R717) |
-| `theoretical` | `true` for a technology archetype, `false` for a trained refrigerant |
-| `calculation_details` | How this point's COP was arrived at — the formula, or the regression and its inputs |
-| `demand_limited` | Duty capped by the sink demand, leaving waste heat unused |
+| `feasible_points` | Every accepted operating point — full, source-limited and demand-limited — for every candidate |
+| `max_q_point` | The point delivering the greatest sink duty, ties broken by COP |
+| `original_gcc` | The grand composite curve, drawn faint behind the chart |
+| `pocketless_source`, `pocketless_sink` | The source and sink profiles the search ran on, for the selected mode |
+| `profile_mode` | `net_load` (with heat recovery) or `composite` (no heat recovery) |
+| `diagnostics` | The profile ranges, and how many candidates were accepted or rejected and why — so an empty result can explain itself |
+
+Each operating point ({code}`backend/app/models/analysis.py#OptimizedIntegrationPoint`):
+
+| Field | Meaning |
+|---|---|
+| `refrigerant` | Refrigerant and stage count (e.g. `Butane_2`), archetype name, or the custom formula's name |
+| `refrigerant_type` | `Natural`, `Synthetic`, `Theoretical` or `Custom formula` |
+| `medium_sink`, `hp_level` | Sink medium and number of compression stages |
+| `T_source`, `T_sink` | Operating temperatures, on the shifted scale of the profiles |
+| `COP` | Coefficient of performance at that point |
+| `Q_demand` | Heat delivered to the sink |
+| `Q_source` | Heat drawn from the source |
 | `Q_demand_total` | The full sink demand at this temperature, against which a limited point's coverage is read |
-| `diagnostics` | Count of evaluated mesh points, skipped points outside operating envelope, and zero-crossing solutions |
+| `source_limited`, `demand_limited` | The partial-solution flags above |
+| `theoretical` | `true` for a technology archetype |
+| `calculation_details` | How this point's COP was arrived at — the formula, or the regression and its inputs |
+
+The table on the page derives the remaining columns: the electrical input $W_{el} = \dot{Q}_{sink} / COP$, and each temperature a second time with $\Delta T_{min}/2$ added (sink) or subtracted (source), in the columns headed *Shifted*.
+
+---
+
+## How the results are shown
+
+The optimization returns hundreds or thousands of points. What the page shows of them follows a fixed set of rules, and the [generated report](#the-report) applies the same ones.
+
+**The chart** plots only on-profile points by default (see [Demand-Limited Heat Pump Integration](#demand-limited-heat-pump-integration)), falling back to every point if none is on a profile. It then **thins** them: per sink temperature, the best COP for each refrigerant type (each technology, for the archetypes); and where dozens of points stack at practically the same duty on a steep stretch of the profile, only the coolest sink in each step of 2 % of the duty range is kept — the cheapest lift for that duty.
+
+**The highlighted pump** — the one drawn with the box, the COP and the electrical input — is `max_q_point` if it is a real machine on the chart. Otherwise it is the real machine on the chart delivering the most heat, ties broken by COP. Carnot would otherwise always take the box at the top duty.
+
+**Clicking a point** picks every machine at that sink temperature. The box moves to the best of them, and they join the table, shaded.
+
+**The table** lists the best real machine per refrigerant type, plus Carnot and the best of the other archetypes — best meaning most heat delivered, COP breaking a tie — plus any picked pump. It opens sorted by heat delivered, highest first; clicking a column header re-sorts it.
+
+**Implementation:** {code}`frontend/src/components/analysis/hpRules.ts` — {code}`frontend/src/components/analysis/hpRules.ts#chartPointsOf`, {code}`frontend/src/components/analysis/hpRules.ts#thinnedCloudOf`, {code}`frontend/src/components/analysis/hpRules.ts#defaultHighlightOf`, {code}`frontend/src/components/analysis/hpRules.ts#activePointsOf`, {code}`frontend/src/components/analysis/hpRules.ts#boxPointOf`, {code}`frontend/src/components/analysis/hpRules.ts#tableRowsOf`, {code}`frontend/src/components/analysis/hpRules.ts#DEFAULT_TABLE_SORT`; used by {code}`frontend/src/components/analysis/HPIOptimizationPanel.tsx` and {code}`frontend/src/components/analysis/HPIOptimizationChart.tsx`
+
+### The report
+
+The generated report draws the same chart and table on the server, with a function-for-function port of these rules ({code}`backend/app/services/report_service.py#_hp_view`). A pump picked on the page is sent along and shown in the report. The report has no filter controls, so it applies the page's defaults: every filter on *All*, archetypes shown, off-profile points hidden.
+
+Both implementations are tested against one shared file, {code}`contracts/hp_rules.json`: hand-written points that hit every rule, with the outputs the page's rules give for them. A rule changed on one side and not the other fails a test ({code}`frontend/src/components/analysis/hpRules.test.ts`, {code}`backend/tests/test_hp_rules_contract.py`).
