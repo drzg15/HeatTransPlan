@@ -48,10 +48,14 @@ export default function DataCollectionPage() {
   const [, setSearchResults] = useState<NominatimResult[]>([]);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
-  // Auto-sync UI mode with map_locked state (e.g., when loading files)
-  useEffect(() => {
+  // Auto-sync UI mode with map_locked state (e.g., when loading files). Done
+  // while rendering, when the lock changes, rather than in an effect that
+  // would render the old mode first.
+  const [syncedLock, setSyncedLock] = useState(state.map_locked);
+  if (state.map_locked !== syncedLock) {
+    setSyncedLock(state.map_locked);
     setUiMode(state.map_locked ? 'analyze' : 'select');
-  }, [state.map_locked]);
+  }
 
   // Upgrade legacy box scales automatically if loaded from local storage
   useEffect(() => {

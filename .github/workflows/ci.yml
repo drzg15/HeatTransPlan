@@ -61,7 +61,7 @@ jobs:
       - name: Lint (no new errors)
         working-directory: frontend
         env:
-          MAX_LINT_ERRORS: 9
+          MAX_LINT_ERRORS: 0
         run: |
           npx eslint . -f json -o eslint.json || true
           node -e '

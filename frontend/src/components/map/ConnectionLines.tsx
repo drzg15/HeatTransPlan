@@ -379,7 +379,16 @@ export function ConnectionLines({
     });
 
     return result;
-  }, [processes, groups, subprocessMapExpanded, childMapExpanded, map]);
+  }, [
+    processes,
+    groups,
+    groupNames,
+    groupCoordinates,
+    subprocessMapExpanded,
+    childMapExpanded,
+    onElementDoubleClick,
+    map,
+  ]);
 
   return <>{connections}</>;
 }
