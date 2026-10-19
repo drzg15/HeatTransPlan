@@ -15,7 +15,11 @@ export default function EnergyDemands() {
   const addEnergyDemand = useAnalysisStore((s) => s.addEnergyDemand);
   const removeEnergyDemand = useAnalysisStore((s) => s.removeEnergyDemand);
 
-  // Build hot/cold stream name lists
+  // Build hot/cold stream name lists. Deliberately not rebuilt when the
+  // language changes: the supplies store their selected streams by these
+  // names, and an unnamed stream's name is translated, so switching language
+  // would quietly untick it.
+  /* eslint-disable react-hooks/preserve-manual-memoization, react-hooks/exhaustive-deps */
   const { hotNames, coldNames } = useMemo(() => {
     const hot: string[] = [];
     const cold: string[] = [];
@@ -31,6 +35,7 @@ export default function EnergyDemands() {
     });
     return { hotNames: hot, coldNames: cold };
   }, [processes]);
+  /* eslint-enable react-hooks/preserve-manual-memoization, react-hooks/exhaustive-deps */
 
   // Auto-initialize empty selections with all available streams
   useEffect(() => {

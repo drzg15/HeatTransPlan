@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Marker, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 
@@ -166,21 +166,16 @@ export function SubprocessMapFreeze({ active, locked }: { active: boolean; locke
 
 export function SubprocessCanvasOverlay({ active, deps }: { active: boolean; deps?: unknown }) {
   const map = useMap();
-  const [center, setCenter] = useState<L.LatLng | null>(null);
-  const [size, setSize] = useState<L.Point | null>(null);
+  // Read from the map when it is switched on and whenever deps change, so the
+  // canvas follows the map if needed — and only then, not on every render.
+  const view = useMemo(
+    () => (active ? { center: map.getCenter(), size: map.getSize() } : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- deps is the trigger to re-read the map
+    [active, map, deps]
+  );
 
-  // We re-evaluate the center whenever deps change to ensure the canvas follows the map if needed
-  useEffect(() => {
-    if (active) {
-      setCenter(map.getCenter());
-      setSize(map.getSize());
-    } else {
-      setCenter(null);
-      setSize(null);
-    }
-  }, [active, map, deps]);
-
-  if (!active || !center || !size) return null;
+  if (!view) return null;
+  const { center, size } = view;
 
   // Use 90% of the viewport dimensions
   const width = size.x * 0.9;

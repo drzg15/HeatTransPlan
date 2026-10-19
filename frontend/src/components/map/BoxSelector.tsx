@@ -19,9 +19,11 @@ export function BoxSelector({
   const [visualBounds, setVisualBounds] = useState<L.LatLngBounds | null>(null);
   const startLatLngRef = useRef<L.LatLng | null>(null);
 
+  // Switching the selector off drops the rectangle in the same render.
+  if (!active && visualBounds) setVisualBounds(null);
+
   useEffect(() => {
     if (!active) {
-      setVisualBounds(null);
       startLatLngRef.current = null;
       return;
     }
