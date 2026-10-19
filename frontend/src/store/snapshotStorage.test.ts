@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SnapshotIO } from './snapshotStorage';
+import type { ScenarioIO, SnapshotIO } from './snapshotStorage';
+import type { SavedScenarios } from '../types/analysis';
 
 const IMAGES = { OpenStreetMap: 'osm-png', Satellite: 'satellite-png' };
 
@@ -79,5 +80,47 @@ describe('map snapshot persistence', () => {
     await new Promise((r) => setTimeout(r, 0));
     expect(idb.saved()).toEqual({ Positron: 'positron-png' });
     expect(persisted().state.state.map_snapshots_encoded).toEqual({});
+  });
+});
+
+describe('scenario persistence', () => {
+  const SAVED = {
+    scenarios: [{ id: 's1', name: 'Kiln only' }],
+    active_id: 's1',
+  } as unknown as SavedScenarios;
+
+  function fakeScenarioIO(initial: SavedScenarios | null | undefined) {
+    let value = initial;
+    const io: ScenarioIO = {
+      get: async () => value,
+      set: async (v) => {
+        value = v;
+      },
+    };
+    return { io, saved: () => value };
+  }
+
+  it('brings the scenarios back after a reload, and saves changes', async () => {
+    const { store } = await freshStore();
+    const { startScenarioPersistence } = await import('./snapshotStorage');
+    const idb = fakeScenarioIO(SAVED);
+    await startScenarioPersistence(store, idb.io);
+    expect(store.getState().state.analysis_scenarios).toEqual(SAVED);
+
+    store.getState().resetState();
+    await new Promise((r) => setTimeout(r, 0));
+    expect(idb.saved()).toBeNull();
+  });
+
+  it('a project loaded meanwhile wins over the stored scenarios', async () => {
+    const { store } = await freshStore();
+    const { startScenarioPersistence } = await import('./snapshotStorage');
+    const mine = {
+      scenarios: [{ id: 'x', name: 'Loaded' }],
+      active_id: null,
+    } as unknown as SavedScenarios;
+    store.getState().setAnalysisScenarios(mine);
+    await startScenarioPersistence(store, fakeScenarioIO(SAVED).io);
+    expect(store.getState().state.analysis_scenarios).toBe(mine);
   });
 });

@@ -2,6 +2,7 @@
 
 import { create } from 'zustand';
 import type {
+  AnalysisScenario,
   CopFormulaSpec,
   EnergyDemandLocal,
   OptimizedIntegrationPoint,
@@ -13,6 +14,7 @@ import type {
 } from '../types/analysis';
 import type { ProcessNode } from '../types/process';
 import { newId } from '../utils/id';
+import { useProjectStore } from './projectStore';
 import { rekeySelection } from '../utils/processIndex';
 import {
   DEFAULT_HP_FILTERS,
@@ -62,21 +64,7 @@ interface AnalysisStore {
   hpiOptimizationLoading: boolean;
 
   // Scenarios: Array of saved states
-  scenarios: Array<{
-    id: string;
-    name: string;
-    selectedStreams: Record<string, boolean>;
-    energyDemands: EnergyDemandLocal[];
-    selectedHPPoints: OptimizedIntegrationPoint[];
-    // Optional: scenarios saved before the filters were kept have none.
-    hpFilters?: HPFilters;
-    tMin: number;
-    // Results for comparison
-    pinchResult?: PinchResult | null;
-    hpiResult?: HPIResult | null;
-    hpiOptimizationResult?: HPIOptimizationResult | null;
-    statusQuoResult?: StatusQuoResult | null;
-  }>;
+  scenarios: AnalysisScenario[];
   activeScenarioId: string | null;
 
   // Actions
@@ -390,3 +378,27 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
 
   clearActiveScenario: () => set({ activeScenarioId: null }),
 }));
+
+// The scenarios belong to the project: the Save file carries them, loading a
+// project or resetting replaces them, and they survive a reload (projectStore
+// persists them). This store is where they are worked on, so the two are kept
+// in step. Comparing references keeps the echo of each update from looping.
+const NO_SCENARIOS: AnalysisScenario[] = [];
+
+useAnalysisStore.subscribe((s, prev) => {
+  if (s.scenarios !== prev.scenarios || s.activeScenarioId !== prev.activeScenarioId) {
+    useProjectStore
+      .getState()
+      .setAnalysisScenarios({ scenarios: s.scenarios, active_id: s.activeScenarioId });
+  }
+});
+
+useProjectStore.subscribe((p) => {
+  const saved = p.state.analysis_scenarios;
+  const scenarios = saved?.scenarios ?? NO_SCENARIOS;
+  const activeScenarioId = saved?.active_id ?? null;
+  const a = useAnalysisStore.getState();
+  if (scenarios !== a.scenarios || activeScenarioId !== a.activeScenarioId) {
+    useAnalysisStore.setState({ scenarios, activeScenarioId });
+  }
+});

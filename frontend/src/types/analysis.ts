@@ -1,5 +1,7 @@
 /** Analysis types — mirrors backend analysis models. */
 
+import type { HPFilters } from '../components/analysis/hpRules';
+
 // ---------------------------------------------------------------------------
 // Pinch Analysis
 // ---------------------------------------------------------------------------
@@ -235,4 +237,27 @@ export interface StreamInfo {
   CP: number | null;
   Q: number | null;
   type: 'Hot stream (Heat Source)' | 'Cold stream (Heat sink)' | null;
+}
+
+/** A saved scenario: its inputs, picks, filters and the results computed for them. */
+export interface AnalysisScenario {
+  id: string;
+  name: string;
+  selectedStreams: Record<string, boolean>;
+  energyDemands: EnergyDemandLocal[];
+  selectedHPPoints: OptimizedIntegrationPoint[];
+  // Optional: scenarios saved before the filters were kept have none.
+  hpFilters?: HPFilters;
+  tMin: number;
+  // Results for comparison
+  pinchResult?: PinchResult | null;
+  hpiResult?: HPIResult | null;
+  hpiOptimizationResult?: HPIOptimizationResult | null;
+  statusQuoResult?: StatusQuoResult | null;
+}
+
+/** The saved scenarios as a project carries them, with the one that is open. */
+export interface SavedScenarios {
+  scenarios: AnalysisScenario[];
+  active_id: string | null;
 }

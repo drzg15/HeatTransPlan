@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { useAnalysisStore } from './analysisStore';
+import { useProjectStore } from './projectStore';
 import { DEFAULT_HP_FILTERS } from '../components/analysis/hpRules';
 import type { HPIOptimizationResult, OptimizedIntegrationPoint } from '../types/analysis';
 
@@ -86,5 +87,48 @@ describe('picks and filters across results', () => {
     const st = useAnalysisStore.getState();
     expect(st.selectedHPPoints.map((p) => p.refrigerant)).toEqual(['Butane_1']);
     expect(st.hpFilters.hp_levels).toEqual(['1']);
+  });
+});
+
+describe('scenarios belong to the project', () => {
+  beforeEach(() => {
+    useProjectStore.getState().resetState();
+    useAnalysisStore.setState({ selectedHPPoints: [], hpFilters: DEFAULT_HP_FILTERS });
+  });
+
+  it('a saved scenario reaches the project, so Save writes it', () => {
+    useAnalysisStore.getState().saveScenario('A');
+    const saved = useProjectStore.getState().state.analysis_scenarios;
+    expect(saved?.scenarios.map((s) => s.name)).toEqual(['A']);
+    expect(saved?.active_id).toBe(useAnalysisStore.getState().activeScenarioId);
+  });
+
+  it('loading a project brings its scenarios; one without any clears them', () => {
+    useAnalysisStore.getState().saveScenario('old');
+    const project = useProjectStore.getState().state;
+    const loaded = {
+      scenarios: [{ ...project.analysis_scenarios!.scenarios[0], name: 'B' }],
+      active_id: null,
+    };
+
+    useProjectStore.getState().setState({ ...project, analysis_scenarios: loaded });
+    expect(useAnalysisStore.getState().scenarios.map((s) => s.name)).toEqual(['B']);
+    expect(useAnalysisStore.getState().activeScenarioId).toBeNull();
+
+    useProjectStore.getState().setState({ ...project, analysis_scenarios: undefined });
+    expect(useAnalysisStore.getState().scenarios).toEqual([]);
+  });
+
+  it('reset clears them', () => {
+    useAnalysisStore.getState().saveScenario('A');
+    useProjectStore.getState().resetState();
+    expect(useAnalysisStore.getState().scenarios).toEqual([]);
+    expect(useAnalysisStore.getState().activeScenarioId).toBeNull();
+  });
+
+  it('they are never written to localStorage, which they would overflow', () => {
+    useAnalysisStore.getState().saveScenario('A');
+    const entry = JSON.parse(localStorage.getItem('heattransplan-storage') ?? '{}');
+    expect(entry.state.state.analysis_scenarios).toBeUndefined();
   });
 });
