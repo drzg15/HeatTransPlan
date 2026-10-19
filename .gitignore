@@ -46,3 +46,6 @@ test.json
 GEMINI.md
 graphify-out/
 .gemini/
+
+# Written by the CI lint step
+frontend/eslint.json
