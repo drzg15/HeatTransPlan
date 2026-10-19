@@ -69,14 +69,14 @@ def test_optimization_figure_draws_the_heat_pump():
 def test_report_drops_the_single_point_integration():
     html = generate_html_report(_request())
     assert "Heat Pump Integration" not in html
-    assert "Optimization Heat Pump" in html
+    assert "Integration with Heat Pump model and optimization" in html
     assert "Optimization - Feasible Heat Pump Solutions" in html
 
 
 def test_german_report_has_every_label():
     assert set(I18N["de"]) == set(I18N["en"])
     html = generate_html_report(_request("de"))
-    assert "Optimierte Wärmepumpe" in html
+    assert "Integration in Wärmepumpenmodell und Optimierung" in html
 
 
 def test_table_lists_the_pumps_the_page_lists():
@@ -101,6 +101,12 @@ def test_chart_hides_the_off_profile_points():
 
 def test_report_lists_every_pump_row():
     html = generate_html_report(_request())
-    assert html.count("Theoretical (Carnot)") == 1
-    for name in ("Butane_1", "R1224yd", "Carnot", "VHTHP"):
+    # The page's table: a Real/Theoretical badge, the archetype name beside it, and
+    # the derived P_el and shifted-temperature columns.
+    assert html.count(">Real</span>") == 2
+    assert html.count(">Theoretical</span>") == 2
+    assert "Carnot (50 %)" in html
+    for header in ("P_EL (KW)", "Shifted Sink (T+5K)", "Shifted Source (T-5K)", "HP STAGES"):
+        assert header in html
+    for name in ("Butane", "R1224yd", "Carnot", "VHTHP"):
         assert name in html
