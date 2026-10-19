@@ -76,6 +76,8 @@ I18N = {
         "q_source_sink": "Q̇  ← source | sink →  (kW)",
         "shifted_temp": "Shifted Temperature in °C",
         "pinch_label": "Pinch: ",
+        "real": "Real",
+        "theoretical": "Theoretical",
         "map_not_avail": "Map not available"
     },
     "de": {
@@ -141,6 +143,8 @@ I18N = {
         "q_source_sink": "Q̇  ← Quelle | Senke →  (kW)",
         "shifted_temp": "Verschobene Temperatur in °C",
         "pinch_label": "Pinch: ",
+        "real": "Real",
+        "theoretical": "Theoretisch",
         "map_not_avail": "Karte nicht verfügbar"
     }
 }
@@ -170,6 +174,52 @@ _HP_FILL = 'rgba(237,233,254,0.95)'
 def _q_source(p: Any) -> float:
     """Source duty of an integration point: what the evaporator draws."""
     return p.Q_demand * (p.COP - 1) / p.COP if p.COP else 0.0
+
+
+def _on_profile(points: List[Any]) -> List[Any]:
+    """The points the page plots with both limit filters off, which is its default.
+
+    Source-limited points deliver less than the demand above T_sink, so they miss
+    the sink profile; demand-limited ones leave waste heat unused at T_source, so
+    they miss the source profile. Either way they sit off the curves and turn the
+    chart into a cloud. If nothing is on profile, show everything rather than an
+    empty chart — the same fallback the page makes.
+    """
+    on = [p for p in points if not p.source_limited and not p.demand_limited]
+    return on or points
+
+
+def _best(points: List[Any]) -> Optional[Any]:
+    """Most duty delivered, higher COP breaks a tie."""
+    best = None
+    for p in points:
+        if best is None or p.Q_demand > best.Q_demand or (p.Q_demand == best.Q_demand and p.COP > best.COP):
+            best = p
+    return best
+
+
+def _table_points(opt: Any) -> List[Any]:
+    """The heat pumps the page's optimization table lists.
+
+    The best real machine per refrigerant type, plus the archetypes: Carnot as
+    the thermodynamic ceiling, and the best of the rest. Listing every
+    technology that fits at some sink temperature buries the table.
+    """
+    points = _on_profile(getattr(opt, "feasible_points", None) or [])
+    real = [p for p in points if not p.theoretical]
+    rows = [_best([p for p in real if p.refrigerant_type == rt])
+            for rt in dict.fromkeys(p.refrigerant_type for p in real)]
+
+    theoretical = [p for p in points if p.theoretical]
+    archetypes = [_best([p for p in theoretical if p.refrigerant == name])
+                  for name in dict.fromkeys(p.refrigerant for p in theoretical)]
+    carnot = next((p for p in archetypes if p and p.refrigerant == 'Carnot'), None)
+    other = _best([p for p in archetypes if p and p.refrigerant != 'Carnot'])
+
+    rows += [p for p in (carnot, other) if p]
+    rows = [p for p in rows if p]
+    rows.sort(key=lambda p: (p.Q_demand, p.COP), reverse=True)
+    return rows
 
 
 def _thin_points(points: List[Any], keep: Optional[Any]) -> List[Any]:
@@ -249,45 +299,35 @@ def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, st
             line=dict(color=_SINK_BG, width=3), name=texts['sink_profile'], hoverinfo='skip',
         ))
 
-    active = getattr(opt, "max_q_point", None)
-    feasible = getattr(opt, "feasible_points", None) or []
+    chart_points = _on_profile(getattr(opt, "feasible_points", None) or [])
 
-    # The solution cloud: refrigerants as dots, technology archetypes as
-    # diamonds. Partial solutions (source- or demand-limited) sit off one of the
-    # profiles, so they are drawn hollow and faded.
+    # The headline pump is one you could actually buy, so the highlight skips
+    # the archetypes — Carnot wins on COP at the top duty and would otherwise
+    # always be the one in the box.
+    active = (_best([p for p in chart_points if not p.theoretical])
+              or _best(chart_points)
+              or getattr(opt, "max_q_point", None))
+
+    # The solution cloud: refrigerants as dots, technology archetypes as diamonds.
     for pts, size, sym_sink, sym_source in (
-        (_thin_points([p for p in feasible if not p.theoretical], active), 5, 'circle', 'circle'),
-        (_thin_points([p for p in feasible if p.theoretical], active), 7, 'diamond', 'diamond-open'),
+        (_thin_points([p for p in chart_points if not p.theoretical], active), 5, 'circle', 'circle'),
+        (_thin_points([p for p in chart_points if p.theoretical], active), 7, 'diamond', 'diamond-open'),
     ):
         if not pts:
             continue
-        partial = [p.source_limited or p.demand_limited for p in pts]
-        hover = [
-            f"<b>{p.refrigerant}</b><br>T_sink: {p.T_sink:.1f}°C<br>"
-            f"Q_sink: {p.Q_demand:.1f} kW<br>COP: {p.COP:.2f}" for p in pts
-        ]
         fig.add_trace(go.Scatter(
             x=[p.Q_demand for p in pts], y=[p.T_sink for p in pts], mode='markers',
-            marker=dict(
-                size=size, color=_SINK,
-                symbol=[f"{sym_sink}-open" if (q and sym_sink == 'circle') else sym_sink for q in partial],
-                opacity=[0.45 if q else 1 for q in partial],
-                line=dict(width=1.5, color=_SINK),
-            ),
-            showlegend=False, text=hover, hoverinfo='text',
+            marker=dict(size=size, color=_SINK, symbol=sym_sink, line=dict(width=1.5, color=_SINK)),
+            showlegend=False, hoverinfo='text',
+            text=[f"<b>{p.refrigerant}</b><br>T_sink: {p.T_sink:.1f}°C<br>"
+                  f"Q_sink: {p.Q_demand:.1f} kW<br>COP: {p.COP:.2f}" for p in pts],
         ))
         fig.add_trace(go.Scatter(
             x=[sign * _q_source(p) for p in pts], y=[p.T_source for p in pts], mode='markers',
-            marker=dict(
-                size=size, color=_SOURCE,
-                symbol=[f"{sym_source}-open" if (q and sym_source == 'circle') else sym_source for q in partial],
-                opacity=[0.45 if q else 1 for q in partial],
-                line=dict(width=1.5, color=_SOURCE),
-            ),
-            showlegend=False,
+            marker=dict(size=size, color=_SOURCE, symbol=sym_source, line=dict(width=1.5, color=_SOURCE)),
+            showlegend=False, hoverinfo='text',
             text=[f"<b>{p.refrigerant}</b><br>T_source: {p.T_source:.1f}°C<br>"
                   f"Q_source: {_q_source(p):.1f} kW<br>COP: {p.COP:.2f}" for p in pts],
-            hoverinfo='text',
         ))
 
     shapes: List[Dict[str, Any]] = []
@@ -462,23 +502,27 @@ def _render_pinch_content(
         </table>"""
 
     opt_table_html = ""
-    if hpi_optimization_result and getattr(hpi_optimization_result, "max_q_point", None):
-        opt = hpi_optimization_result.max_q_point
+    opt_rows = _table_points(hpi_optimization_result) if hpi_optimization_result else []
+    if opt_rows:
+        rows = ""
+        for p in opt_rows:
+            kind = f"{texts['theoretical']} ({p.refrigerant})" if p.theoretical else texts['real']
+            rows += f"""
+            <tr>
+              <td>{kind}</td>
+              <td>{p.medium_sink}</td>
+              <td>{p.refrigerant}</td>
+              <td>{_fmt(p.COP)}</td>
+              <td>{_fmt(p.T_source, 1)}</td>
+              <td>{_fmt(p.T_sink, 1)}</td>
+              <td>{_fmt(p.Q_source, 1)}</td>
+              <td>{_fmt(p.Q_demand, 1)}</td>
+            </tr>"""
         opt_table_html = f"""
         <h3>{texts['opt_hp']} ({display_name})</h3>
         <table class='data-table'>
           <thead><tr><th>{texts['type']}</th><th>{texts['medium_sink']}</th><th>{texts['refrigerant']}</th><th>COP</th><th>{texts['t_source']} (°C)</th><th>{texts['t_sink']} (°C)</th><th>{texts['q_source']} (kW)</th><th>{texts['q_demand']} (kW)</th></tr></thead>
-          <tbody>
-            <tr>
-              <td>{opt.hp_level}</td>
-              <td>{opt.medium_sink}</td>
-              <td>{opt.refrigerant}</td>
-              <td>{_fmt(opt.COP)}</td>
-              <td>{_fmt(opt.T_source, 1)}</td>
-              <td>{_fmt(opt.T_sink, 1)}</td>
-              <td>{_fmt(opt.Q_source, 1)}</td>
-              <td>{_fmt(opt.Q_demand, 1)}</td>
-            </tr>
+          <tbody>{rows}
           </tbody>
         </table>"""
 

@@ -19,7 +19,12 @@ def _opt():
         feasible_points=[
             best,
             _point(T_sink=100.0, Q_demand=600.0, COP=3.4),
+            _point(refrigerant="R1224yd", refrigerant_type="Synthetic", medium_sink="Water", COP=2.94),
             _point(T_sink=90.0, Q_demand=500.0, COP=3.8, refrigerant="Carnot", theoretical=True),
+            _point(T_sink=80.0, Q_demand=400.0, COP=4.1, refrigerant="VHTHP", theoretical=True),
+            _point(T_sink=85.0, Q_demand=300.0, COP=4.9, refrigerant="Stirling", theoretical=True),
+            _point(T_sink=130.0, Q_demand=900.0, COP=2.1, refrigerant="Limited", source_limited=True),
+            _point(T_sink=125.0, Q_demand=850.0, COP=2.2, refrigerant="Unused", demand_limited=True),
         ],
         max_q_point=best,
         original_gcc={"H": [0.0, 500.0, 700.0], "T": [73.0, 48.0, 20.0]},
@@ -72,3 +77,30 @@ def test_german_report_has_every_label():
     assert set(I18N["de"]) == set(I18N["en"])
     html = generate_html_report(_request("de"))
     assert "Optimierte Wärmepumpe" in html
+
+
+def test_table_lists_the_pumps_the_page_lists():
+    from app.services.report_service import _table_points
+
+    rows = _table_points(_opt())
+    names = [p.refrigerant for p in rows]
+    # Best real machine per refrigerant type, plus Carnot and the best other
+    # archetype. Stirling fits only at a low sink temperature, so it loses to
+    # VHTHP on duty despite the higher COP.
+    assert names == ["Butane_1", "R1224yd", "Carnot", "VHTHP"]
+    assert all(not p.source_limited and not p.demand_limited for p in rows)
+
+
+def test_chart_hides_the_off_profile_points():
+    fig = _optimization_figure(_opt(), 73.0, I18N["en"])
+    plotted = {round(y, 1) for trace in fig.data for y in (trace.y or ())}
+    # Source- and demand-limited points miss one of the profiles; the page keeps
+    # them off the chart unless asked, so the report does too.
+    assert 130.0 not in plotted and 125.0 not in plotted
+
+
+def test_report_lists_every_pump_row():
+    html = generate_html_report(_request())
+    assert html.count("Theoretical (Carnot)") == 1
+    for name in ("Butane_1", "R1224yd", "Carnot", "VHTHP"):
+        assert name in html
