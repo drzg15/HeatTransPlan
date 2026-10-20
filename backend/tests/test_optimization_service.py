@@ -159,12 +159,6 @@ def test_theoretical_cop_is_minus_one_where_the_correlation_is_undefined():
     assert cop[1] == pytest.approx(0.5 * 373.15 / 40.0)
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "optimization_service.py:479 finds zero crossings with np.diff(np.sign(diff)). "
-    "When diff is exactly 0 at a grid node (COP 2 on the textbook problem: 10 kW "
-    "needed, 10 kW available at 81.0 degC) the sign goes +1 -> 0 -> -1, which is two "
-    "'crossings' of the same root, so the identical point is reported twice and "
-    "accepted_full is inflated."))
 def test_exact_zero_on_a_grid_node_is_reported_once(monkeypatch):
     r = run(TEXTBOOK, [make_alt(2.0)], monkeypatch)
     keys = [(round(p.T_sink, 6), round(p.T_source, 6)) for p in r.feasible_points
@@ -172,11 +166,6 @@ def test_exact_zero_on_a_grid_node_is_reported_once(monkeypatch):
     assert len(keys) == len(set(keys))
 
 
-@pytest.mark.xfail(strict=True, reason=(
-    "optimization_service.py:249 builds the grid with np.arange(T_min, T_max + step/2, "
-    "step), which overshoots T_max by up to half a step (1.3 -> ends at 1.5). The "
-    "optimiser then evaluates, and reports, sink temperatures above the top of the "
-    "sink profile (98.5 degC on a profile that ends at 98.33 degC)."))
 def test_temperature_grid_never_exceeds_the_upper_limit():
     assert opt._make_temperature_grid(0.0, 1.3, 0.5).max() <= 1.3
 
