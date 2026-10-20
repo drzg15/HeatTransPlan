@@ -366,6 +366,7 @@ export default function PotentialAnalysisPage() {
       getStreamsFromSelection,
     });
   }, [
+    i18n.language,
     projectState,
     streamsData,
     pinchResult,
