@@ -4,7 +4,7 @@ import i18n from '../../i18n';
 import EnergyDemands from './EnergyDemands';
 import { useProjectStore } from '../../store/projectStore';
 import { useAnalysisStore } from '../../store/analysisStore';
-import type { Process } from '../../types/project';
+import type { ProcessNode } from '../../types/process';
 
 // One unnamed hot stream (100 → 40 °C) and one named cold one.
 const processes = [
@@ -15,7 +15,7 @@ const processes = [
       { name: 'Feed', stream_values: { Tin: 20, Tout: 80, CP: 2 } },
     ],
   },
-] as unknown as Process[];
+] as unknown as ProcessNode[];
 
 const demand = (cooling: string[]) => ({
   heat_demand: 0,
