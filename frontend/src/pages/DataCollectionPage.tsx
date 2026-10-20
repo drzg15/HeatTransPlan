@@ -99,6 +99,9 @@ export default function DataCollectionPage() {
       setGroups(next.groups);
       useAnalysisStore.getState().removeProcessesFromSelections(orphans);
     }
+    // Runs once, to repair the data as it was loaded; later edits go through
+    // code that already keeps it consistent.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Placement state
