@@ -246,7 +246,10 @@ def _prepare_xy_curve(x, y, is_source=False):
 def _make_temperature_grid(T_min, T_max, step=1.0):
     if T_max < T_min:
         return np.array([])
-    return np.arange(T_min, T_max + step * 0.5, step, dtype=float)
+    # Stop at the last full step: the profile's own temperatures, T_max among
+    # them, are added to the grid by the caller. A half-step margin here let
+    # the grid run past T_max, onto sink temperatures the profile never reaches.
+    return np.arange(T_min, T_max + step * 1e-6, step, dtype=float)
 
 
 def _diagnostic_messages(diag: HPIOptimizationDiagnostics, n_points: int) -> list[str]:
@@ -475,8 +478,12 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
 
                 diff = q_avail_valid - q_src_req_valid
 
-                # Find zero crossings
-                crossings = np.where(np.diff(np.sign(diff)))[0]
+                # Find zero crossings. A root exactly on a node shows up in both
+                # neighbouring intervals (+1 -> 0 -> -1); keep only the second.
+                signs = np.sign(diff)
+                crossings = np.where(np.diff(signs))[0]
+                crossing_set = set(crossings.tolist())
+                crossings = [i for i in crossings if not (signs[i + 1] == 0 and i + 1 in crossing_set)]
 
                 found_full = False
                 for idx in crossings:

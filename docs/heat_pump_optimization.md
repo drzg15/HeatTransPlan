@@ -202,7 +202,7 @@ The optimization algorithm evaluates candidates across a 2D mesh of all valid $(
 
 ### The grid
 
-Both temperature axes run from the coldest to the hottest point of their profile in **0.5 K** steps, with the profile's own breakpoints added so no corner is missed. Available waste heat and sink demand are read off the profiles by linear interpolation.
+Both temperature axes run from the coldest to the hottest point of their profile in **0.5 K** steps, never past the hottest point, with the profile's own breakpoints added so no corner is missed. Available waste heat and sink demand are read off the profiles by linear interpolation.
 
 A grid point is a valid operating point for a candidate only if:
 
@@ -226,7 +226,7 @@ $$
 D(T_{source}) = \dot{Q}_{available}(T_{source}) - \dot{Q}_{source,req}(T_{source})
 $$
 
-When $D(T_{source})$ changes sign between two grid points $idx$ and $idx+1$, an exact operating match exists. The exact source temperature $T_{source,exact}$ and COP are determined by linear zero-crossing interpolation:
+When $D(T_{source})$ changes sign between two grid points $idx$ and $idx+1$, an exact operating match exists. A match that falls exactly on a grid point is reported once, not once for each interval it borders. The exact source temperature $T_{source,exact}$ and COP are determined by linear zero-crossing interpolation:
 
 $$
 f_{fraction} = \frac{-D_{idx}}{D_{idx+1} - D_{idx}}

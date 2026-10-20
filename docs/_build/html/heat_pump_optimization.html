@@ -413,7 +413,7 @@
 <h1>Heat Pump Optimization — Predictive ML Model &amp; Grid Search<a class="headerlink" href="#heat-pump-optimization-predictive-ml-model-grid-search" title="Link to this heading">#</a></h1>
 <p>While classic <a class="reference internal" href="heat_pump_integration.html"><span class="std std-doc">Heat Pump Integration</span></a> uses empirical regressions of prototypical heat pumps at a single operating point, <strong>Heat Pump Optimization</strong> evaluates a wide spectrum of <strong>refrigerants and multi-stage heat pump designs</strong> using a <strong>trained Machine Learning model</strong>, together with the published technology archetypes and, optionally, a COP formula of the user’s own.</p>
 <p>It evaluates every candidate across a 2D mesh of <span class="math notranslate nohighlight">\((T_{source}, T_{sink})\)</span> operating points to discover the exact thermal matching conditions. This is the main heat pump view of the Potential Analysis page, and the one the generated report shows.</p>
-<p>The whole calculation is <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L327"><code class="docutils literal notranslate"><span class="pre">run_hpi_optimization()</span></code></a>, behind the <code class="docutils literal notranslate"><span class="pre">/api/analysis/hpi-optimization</span></code> endpoint.</p>
+<p>The whole calculation is <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L330"><code class="docutils literal notranslate"><span class="pre">run_hpi_optimization()</span></code></a>, behind the <code class="docutils literal notranslate"><span class="pre">/api/analysis/hpi-optimization</span></code> endpoint.</p>
 <hr class="docutils" />
 <section id="predictive-ml-model-refrigerant-alternatives">
 <h2>Predictive ML Model &amp; Refrigerant Alternatives<a class="headerlink" href="#predictive-ml-model-refrigerant-alternatives" title="Link to this heading">#</a></h2>
@@ -861,7 +861,7 @@ COP_{custom} = f(T_{source}, T_{sink}, T_{lift})
 <p>The optimization algorithm evaluates candidates across a 2D mesh of all valid <span class="math notranslate nohighlight">\((T_{source}, T_{sink})\)</span> pairs extracted from the source and sink profiles of the selected <a class="reference internal" href="heat_pump_integration.html#source-and-sink-profiles-heat-recovery-modes"><span class="std std-ref">heat recovery mode</span></a>.</p>
 <section id="the-grid">
 <h3>The grid<a class="headerlink" href="#the-grid" title="Link to this heading">#</a></h3>
-<p>Both temperature axes run from the coldest to the hottest point of their profile in <strong>0.5 K</strong> steps, with the profile’s own breakpoints added so no corner is missed. Available waste heat and sink demand are read off the profiles by linear interpolation.</p>
+<p>Both temperature axes run from the coldest to the hottest point of their profile in <strong>0.5 K</strong> steps, never past the hottest point, with the profile’s own breakpoints added so no corner is missed. Available waste heat and sink demand are read off the profiles by linear interpolation.</p>
 <p>A grid point is a valid operating point for a candidate only if:</p>
 <ul class="simple">
 <li><p>the COP is above 1 and inside the candidate’s COP range;</p></li>
@@ -884,7 +884,7 @@ COP_{custom} = f(T_{source}, T_{sink}, T_{lift})
 \[
 D(T_{source}) = \dot{Q}_{available}(T_{source}) - \dot{Q}_{source,req}(T_{source})
 \]</div>
-<p>When <span class="math notranslate nohighlight">\(D(T_{source})\)</span> changes sign between two grid points <span class="math notranslate nohighlight">\(idx\)</span> and <span class="math notranslate nohighlight">\(idx+1\)</span>, an exact operating match exists. The exact source temperature <span class="math notranslate nohighlight">\(T_{source,exact}\)</span> and COP are determined by linear zero-crossing interpolation:</p>
+<p>When <span class="math notranslate nohighlight">\(D(T_{source})\)</span> changes sign between two grid points <span class="math notranslate nohighlight">\(idx\)</span> and <span class="math notranslate nohighlight">\(idx+1\)</span>, an exact operating match exists. A match that falls exactly on a grid point is reported once, not once for each interval it borders. The exact source temperature <span class="math notranslate nohighlight">\(T_{source,exact}\)</span> and COP are determined by linear zero-crossing interpolation:</p>
 <div class="math notranslate nohighlight">
 \[
 f_{fraction} = \frac{-D_{idx}}{D_{idx+1} - D_{idx}}
@@ -893,7 +893,7 @@ f_{fraction} = \frac{-D_{idx}}{D_{idx+1} - D_{idx}}
 \[
 T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{source,idx})
 \]</div>
-<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L327"><code class="docutils literal notranslate"><span class="pre">run_hpi_optimization()</span></code></a></p>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L330"><code class="docutils literal notranslate"><span class="pre">run_hpi_optimization()</span></code></a></p>
 <details>
 <summary><b>Show the code</b></summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">step</span> <span class="o">=</span> <span class="n">OPTIMIZATION_CONFIG</span><span class="p">[</span><span class="s2">&quot;step_size&quot;</span><span class="p">]</span>
@@ -974,8 +974,12 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 
         <span class="n">diff</span> <span class="o">=</span> <span class="n">q_avail_valid</span> <span class="o">-</span> <span class="n">q_src_req_valid</span>
 
-        <span class="c1"># Find zero crossings</span>
-        <span class="n">crossings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">diff</span><span class="p">)))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># Find zero crossings. A root exactly on a node shows up in both</span>
+        <span class="c1"># neighbouring intervals (+1 -&gt; 0 -&gt; -1); keep only the second.</span>
+        <span class="n">signs</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">diff</span><span class="p">)</span>
+        <span class="n">crossings</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">signs</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">crossing_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">crossings</span><span class="o">.</span><span class="n">tolist</span><span class="p">())</span>
+        <span class="n">crossings</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">crossings</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">signs</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="ow">in</span> <span class="n">crossing_set</span><span class="p">)]</span>
 
         <span class="n">found_full</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="n">crossings</span><span class="p">:</span>
@@ -1046,7 +1050,7 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 \frac{\dot{Q}_{sink,achievable}}{\dot{Q}_{demand}} \ge 0.01 \quad (1\%)
 \]</div>
 <p>Points below it are not design options; they are left out but counted in the diagnostics, so the omission stays visible.</p>
-<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L327"><code class="docutils literal notranslate"><span class="pre">run_hpi_optimization()</span></code></a>, threshold <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L30"><code class="docutils literal notranslate"><span class="pre">MIN_COVERAGE</span></code></a></p>
+<p><strong>Implementation:</strong> <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L330"><code class="docutils literal notranslate"><span class="pre">run_hpi_optimization()</span></code></a>, threshold <a class="code-link reference external" href="https://github.com/drzg15/HeatTransPlan/blob/main/backend/app/services/optimization_service.py#L30"><code class="docutils literal notranslate"><span class="pre">MIN_COVERAGE</span></code></a></p>
 <details>
 <summary><b>Show the code</b></summary>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># No exact match between available source heat and what the full</span>
