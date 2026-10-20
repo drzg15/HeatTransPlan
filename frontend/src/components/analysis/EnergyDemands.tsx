@@ -6,51 +6,77 @@ import { useAnalysisStore } from '../../store/analysisStore';
 import { getStreamInfo } from '../../utils/streamUtils';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
+
+interface StreamOption {
+  key: string;
+  label: string;
+}
 
 export default function EnergyDemands() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const processes = useProjectStore((s) => s.state.processes);
   const energyDemands = useAnalysisStore((s) => s.energyDemands);
   const updateEnergyDemand = useAnalysisStore((s) => s.updateEnergyDemand);
   const addEnergyDemand = useAnalysisStore((s) => s.addEnergyDemand);
   const removeEnergyDemand = useAnalysisStore((s) => s.removeEnergyDemand);
 
-  // Build hot/cold stream name lists. Deliberately not rebuilt when the
-  // language changes: the supplies store their selected streams by these
-  // names, and an unnamed stream's name is translated, so switching language
-  // would quietly untick it.
-  /* eslint-disable react-hooks/preserve-manual-memoization, react-hooks/exhaustive-deps */
-  const { hotNames, coldNames } = useMemo(() => {
-    const hot: string[] = [];
-    const cold: string[] = [];
+  // Each stream is ticked by a key: its name, or its position when it has
+  // none. Unnamed streams are shown under a translated label, and keying them
+  // by that label unticks them whenever the language changes.
+  const { hotStreams, coldStreams, legacyKeys } = useMemo(() => {
+    const hot: StreamOption[] = [];
+    const cold: StreamOption[] = [];
+    // Older saves ticked unnamed streams by their label, in whichever language
+    // was active; map those labels in every language back to the key.
+    const legacy = new Map<string, string>();
+    const named = new Set<string>();
+    const labelIn = (ft: TFunction, pi: number, si: number, procName?: string) =>
+      `${ft('stream_selector.stream')} ${si + 1} in ${procName || `${ft('stream_selector.subprocess')} ${pi + 1}`}`;
     processes.forEach((proc, pi) => {
       (proc.streams ?? []).forEach((stream, si) => {
         const info = getStreamInfo(stream);
-        const name =
-          stream.name ||
-          `${t('stream_selector.stream')} ${si + 1} in ${proc.name || `${t('stream_selector.subprocess')} ${pi + 1}`}`;
-        if (info.type?.includes('Hot')) hot.push(name);
-        else if (info.type?.includes('Cold')) cold.push(name);
+        const option = stream.name
+          ? { key: stream.name, label: stream.name }
+          : { key: `#${pi}:${si}`, label: labelIn(t, pi, si, proc.name) };
+        if (stream.name) named.add(stream.name);
+        else
+          Object.keys(i18n.store.data).forEach((lng) =>
+            legacy.set(labelIn(i18n.getFixedT(lng), pi, si, proc.name), option.key)
+          );
+        if (info.type?.includes('Hot')) hot.push(option);
+        else if (info.type?.includes('Cold')) cold.push(option);
       });
     });
-    return { hotNames: hot, coldNames: cold };
-  }, [processes]);
-  /* eslint-enable react-hooks/preserve-manual-memoization, react-hooks/exhaustive-deps */
+    named.forEach((n) => legacy.delete(n));
+    return { hotStreams: hot, coldStreams: cold, legacyKeys: legacy };
+  }, [processes, t, i18n]);
+  const hotNames = useMemo(() => hotStreams.map((o) => o.key), [hotStreams]);
+  const coldNames = useMemo(() => coldStreams.map((o) => o.key), [coldStreams]);
 
-  // Auto-initialize empty selections with all available streams
+  // Auto-initialize empty selections with all available streams, and convert
+  // ticks saved under an old label to their key.
   useEffect(() => {
+    const migrate = (names: string[]) => names.map((n) => legacyKeys.get(n) ?? n);
+    const same = (a: string[], b: string[]) =>
+      a.length === b.length && a.every((x, i) => x === b[i]);
     energyDemands.forEach((demand, i) => {
-      const needsHeatSync = demand.selected_heat_streams.length === 0 && coldNames.length > 0;
-      const needsColdSync = demand.selected_cooling_streams.length === 0 && hotNames.length > 0;
-
-      if (needsHeatSync || needsColdSync) {
-        updateEnergyDemand(i, {
-          selected_heat_streams: needsHeatSync ? [...coldNames] : demand.selected_heat_streams,
-          selected_cooling_streams: needsColdSync ? [...hotNames] : demand.selected_cooling_streams,
-        });
+      const heat =
+        demand.selected_heat_streams.length === 0 && coldNames.length > 0
+          ? [...coldNames]
+          : migrate(demand.selected_heat_streams);
+      const cool =
+        demand.selected_cooling_streams.length === 0 && hotNames.length > 0
+          ? [...hotNames]
+          : migrate(demand.selected_cooling_streams);
+      if (
+        !same(heat, demand.selected_heat_streams) ||
+        !same(cool, demand.selected_cooling_streams)
+      ) {
+        updateEnergyDemand(i, { selected_heat_streams: heat, selected_cooling_streams: cool });
       }
     });
-  }, [hotNames, coldNames, energyDemands, updateEnergyDemand]);
+  }, [hotNames, coldNames, legacyKeys, energyDemands, updateEnergyDemand]);
 
   const handleAddSupply = useCallback(() => {
     addEnergyDemand({
@@ -136,14 +162,14 @@ export default function EnergyDemands() {
             <details className="pa-details" open>
               <summary>{t('energy_demands.cold_selection')}</summary>
               <div className="pa-multi-select">
-                {coldNames.map((name) => (
-                  <label key={name} className="pa-multi-option" title={name}>
+                {coldStreams.map(({ key, label }) => (
+                  <label key={key} className="pa-multi-option" title={label}>
                     <input
                       type="checkbox"
-                      checked={demand.selected_heat_streams.includes(name)}
-                      onChange={() => handleHeatStreamToggle(i, name)}
+                      checked={demand.selected_heat_streams.includes(key)}
+                      onChange={() => handleHeatStreamToggle(i, key)}
                     />
-                    {name}
+                    {label}
                   </label>
                 ))}
                 {coldNames.length === 0 && (
@@ -169,14 +195,14 @@ export default function EnergyDemands() {
             <details className="pa-details" open>
               <summary>{t('energy_demands.hot_selection')}</summary>
               <div className="pa-multi-select">
-                {hotNames.map((name) => (
-                  <label key={name} className="pa-multi-option" title={name}>
+                {hotStreams.map(({ key, label }) => (
+                  <label key={key} className="pa-multi-option" title={label}>
                     <input
                       type="checkbox"
-                      checked={demand.selected_cooling_streams.includes(name)}
-                      onChange={() => handleCoolStreamToggle(i, name)}
+                      checked={demand.selected_cooling_streams.includes(key)}
+                      onChange={() => handleCoolStreamToggle(i, key)}
                     />
-                    {name}
+                    {label}
                   </label>
                 ))}
                 {hotNames.length === 0 && (
