@@ -197,6 +197,36 @@ def _theoretical_alternatives():
     return alts
 
 
+def _pin_carnot(alternatives, pinch):
+    """Carnot reference with the source fixed at the pinch.
+
+    Vorlaufquelle = pinch - dTmin/2. The sink stays whatever the row's sink is,
+    so the sink side matches every other technology; only the source differs.
+    """
+    from app.modules.heat_pump_integration.heat_pump_integration import (
+        HP_COP_FORMULAS, carnot_cop,
+    )
+
+    t_source = float(pinch.pinch_temperature) - float(pinch.T_min) / 2.0
+
+    def cop_fn(_t_src, t_snk):
+        t_snk = np.asarray(t_snk, dtype=float)
+        lift = t_snk - t_source
+        with np.errstate(all="ignore"):
+            return np.where(lift > 0, carnot_cop(t_snk, lift), -1.0)
+
+    pinned = []
+    for alt in alternatives:
+        if alt["name"] == "Carnot":
+            alt = dict(
+                alt,
+                cop_fn=cop_fn,
+                formula_fn=lambda t_sink, _dt: HP_COP_FORMULAS["Carnot"](t_sink, t_sink - t_source),
+            )
+        pinned.append(alt)
+    return pinned
+
+
 def _calculation_details(alt, t_source, t_sink):
     """The formula behind one point's COP, with its own temperatures filled in.
 
@@ -340,6 +370,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
     # The technology archetypes ride through the same grid as the trained
     # refrigerants so both end up in one table and one chart.
     alternatives = list(alternatives) + _theoretical_alternatives()
+    alternatives = _pin_carnot(alternatives, pinch)
 
     # A user formula is appended as one more alternative rather than replacing
     # the model, so it lands in the same table and chart and can be compared
