@@ -126,3 +126,46 @@ def test_theoretical_archetypes_match_the_hpi_correlation():
             np.asarray(alt["cop_fn"](np.array([t_source]), np.array([t_sink])))[0]
         )
         assert got == pytest.approx(expected, rel=1e-9), alt["name"]
+
+
+def test_four_temperature_model_holds_the_other_two_at_the_pinch():
+    """The 4t model gets Vorlauf Quelle / Rücklauf Senke from the pinch, not the grid."""
+    import numpy as np
+    from types import SimpleNamespace
+    from app.services import optimization_service as svc
+
+    pinch = SimpleNamespace(pinch_temperature=73.0, T_min=10.0)
+    seen = {}
+
+    class Spy:
+        def predict(self, X):
+            seen["X"] = X
+            return np.full(len(X), 3.0)
+
+    svc._model_4t_cache = Spy()
+    try:
+        alt = {"medium_sink": "steam", "Kältemittel_stufen": "R1233zd_2"}
+        fn = svc._four_temperature_alternatives([alt], pinch)[0]["cop_fn"]
+        cop = fn(np.array([50.0, 55.0]), np.array([100.0, 110.0]))
+    finally:
+        svc._model_4t_cache = None
+
+    X = seen["X"]
+    assert list(cop) == [3.0, 3.0]
+    assert set(X["T_Vorlauf_Quelle"]) == {68.0}   # pinch - dTmin/2
+    assert set(X["T_Rücklauf_Senke"]) == {78.0}   # pinch + dTmin/2
+    assert list(X["T_Rücklauf_Quelle"]) == [50.0, 55.0]
+    assert list(X["T_Vorlauf_Senke"]) == [100.0, 110.0]
+
+
+def test_pinned_carnot_uses_the_non_shifted_sink_and_the_pinch_source():
+    """Pinch 73, dTmin 10, sink 113 on the curve: Carnot sees 108 and 68."""
+    import numpy as np
+    from types import SimpleNamespace
+    from app.services.optimization_service import _pin_carnot
+
+    pinch = SimpleNamespace(pinch_temperature=73.0, T_min=10.0)
+    alt = {"name": "Carnot", "cop_max": 15.0}
+    fn = _pin_carnot([alt], pinch)[0]["cop_fn"]
+    cop = fn(np.array([58.2]), np.array([113.0]))[0]
+    assert cop == pytest.approx(0.5 * (108.0 + 273.15) / (108.0 - 68.0))

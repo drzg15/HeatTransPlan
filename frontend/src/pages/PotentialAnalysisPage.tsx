@@ -73,6 +73,7 @@ export default function PotentialAnalysisPage() {
   const hpiLoading = useAnalysisStore((s) => s.hpiLoading);
   const energyDemands = useAnalysisStore((s) => s.energyDemands);
   const copFormula = useAnalysisStore((s) => s.copFormula);
+  const copModel = useAnalysisStore((s) => s.copModel);
 
   const [pinchError, setPinchError] = useState<string | null>(null);
   const [hpiError, setHPIError] = useState<string | null>(null);
@@ -314,7 +315,7 @@ export default function PotentialAnalysisPage() {
     if (!pinchResult) return;
     runHPIOptimizationAnalysis(pinchResult);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [copFormula]);
+  }, [copFormula, copModel]);
 
   // Run HPI analysis
   const runHPIAnalysis = useCallback(
@@ -361,6 +362,7 @@ export default function PotentialAnalysisPage() {
           pinch_result: pinch,
           profile_mode: profileMode,
           cop_formula: copFormula,
+          cop_model: copModel,
         });
         setHPIOptimizationResult(result);
       } catch (err: unknown) {
@@ -371,7 +373,7 @@ export default function PotentialAnalysisPage() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [profileMode, copFormula]
+    [profileMode, copFormula, copModel]
   );
 
   // Run status-quo analysis

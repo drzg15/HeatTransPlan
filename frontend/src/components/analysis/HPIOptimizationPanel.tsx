@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
 import { useTranslation } from 'react-i18next';
-import type { OptimizedIntegrationPoint } from '../../types/analysis';
+import type { CopModel, OptimizedIntegrationPoint } from '../../types/analysis';
 import HPIOptimizationChart from './HPIOptimizationChart';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import CopFormulaModal from './CopFormulaModal';
@@ -48,6 +48,8 @@ export default function HPIOptimizationPanel() {
   // Custom COP formula. Lives in the store so the page can send it with the
   // optimisation request and re-run when it changes.
   const copFormula = useAnalysisStore((s) => s.copFormula);
+  const copModel = useAnalysisStore((s) => s.copModel);
+  const setCopModel = useAnalysisStore((s) => s.setCopModel);
   const setCopFormula = useAnalysisStore((s) => s.setCopFormula);
   const [formulaOpen, setFormulaOpen] = useState(false);
 
@@ -565,7 +567,7 @@ export default function HPIOptimizationPanel() {
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_source')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          Shifted Source (T-{tMin/2}K) [°C]
+                          Shifted Source (T−{tMin/2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
                               title={t('optimization.title_shifted_source_temp')}
@@ -601,6 +603,8 @@ export default function HPIOptimizationPanel() {
                           {renderSortIcon('hp_level')}
                         </div>
                       </th>
+                      <th style={thStyle}>{t('optimization.panel.headers.t_vorlauf_quelle')}</th>
+                      <th style={thStyle}>{t('optimization.panel.headers.t_ruecklauf_senke')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -731,12 +735,14 @@ export default function HPIOptimizationPanel() {
                             {((pt.Q_demand * (pt.COP - 1)) / pt.COP).toFixed(1)}
                           </td>
                           <td style={elCell}>{(pt.Q_demand / pt.COP).toFixed(1)}</td>
+                          <td style={sinkCell}>{(pt.T_sink - tMin / 2).toFixed(1)}</td>
                           <td style={sinkCell}>{pt.T_sink.toFixed(1)}</td>
-                          <td style={sinkCell}>{(pt.T_sink + tMin / 2).toFixed(1)}</td>
+                          <td style={sourceCell}>{(pt.T_source + tMin / 2).toFixed(1)}</td>
                           <td style={sourceCell}>{pt.T_source.toFixed(1)}</td>
-                          <td style={sourceCell}>{(pt.T_source - tMin / 2).toFixed(1)}</td>
                           <td>{pt.theoretical ? '' : refName}</td>
                           <td>{pt.theoretical ? '' : pt.hp_level}</td>
+                          <td style={sourceCell}>{pt.T_vorlauf_quelle?.toFixed(1) ?? '–'}</td>
+                          <td style={sinkCell}>{pt.T_ruecklauf_senke?.toFixed(1) ?? '–'}</td>
                         </tr>
                       );
                     })}
@@ -1088,6 +1094,18 @@ export default function HPIOptimizationPanel() {
                     </>
                   )}
                 </p>
+              </div>
+              <div>
+                <label style={labelStyle}>{t('optimization.panel.filters.cop_model')}</label>
+                <select
+                  style={selectStyle}
+                  value={copModel}
+                  onChange={(e) => setCopModel(e.target.value as CopModel)}
+                  title={t('optimization.panel.filters.cop_model_desc')}
+                >
+                  <option value="2t">{t('optimization.panel.filters.cop_model_2t')}</option>
+                  <option value="4t">{t('optimization.panel.filters.cop_model_4t')}</option>
+                </select>
               </div>
               <div className="cf-trigger-block">
                 <div className="cf-trigger-head">

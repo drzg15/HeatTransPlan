@@ -33,6 +33,9 @@ OPTIMIZATION_CONFIG = {
     "deltaT_evap": 0,
     "deltaT_cond": 0,
     "model_path": _resolve("models", "cop", "best_model.joblib", env_var="COP_MODEL_PATH"),
+    # Model fed all four temperatures (see cop_analysis/train_cop_4t.py). The
+    # 2-temperature model above stays the default.
+    "model_path_4t": _resolve("models", "cop", "best_model_4t.joblib", env_var="COP_MODEL_4T_PATH"),
     # Validity envelope per refrigerant/medium, exported from the modelling data
     # by cop_analysis/export_cop_ranges.py. The training data itself is not
     # deployed — only the model and this file.

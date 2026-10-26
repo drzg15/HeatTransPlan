@@ -3,6 +3,7 @@
 import { create } from 'zustand';
 import type {
   CopFormulaSpec,
+  CopModel,
   EnergyDemandLocal,
   OptimizedIntegrationPoint,
   HPIOptimizationResult,
@@ -34,6 +35,7 @@ interface AnalysisStore {
   /** User-supplied COP correlation, evaluated alongside the trained model.
    *  null means "model only", which is the default. */
   copFormula: CopFormulaSpec | null;
+  copModel: CopModel;
 
   // Results from backend
   pinchResult: PinchResult | null;
@@ -80,6 +82,7 @@ interface AnalysisStore {
   setShowShifted: (val: boolean) => void;
   setProfileMode: (mode: ProfileMode) => void;
   setCopFormula: (formula: CopFormulaSpec | null) => void;
+  setCopModel: (model: CopModel) => void;
   setPinchResult: (result: PinchResult | null) => void;
   setHPIResult: (result: HPIResult | null) => void;
   setHPIOptimizationResult: (result: HPIOptimizationResult | null) => void;
@@ -137,6 +140,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   showShifted: false,
   profileMode: 'net_load',
   copFormula: null,
+  copModel: '2t',
   pinchResult: null,
   hpiResult: null,
   hpiOptimizationResult: null,
@@ -225,6 +229,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   setShowShifted: (val) => set({ showShifted: val }),
   setProfileMode: (mode) => set({ profileMode: mode }),
   setCopFormula: (formula) => set({ copFormula: formula }),
+  setCopModel: (model) => set({ copModel: model }),
 
   setPinchResult: (result) => {
     set((s) => {
