@@ -222,7 +222,11 @@
       "show_classic_hpi": "Show single-point heat pump analysis",
       "hide_classic_hpi": "Hide single-point heat pump analysis",
       "gcc_surplus": "Net heat surplus",
-      "gcc_deficit": "Net heat deficit"
+      "gcc_deficit": "Net heat deficit",
+      "cc_recovery": "Heat recovery",
+      "cc_surplus": "Heat surplus",
+      "cc_deficit": "Heat deficit",
+      "gcc_pocket": "Pockets"
     },
     "recovery": {
       "title": "Heat recovery before integration",
@@ -483,7 +487,7 @@
     "smart_selection": "Smart Selection",
     "smart_selection_desc": "Drag an area on the map to batch select streams. Red bubbles are Hot streams (waste heat), Blue bubbles are Cold streams (heat demand).",
     "scenarios": "Scenarios",
-    "scenarios_desc": "Save different project versions (e.g., \"Night Shift\" vs \"Day Shift\") as Scenarios to compare their energy performance side-by-side.",
+    "scenarios_desc": "Save different project versions (e.g., \"Night Shift\" vs \"Day Shift\") as Scenarios to compare their energy performance and economics side-by-side.",
     "composite_curves": "Composite Curves",
     "composite_curves_desc": "The horizontal overlap between the Hot and Cold lines represents the heat we can recover. The remaining gaps show the external energy we still need to pay for.",
     "grand_composite_curve": "Grand Composite Curve",
@@ -492,7 +496,9 @@
     "hpi_desc": "The system automatically selects the highest-efficiency heat pump for your temperatures. Higher COP values mean better electricity-to-heat conversion.",
     "metrics": "Performance Metrics",
     "metrics_desc": "Heating Savings: The percentage of energy saved compared to your current status quo. Aim for high recovery first!",
-    "tip": "Tip: Use the \"Report\" button to generate a full PDF-ready dashboard with all your interactive charts."
+    "tip": "Tip: Use the \"Report\" button to generate a full PDF-ready dashboard with all your interactive charts.",
+    "economics": "Economic Analysis",
+    "economics_desc": "Compares the chosen heat pump with the heater and cooling it replaces: investment, yearly costs, net present value and the year it pays back. Change prices and investment under Key inputs; click the sensitivity map to try other energy prices."
   },
   "metrics": {
     "min_heating": "Minimum Heating Demand",

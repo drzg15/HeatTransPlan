@@ -47,6 +47,11 @@ const AnalysisHelp: React.FC<Props> = ({ isOpen, onClose }) => {
         </section>
 
         <section className="help-section">
+          <h4>💶 {t('help.economics')}</h4>
+          <p>{t('help.economics_desc')}</p>
+        </section>
+
+        <section className="help-section">
           <h4>📈 {t('help.metrics')}</h4>
           <p>{t('help.metrics_desc')}</p>
         </section>
