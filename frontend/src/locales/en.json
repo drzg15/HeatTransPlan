@@ -581,7 +581,6 @@
       "sens_title": "Sensitivity: net present value by {{fuel}} and electricity price ({{funding}} % funding)",
       "breakeven": "Break-even (net present value = 0)",
       "time_title": "Net present value over time at {{fuel}} {{gas}} ct / electricity {{el}} ct",
-      "period_end": " end of period ({{T}} years)",
       "never": "Not profitable within {{years}} years",
       "profitable_from": "profitable from {{year}} (after {{years}} years)",
       "fuel_price": "{{fuel}} price excl. CO₂",
