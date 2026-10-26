@@ -27,6 +27,7 @@ import StatusQuoComparison from '../components/analysis/StatusQuoComparison';
 import TemperatureIntervalDiagram from '../components/analysis/TemperatureIntervalDiagram';
 import ScenarioComparison from '../components/analysis/ScenarioComparison';
 import HPIOptimizationPanel from '../components/analysis/HPIOptimizationPanel';
+import { econReportData } from '../components/analysis/econModel';
 import EconomicAnalysis from '../components/analysis/EconomicAnalysis';
 import { HPISummary, PinchSummary } from '../components/analysis/SectionSummaries';
 import Section from '../components/ui/Section';
@@ -335,9 +336,11 @@ export default function PotentialAnalysisPage() {
         setHPIResult(result);
         // Auto-select first available HP if current selection is invalid or empty
         const currentSelection = useAnalysisStore.getState().selectedHPTypes;
-        const availableNames = result.heat_pumps.filter((hp: any) => hp.available).map((hp: any) => hp.name);
-        const validSelection = currentSelection.filter(name => availableNames.includes(name));
-        
+        const availableNames = result.heat_pumps
+          .filter((hp: any) => hp.available)
+          .map((hp: any) => hp.name);
+        const validSelection = currentSelection.filter((name) => availableNames.includes(name));
+
         if (validSelection.length === 0 && availableNames.length > 0) {
           setSelectedHPTypes([availableNames[0]]);
         } else if (validSelection.length !== currentSelection.length) {
@@ -462,6 +465,15 @@ export default function PotentialAnalysisPage() {
             cooling_demand: d.cooling_demand,
           })) || [],
         t_min: sc.tMin,
+        // The economic analysis of this scenario's pump, with the inputs from
+        // the Economic analysis section, translated and formatted here.
+        economics: econReportData(
+          t,
+          useAnalysisStore.getState().econForm,
+          useAnalysisStore.getState().econRefType,
+          sc.selectedHPPoints || [],
+          sc.hpiOptimizationResult
+        ),
       })),
     };
   }, [
@@ -473,6 +485,7 @@ export default function PotentialAnalysisPage() {
     energyDemands,
     tMin,
     getStreamsFromSelection,
+    t,
   ]);
 
   // Handle report generation

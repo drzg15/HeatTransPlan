@@ -4,6 +4,8 @@ import Plot from 'react-plotly.js';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useProjectStore } from '../../store/projectStore';
 import MapViewer from '../map/MapViewer';
+import { econCore, GREEN, RED } from './econModel';
+import { formatDe } from '../../utils/numberFormat';
 import './ScenarioComparison.css';
 
 const ScenarioComparison: React.FC = () => {
@@ -13,6 +15,18 @@ const ScenarioComparison: React.FC = () => {
   const projectState = useProjectStore((s) => s.state);
   const loadScenario = useAnalysisStore((s) => s.loadScenario);
   const deleteScenario = useAnalysisStore((s) => s.deleteScenario);
+  const econForm = useAnalysisStore((s) => s.econForm);
+  const econRefType = useAnalysisStore((s) => s.econRefType);
+
+  // Economics of each scenario's pump, all under the same inputs (prices,
+  // investment per kW, …) from the Economic analysis section.
+  const econ = useMemo(
+    () =>
+      scenarios.map((sc) =>
+        econCore(econForm, econRefType, sc.selectedHPPoints ?? [], sc.hpiOptimizationResult)
+      ),
+    [scenarios, econForm, econRefType]
+  );
 
   // Group data for comparison charts
   const chartData = useMemo(() => {
@@ -168,7 +182,8 @@ const ScenarioComparison: React.FC = () => {
       <div className="sc-table-section pa-section">
         <h3>📊 Combined Status Quo vs. Proposal Comparison</h3>
         <p className="sc-subtitle" style={{ marginBottom: 16 }}>
-          Aggregated performance data across all saved scenarios.
+          Aggregated performance data across all saved scenarios.{' '}
+          {t('economics.compare_note', { T: Math.round(econForm.T) })}
         </p>
         <div className="scroll-x">
           <table className="pa-table" style={{ width: '100%', minWidth: '800px' }}>
@@ -204,6 +219,12 @@ const ScenarioComparison: React.FC = () => {
                 >
                   HP Integration
                 </th>
+                <th
+                  colSpan={4}
+                  style={{ textAlign: 'center', background: '#fde68a', color: '#78350f' }}
+                >
+                  {t('economics.title')}
+                </th>
               </tr>
               <tr>
                 <th style={{ background: '#fee2e2', color: '#b91c1c' }}>Status Quo</th>
@@ -214,10 +235,25 @@ const ScenarioComparison: React.FC = () => {
                 <th style={{ background: '#d1fae5', color: '#047857' }}>Savings (%)</th>
                 <th style={{ background: '#ede9fe', color: '#6d28d9' }}>Best COP</th>
                 <th style={{ background: '#ede9fe', color: '#6d28d9' }}>Coverage (%)</th>
+                <th style={{ background: '#fef3c7', color: '#92400e' }}>
+                  {t('economics.rows.capex')} (€)
+                </th>
+                <th style={{ background: '#fef3c7', color: '#92400e' }}>
+                  {t('economics.rows.npv')} (€)
+                </th>
+                <th style={{ background: '#fef3c7', color: '#92400e' }}>
+                  {t('economics.rows.payback')}
+                </th>
+                <th style={{ background: '#fef3c7', color: '#92400e' }}>
+                  {t('economics.rows.saving1')} (€/{t('economics.year')})
+                </th>
               </tr>
             </thead>
             <tbody>
-              {scenarios.map((sc) => {
+              {scenarios.map((sc, idx) => {
+                const ec = econ[idx];
+                const npv = ec?.results[0].npv;
+                const payback = ec?.results[0].payback;
                 const sq = sc.statusQuoResult;
                 const pr = sc.pinchResult;
                 const hpi = sc.hpiResult;
@@ -280,6 +316,28 @@ const ScenarioComparison: React.FC = () => {
                     >
                       {hCov.toFixed(1)}%
                     </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {ec ? formatDe(ec.variants[0].capex) : '—'}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: 'right',
+                        fontWeight: 700,
+                        color: npv === undefined ? undefined : npv < 0 ? RED : GREEN,
+                      }}
+                    >
+                      {npv === undefined ? '—' : formatDe(npv)}
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {!ec
+                        ? '—'
+                        : payback === null
+                          ? t('economics.payback_never_short')
+                          : `${payback} ${t('economics.years')}`}
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {ec ? formatDe(ec.results[0].saving1) : '—'}
+                    </td>
                   </tr>
                 );
               })}
@@ -340,7 +398,42 @@ const ScenarioComparison: React.FC = () => {
                 height: 300,
                 margin: { l: 40, r: 40, t: 40, b: 60 },
                 legend: { orientation: 'h', y: -0.2 },
-                yaxis: { title: 'Best COP', autorange: true, rangemode: 'tozero', gridcolor: '#f1f5f9' },
+                yaxis: {
+                  title: 'Best COP',
+                  autorange: true,
+                  rangemode: 'tozero',
+                  gridcolor: '#f1f5f9',
+                },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+              }}
+              config={{ responsive: true, displayModeBar: false }}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div className="sc-chart-card">
+            <Plot
+              data={[
+                {
+                  x: chartData.names,
+                  y: econ.map((ec) => ec?.results[0].npv ?? null),
+                  name: t('economics.rows.npv'),
+                  type: 'bar',
+                  marker: {
+                    color: econ.map((ec) => ((ec?.results[0].npv ?? 0) < 0 ? RED : GREEN)),
+                  },
+                  hovertemplate: '%{x}: %{y:,.0f} €<extra></extra>',
+                },
+              ]}
+              layout={{
+                title: {
+                  text: t('economics.compare_npv_title', { T: Math.round(econForm.T) }),
+                  font: { size: 14 },
+                },
+                height: 300,
+                separators: ',.',
+                margin: { l: 70, r: 20, t: 40, b: 60 },
+                yaxis: { title: { text: '€' }, tickformat: ',.0f', zeroline: true },
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
               }}
