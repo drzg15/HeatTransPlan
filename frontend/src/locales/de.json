@@ -222,7 +222,11 @@
       "show_classic_hpi": "Einzelpunkt-Wärmepumpenanalyse anzeigen",
       "hide_classic_hpi": "Einzelpunkt-Wärmepumpenanalyse ausblenden",
       "gcc_surplus": "Netto-Wärmeüberschuss",
-      "gcc_deficit": "Netto-Wärmedefizit"
+      "gcc_deficit": "Netto-Wärmedefizit",
+      "cc_recovery": "Wärmerückgewinnung",
+      "cc_surplus": "Wärmeüberschuss",
+      "cc_deficit": "Wärmedefizit",
+      "gcc_pocket": "Taschen"
     },
     "recovery": {
       "title": "Wärmerückgewinnung vor der Integration",
@@ -483,7 +487,7 @@
     "smart_selection": "Intelligente Auswahl",
     "smart_selection_desc": "Ziehen Sie einen Bereich auf der Karte auf, um mehrere Ströme gleichzeitig auszuwählen. Rote Blasen sind heiße Ströme (Abwärme), blaue Blasen sind kalte Ströme (Wärmebedarf).",
     "scenarios": "Szenarien",
-    "scenarios_desc": "Speichern Sie verschiedene Projektversionen (z. B. „Nachtschicht“ vs. „Tagschicht“) als Szenarien, um deren Energieeffizienz nebeneinander zu vergleichen.",
+    "scenarios_desc": "Speichern Sie verschiedene Projektversionen (z. B. „Nachtschicht“ vs. „Tagschicht“) als Szenarien, um deren Energieeffizienz und Wirtschaftlichkeit nebeneinander zu vergleichen.",
     "composite_curves": "Verbundkurve",
     "composite_curves_desc": "Die horizontale Überlappung zwischen den heißen und kalten Linien stellt die zurückgewinnbare Wärme dar. Die verbleibenden Lücken zeigen die externe Energie, die zusätzlich benötigt wird.",
     "grand_composite_curve": "Großverbundkurve",
@@ -492,7 +496,9 @@
     "hpi_desc": "Das System wählt automatisch die effizienteste Wärmepumpe für Ihre Temperaturen aus. Höhere COP-Werte bedeuten eine bessere Umwandlung von Strom in Wärme.",
     "metrics": "Leistungskennzahlen",
     "metrics_desc": "Heizeinsparungen: Der prozentuale Anteil der eingesparten Energie im Vergleich zum aktuellen Status Quo. Zielen Sie zuerst auf eine hohe Rückgewinnung ab!",
-    "tip": "Tipp: Verwenden Sie die Schaltfläche „Bericht“, um ein vollständiges PDF-fähiges Dashboard mit allen interaktiven Diagrammen zu erstellen."
+    "tip": "Tipp: Verwenden Sie die Schaltfläche „Bericht“, um ein vollständiges PDF-fähiges Dashboard mit allen interaktiven Diagrammen zu erstellen.",
+    "economics": "Wirtschaftlichkeitsbetrachtung",
+    "economics_desc": "Vergleicht die gewählte Wärmepumpe mit der Heizung und Kühlung, die sie ersetzt: Investition, jährliche Kosten, Kapitalwert und das Jahr, in dem sie sich amortisiert. Preise und Investition ändern Sie unter „Wichtigste Eingaben“; ein Klick in die Sensitivitätskarte probiert andere Energiepreise aus."
   },
   "metrics": {
     "min_heating": "Mindest-Heizbedarf",

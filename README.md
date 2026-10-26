@@ -12,6 +12,9 @@ It is developed as part of the [HeatTransPlan research project](https://www.heat
 - **Energy Data Collection** — Define processes, sub-processes, hot/cold streams, temperatures, flow rates, and operating hours.
 - **Pinch Analysis** — Automatically compute composite curves, the grand composite curve, pinch point, and minimum heating/cooling demands.
 - **Heat Pump Integration** — Evaluate and optimise heat pump solutions across feasible temperature lifts, with COP modelling and refrigerant selection.
+- **Economic Analysis** — Net present value (VDI 2067-1), dynamic payback, CO₂ saving, break-even electricity price, energy price sensitivity map and economic heat pump size, against a gas, oil or electric boiler.
+- **Scenario Comparison** — Save stream selections as scenarios and compare utilities, heat pump coverage and economics side by side.
+- **HTML Report** — Export every scenario, its charts, its economic analysis and the scenario comparison as one interactive HTML file.
 - **Import / Export** — Save and load project state as JSON; export stream data and distance matrices as CSV; export map screenshots.
 - **Multilingual** — English and German UI (i18n ready).
 - **Dark / Light mode** — Theme toggle built in.

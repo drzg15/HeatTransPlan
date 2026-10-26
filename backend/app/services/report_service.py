@@ -620,7 +620,8 @@ def _render_pinch_content(
 
     pr = pinch_result
     total_hot_duty = sum(abs(s.Q) for s in selected_streams if s.Tin > s.Tout)
-    heat_recovery = total_hot_duty - pr.hot_utility
+    # What the hot streams give off, less what still has to be cooled away.
+    heat_recovery = total_hot_duty - pr.cold_utility
 
     # Streams table
     rows = ""

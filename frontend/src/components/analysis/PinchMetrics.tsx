@@ -12,7 +12,8 @@ export default function PinchMetrics() {
   const totalHotDuty = pinchResult.streams_data
     .filter((s) => s.ts > s.tt)
     .reduce((sum, s) => sum + Math.abs(s.cp * (s.tt - s.ts)), 0);
-  const heatRecovery = totalHotDuty - pinchResult.hot_utility;
+  // What the hot streams give off, less what still has to be cooled away.
+  const heatRecovery = totalHotDuty - pinchResult.cold_utility;
 
   const cards = [
     {

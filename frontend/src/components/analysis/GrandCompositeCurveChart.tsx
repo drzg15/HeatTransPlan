@@ -5,6 +5,8 @@ import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import { pairedTempRange } from './pairedTempRange';
+import { gccPockets } from './gccPockets';
+import { formatDe } from '../../utils/numberFormat';
 import { useTranslation } from 'react-i18next';
 
 export default function GrandCompositeCurveChart() {
@@ -53,8 +55,50 @@ export default function GrandCompositeCurveChart() {
             ? t('analysis.charts.gcc_deficit')
             : undefined,
       showlegend: showThis,
+      legendrank: 1,
       hovertemplate: `T: %{y:.1f}°C<br>ΔH: %{x:.1f} kW<extra></extra>`,
     });
+  }
+
+  const kw = (v: number) => `${formatDe(v, 1)} kW`;
+
+  // Pockets: heat exchanged inside the process, in the green of the heat
+  // recovery area on the composite curves.
+  const pockets = gccPockets(gccH, gccT, pinchResult.pinch_temperature);
+  if (pockets.heat > 0)
+    traces.unshift({
+      x: pockets.x,
+      y: pockets.y,
+      fill: 'toself',
+      fillcolor: 'rgba(46,125,50,0.28)',
+      line: { width: 0 },
+      mode: 'lines',
+      name: `${t('analysis.charts.gcc_pocket')}: ${kw(pockets.heat)}`,
+      hoveron: 'fills',
+      hoverinfo: 'name',
+      legendrank: 2,
+    });
+
+  // Where the curve ends: the heat still to buy at the top (minimum heating)
+  // and to cool away at the bottom (minimum cooling), as bars from the axis,
+  // coloured like the matching bands on the composite curves.
+  const byT = gccH.map((h, k) => [h, gccT[k]]).sort((a, b) => a[1] - b[1]);
+  if (byT.length > 1) {
+    const [[hBottom, tBottom], [hTop, tTop]] = [byT[0], byT[byT.length - 1]];
+    for (const [h, tt, color, name, rank] of [
+      [hTop, tTop, 'rgba(37,99,235,0.4)', t('analysis.charts.cc_deficit'), 3],
+      [hBottom, tBottom, 'rgba(220,38,38,0.4)', t('analysis.charts.cc_surplus'), 4],
+    ] as const)
+      if (h > 0)
+        traces.push({
+          x: [0, h],
+          y: [tt, tt],
+          mode: 'lines',
+          line: { color, width: 10 },
+          name: `${name}: ${kw(h)}`,
+          hoverinfo: 'name',
+          legendrank: rank,
+        });
   }
 
   const layout: any = {
@@ -81,19 +125,22 @@ export default function GrandCompositeCurveChart() {
     },
     // Paired side by side in .pa-charts-row — both charts carry the same
     // height so the row keeps a straight baseline.
-    height: 520,
+    height: 600,
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     // Matches the composite chart beside it: same margins, same legend
     // placement, so the pair reads as one figure.
-    margin: { l: 80, r: 30, t: 60, b: 80 },
+    margin: { l: 80, r: 30, t: 60, b: 160 },
+    // Legend under the x-axis title. The bottom margin is fixed and the same
+    // in both charts, so the plot areas and the pinch lines stay level.
     legend: {
       orientation: 'h' as const,
-      x: 1,
-      y: 1.15,
-      xanchor: 'right' as const,
-      yanchor: 'bottom' as const,
-      font: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
+      x: 0.5,
+      y: -0.2,
+      xanchor: 'center' as const,
+      yanchor: 'top' as const,
+      font: { size: 11, color: isDark ? '#F8FAFC' : '#1A1C1E' },
+      itemwidth: 30,
     },
     hovermode: 'closest' as const,
     shapes: [
