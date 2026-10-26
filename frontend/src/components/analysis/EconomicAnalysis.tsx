@@ -514,30 +514,7 @@ export default function EconomicAnalysis() {
         </div>
       </div>
 
-      {/* 2. The answer: key results as cards, for the pump analysed. */}
-      <div className="econ-card">
-        <div className="econ-card-title">
-          {t('economics.blocks.results')}
-          {points[0] && <span className="econ-card-sub"> · {pointName(points[0])}</span>}
-        </div>
-        <div className="econ-kpis">
-          {kpis.map((k) => (
-            <div
-              key={k.key}
-              className="econ-kpi-card"
-              style={{ borderLeftColor: k.color, background: `${k.color}0F` }}
-            >
-              <div className="econ-kpi-label">{rowLabel(k.key, k.label)}</div>
-              <div className="econ-kpi-value" style={{ color: k.valueColor }}>
-                {k.value} {k.unit && <span className="econ-unit">{k.unit}</span>}
-              </div>
-              {k.sub && <div className="econ-kpi-sub">{k.sub}</div>}
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* 3. Everything else, folded away until needed. */}
+      {/* 2. The other inputs, folded away right under the key ones. */}
       <details className="econ-card econ-more">
         <summary>
           {t('economics.more_inputs')}
@@ -581,6 +558,29 @@ export default function EconomicAnalysis() {
           })}
         </div>
       </details>
+
+      {/* 3. The answer: key results as cards, for the pump analysed. */}
+      <div className="econ-card">
+        <div className="econ-card-title">
+          {t('economics.blocks.results')}
+          {points[0] && <span className="econ-card-sub"> · {pointName(points[0])}</span>}
+        </div>
+        <div className="econ-kpis">
+          {kpis.map((k) => (
+            <div
+              key={k.key}
+              className="econ-kpi-card"
+              style={{ borderLeftColor: k.color, background: `${k.color}0F` }}
+            >
+              <div className="econ-kpi-label">{rowLabel(k.key, k.label)}</div>
+              <div className="econ-kpi-value" style={{ color: k.valueColor }}>
+                {k.value} {k.unit && <span className="econ-unit">{k.unit}</span>}
+              </div>
+              {k.sub && <div className="econ-kpi-sub">{k.sub}</div>}
+            </div>
+          ))}
+        </div>
+      </div>
 
       <details className="econ-card econ-more">
         <summary>

@@ -577,8 +577,8 @@ def _render_economics(econ: Optional[Dict[str, Any]]) -> str:
     <div class="plots-container">
         <div class="plot-section">{bar}</div>
         <div class="plot-section">{price}</div>
-        <div class="plot-section">{npv}</div>
     </div>
+    <div class="plot-section" style="width:100%">{npv}</div>
     <h3>{escape(lab.get('sensitivity', ''))}</h3>
     <p>{escape(econ.get('sens_explain', ''))}</p>
     <div class="plot-section" style="width:100%">{sens}</div>

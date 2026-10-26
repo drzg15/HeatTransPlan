@@ -781,9 +781,11 @@ export function buildEconomics(
       {
         showlegend: true,
         yaxis: { title: { text: '€' }, tickformat: ',.0f', zeroline: true, zerolinewidth: 2 },
-        xaxis: { dtick: kMax > 20 ? 2 : 1 },
+        // Whole years, spaced by Plotly to fit the width (the report draws it narrower).
+        xaxis: { tickformat: 'd' },
         shapes: [
-          // End of the Betrachtungszeitraum.
+          // End of the Betrachtungszeitraum, named in the legend. A text label
+          // here would stretch the axis to fit it.
           {
             type: 'line',
             x0: form.year + inp.T,
@@ -795,15 +797,6 @@ export function buildEconomics(
           },
         ],
         annotations: [
-          {
-            x: form.year + inp.T,
-            yref: 'paper',
-            y: 1,
-            text: t('economics.charts.period_end', { T: inp.T }),
-            showarrow: false,
-            xanchor: 'left',
-            font: { color: text, size: 11 },
-          },
           // One arrow per pump at its break-even year, staggered so they don't stack.
           ...crossings.flatMap((c, k) =>
             c === null

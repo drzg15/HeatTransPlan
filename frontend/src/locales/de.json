@@ -581,7 +581,6 @@
       "sens_title": "Sensitivität: Kapitalwert nach Preis {{fuel}} und Strompreis ({{funding}} % Förderung)",
       "breakeven": "Break-even (Kapitalwert = 0)",
       "time_title": "Kapitalwertverlauf bei {{fuel}} {{gas}} ct / Strom {{el}} ct",
-      "period_end": " Ende Betrachtungszeitraum ({{T}} Jahre)",
       "never": "Innerhalb von {{years}} Jahren nicht wirtschaftlich",
       "profitable_from": "wirtschaftlich ab {{year}} (nach {{years}} Jahren)",
       "fuel_price": "Preis {{fuel}} ohne CO₂",
