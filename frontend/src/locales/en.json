@@ -731,7 +731,12 @@
     "size_help": "A smaller heat pump sits lower on the sink profile: it covers less of the demand, but over a smaller temperature lift, so its COP is higher and it costs less. The heat it does not cover still comes from the {{ref}}, and that fuel is counted.\nThe curve is the net present value of every working heat pump from the optimisation, costed with the inputs above; at each size only the best machine is shown. Its highest point (the gold diamond) is the economic optimum: the size that earns the most over the period.\nThe investment is the specific investment (€/kW) times the heat output for every size. In reality small units cost more per kW, so the optimum may sit at a somewhat larger size.",
     "years": "years",
     "year": "year",
-    "in_years": "in {{T}} years"
+    "in_years": "in {{T}} years",
+    "payback_never_short": "not within 40 years",
+    "compare_note": "Economics: the pump analysed in each scenario, all with the same inputs from the Economic analysis section, over {{T}} years.",
+    "compare_npv_title": "Net present value per scenario ({{T}} years)",
+    "report_inputs": "Inputs",
+    "report_results": "Results"
   },
   "summaries": {
     "title": "Summary",

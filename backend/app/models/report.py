@@ -49,6 +49,9 @@ class ScenarioReportData(BaseModel):
     selected_hp_points: List[OptimizedIntegrationPoint] = Field(default_factory=list)
     energy_demands: List[ReportEnergyDemand] = Field(default_factory=list)
     t_min: float = 10.0
+    # Economic analysis of the scenario's pump, built by the frontend
+    # (econReportData): translated labels, formatted values, Plotly specs.
+    economics: Optional[Dict[str, Any]] = None
 
 
 class ReportRequest(BaseModel):

@@ -731,7 +731,12 @@
     "size_help": "Eine kleinere Wärmepumpe sitzt tiefer im Senkenprofil: Sie deckt weniger vom Bedarf, aber über einen kleineren Temperaturhub, also mit höherem COP und geringeren Kosten. Die nicht gedeckte Wärme kommt weiter vom {{ref}}, und dieser Brennstoff wird mitgerechnet.\nDie Kurve ist der Kapitalwert jeder funktionierenden Wärmepumpe aus der Optimierung, gerechnet mit den Eingaben oben; je Größe wird nur die beste Maschine gezeigt. Ihr höchster Punkt (die goldene Raute) ist das wirtschaftliche Optimum: die Größe, die über den Zeitraum am meisten erwirtschaftet.\nDie Investition ist für jede Größe spezifische Investition (€/kW) mal Heizleistung. In der Praxis kosten kleine Anlagen pro kW mehr, das Optimum liegt dann eher bei etwas größerer Leistung.",
     "years": "Jahre",
     "year": "Jahr",
-    "in_years": "in {{T}} Jahren"
+    "in_years": "in {{T}} Jahren",
+    "payback_never_short": "nicht innerhalb von 40 Jahren",
+    "compare_note": "Wirtschaftlichkeit: die analysierte Wärmepumpe jedes Szenarios, alle mit denselben Eingaben aus dem Abschnitt Wirtschaftlichkeitsbetrachtung, über {{T}} Jahre.",
+    "compare_npv_title": "Kapitalwert je Szenario ({{T}} Jahre)",
+    "report_inputs": "Eingaben",
+    "report_results": "Ergebnisse"
   },
   "summaries": {
     "title": "Zusammenfassung",

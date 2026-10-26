@@ -13,6 +13,11 @@ import type {
   StatusQuoResult,
 } from '../types/analysis';
 import { newId } from '../utils/id';
+import {
+  DEFAULTS as ECON_DEFAULTS,
+  type Form as EconForm,
+  type RefType,
+} from '../components/analysis/econModel';
 
 interface AnalysisStore {
   // Stream selection: "stream_{procIdx}_{streamIdx}" → boolean
@@ -25,6 +30,11 @@ interface AnalysisStore {
   // the store rather than in the panel so the report can show the pump the user
   // chose instead of the default one.
   selectedHPPoints: OptimizedIntegrationPoint[];
+
+  // Economic analysis inputs. One set for the project, so scenarios are
+  // compared under the same prices; kept here so the report can use them.
+  econForm: EconForm;
+  econRefType: RefType;
 
   // Pinch controls
   tMin: number;
@@ -78,6 +88,7 @@ interface AnalysisStore {
   addEnergyDemand: (demand: EnergyDemandLocal) => void;
   removeEnergyDemand: (index: number) => void;
   updateEnergyDemand: (index: number, demand: Partial<EnergyDemandLocal>) => void;
+  setEcon: (form: EconForm, refType: RefType) => void;
   setTMin: (val: number) => void;
   setShowShifted: (val: boolean) => void;
   setProfileMode: (mode: ProfileMode) => void;
@@ -136,6 +147,8 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
       selected_cooling_streams: [],
     },
   ],
+  econForm: ECON_DEFAULTS,
+  econRefType: 'gas',
   tMin: 10,
   showShifted: false,
   profileMode: 'net_load',
@@ -220,6 +233,8 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
     }));
     set((s) => syncScenario(s));
   },
+
+  setEcon: (form, refType) => set({ econForm: form, econRefType: refType }),
 
   setTMin: (val) => {
     set({ tMin: val });

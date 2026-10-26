@@ -339,8 +339,13 @@
 /* ---------- Divider ---------- */
 .pa-divider {
   border: none;
-  border-top: 1px solid var(--border);
-  margin: 16px 0;
+  border-top: 3px solid var(--primary);
+  opacity: 0.35;
+  margin: 28px 0 10px;
+}
+/* The page's own rule right before a section's rule: show one, not two. */
+.pa-divider + .pa-divider {
+  display: none;
 }
 .pa-hr {
   border: none;
@@ -492,8 +497,21 @@
   flex: 1;
   min-width: 0;
 }
+/* Every chart sits on its own card, apart from the text around it, as in
+   the economic analysis. */
 .pa-chart {
   width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 8px;
+}
+/* Charts already grouped on an economic-analysis card get no second frame. */
+.econ-card .pa-chart {
+  border: none;
+  padding: 0;
+  background: none;
 }
 
 /* ---------- HPI Layout ---------- */
@@ -552,6 +570,15 @@
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  /* A band across the page, so each section's start stands out. */
+  background: var(--primary-light);
+  border-left: 4px solid var(--primary);
+  border-radius: 6px;
+  padding: 2px 12px;
+  margin-bottom: 10px;
+}
+.pa-section > .pa-section-summary .pa-section-title {
+  font-size: 1.05rem;
 }
 .pa-section > .pa-section-summary::-webkit-details-marker {
   display: none;
@@ -662,6 +689,10 @@
 }
 .econ-key-card .econ-num {
   flex-wrap: wrap;
+}
+/* −, value and + stay on one line; the slider always takes the next one. */
+.econ-key-card .econ-num input[type='range'] {
+  flex-basis: 100%;
 }
 .econ-key-card input[type='range'] {
   width: 100%;

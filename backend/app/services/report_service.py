@@ -5,9 +5,11 @@ Includes detailed pages for every saved scenario and a comparison overview.
 
 from __future__ import annotations
 from datetime import datetime
+from html import escape
 from typing import Any, Dict, List, Optional
 
 import plotly.graph_objects as go
+import plotly.io as pio
 from app.models.report import ReportRequest, ScenarioReportData, ReportStream
 from app.services.map_service import generate_process_map_b64
 
@@ -41,7 +43,6 @@ I18N = {
         "hp_integration": "Heat Pump Integration",
         "hp_table_hdr": "Heat Pump",
         "diagrams": "Diagrams",
-        "interval_diagram": "Interval Diagram",
         "scenario": "Scenario",
         "comparison_summary": "Scenario Comparison",
         "utilities_comparison": "Utilities Comparison",
@@ -92,7 +93,15 @@ I18N = {
         "hdr_refrigerant": "REFRIGERANT",
         "hdr_hp_stages": "HP STAGES",
         "carnot_50": "Carnot (50 %)",
-        "map_not_avail": "Map not available"
+        "map_not_avail": "Map not available",
+        "econ_title": "Economic analysis",
+        "econ_invest": "Investment (€)",
+        "econ_npv": "Net present value (€)",
+        "econ_payback": "Dynamic payback",
+        "econ_saving1": "Cost saving year 1 (€/year)",
+        "econ_years": "years",
+        "econ_never": "not within 40 years",
+        "econ_npv_title": "Net present value per scenario"
     },
     "de": {
         "report_title": "Wärmeintegrationsbericht",
@@ -122,7 +131,6 @@ I18N = {
         "hp_integration": "Wärmepumpen-Integration",
         "hp_table_hdr": "Wärmepumpe",
         "diagrams": "Diagramme",
-        "interval_diagram": "Intervalldiagramm",
         "scenario": "Szenario",
         "comparison_summary": "Szenarienvergleich",
         "utilities_comparison": "Vergleich der Versorgungsleistungen",
@@ -173,7 +181,15 @@ I18N = {
         "hdr_refrigerant": "K\u00c4LTEMITTEL",
         "hdr_hp_stages": "WP STUFEN",
         "carnot_50": "Carnot (50 %)",
-        "map_not_avail": "Karte nicht verfügbar"
+        "map_not_avail": "Karte nicht verfügbar",
+        "econ_title": "Wirtschaftlichkeitsbetrachtung",
+        "econ_invest": "Investition (€)",
+        "econ_npv": "Kapitalwert (€)",
+        "econ_payback": "Dynamische Amortisation",
+        "econ_saving1": "Kosteneinsparung Jahr 1 (€/Jahr)",
+        "econ_years": "Jahre",
+        "econ_never": "nicht innerhalb von 40 Jahren",
+        "econ_npv_title": "Kapitalwert je Szenario"
     }
 }
 
@@ -493,6 +509,89 @@ def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, st
     return fig
 
 
+def _de(val: float) -> str:
+    """Whole number German-style, as the page shows it: 1.234.567."""
+    return f"{val:,.0f}".replace(",", ".")
+
+
+def _render_economics(econ: Optional[Dict[str, Any]]) -> str:
+    """The Economic analysis section of a scenario page.
+
+    The frontend sends it ready to draw (econReportData in econModel.ts):
+    labels already translated, values formatted, charts as Plotly specs. So the
+    report shows exactly what the page shows, from the same code.
+    """
+    if not econ:
+        return ""
+    lab = econ.get("labels", {})
+
+    kpis = "".join(
+        f"<div class='econ-kpi' style='border-left-color:{k['color']};background:{k['color']}0F'>"
+        f"<div class='metric-label'>{escape(k['label'])}</div>"
+        f"<div class='econ-kpi-value' style='color:{k['valueColor']}'>{escape(k['value'])} "
+        f"<span class='econ-unit'>{escape(k['unit'])}</span></div>"
+        + (f"<div class='econ-kpi-sub'>{escape(k['sub'])}</div>" if k.get('sub') else "")
+        + "</div>"
+        for k in econ.get("kpis", [])
+    )
+
+    inputs = "".join(
+        f"<table class='data-table econ-table'><thead><tr><th colspan='3'>{escape(g['title'])}</th></tr></thead><tbody>"
+        + "".join(f"<tr><td>{escape(str(a))}</td><td style='text-align:right'>{escape(str(b))}</td>"
+                  f"<td>{escape(str(c))}</td></tr>" for a, b, c in g["rows"])
+        + "</tbody></table>"
+        for g in econ.get("inputs", [])
+    )
+
+    def result_table(tbl: Dict[str, Any]) -> str:
+        head = "".join(f"<th>{escape(h)}</th>" for h in tbl["headers"])
+        body = ""
+        for r in tbl["rows"]:
+            cells = r["cells"]
+            style = f" style='color:{r['color']};font-weight:600'" if r.get("color") else ""
+            body += (f"<tr><td>{escape(cells[0])}</td><td>{escape(cells[1])}</td>"
+                     f"<td style='text-align:right'>{escape(cells[2])}</td>"
+                     f"<td style='text-align:right'{style}>{escape(cells[3])}</td></tr>")
+        return f"<table class='data-table econ-table'><thead><tr>{head}</tr></thead><tbody>{body}</tbody></table>"
+
+    results = "".join(result_table(tbl) for tbl in econ.get("results", []))
+
+    # Specs come from plotly.js, so skip the Python-side validation.
+    figs = [pio.to_html(f, full_html=False, include_plotlyjs=False, validate=False,
+                        config={"responsive": True})
+            for f in econ.get("figures", [])]
+    bar, price, npv, sens, size = (figs + [""] * 5)[:5]
+
+    summary = econ.get("summary") or {}
+    border = "#2E7D32" if summary.get("good") else "#C62828"
+
+    return f"""
+    <h2>💶 {escape(econ.get('title', ''))} · {escape(econ.get('pump', ''))}</h2>
+    <h3>{escape(lab.get('key', ''))}</h3>
+    <div class="metrics-row">{kpis}</div>
+    <h3>{escape(lab.get('inputs', ''))}</h3>
+    <div class="econ-grid">{inputs}</div>
+    <h3>{escape(lab.get('results', ''))}</h3>
+    <div class="econ-grid">{results}</div>
+    <h3>{escape(lab.get('charts', ''))}</h3>
+    <div class="plots-container">
+        <div class="plot-section">{bar}</div>
+        <div class="plot-section">{price}</div>
+        <div class="plot-section">{npv}</div>
+    </div>
+    <h3>{escape(lab.get('sensitivity', ''))}</h3>
+    <p>{escape(econ.get('sens_explain', ''))}</p>
+    <div class="plot-section" style="width:100%">{sens}</div>
+    <h3>{escape(lab.get('size', ''))}</h3>
+    <p>{escape(econ.get('size_explain', ''))}</p>
+    <div class="plot-section" style="width:100%">{size}</div>
+    <h3>{escape(lab.get('summary', ''))}</h3>
+    <p style="border-left:4px solid {border};padding-left:10px;line-height:1.5">
+        <b>{escape(summary.get('name', ''))}:</b> {escape(summary.get('text', ''))}
+    </p>
+    """
+
+
 def _render_pinch_content(
     name: str,
     id_slug: str,
@@ -504,7 +603,8 @@ def _render_pinch_content(
     energy_demands: List[Any],
     map_streams_img_html: str,
     lang: str = "en",
-    include_plotly_js: bool = False
+    include_plotly_js: bool = False,
+    economics: Optional[Dict[str, Any]] = None,
 ) -> str:
     """Helper to render the detailed analysis content for a single scenario."""
     texts = I18N.get(lang, I18N["en"])
@@ -651,7 +751,7 @@ def _render_pinch_content(
         font=dict(size=11), hovermode='closest', template='plotly_white'
     )
     
-    comp_html = gcc_html = int_html = ""
+    comp_html = gcc_html = ""
     include_js = 'cdn' if include_plotly_js else False
 
     # Composite
@@ -691,15 +791,6 @@ def _render_pinch_content(
         fig.update_layout(**chart_layout_base, title=texts['gcc_title'], xaxis_title=texts['net_delta_h'], yaxis_title=texts['shifted_t'])
         gcc_html = fig.to_html(full_html=False, include_plotlyjs=False)
 
-    # Interval
-    if pr.temperatures and pr.streams_data:
-        fig = go.Figure()
-        for i, strm in enumerate(pr.streams_data):
-            color = 'red' if strm.get('type') == 'HOT' else 'blue'
-            fig.add_trace(go.Scatter(x=[i+1, i+1], y=[strm.get('ss'), strm.get('st')], mode='lines', line=dict(color=color, width=10)))
-        fig.update_layout(**chart_layout_base, title=texts['interval_diagram'])
-        int_html = fig.to_html(full_html=False, include_plotlyjs=False)
-
     return f"""
     <div id="{id_slug}" class="page-content">
         <h2>📊 {texts['analysis']}: {display_name} (ΔTmin = {t_min}°C)</h2>
@@ -719,8 +810,7 @@ def _render_pinch_content(
         </div>
         {opt_table_html}
         <div class="plot-section" style="width:100%">{opt_chart_html}</div>
-        <h3>{texts['interval_diagram']}</h3>
-        <div class="plot-section" style="width:100%">{int_html}</div>
+        {_render_economics(economics)}
     </div>
     """
 
@@ -815,7 +905,8 @@ def generate_html_report(req: ReportRequest) -> str:
             sc.name, sc_id, sc.t_min, sc.pinch_result, sc.selected_streams, sc.hpi_optimization_result,
             sc.selected_hp_points, sc.energy_demands, sc_map_html,
             lang=lang,
-            include_plotly_js=(i == 0)
+            include_plotly_js=(i == 0),
+            economics=sc.economics,
         )
 
     # 4. Comparison Summary Page
@@ -825,6 +916,7 @@ def generate_html_report(req: ReportRequest) -> str:
         sc_rows = ""
         sc_names, sc_hot, sc_cold = [], [], []
         sc_best_cop, sc_tot_heat = [], []
+        sc_npv: List[Optional[float]] = []
         
         for sc in req.scenarios:
             sc_disp_name = texts['all_streams'] if sc.name.lower() == 'all streams' else sc.name
@@ -849,7 +941,25 @@ def generate_html_report(req: ReportRequest) -> str:
             sc_best_cop.append(best_cop)
             sc_tot_heat.append(tot_heat)
             
-            sc_rows += f"<tr><td><strong>{sc_disp_name}</strong></td><td>{sc.t_min}K</td><td>{tot_heat:.1f}</td><td>{phu:.1f}</td><td>{tot_cool:.1f}</td><td>{pcu:.1f}</td><td style='background:#e8f5e9'>{sh:.1f}</td><td style='background:#e8f5e9'>{sh_pct:.1f}%</td><td style='background:#f3e5f5'>{_fmt(best_cop)}</td><td style='background:#f3e5f5'>{coverage:.1f}%</td></tr>"
+            # Economics of the scenario's pump, as sent by the frontend.
+            num = (sc.economics or {}).get("numbers")
+            if num:
+                npv = num["npv"]
+                sc_npv.append(npv)
+                payback = (texts['econ_never'] if num["payback"] is None
+                           else f"{num['payback']} {texts['econ_years']}")
+                npv_colour = '#C62828' if npv < 0 else '#2E7D32'
+                econ_cells = (
+                    f"<td style='background:#fef3c7'>{_de(num['capex'])}</td>"
+                    f"<td style='background:#fef3c7;font-weight:700;color:{npv_colour}'>{_de(npv)}</td>"
+                    f"<td style='background:#fef3c7'>{payback}</td>"
+                    f"<td style='background:#fef3c7'>{_de(num['saving1'])}</td>"
+                )
+            else:
+                sc_npv.append(None)
+                econ_cells = "<td style='background:#fef3c7'>—</td>" * 4
+
+            sc_rows += f"<tr><td><strong>{sc_disp_name}</strong></td><td>{sc.t_min}K</td><td>{tot_heat:.1f}</td><td>{phu:.1f}</td><td>{tot_cool:.1f}</td><td>{pcu:.1f}</td><td style='background:#e8f5e9'>{sh:.1f}</td><td style='background:#e8f5e9'>{sh_pct:.1f}%</td><td style='background:#f3e5f5'>{_fmt(best_cop)}</td><td style='background:#f3e5f5'>{coverage:.1f}%</td>{econ_cells}</tr>"
         
         fig = go.Figure([go.Bar(x=sc_names, y=sc_tot_heat, name='Status Quo (Hot)', marker_color='#ef4444', opacity=0.3, showlegend=False), 
                          go.Bar(x=sc_names, y=sc_hot, name=texts['hot'], marker_color='#ef4444'), 
@@ -867,6 +977,18 @@ def generate_html_report(req: ReportRequest) -> str:
         )
         perf_chart = fig_perf.to_html(full_html=False, include_plotlyjs=False)
 
+        npv_chart = ""
+        if any(v is not None for v in sc_npv):
+            fig_npv = go.Figure(go.Bar(
+                x=sc_names, y=sc_npv, name=texts['econ_npv'],
+                marker_color=['#C62828' if (v or 0) < 0 else '#2E7D32' for v in sc_npv],
+                hovertemplate='%{x}: %{y:,.0f} €<extra></extra>',
+            ))
+            fig_npv.update_layout(height=400, title=texts['econ_npv_title'], separators=',.',
+                                  yaxis=dict(title='€', tickformat=',.0f', zeroline=True))
+            npv_chart = (f"<div class='hpi-table-col'><div class='plot-section'>"
+                         f"{fig_npv.to_html(full_html=False, include_plotlyjs=False)}</div></div>")
+
         comparison_html = f"""
         <div id="comparison-summary" class="page-content">
             <h2>⚖️ {texts['comparison_summary']}</h2>
@@ -882,12 +1004,15 @@ def generate_html_report(req: ReportRequest) -> str:
                             <th colspan="2" style="background:#bbdefb; color:#0d47a1; text-align:center;">COOLING (KW)</th>
                             <th colspan="2" style="background:#c8e6c9; color:#1b5e20; text-align:center;">HEAT RECOVERY POTENTIAL</th>
                             <th colspan="2" style="background:#e1bee7; color:#4a148c; text-align:center;">HP INTEGRATION</th>
+                            <th colspan="4" style="background:#fde68a; color:#78350f; text-align:center;">{texts['econ_title'].upper()}</th>
                         </tr>
                         <tr>
                             <th style="background:#ffebee; color:#d32f2f;">STATUS QUO</th><th style="background:#ffebee; color:#d32f2f;">PINCH MIN.</th>
                             <th style="background:#e3f2fd; color:#1976d2;">STATUS QUO</th><th style="background:#e3f2fd; color:#1976d2;">PINCH MIN.</th>
                             <th style="background:#e8f5e9; color:#388e3c;">SAVINGS (KW)</th><th style="background:#e8f5e9; color:#388e3c;">SAVINGS (%)</th>
                             <th style="background:#f3e5f5; color:#7b1fa2;">BEST COP</th><th style="background:#f3e5f5; color:#7b1fa2;">COVERAGE (%)</th>
+                            <th style="background:#fef3c7; color:#92400e;">{texts['econ_invest']}</th><th style="background:#fef3c7; color:#92400e;">{texts['econ_npv']}</th>
+                            <th style="background:#fef3c7; color:#92400e;">{texts['econ_payback']}</th><th style="background:#fef3c7; color:#92400e;">{texts['econ_saving1']}</th>
                         </tr>
                     </thead>
                     <tbody>{sc_rows}</tbody>
@@ -897,6 +1022,7 @@ def generate_html_report(req: ReportRequest) -> str:
             <div class="hpi-flex-row">
                 <div class="hpi-table-col"><div class="plot-section">{comp_chart}</div></div>
                 <div class="hpi-table-col"><div class="plot-section">{perf_chart}</div></div>
+                {npv_chart}
             </div>
         </div>"""
 
@@ -938,6 +1064,12 @@ def generate_html_report(req: ReportRequest) -> str:
     .pa-hp-table th {{ background:#2b589c; color:#fff; font-weight:600; }}
     .pa-hp-table tr:nth-child(even) {{ background:#f8fafc; }}
     .hpi-table-col {{ flex:1; }} .hpi-chart-col {{ flex:1.5; }}
+    .econ-kpi {{ flex:1; min-width:160px; padding:10px 14px; border:1px solid #e2e8f0; border-left-width:4px; border-radius:6px; text-align:center; }}
+    .econ-kpi-value {{ font-size:20px; font-weight:700; }}
+    .econ-unit {{ font-size:12px; font-weight:600; }}
+    .econ-kpi-sub {{ font-size:12px; color:#333; }}
+    .econ-grid {{ display:grid; grid-template-columns:repeat(auto-fit, minmax(380px, 1fr)); gap:12px; align-items:start; }}
+    .econ-table {{ margin:0; }}
     @media print {{ .nav-tabs {{ display:none; }} .page-content {{ display:block !important; page-break-after:always; }} }}
 </style>
 </head>
