@@ -103,6 +103,49 @@ def _model_cop_fn(alt):
     return predict
 
 
+_model_4t_cache = None
+
+
+def _four_temperature_alternatives(alternatives, pinch):
+    """The same refrigerants, scored by the model that sees all four temperatures.
+
+    The grid only varies two of them (source return, sink supply). The other two
+    are held at the pinch for every point: Vorlauf Quelle = pinch - dTmin/2 and
+    Rücklauf Senke = pinch + dTmin/2. The envelopes in the ranges file are
+    shared with the 2-temperature model, which was fitted on the same data.
+    """
+    global _model_4t_cache
+    if _model_4t_cache is None:
+        path = OPTIMIZATION_CONFIG["model_path_4t"]
+        if not os.path.exists(path):
+            raise FileNotFoundError(
+                f"4-temperature model not found at {path}. "
+                "Create it with cop_analysis/train_cop_4t.py."
+            )
+        _model_4t_cache = joblib.load(path)
+    model = _model_4t_cache
+
+    half = float(pinch.T_min) / 2.0
+    t_vorlauf_quelle = float(pinch.pinch_temperature) - half
+    t_ruecklauf_senke = float(pinch.pinch_temperature) + half
+
+    def make_fn(alt):
+        def predict(t_source_model, t_sink_model):
+            n = len(t_source_model)
+            X = pd.DataFrame({
+                "T_Vorlauf_Quelle": [t_vorlauf_quelle] * n,
+                "T_Rücklauf_Quelle": t_source_model,
+                "T_Rücklauf_Senke": [t_ruecklauf_senke] * n,
+                "T_Vorlauf_Senke": t_sink_model,
+                "Medium_Senke": [alt["medium_sink"]] * n,
+                "Kältemittel_stufen": [alt["Kältemittel_stufen"]] * n,
+            })
+            return model.predict(X)
+        return predict
+
+    return [dict(alt, cop_fn=make_fn(alt), four_t=True) for alt in alternatives]
+
+
 def _formula_alternative(spec):
     """Turn a user's CopFormulaSpec into an entry the optimiser understands.
 
@@ -198,19 +241,20 @@ def _theoretical_alternatives():
 
 
 def _pin_carnot(alternatives, pinch):
-    """Carnot reference with the source fixed at the pinch.
+    """Carnot reference on non-shifted sink temperatures, source fixed at the pinch.
 
-    Vorlaufquelle = pinch - dTmin/2. The sink stays whatever the row's sink is,
-    so the sink side matches every other technology; only the source differs.
+    Vorlaufquelle = pinch - dTmin/2. The sink is the row's sink with the shift
+    taken back out (grid value - dTmin/2), i.e. the real process temperature.
     """
     from app.modules.heat_pump_integration.heat_pump_integration import (
         HP_COP_FORMULAS, carnot_cop,
     )
 
-    t_source = float(pinch.pinch_temperature) - float(pinch.T_min) / 2.0
+    half = float(pinch.T_min) / 2.0
+    t_source = float(pinch.pinch_temperature) - half
 
     def cop_fn(_t_src, t_snk):
-        t_snk = np.asarray(t_snk, dtype=float)
+        t_snk = np.asarray(t_snk, dtype=float) - half
         lift = t_snk - t_source
         with np.errstate(all="ignore"):
             return np.where(lift > 0, carnot_cop(t_snk, lift), -1.0)
@@ -221,7 +265,7 @@ def _pin_carnot(alternatives, pinch):
             alt = dict(
                 alt,
                 cop_fn=cop_fn,
-                formula_fn=lambda t_sink, _dt: HP_COP_FORMULAS["Carnot"](t_sink, t_sink - t_source),
+                formula_fn=lambda t_sink, _dt: HP_COP_FORMULAS["Carnot"](t_sink - half, t_sink - half - t_source),
             )
         pinned.append(alt)
     return pinned
@@ -357,15 +401,26 @@ def _diagnostic_messages(diag: HPIOptimizationDiagnostics, n_points: int) -> lis
 def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOptimizationResult:
     # Accept a bare PinchResult as well, so older callers keep working.
     cop_formula = None
+    cop_model = "2t"
     if isinstance(request, HPIOptimizationRequest):
         pinch = request.pinch_result
         profile_mode = request.profile_mode
         cop_formula = request.cop_formula
+        cop_model = request.cop_model
     else:
         pinch = request
         profile_mode = "net_load"
 
     _, alternatives = _load_model_and_data()
+    if cop_model == "4t":
+        alternatives = _four_temperature_alternatives(alternatives, pinch)
+        half = float(pinch.T_min) / 2.0
+        extra_temps = {
+            "T_vorlauf_quelle": float(pinch.pinch_temperature) - half,
+            "T_ruecklauf_senke": float(pinch.pinch_temperature) + half,
+        }
+    else:
+        extra_temps = {}
 
     # The technology archetypes ride through the same grid as the trained
     # refrigerants so both end up in one table and one chart.
@@ -537,7 +592,8 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                         refrigerant_type=alt["refrigerant_type"],
                         hp_level=alt["hp_level"],
                         theoretical=alt.get("theoretical", False),
-                        calculation_details=_calculation_details(alt, t_src_exact, t_snk)
+                        calculation_details=_calculation_details(alt, t_src_exact, t_snk),
+                        **(extra_temps if alt.get("four_t") else {}),
                     )
                     feasible_points.append(pt)
                     found_full = True
@@ -607,7 +663,8 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                     theoretical=alt.get("theoretical", False),
                     calculation_details=_calculation_details(
                         alt, float(t_src_valid[idx]), t_snk
-                    )
+                    ),
+                    **(extra_temps if alt.get("four_t") else {}),
                 )
                 feasible_points.append(pt)
                 if limited:

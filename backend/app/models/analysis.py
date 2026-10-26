@@ -179,6 +179,10 @@ class OptimizedIntegrationPoint(BaseModel):
     # published regression rather than the model, so the UI keeps them visually
     # apart instead of ranking them against real machines.
     theoretical: bool = False
+    # The two temperatures the 4-temperature model took from the pinch rather
+    # than from the grid. None when the 2-temperature model scored the point.
+    T_vorlauf_quelle: Optional[float] = None
+    T_ruecklauf_senke: Optional[float] = None
 
 
 class HPIOptimizationDiagnostics(BaseModel):
@@ -261,6 +265,9 @@ class HPIOptimizationRequest(BaseModel):
     # Optional user-supplied correlation, evaluated alongside the trained model
     # so the two can be compared in the same chart and table.
     cop_formula: Optional[CopFormulaSpec] = None
+    # "2t": source return + sink supply only. "4t": all four temperatures, the
+    # other two taken from the pinch (see _four_temperature_alternatives).
+    cop_model: Literal["2t", "4t"] = "2t"
 
 
 class HPIOptimizationResult(BaseModel):

@@ -138,6 +138,10 @@ export interface OptimizedIntegrationPoint {
   medium_sink: string;
   refrigerant_type: string;
   hp_level: string;
+  /** Set only by the 4-temperature COP model: the two temperatures it took from
+   *  the pinch (pinch − ΔTmin/2 and pinch + ΔTmin/2) instead of from the grid. */
+  T_vorlauf_quelle?: number | null;
+  T_ruecklauf_senke?: number | null;
   /** Full sink requirement above T_sink, i.e. what an unlimited source would allow. */
   Q_demand_total?: number | null;
   /** True when the available waste heat covers only part of Q_demand_total. */
@@ -199,10 +203,15 @@ export interface CopFormulaValidateResult {
   functions: string[];
 }
 
+/** Which trained COP model scores the refrigerants: source return + sink supply
+ *  only ('2t'), or all four temperatures with the other two taken from the pinch. */
+export type CopModel = '2t' | '4t';
+
 export interface HPIOptimizationRequest {
   pinch_result: PinchResult;
   profile_mode?: ProfileMode;
   cop_formula?: CopFormulaSpec | null;
+  cop_model?: CopModel;
 }
 
 export interface HPIOptimizationResult {
