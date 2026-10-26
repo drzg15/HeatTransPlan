@@ -27,6 +27,9 @@ import StatusQuoComparison from '../components/analysis/StatusQuoComparison';
 import TemperatureIntervalDiagram from '../components/analysis/TemperatureIntervalDiagram';
 import ScenarioComparison from '../components/analysis/ScenarioComparison';
 import HPIOptimizationPanel from '../components/analysis/HPIOptimizationPanel';
+import EconomicAnalysis from '../components/analysis/EconomicAnalysis';
+import { HPISummary, PinchSummary } from '../components/analysis/SectionSummaries';
+import Section from '../components/ui/Section';
 import CopCoverageChart from '../components/analysis/CopCoverageChart';
 import HeatRecoveryToggle from '../components/analysis/HeatRecoveryToggle';
 import { useTranslation } from 'react-i18next';
@@ -766,120 +769,127 @@ export default function PotentialAnalysisPage() {
 
           {pinchResult && (
             <>
-              {/* Status Quo Comparison */}
-              <StatusQuoComparison />
+              {/* Pinch analysis: status quo, controls, metrics, curves, summary */}
+              <Section title={<h3 className="pa-section-title">{t('analysis.sections.pinch')}</h3>}>
+                <StatusQuoComparison />
 
-              <hr className="pa-divider" />
+                {/* Controls row: toggle + ΔTmin + metrics */}
+                <div className="pa-controls-row">
+                  <label className="pa-toggle-label">
+                    <input
+                      type="checkbox"
+                      checked={showShifted}
+                      onChange={(e) => setShowShifted(e.target.checked)}
+                    />
+                    {t('analysis.controls.show_shifted')}
+                  </label>
 
-              {/* Controls row: toggle + ΔTmin + metrics */}
-              <div className="pa-controls-row">
-                <label className="pa-toggle-label">
-                  <input
-                    type="checkbox"
-                    checked={showShifted}
-                    onChange={(e) => setShowShifted(e.target.checked)}
-                  />
-                  {t('analysis.controls.show_shifted')}
-                </label>
+                  <label className="pa-input-label pa-tmin-label">
+                    ΔTmin
+                    <input
+                      type="number"
+                      min={1}
+                      max={50}
+                      step={1}
+                      value={tMin}
+                      onChange={(e) => setTMin(parseFloat(e.target.value) || 10)}
+                      className="pa-number-input pa-tmin-input"
+                    />
+                  </label>
+                </div>
 
-                <label className="pa-input-label pa-tmin-label">
-                  ΔTmin
-                  <input
-                    type="number"
-                    min={1}
-                    max={50}
-                    step={1}
-                    value={tMin}
-                    onChange={(e) => setTMin(parseFloat(e.target.value) || 10)}
-                    className="pa-number-input pa-tmin-input"
-                  />
-                </label>
-              </div>
+                <PinchMetrics />
 
-              <PinchMetrics />
-
-              {/* Charts row: Composite Curves + GCC */}
-              <div className="pa-charts-row">
-                <CompositeCurvesChart />
-                <GrandCompositeCurveChart />
-              </div>
+                {/* Charts row: Composite Curves + GCC */}
+                <div className="pa-charts-row">
+                  <CompositeCurvesChart />
+                  <GrandCompositeCurveChart />
+                </div>
+                <PinchSummary />
+              </Section>
 
               {/* Heat Pump Integration */}
-              <hr className="pa-divider" />
-              <h3 style={{ display: 'flex', alignItems: 'center', marginTop: '2rem' }}>
-                {t('analysis.charts.hpi_title')}
-                <ChartHelpButton
-                  inline
-                  title={t('analysis.charts.hpi_title')}
-                  description={t('optimization.desc_hp_simulates')}
-                />
-              </h3>
-
-              <HeatRecoveryToggle />
-
-              <button
-                type="button"
-                onClick={() => setShowClassicHPI((v) => !v)}
-                className="pa-classic-hpi-toggle"
-                aria-expanded={showClassicHPI}
+              <Section
+                title={
+                  <h3 className="pa-section-title">
+                    {t('analysis.charts.hpi_title')}
+                    <ChartHelpButton
+                      inline
+                      title={t('analysis.charts.hpi_title')}
+                      description={t('optimization.desc_hp_simulates')}
+                    />
+                  </h3>
+                }
               >
-                {showClassicHPI
-                  ? t('analysis.charts.hide_classic_hpi')
-                  : t('analysis.charts.show_classic_hpi')}
-              </button>
+                <HeatRecoveryToggle />
 
-              {showClassicHPI && hpiLoading && (
-                <div className="pa-loading">Running HPI analysis…</div>
-              )}
-              {showClassicHPI && hpiError && <div className="pa-warning">⚠️ {hpiError}</div>}
+                <button
+                  type="button"
+                  onClick={() => setShowClassicHPI((v) => !v)}
+                  className="pa-classic-hpi-toggle"
+                  aria-expanded={showClassicHPI}
+                >
+                  {showClassicHPI
+                    ? t('analysis.charts.hide_classic_hpi')
+                    : t('analysis.charts.show_classic_hpi')}
+                </button>
 
-              {showClassicHPI && hpiResult && (
-                <div className="pa-hpi-layout">
-                  <div className="pa-hpi-table-col">
-                    <HeatPumpTable />
-                  </div>
-                  <div className="pa-hpi-chart-col">
-                    {availableHPNames.length > 0 && (
-                      <div className="pa-hp-select">
-                        <label>{t('analysis.charts.select_hp')}</label>
-                        <div className="pa-multi-select">
-                          {availableHPNames.map((name: any) => (
-                            <label key={name} className="pa-multi-option">
-                              <input
-                                type="checkbox"
-                                checked={selectedHPTypes.includes(name)}
-                                onChange={() => {
-                                  setSelectedHPTypes(
-                                    selectedHPTypes.includes(name)
-                                      ? selectedHPTypes.filter((n) => n !== name)
-                                      : [...selectedHPTypes, name]
-                                  );
-                                }}
-                              />
-                              {name}
-                            </label>
-                          ))}
+                {showClassicHPI && hpiLoading && (
+                  <div className="pa-loading">Running HPI analysis…</div>
+                )}
+                {showClassicHPI && hpiError && <div className="pa-warning">⚠️ {hpiError}</div>}
+
+                {showClassicHPI && hpiResult && (
+                  <div className="pa-hpi-layout">
+                    <div className="pa-hpi-table-col">
+                      <HeatPumpTable />
+                    </div>
+                    <div className="pa-hpi-chart-col">
+                      {availableHPNames.length > 0 && (
+                        <div className="pa-hp-select">
+                          <label>{t('analysis.charts.select_hp')}</label>
+                          <div className="pa-multi-select">
+                            {availableHPNames.map((name: any) => (
+                              <label key={name} className="pa-multi-option">
+                                <input
+                                  type="checkbox"
+                                  checked={selectedHPTypes.includes(name)}
+                                  onChange={() => {
+                                    setSelectedHPTypes(
+                                      selectedHPTypes.includes(name)
+                                        ? selectedHPTypes.filter((n) => n !== name)
+                                        : [...selectedHPTypes, name]
+                                    );
+                                  }}
+                                />
+                                {name}
+                              </label>
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    <HPIChart />
+                      )}
+                      <HPIChart />
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              {/* Heat Integration Analysis Optimization */}
-              <HPIOptimizationPanel />
+                {/* Heat Integration Analysis Optimization */}
+                <HPIOptimizationPanel />
+                <HPISummary />
+              </Section>
 
-              {/* Notes */}
-              <hr className="pa-divider" />
-              <h4>{t('analysis.sections.notes')}</h4>
-              <textarea
-                className="pa-notes-textarea"
-                value={pinchNotes ?? ''}
-                onChange={(e) => setPinchNotes(e.target.value)}
-                placeholder={t('analysis.placeholders.notes')}
-                rows={4}
-              />
+              {/* Renders its own Section, since its heading carries the reset button. */}
+              <EconomicAnalysis />
+
+              <Section title={<h3 className="pa-section-title">{t('analysis.sections.notes')}</h3>}>
+                <textarea
+                  className="pa-notes-textarea"
+                  value={pinchNotes ?? ''}
+                  onChange={(e) => setPinchNotes(e.target.value)}
+                  placeholder={t('analysis.placeholders.notes')}
+                  rows={4}
+                />
+              </Section>
 
               {/* More information */}
               <details
@@ -894,10 +904,11 @@ export default function PotentialAnalysisPage() {
 
               {/* Scenario Comparison View */}
               {scenarios.length >= 2 && (
-                <>
-                  <hr className="pa-divider" />
+                <Section
+                  title={<h3 className="pa-section-title">{t('analysis.sections.scenarios')}</h3>}
+                >
                   <ScenarioComparison />
-                </>
+                </Section>
               )}
             </>
           )}
