@@ -200,7 +200,8 @@ export default function ActionBar({
 
         {/* 2. Search / Status (Center) */}
         <div className="ab-group ab-group-center flex-1 flex justify-center items-center gap-md">
-          {uiMode === 'select' && (
+          {/* No address search on a site plan: it is not a geographic map. */}
+          {uiMode === 'select' && !state.site_plan && (
             <div className="ab-search flex items-center gap-xs">
               <input
                 type="text"

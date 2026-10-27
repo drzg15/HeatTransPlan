@@ -732,6 +732,7 @@ export default function PotentialAnalysisPage() {
               groupNames={projectState.proc_group_names || []}
               groupCoordinates={projectState.proc_group_coordinates || {}}
               baseTile={projectState.current_base || 'OpenStreetMap'}
+              sitePlan={projectState.site_plan}
               onClick={() => {}}
               onMoveEnd={() => {}}
               subprocessMapExpanded={{}}

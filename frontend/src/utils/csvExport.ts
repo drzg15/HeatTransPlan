@@ -163,7 +163,13 @@ export function exportProjectToCsv(state: ProjectState) {
     });
   });
 
-  const csv = rows.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
+  // On a site plan the positions are plan positions, not geographic ones:
+  // Lat/Lon would only mislead, so they are left out.
+  const latCol = header.indexOf('Lat');
+  const out = state.site_plan
+    ? rows.map((r) => r.filter((_, i) => i !== latCol && i !== latCol + 1))
+    : rows;
+  const csv = out.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');

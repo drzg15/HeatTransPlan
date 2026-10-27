@@ -512,6 +512,10 @@ export default function DataCollectionPage() {
               childMapExpanded={{}}
               onProcessesChange={setProcesses}
               onGroupCoordinatesChange={(c) => useProjectStore.getState().setGroupCoordinates(c)}
+              sitePlan={state.site_plan}
+              onSitePlanChange={(p) => useProjectStore.getState().setSitePlan(p)}
+              canvasPlans={state.canvas_plans}
+              onCanvasPlansChange={(p) => useProjectStore.getState().setCanvasPlans(p)}
               onElementDoubleClick={handleElementDoubleClick}
               selectedStreams={selectedStreams}
               onProcessesSelect={(idxs, val) => {

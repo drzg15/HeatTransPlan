@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
 import { extractStreamInfo } from '../../utils/streamInfo';
+import { useProjectStore } from '../../store/projectStore';
 import {
   exportProjectToCsv,
   exportDistanceMatrixToCsv,
@@ -42,6 +43,7 @@ export default function StreamDataTable({
   groupCoordinates = {},
 }: Props) {
   const { t } = useTranslation();
+  const hasPlan = useProjectStore((s) => !!s.state.site_plan);
   const [sortKey, setSortKey] = useState<SortKey>('Q');
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
@@ -382,8 +384,13 @@ export default function StreamDataTable({
                 { k: 'cp', l: 'cp [kJ/(kg·K)]' },
                 { k: 'CP', l: 'CP [kW/K]' },
                 { k: 'Q', l: 'Q [kW]' },
-                { k: 'lat', l: 'Lat' },
-                { k: 'lon', l: 'Lon' },
+                // Not on a site plan: there the positions are not geographic.
+                ...(hasPlan
+                  ? []
+                  : [
+                      { k: 'lat', l: 'Lat' },
+                      { k: 'lon', l: 'Lon' },
+                    ]),
                 { k: 'hours', l: t('stream_table.headers.hours') },
                 { k: 'water_in', l: t('stream_table.headers.water_in') },
                 { k: 'water_out', l: t('stream_table.headers.water_out') },
@@ -437,8 +444,16 @@ export default function StreamDataTable({
                   <td style={{ ...cellStyle, fontWeight: 700, color: 'var(--primary)' }}>
                     {r.Q?.toFixed(1) ?? '—'}
                   </td>
-                  <td style={cellStyle}>{typeof r.lat === 'number' ? r.lat.toFixed(6) : r.lat}</td>
-                  <td style={cellStyle}>{typeof r.lon === 'number' ? r.lon.toFixed(6) : r.lon}</td>
+                  {!hasPlan && (
+                    <>
+                      <td style={cellStyle}>
+                        {typeof r.lat === 'number' ? r.lat.toFixed(6) : r.lat}
+                      </td>
+                      <td style={cellStyle}>
+                        {typeof r.lon === 'number' ? r.lon.toFixed(6) : r.lon}
+                      </td>
+                    </>
+                  )}
                   <td style={cellStyle}>{r.hours}</td>
                   <td style={cellStyle}>{r.water_in}</td>
                   <td style={cellStyle}>{r.water_out}</td>

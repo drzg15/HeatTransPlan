@@ -884,5 +884,14 @@
     "best_cop": "Bester COP",
     "coverage": "Abdeckung (%)",
     "active": "(aktiv)"
+  },
+  "map": {
+    "zoom": "Zoomstufe",
+    "plan": "Lageplan",
+    "plan_upload": "Lageplan des Werks einfügen (PNG, JPG oder PDF). Er ersetzt die Karte, auf weißem Hintergrund, und füllt die aktuelle Ansicht; er bleibt auf diesem Rechner und wird mit dem Projekt gespeichert.",
+    "plan_canvas": "Hintergrund für dieses Prozessdiagramm einfügen (PNG, JPG oder PDF), z. B. einen Hallenplan.",
+    "plan_place": "Plan wieder an die aktuelle Ansicht anpassen.",
+    "plan_remove": "Plan entfernen",
+    "plan_error": "Datei konnte nicht gelesen werden."
   }
 }

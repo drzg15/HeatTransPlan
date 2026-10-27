@@ -884,5 +884,14 @@
     "best_cop": "Best COP",
     "coverage": "Coverage (%)",
     "active": "(active)"
+  },
+  "map": {
+    "zoom": "Zoom level",
+    "plan": "Site plan",
+    "plan_upload": "Insert a site plan of the plant (PNG, JPG or PDF). It replaces the map, on a white background, and fills the current view; it stays on this computer and is saved with the project.",
+    "plan_canvas": "Insert a background for this process diagram (PNG, JPG or PDF), e.g. a hall plan.",
+    "plan_place": "Fit the plan to the current view again.",
+    "plan_remove": "Remove plan",
+    "plan_error": "Could not read the file."
   }
 }
