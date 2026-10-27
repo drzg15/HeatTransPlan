@@ -10,6 +10,7 @@ import {
   evaluate,
   fuelPrice,
   referenceCost,
+  vdiSpecificCost,
   PAYBACK_HORIZON,
   type EconInputs,
 } from '../../utils/economics';
@@ -17,30 +18,46 @@ import { formatDe } from '../../utils/numberFormat';
 import type { HPIOptimizationResult, OptimizedIntegrationPoint } from '../../types/analysis';
 
 // Display units: prices in ct/kWh, rates and shares in %.
+// Defaults follow VDI 4646 (2026) and VDI 2067 Blatt 1 (2012), except the
+// specific investment of the heat pump. Each value, its source page and why
+// it may differ: economic_calculation/economic_analysis_rationale.md.
 export const DEFAULTS = {
   year: new Date().getFullYear() + 1,
-  hours: 8760, // 100 % of the year until a load profile drives it
-  i: 6,
-  T: 15,
-  // Reference heater (gas boiler preset). The fuel price excludes CO₂, which
-  // is costed separately: 6 ct + 0,201 t/MWh × 55 €/t ≈ the slides' 7 ct.
-  eta: 90,
+  hours: 6000, // VDI 4646 Tabelle 8: three-shift operation
+  i: 12, // VDI 4646 Tabelle 8; companies use 8–12 % (p. 58)
+  T: 20, // VDI 4646 p. 58 / VDI 2067 Tabelle 1: heating 20 years
+  // Reference heater (gas condensing boiler, VDI 4646 Tabelle 8: η = 0,87 on
+  // Hs). The fuel price is per kWh Hs and excludes CO₂, which is costed on Hi.
+  eta: 87,
+  hsHi: 1.11, // natural gas H: Hs/Hi ≈ 1,11
   pFuel: 6,
+  // ⚠ Not VDI 4646 (p. 57: constant prices): 3 %/a, user decision 2026-10-27.
   rFuel: 3,
-  co2Fuel: 0.201,
-  co2Price: 55,
-  rCo2: 5,
+  co2Fuel: 0.201, // t/MWh on Hi (UBA); VDI 4646 p. 64 uses 202 g/kWh
+  co2Price: 55, // BEHG fixed price 2025
+  rCo2: 0,
+  boilerInvest: 0, // efficiency case: the boiler exists (VDI 4646 Tabelle 8)
+  fMaintRef: 3, // VDI 4646 Tabelle 8: f_k gas boiler 3 %
   // Electricity and heat pump.
   pEl: 13,
-  rEl: 3,
-  co2El: 0.352, // UBA 2025, location-based, as on slide 29
+  rEl: 3, // ⚠ as rFuel
+  co2El: 0.352, // UBA 2025, location-based
+  co2ElPriced: 0, // 1 = add CO₂ cost on electricity (lecture slide 19); VDI: check if in the price
   pDemand: 0, // only if not already in the electricity price
-  // Midpoint of the 200–1,500 €/kW literature range cited in the help bulb.
-  specCost: 850,
-  fMaint: 5,
+  // Price of the heat pump itself per kW (equipment). × planning and
+  // installation × integration (VDI 4646 Tabelle 6: 1,25 × 1,8) ≈ 855 €/kW,
+  // the midpoint of the 200–1.500 €/kW literature range for installed
+  // industrial high-temperature heat pumps.
+  specCost: 380,
+  fPI: 1.25, // VDI 4646 Tabelle 6, p. 59: planning and installation
+  fPer: 1.8, // VDI 4646 Tabelle 6, p. 59: system integration (periphery)
+  fMaint: 2.5, // VDI 2067 Tabelle A2: f_Inst 1 % + f_W+Insp 1,5 %
+  opHours: 5, // VDI 2067 Tabelle A2: 5 h/a operation
+  wage: 100, // lecture slide 18: 100 €/h
   reinvestShare: 0,
   reinvestYear: 10,
-  life: 20, // VDI 2067 order of magnitude for heat pumps
+  life: 20, // VDI 2067 Tabelle A2: water/water heat pump 20 years
+  rInv: 0, // constant prices, as the energy prices
   funding: 0,
   // Operating funding (e.g. BEW Modul 4): none by default.
   opFunding: 0,
@@ -56,14 +73,26 @@ export type Form = typeof DEFAULTS;
 // all editable afterwards. The electric boiler's CO₂ is in its electricity
 // price, so no CO₂ cost is added on top.
 export type RefType = 'gas' | 'oil' | 'eboiler';
-export const PRESETS: Record<RefType, Pick<Form, 'eta' | 'pFuel' | 'co2Fuel'>> = {
-  gas: { eta: 90, pFuel: 6, co2Fuel: 0.201 },
-  oil: { eta: 88, pFuel: 8, co2Fuel: 0.266 },
-  eboiler: { eta: 99, pFuel: 13, co2Fuel: 0.352 },
+// Efficiencies and prices on Hs, CO₂ factors on Hi (see the rationale file).
+export const PRESETS: Record<RefType, Pick<Form, 'eta' | 'hsHi' | 'pFuel' | 'co2Fuel'>> = {
+  gas: { eta: 87, hsHi: 1.11, pFuel: 6, co2Fuel: 0.201 },
+  oil: { eta: 85, hsHi: 1.06, pFuel: 8, co2Fuel: 0.266 },
+  eboiler: { eta: 99, hsHi: 1, pFuel: 13, co2Fuel: 0.352 },
 };
 
-export type Group = 'general' | 'reference' | 'electricity' | 'hp' | 'funding' | 'cooling';
-export const GROUPS: Group[] = ['general', 'reference', 'electricity', 'hp', 'funding', 'cooling'];
+export type Group =
+  'general' | 'reference' | 'electricity' | 'hp' | 'funding' | 'cooling' | 'replace';
+export const GROUPS: Group[] = [
+  'general',
+  'reference',
+  'electricity',
+  'hp',
+  'funding',
+  'cooling',
+  'replace',
+];
+// Yes/no inputs, shown as a checkbox and stored as 0 / 1.
+export const BOOL_FIELDS: Array<keyof Form> = ['co2ElPriced'];
 
 export type Range = { step: number; min: number; max: number; open?: boolean };
 
@@ -78,6 +107,7 @@ export const FIELDS: Array<[keyof Form, string, Group, Range]> = [
   ['i', '%', 'general', { step: 0.5, min: 0, max: 15, open: true }],
   ['T', 'a', 'general', { step: 1, min: 1, max: 40, open: true }],
   ['eta', '%', 'reference', { step: 1, min: 50, max: 100 }],
+  ['hsHi', '-', 'reference', { step: 0.01, min: 1, max: 1.2 }],
   ['pFuel', 'ct/kWh', 'reference', { step: 0.5, min: 0, max: 30, open: true }],
   ['rFuel', '%/a', 'reference', { step: 0.5, min: -5, max: 10, open: true }],
   ['co2Fuel', 't/MWh', 'reference', { step: 0.001, min: 0, max: 0.4 }],
@@ -86,41 +116,57 @@ export const FIELDS: Array<[keyof Form, string, Group, Range]> = [
   ['pEl', 'ct/kWh', 'electricity', { step: 0.5, min: 0, max: 40, open: true }],
   ['rEl', '%/a', 'electricity', { step: 0.5, min: -5, max: 10, open: true }],
   ['co2El', 't/MWh', 'electricity', { step: 0.01, min: 0, max: 1 }],
+  ['co2ElPriced', '-', 'electricity', { step: 1, min: 0, max: 1 }],
   ['pDemand', '€/kW/a', 'hp', { step: 10, min: 0, max: 300, open: true }],
-  ['specCost', '€/kW', 'hp', { step: 50, min: 0, max: 3000, open: true }],
+  ['specCost', '€/kW', 'hp', { step: 10, min: 0, max: 1500, open: true }],
+  ['fPI', '-', 'hp', { step: 0.05, min: 1, max: 3, open: true }],
+  ['fPer', '-', 'hp', { step: 0.05, min: 1, max: 3, open: true }],
   ['fMaint', '%/a', 'hp', { step: 0.5, min: 0, max: 10, open: true }],
+  ['opHours', 'h/a', 'hp', { step: 1, min: 0, max: 100, open: true }],
+  ['wage', '€/h', 'hp', { step: 5, min: 0, max: 200, open: true }],
   ['reinvestShare', '%', 'hp', { step: 5, min: 0, max: 100 }],
   ['reinvestYear', 'a', 'hp', { step: 1, min: 1, max: 40, open: true }],
   ['life', 'a', 'hp', { step: 1, min: 0, max: 50, open: true }],
+  ['rInv', '%/a', 'hp', { step: 0.5, min: -5, max: 10, open: true }],
   ['funding', '%', 'hp', { step: 5, min: 0, max: 100 }],
   ['opFunding', '€/MWh', 'funding', { step: 5, min: 0, max: 100, open: true }],
   ['opFundingYears', 'a', 'funding', { step: 1, min: 0, max: 20, open: true }],
   ['coolShare', '%', 'cooling', { step: 5, min: 0, max: 100 }],
   ['eer', '-', 'cooling', { step: 0.5, min: 1, max: 40, open: true }],
+  ['boilerInvest', '€/kW', 'replace', { step: 10, min: 0, max: 500, open: true }],
+  ['fMaintRef', '%/a', 'replace', { step: 0.5, min: 0, max: 10, open: true }],
 ];
 
 export const toInputs = (f: Form, refType: RefType): EconInputs => ({
   hours: f.hours,
   eta: f.eta / 100,
+  hsHi: f.hsHi || 1,
   pFuel: f.pFuel / 100,
   rFuel: f.rFuel / 100,
   co2Fuel: f.co2Fuel,
-  co2Priced: refType !== 'eboiler',
+  // The electric boiler's CO₂ cost follows the electricity setting.
+  co2Priced: refType !== 'eboiler' || Boolean(f.co2ElPriced),
   co2Price: f.co2Price,
   rCo2: f.rCo2 / 100,
   pEl: f.pEl / 100,
   rEl: f.rEl / 100,
   co2El: f.co2El,
+  co2ElPriced: Boolean(f.co2ElPriced),
   i: f.i / 100,
   T: Math.max(1, Math.round(f.T)),
   fMaint: f.fMaint / 100,
+  opHours: f.opHours,
+  wage: f.wage,
   funding: f.funding / 100,
   pDemand: f.pDemand,
   coolShare: f.coolShare / 100,
   eer: f.eer,
   reinvestShare: f.reinvestShare / 100,
   reinvestYear: Math.round(f.reinvestYear),
-  life: f.life,
+  life: Math.round(f.life),
+  rInv: f.rInv / 100,
+  boilerInvest: f.boilerInvest,
+  fMaintRef: f.fMaintRef / 100,
   opFunding: f.opFunding / 1000,
   opFundingYears: Math.round(f.opFundingYears),
 });
@@ -153,22 +199,28 @@ export const RESULT_ROWS_ENERGY = [
   'energy_saving',
   'co2',
   'co2_saving',
+  'alpha',
 ];
 export const RESULT_ROWS_MONEY = [
   'opex1',
   'saving1',
   'payback',
+  'payback_static',
   'residual',
   'npv',
+  'irr',
+  'lcoh_hp',
+  'lcoh_ref',
   'breakeven',
-  'roi',
+  'spec_total',
+  'capex_vdi',
 ];
 
 // Loss / gain, used wherever a value's sign matters.
 export const RED = '#C62828';
 export const GREEN = '#2E7D32';
 // Rows whose cells are coloured by sign.
-export const SIGNED_ROWS = new Set(['saving1', 'energy_saving', 'co2_saving', 'npv', 'roi']);
+export const SIGNED_ROWS = new Set(['saving1', 'energy_saving', 'co2_saving', 'npv', 'irr']);
 
 const COLORS = ['#7C3AED', '#2563EB', '#059669', '#D97706', '#DC2626', '#0891B2'];
 
@@ -208,7 +260,10 @@ export function econCore(
   };
   const ref = referenceCost(inp, refSys);
   // Investment and specific investment are one value seen two ways: I = c_spez · Q.
-  const capexOf = (p: OptimizedIntegrationPoint) => Math.round(form.specCost * p.Q_demand);
+  // Installed price per kW: the heat pump's own price × planning and
+  // installation × integration (VDI 4646 eq. 26 factors).
+  const specTotal = form.specCost * form.fPI * form.fPer;
+  const capexOf = (p: OptimizedIntegrationPoint) => Math.round(specTotal * p.Q_demand);
   const variants = points.map((p) => ({
     Q: p.Q_demand,
     Qsrc: p.Q_source,
@@ -217,7 +272,19 @@ export function econCore(
   }));
   const results = variants.map((v) => evaluate(inp, refSys, v));
   const breakEven = variants.map((v) => breakEvenElPrice(inp, refSys, v, inp.pFuel));
-  return { pump, points, inp, realFeasible, refSys, ref, capexOf, variants, results, breakEven };
+  return {
+    pump,
+    points,
+    inp,
+    realFeasible,
+    refSys,
+    ref,
+    specTotal,
+    capexOf,
+    variants,
+    results,
+    breakEven,
+  };
 }
 
 type Fig = { data: any[]; layout: any };
@@ -313,11 +380,57 @@ export function buildEconomics(
       breakEven.map((p) => (p === null ? '–' : formatDe(100 * p, 2))),
     ],
     [
-      'roi',
-      t('economics.rows.roi'),
+      'payback_static',
+      t('economics.rows.payback_static'),
+      'a',
+      '–',
+      results.map((r) =>
+        r.paybackStatic === null ? t('economics.never') : formatDe(r.paybackStatic, 1)
+      ),
+    ],
+    [
+      'irr',
+      t('economics.rows.irr'),
       '%',
       '–',
-      results.map((r) => (r.roi === null ? '–' : formatDe(100 * r.roi, 2))),
+      results.map((r) => (r.irr === null ? '–' : formatDe(100 * r.irr, 1))),
+    ],
+    [
+      'lcoh_hp',
+      t('economics.rows.lcoh_hp'),
+      'ct/kWh',
+      '–',
+      results.map((r) => formatDe(100 * r.lcohHp, 2)),
+    ],
+    [
+      'lcoh_ref',
+      t('economics.rows.lcoh_ref', { ref: refName }),
+      'ct/kWh',
+      results[0] ? formatDe(100 * results[0].lcohRef, 2) : '–',
+      results.map(() => '–'),
+    ],
+    [
+      'alpha',
+      t('economics.rows.alpha'),
+      '-',
+      '–',
+      results.map(
+        (r, k) => `${formatDe(r.alpha, 3)} (COP_α ${formatDe(points[k].COP / r.alpha, 2)})`
+      ),
+    ],
+    [
+      'spec_total',
+      t('economics.rows.spec_total'),
+      '€/kW',
+      '–',
+      points.map(() => formatDe(core.specTotal)),
+    ],
+    [
+      'capex_vdi',
+      t('economics.rows.capex_vdi'),
+      '€/kW',
+      '–',
+      points.map((p) => formatDe(vdiSpecificCost(p.Q_demand))),
     ],
   ];
 
@@ -382,6 +495,16 @@ export function buildEconomics(
         T: inp.T,
         eur: eur(r.npv),
         rv: eur(r.residual),
+      }),
+      t('economics.summary.lcoh', {
+        hp: formatDe(100 * r.lcohHp, 2),
+        refv: formatDe(100 * r.lcohRef, 2),
+        ref: refName,
+        pp:
+          r.paybackStatic === null
+            ? t('economics.never')
+            : `${formatDe(r.paybackStatic, 1)} ${t('economics.years')}`,
+        irr: r.irr === null ? '–' : `${formatDe(100 * r.irr, 1)} %`,
       }),
       be === null || be <= 0
         ? t('economics.summary.be_never', { ref: refName })
@@ -847,7 +970,9 @@ export function econReportData(
   const e = buildEconomics(t, form, refType, selected, opt);
   if (!e) return null;
   const fmtInput = (key: keyof Form) =>
-    formatDe(form[key], 4, key !== 'year' && key !== 'reinvestYear');
+    BOOL_FIELDS.includes(key)
+      ? t(form[key] ? 'economics.yes' : 'economics.no')
+      : formatDe(form[key], 4, key !== 'year' && key !== 'reinvestYear');
   return {
     title: t('economics.title'),
     pump: pointName(e.pump),
@@ -881,8 +1006,9 @@ export function econReportData(
         e.istName,
         pointName(e.pump),
       ],
-      rows: e.rows
-        .filter(([key]) => keys.includes(key))
+      rows: keys
+        .map((k) => e.rows.find((r) => r[0] === k)!)
+        .filter(Boolean)
         .map(([key, label, unit, ist, vals]) => ({
           cells: [label, e.unitLabel(unit), ist, vals[0]],
           color:
