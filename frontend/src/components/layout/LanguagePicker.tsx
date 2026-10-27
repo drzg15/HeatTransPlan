@@ -18,8 +18,6 @@ interface Language {
   english?: string;
 }
 
-
-
 const SUPPORTED_LANGUAGES: Language[] = [
   { code: 'en', label: 'English' },
   { code: 'de', label: 'Deutsch' },
@@ -54,16 +52,15 @@ export default function LanguagePicker() {
     setOpen(false);
   };
 
-  const activeLabel =
-    SUPPORTED_LANGUAGES.find((l) => l.code === active)?.label ?? 'English';
+  const activeLabel = SUPPORTED_LANGUAGES.find((l) => l.code === active)?.label ?? 'English';
 
   return (
     <div className="lang-picker notranslate" ref={rootRef}>
       <button
         className="theme-toggle lang-trigger"
         onClick={() => setOpen((v) => !v)}
-        title={`Language — ${activeLabel}`}
-        aria-label="Choose language"
+        title={`${t('ui.language')} — ${activeLabel}`}
+        aria-label={t('ui.choose_language')}
         aria-expanded={open}
         aria-haspopup="menu"
       >

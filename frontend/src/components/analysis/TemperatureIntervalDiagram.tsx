@@ -122,7 +122,7 @@ export default function TemperatureIntervalDiagram() {
       showgrid: false,
     },
     yaxis: {
-      title: 'Shifted Temperature S (°C)',
+      title: t('ui.shifted_temp_axis'),
       showgrid: true,
       gridcolor: 'rgba(0,0,0,0.1)',
     },

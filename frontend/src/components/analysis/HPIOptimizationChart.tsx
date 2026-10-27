@@ -385,7 +385,7 @@ export default function HPIOptimizationChart({
         line: { width: 2, color: isDark ? '#FFF' : '#000' },
       },
       text: [
-        `<b>Active Sink</b><br>T: ${activePoint.T_sink.toFixed(1)}°C<br>Q_demand: ${activePoint.Q_demand.toFixed(1)} kW<br>COP: ${activePoint.COP.toFixed(2)}`,
+        `<b>${t('ui.active_sink')}</b><br>T: ${activePoint.T_sink.toFixed(1)}°C<br>Q_demand: ${activePoint.Q_demand.toFixed(1)} kW<br>COP: ${activePoint.COP.toFixed(2)}`,
       ],
       hoverinfo: 'text',
     });
@@ -407,7 +407,7 @@ export default function HPIOptimizationChart({
         line: { width: 2, color: isDark ? '#FFF' : '#000' },
       },
       text: [
-        `<b>Active Source</b><br>T: ${activePoint.T_source.toFixed(1)}°C<br>Q_source: ${((activePoint.Q_demand * (activePoint.COP - 1)) / activePoint.COP).toFixed(1)} kW<br>COP: ${activePoint.COP.toFixed(2)}`,
+        `<b>${t('ui.active_source')}</b><br>T: ${activePoint.T_source.toFixed(1)}°C<br>Q_source: ${((activePoint.Q_demand * (activePoint.COP - 1)) / activePoint.COP).toFixed(1)} kW<br>COP: ${activePoint.COP.toFixed(2)}`,
       ],
       hoverinfo: 'text',
     });
@@ -713,7 +713,7 @@ export default function HPIOptimizationChart({
       style={{ position: 'relative', display: 'flex', justifyContent: 'flex-end' }}
     >
       <ChartHelpButton
-        title="Optimization Solutions"
+        title={t('ui.opt_solutions')}
         size="large"
         description={
           <>

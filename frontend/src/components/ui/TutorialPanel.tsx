@@ -18,7 +18,7 @@ const TutorialPanel: React.FC<Props> = ({ isOpen, onClose }) => {
       <div className="tutorial-modal" onClick={(e) => e.stopPropagation()}>
         <div className="tutorial-header">
           <h3>🚀 {t('tutorial.title', 'HeatTransPlan Tutorial')}</h3>
-          <button className="tutorial-close" onClick={onClose} aria-label="Close tutorial">
+          <button className="tutorial-close" onClick={onClose} aria-label={t('ui.close_tutorial')}>
             ×
           </button>
         </div>
