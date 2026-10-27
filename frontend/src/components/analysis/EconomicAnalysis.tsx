@@ -12,6 +12,7 @@ import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import Section from '../ui/Section';
 import {
+  BOOL_FIELDS,
   buildEconomics,
   DEFAULTS,
   FIELDS,
@@ -67,7 +68,14 @@ const formulaStyle = {
 // Per-row formulas as computed in utils/economics.ts, and the symbols each one
 // uses. Symbols are language-neutral; their explanations come from the locale.
 const FORMULAS: Record<string, { f: string[]; terms: string[] }> = {
-  capex: { f: ['I = c_spez · Q'], terms: ['I', 'c_spez', 'Q'] },
+  capex: {
+    f: ['I = c_spez · F_PI · F_Per · Q'],
+    terms: ['I', 'c_spez', 'F_PI', 'F_Per', 'Q'],
+  },
+  spec_total: {
+    f: ['c_inst = c_spez · F_PI · F_Per'],
+    terms: ['c_inst', 'c_spez', 'F_PI', 'F_Per'],
+  },
   q: { f: ['Ist: Q_ref = max(Q_demand_total)', 'WP: Q = Q_demand'], terms: ['Q_ref', 'Q'] },
   qsrc: {
     f: ['Ist: Q_src,ref = max(Q_source)', 'WP: Q_src = Q_source'],
@@ -75,7 +83,7 @@ const FORMULAS: Record<string, { f: string[]; terms: string[] }> = {
   },
   cop: { f: ['COP = Q / P_el'], terms: ['COP', 'P_el'] },
   fuel: {
-    f: ['E_fuel,Ist = Q_ref · h / η', 'E_fuel,WP = (Q_ref − Q) · h / η'],
+    f: ['E_fuel,Ist = Q_ref · h / η', 'E_fuel,WP = (Q_ref − Q) · h / η   [kWh Hs]'],
     terms: ['E_fuel', 'Q_ref', 'Q', 'h', 'η'],
   },
   el: { f: ['E_el = Q · h / COP'], terms: ['E_el', 'Q', 'h', 'COP'] },
@@ -85,10 +93,10 @@ const FORMULAS: Record<string, { f: string[]; terms: string[] }> = {
   },
   opex1: {
     f: [
-      'K(t) = E_fuel · p_fuel(t) + (E_el + E_cool) · p_el(t) + f_W · I + p_L · P_el − F_B(t)',
+      'K(t) = E_fuel · p_fuel(t) + (E_el + E_cool) · p_el(t) + f_W · I + t_AB · w + p_L · P_el − f_k,ref · I_ref − F_B(t)',
       'F_B(t) = f_B · Q · h  (t ≤ t_B, else 0)',
-      'p_fuel(t) = p_fuel,0 · (1 + r_fuel)^t + c_CO2 · p_CO2,0 · (1 + r_CO2)^t',
-      'p_el(t) = p_el,0 · (1 + r_el)^t',
+      'p_fuel(t) = p_fuel,0 · (1 + r_fuel)^t + c_CO2 / (Hs/Hi) · p_CO2,0 · (1 + r_CO2)^t',
+      'p_el(t) = p_el,0 · (1 + r_el)^t  [+ c_CO2,el · p_CO2(t), if CO₂ on electricity]',
     ],
     terms: [
       'K',
@@ -105,6 +113,11 @@ const FORMULAS: Record<string, { f: string[]; terms: string[] }> = {
       'P_el',
       'f_B',
       't_B',
+      't_AB',
+      'w',
+      'I_ref',
+      'f_k,ref',
+      'Hs/Hi',
     ],
   },
   energy_saving: {
@@ -113,26 +126,56 @@ const FORMULAS: Record<string, { f: string[]; terms: string[] }> = {
   },
   saving1: { f: ['S(1) = K_Ist(1) − K_WP(1)'], terms: ['K'] },
   co2: {
-    f: ['CO2 = E_fuel · c_CO2 + (E_el + E_cool) · c_CO2,el'],
-    terms: ['E_fuel', 'E_el', 'E_cool', 'c_CO2', 'c_CO2,el'],
+    f: ['CO2 = E_fuel / (Hs/Hi) · c_CO2 + (E_el + E_cool) · c_CO2,el'],
+    terms: ['E_fuel', 'Hs/Hi', 'E_el', 'E_cool', 'c_CO2', 'c_CO2,el'],
   },
   co2_saving: { f: ['ΔCO2 = CO2_Ist − CO2_WP'], terms: ['c_CO2', 'c_CO2,el'] },
   payback: {
     f: [
       't_A = min { k : KW(k) ≥ 0 }',
-      'KW(k) = −(1 − φ) · I + Σ_{t=1..k} (CF(t) − R(t)) / (1 + i)^t',
+      'KW(k) = −(1 − φ) · I + I_ref + Σ_{t=1..k} (CF(t) − R(t)) / (1 + i)^t',
     ],
-    terms: ['t_A', 'k', 'KW', 'φ', 'I', 'CF', 'R', 'i'],
+    terms: ['t_A', 'k', 'KW', 'φ', 'I', 'I_ref', 'CF', 'R', 'i'],
   },
-  residual: { f: ['RW = I · max(0, 1 − T / L)'], terms: ['RW', 'I', 'T', 'L'] },
+  residual: {
+    f: ['RW = I · (1 + r_inv)^(n·L) · ((n + 1) · L − T) / L', 'n = ⌈T / L⌉ − 1'],
+    terms: ['RW', 'I', 'r_inv', 'n', 'T', 'L'],
+  },
   npv: {
     f: [
-      'KW = −(1 − φ) · I + Σ_{t=1..T} (CF(t) − R(t)) / (1 + i)^t + RW / (1 + i)^T',
+      'KW = −(1 − φ) · I + I_ref + Σ_{t=1..T} (CF(t) − R(t)) / (1 + i)^t + RW / (1 + i)^T',
       'CF(t) = K_Ist(t) − K_WP(t)',
+      'R(t) = I · (1 + r_inv)^t at t = L, 2L, … (< T) + manual reinvestment',
     ],
-    terms: ['KW', 'φ', 'I', 'CF', 'K', 'R', 'RW', 'i', 'T', 't'],
+    terms: ['KW', 'φ', 'I', 'I_ref', 'CF', 'K', 'R', 'RW', 'r_inv', 'L', 'i', 'T', 't'],
   },
-  roi: { f: ['ROI = KW / ((1 − φ) · I)'], terms: ['KW', 'φ', 'I'] },
+  payback_static: {
+    f: ['PP = ((1 − φ) · I − I_ref) / S(1)'],
+    terms: ['PP', 'φ', 'I', 'I_ref', 'K'],
+  },
+  irr: {
+    f: ['IRR: KW(i = IRR) = 0'],
+    terms: ['IRR', 'KW'],
+  },
+  lcoh_hp: {
+    f: [
+      'LCOH_WP = a_T · PV(capital + f_W · I + t_AB · w + p_L · P_el + α · E_el · p_el(t) − F_B) / (Q · h)',
+      'a_T = i / (1 − (1 + i)^−T)',
+    ],
+    terms: ['LCOH', 'a_T', 'α', 'E_el', 'I', 'Q', 'h', 'i', 'T'],
+  },
+  lcoh_ref: {
+    f: ['LCOH_Ist = a_T · PV(Q · h / η · p_fuel(t) + f_k,ref · I_ref) / (Q · h)'],
+    terms: ['LCOH', 'a_T', 'η', 'I_ref', 'f_k,ref'],
+  },
+  alpha: {
+    f: ['α = (COP / η) / (COP / η + a · COP_KA / EER)', 'COP_KA = COP − 1;  COP_α = COP / α'],
+    terms: ['α', 'COP', 'η', 'a', 'EER'],
+  },
+  capex_vdi: {
+    f: ['k_Inv = F_WP · Q^E_WP · F_PI · F_Per / Q'],
+    terms: ['F_WP', 'E_WP', 'F_PI', 'F_Per', 'Q'],
+  },
   breakeven: { f: ['p_el* : KW(p_fuel, p_el*) = 0'], terms: ['p_el*', 'KW'] },
 };
 // Formula symbols are German abbreviations (KW = Kapitalwert, WP = Wärmepumpe,
@@ -153,7 +196,8 @@ const SYMBOLS_EN: Array<[RegExp, string]> = [
 const symbolsEn = (text: string) => SYMBOLS_EN.reduce((acc, [re, to]) => acc.replace(re, to), text);
 // Locale keys for symbols: Greek letters spelled out, commas and stars dropped.
 const termKey = (sym: string) =>
-  ({ η: 'eta', φ: 'phi', 'p_el*': 'p_el_star' })[sym] ?? sym.replace(/,/g, '_');
+  ({ η: 'eta', φ: 'phi', α: 'alpha', 'p_el*': 'p_el_star', 'Hs/Hi': 'hs_hi' })[sym] ??
+  sym.replace(/,/g, '_');
 
 // The inputs shown up front; all others sit under "More assumptions".
 const KEY_FIELDS: Array<keyof Form> = ['pFuel', 'pEl', 'specCost', 'funding', 'T', 'i'];
@@ -310,8 +354,13 @@ export default function EconomicAnalysis() {
     capexOf,
   } = e;
   // Editing the investment sets c_spez, so both always agree.
+  // The input is the heat pump's own price, so the factors are taken back out.
   const setCapexOf = (p: OptimizedIntegrationPoint, v: number) =>
-    p.Q_demand > 0 && setForm({ ...form, specCost: Math.round((100 * v) / p.Q_demand) / 100 });
+    p.Q_demand > 0 &&
+    setForm({
+      ...form,
+      specCost: Math.round((100 * v) / (p.Q_demand * form.fPI * form.fPer)) / 100,
+    });
 
   // Row label with a bulb showing the row's formula and what each term means.
   const rowLabel = (key: string, label: string) => (
@@ -334,7 +383,6 @@ export default function EconomicAnalysis() {
                 </li>
               ))}
             </ul>
-            {key === 'roi' && <p>{t('economics.roi_assumption')}</p>}
           </>
         }
       />
@@ -440,12 +488,13 @@ export default function EconomicAnalysis() {
                       {points.map((p) => (
                         <div key={pointKey(p)}>
                           <span className="econ-capex-name">
-                            × {formatDe(p.Q_demand)} kW = {t('economics.rows.capex')} [€]
+                            × {formatDe(form.fPI, 2)} × {formatDe(form.fPer, 2)} ×{' '}
+                            {formatDe(p.Q_demand)} kW = {t('economics.rows.capex')} [€]
                             {points.length > 1 && ` · ${pointName(p)}`}
                           </span>
                           <NumInput
                             width={90}
-                            // Starts at 3.000 €/kW, the top of the specific-cost slider.
+                            // Starts at 3.000 €/kW installed.
                             range={{
                               step: 10000,
                               min: 0,
@@ -541,13 +590,21 @@ export default function EconomicAnalysis() {
                     <tr key={key} className="econ-input-row">
                       <td>{inputLabel(key, t(`economics.inputs.${key}`, { fuel }))}</td>
                       <td>
-                        <NumInput
-                          width={64}
-                          value={form[key]}
-                          range={range}
-                          grouping={key !== 'year' && key !== 'reinvestYear'}
-                          onChange={(v) => setForm({ ...form, [key]: v })}
-                        />
+                        {BOOL_FIELDS.includes(key) ? (
+                          <input
+                            type="checkbox"
+                            checked={Boolean(form[key])}
+                            onChange={(e) => setForm({ ...form, [key]: e.target.checked ? 1 : 0 })}
+                          />
+                        ) : (
+                          <NumInput
+                            width={64}
+                            value={form[key]}
+                            range={range}
+                            grouping={key !== 'year' && key !== 'reinvestYear'}
+                            onChange={(v) => setForm({ ...form, [key]: v })}
+                          />
+                        )}
                       </td>
                       <td className="econ-unit-cell">{unitLabel(unit)}</td>
                     </tr>
@@ -601,8 +658,9 @@ export default function EconomicAnalysis() {
                 </tr>
               </thead>
               <tbody>
-                {rows
-                  .filter(([key]) => keys.includes(key))
+                {keys
+                  .map((k) => rows.find((r) => r[0] === k)!)
+                  .filter(Boolean)
                   .map(([key, label, unit, ist, vals]) => (
                     <tr key={key}>
                       <td>{rowLabel(key, label)}</td>

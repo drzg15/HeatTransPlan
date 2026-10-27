@@ -1,8 +1,10 @@
 # Economic Analysis — Net Present Value of the Heat Pump
 
-The heat pump optimization says what a machine *can* deliver. The **economic analysis** asks whether it is worth buying: it compares the heat pump with the system it replaces, year by year, and turns the difference into a **net present value**, a **dynamic payback** and a **break-even electricity price**.
+The heat pump optimization says what a machine *can* deliver. The **economic analysis** asks whether it is worth buying: it compares the heat pump with the system it replaces, year by year, and turns the difference into a **net present value**, a **dynamic payback** and a **break-even electricity price**, plus the results of **VDI 4646**: heat cost per kWh (LCOH), **static payback** and **internal rate of return**.
 
-The method is the **net present value method** (*Kapitalwertmethode*) with price-dynamic cash flows, the approach of **VDI 2067-1**. The layout of the results follows an industrial heat pump feasibility study (Hipp, 2026), whose numbers the implementation reproduces to the euro (see *Validation against the reference study* below).
+The method is the **net present value method** (*Kapitalwertmethode*) with price-dynamic cash flows, the approach of **VDI 2067 Blatt 1** (2012); its annuity method, which **VDI 4646** (2026) builds on, gives the same decision (annuity = NPV × annuity factor). Defaults follow VDI 4646 and VDI 2067, except the heat pump's specific investment. Every input, formula and deviation is listed below with the page of the norm it comes from; the implementation reproduces the worked examples of both norms, a VDI 4646 training course and an industrial feasibility study (Hipp, 2026) — see *Validation* below.
+
+Citations: **[4646]** VDI 4646:2026-05, **[2067]** VDI 2067 Blatt 1:2012-09, **[L]** Hitzköpfe Academy seminar, chapter 7 (slide numbers), **[H]** Hipp final presentation 2026 (slide numbers).
 
 All of it runs in the browser, so every input change and every click on the sensitivity map updates at once.
 
@@ -55,34 +57,53 @@ The six inputs people change most sit in the **Key inputs** row; everything else
 
 | Group | Input | Symbol | Unit | Default |
 |---|---|---|---|---|
-| General | First year of operation | $t_0$ | year | next year |
-| | Full-load hours | $h$ | h/year | 8.760 |
-| | Discount rate | $i$ | % | 6 |
-| | Period of analysis | $T$ | years | 15 |
-| Reference heater | Type | | | gas boiler |
-| | Efficiency | $\eta$ | % | 90 |
-| | Fuel price (excl. CO₂) | $p_{fuel,0}$ | ct/kWh | 6 |
-| | Fuel price change | $r_{fuel}$ | %/year | 3 |
-| | CO₂ factor of the fuel | $c_{CO_2}$ | t/MWh | 0,201 |
-| | CO₂ price | $p_{CO_2,0}$ | €/t | 55 |
-| | CO₂ price change | $r_{CO_2}$ | %/year | 5 |
-| Electricity | Electricity price | $p_{el,0}$ | ct/kWh | 13 |
-| | Electricity price change | $r_{el}$ | %/year | 3 |
-| | CO₂ factor of electricity | $c_{CO_2,el}$ | t/MWh | 0,352 (UBA 2025) |
-| Heat pump | Specific investment | $c_{spec}$ | €/kW | 850 |
-| | Maintenance | $f_M$ | % of $I$ per year | 5 |
-| | Capacity charge | $p_C$ | €/kW$_{el}$ per year | 0 |
-| | Reinvestment | | % of $I$ in a chosen year | 0 |
-| | Service life (residual value) | $L$ | years | 20 |
-| | Investment funding | $\varphi$ | % of $I$ | 0 |
-| Operating funding | Funding per MWh of heat | $f_{op}$ | €/MWh | 0 |
-| | Paid for | $t_{op}$ | years | 10 |
-| Cooling | Actively cooled share of the source heat | $a$ | % | 0 |
-| | Cooling COP (EER) | $EER$ | – | 4 |
+| Group | Input | Symbol | Unit | Default | Source of the default |
+|---|---|---|---|---|---|
+| General | First year of operation | $t_0$ | year | next year | — |
+| | Full-load hours | $h$ | h/year | 6.000 | [4646] Tabelle 8, p. 62 (three shifts) |
+| | Discount rate | $i$ | % | 12 | [4646] p. 58 (8–12 %), Tabelle 8 |
+| | Period of analysis | $T$ | years | 20 | [4646] p. 58; [2067] Tabelle 1, p. 11 |
+| Reference heater | Type | | | gas condensing boiler | [4646] p. 61 |
+| | Efficiency on Hs | $\eta$ | % | 87 | [4646] Tabelle 8, p. 62 |
+| | Calorific value ratio | $H_s/H_i$ | – | 1,11 | natural gas H; needed by [4646] eq. (23), p. 57 |
+| | Fuel price (excl. CO₂, per kWh Hs) | $p_{fuel,0}$ | ct/kWh | 6 | ≈ 7 ct incl. CO₂ as in [H] |
+| | Fuel price change | $r_{fuel}$ | %/year | 3 | [H]; **deviation** from [4646] p. 57 (constant prices) |
+| | CO₂ factor of the fuel (on Hi) | $c_{CO_2}$ | t/MWh | 0,201 | UBA; [4646] p. 64: 202 g/kWh |
+| | CO₂ price | $p_{CO_2,0}$ | €/t | 55 | BEHG 2025 |
+| | CO₂ price change | $r_{CO_2}$ | %/year | 0 | [4646] p. 57 |
+| Electricity | Electricity price | $p_{el,0}$ | ct/kWh | 13 | [H] |
+| | Electricity price change | $r_{el}$ | %/year | 3 | as the fuel; **deviation** from [4646] p. 57 |
+| | CO₂ factor of electricity | $c_{CO_2,el}$ | t/MWh | 0,352 | UBA 2025 |
+| | Add CO₂ cost on electricity | | yes/no | no | [4646] p. 60: check if in the price (EU ETS) |
+| Heat pump | Heat pump price per kW (equipment) | $c_{spec}$ | €/kW | **380** | literature (see below), installed ≈ 855 €/kW |
+| | Planning & installation factor | $F_{PI}$ | – | 1,25 | [4646] Tabelle 6, p. 59 |
+| | Integration factor (periphery) | $F_{Per}$ | – | 1,8 | [4646] Tabelle 6, p. 59 |
+| | Maintenance | $f_M$ | % of $I$ per year | 2,5 | [2067] Tabelle A2, p. 22 (1 + 1,5 %) |
+| | Operation effort × hourly rate | $t_{AB} \cdot w$ | h/year × €/h | 5 × 100 | [2067] Tabelle A2, p. 22; [L] slide 18 |
+| | Capacity charge | $p_C$ | €/kW$_{el}$ per year | 0 | [2067] p. 15 |
+| | Reinvestment | | % of $I$ in a chosen year | 0 | app extension |
+| | Service life | $L$ | years | 20 | [2067] Tabelle A2, p. 22 |
+| | Investment price change | $r_{inv}$ | %/year | 0 | [2067] eq. (2)/(3), p. 17 |
+| | Investment funding | $\varphi$ | % of $I$ | 0 | [2067] §8.2, p. 19 |
+| Operating funding | Funding per MWh of heat | $f_{op}$ | €/MWh | 0 | [2067] §8.2, p. 19 |
+| | Paid for | $t_{op}$ | years | 10 | BEW Modul 4 |
+| Cooling | Actively cooled share of the source heat | $a$ | % | 0 | — |
+| | Cooling COP (EER) | $EER$ | – | 4 | mechanical chiller ([4646] §8.2 uses 15 for a cooling tower) |
+| Replacement case | Avoided boiler investment | $c_{boiler}$ | €/kW of HP | 0 | [4646] Tabelle 8, p. 62 (efficiency case); 131 €/kW on p. 74 |
+| | Its maintenance | $f_{k,ref}$ | %/year | 3 | [4646] Tabelle 8, p. 62 |
 
-Choosing the reference type loads a preset for efficiency, fuel price and CO₂ factor (gas 90 % / 6 ct / 0,201; oil 88 % / 8 ct / 0,266; electric boiler 99 % / 13 ct / 0,352). The electric boiler's CO₂ is already in its electricity price, so no CO₂ cost is added on top.
+Choosing the reference type loads a preset for efficiency (on Hs), Hs/Hi, fuel price and CO₂ factor (gas 87 % / 1,11 / 6 ct / 0,201; oil 85 % / 1,06 / 8 ct / 0,266; electric boiler 99 % / 1 / 13 ct / 0,352). The electric boiler's CO₂ is in its electricity price unless "Add CO₂ cost on electricity" is on.
 
-**Investment.** Specific investment and investment are one value seen two ways, $I = c_{spec} \cdot \dot{Q}$; editing either updates the other. The default 850 €/kW is the middle of the literature range for industrial high-temperature heat pumps:
+> [!IMPORTANT]
+> **Gross and net calorific value.** Gas is billed per kWh of gross calorific value $H_s$, but its CO₂ factor refers to the net calorific value $H_i$ ([4646] p. 60; eq. (23), p. 57 uses $\eta_{H_s}$ for the price and $\eta_{H_i}$ for CO₂). The efficiency, fuel price and fuel consumption are therefore on $H_s$, and the CO₂ factor is converted with $H_s/H_i$. Using one efficiency for both overstates the CO₂ of gas by about 11 %.
+
+**Investment.** The heat pump's own price per kW times the planning-and-installation and integration factors of VDI 4646 ([4646] eq. (25)/(26), Tabelle 6, p. 58–59), times the heat output:
+
+$$
+I = c_{spec} \cdot F_{PI} \cdot F_{Per} \cdot \dot{Q}
+$$
+
+Editing the investment sets the price per kW back through the same factors. The default 380 €/kW × 1,25 × 1,8 ≈ 855 €/kW installed, the middle of the literature range for installed industrial high-temperature heat pumps:
 
 | Source | Specific investment |
 |---|---|
@@ -91,7 +112,9 @@ Choosing the reference type loads a preset for efficiency, fuel price and CO₂ 
 | [TNO / energy.nl factsheet](https://energy.nl/wp-content/uploads/industrial-high-temperature-heat-pump-2-7.pdf) | 300–900 €/kW up to 160 °C |
 
 > [!NOTE]
-> The full-load hours default to 8.760 h, i.e. the pump runs at the analysed duty all year. Until a load profile drives it, lower $h$ for shift or seasonal operation.
+> **Deviation from VDI 4646 — heat pump price.** [4646] eq. (25)/(26) with Tabelle 6 (p. 58–59) gives an installed price that falls with size: about 643 €/kW at 100 kW, 476 at 300 kW, 428 at 1 MW and 389 at 3 MW. The app keeps the norm's two factors but uses one flat price per kW for the heat pump itself, so economies of scale are not modelled: the training course calls the VDI curve possibly outdated ([L] slide 14), and HeatTransPlan's pumps are high-temperature machines for which newer sources give higher costs. The VDI value is shown for comparison under *Detailed results*. (Tabelle 6 prints "≤ 210 kW" on both rows; the second means "> 210 kW".)
+
+The full-load hours default to 6.000 h as in [4646]; with a load profile, set $h$ to the real full-load hours.
 
 All inputs are kept for the whole project: every saved scenario is evaluated with the same prices and assumptions, so scenarios differ only in their heat pump.
 
@@ -112,8 +135,10 @@ For the reference, $\dot{Q} = \dot{Q}_{src} = 0$ and $E_{el} = 0$.
 **CO₂ emissions** follow from the same flows:
 
 $$
-CO_2 = E_{fuel} \cdot c_{CO_2} + (E_{el} + E_{cool}) \cdot c_{CO_2,el}
+CO_2 = \frac{E_{fuel}}{H_s/H_i} \cdot c_{CO_2} + (E_{el} + E_{cool}) \cdot c_{CO_2,el}
 $$
+
+with $E_{fuel}$ on $H_s$ — [4646] eq. (30)/(31), p. 63.
 
 **Final energy saving** is the difference in final energy, fuel and electricity alike:
 
@@ -126,12 +151,14 @@ $$
 Prices are given for the base year and change from year 1 at their own rates. The fuel carries a CO₂ cost with its own price path:
 
 $$
-p_{fuel}(t) = p_{fuel,0} \cdot (1 + r_{fuel})^t + \frac{c_{CO_2}}{1000} \cdot p_{CO_2,0} \cdot (1 + r_{CO_2})^t
+p_{fuel}(t) = p_{fuel,0} \cdot (1 + r_{fuel})^t + \frac{c_{CO_2}}{1000 \cdot H_s/H_i} \cdot p_{CO_2,0} \cdot (1 + r_{CO_2})^t
 $$
 
 $$
-p_{el}(t) = p_{el,0} \cdot (1 + r_{el})^t
+p_{el}(t) = p_{el,0} \cdot (1 + r_{el})^t \;\big[ + \tfrac{c_{CO_2,el}}{1000} \cdot p_{CO_2,0} \cdot (1 + r_{CO_2})^t \big]
 $$
+
+The bracket only when CO₂ cost on electricity is switched on. This is [4646] eq. (23) and (29), p. 57 and 61. [4646] assumes constant prices (all $r = 0$, p. 57). The app's default is +3 %/year for fuel and electricity (CO₂ and investment 0 %): a deliberate deviation, allowed by [2067] §6.9 (p. 12), which permits change rates per cost type. The same rate on both sides keeps the electricity-to-gas price ratio constant. Set both to 0 for the VDI 4646 case. Today's price $p_0$ grown by one year equals the "first-year cost" $A_{V1}$ of [2067] eq. (6), so the two conventions agree.
 
 <details>
 <summary><b>Source code:</b> <code>frontend/src/utils/economics.ts</code> (<code>fuelPrice</code>, <code>elPrice</code>)</summary>
@@ -147,8 +174,10 @@ $$
 ## Step 3 — Operating costs per year
 
 $$
-K(t) = E_{fuel} \cdot p_{fuel}(t) + (E_{el} + E_{cool}) \cdot p_{el}(t) + f_M \cdot I + p_C \cdot P_{el} - F_{op}(t)
+K(t) = E_{fuel} \cdot p_{fuel}(t) + (E_{el} + E_{cool}) \cdot p_{el}(t) + f_M \cdot I + t_{AB} \cdot w + p_C \cdot P_{el} - f_{k,ref} \cdot I_{ref} - F_{op}(t)
 $$
+
+— the demand-related, operation-related and maintenance costs of [2067] eq. (6)–(9), p. 18–19, and [4646] eq. (22)–(28), p. 57–60. $I_{ref} = c_{boiler} \cdot \dot{Q}$ is the boiler investment avoided in the replacement case (0 by default), whose maintenance is then saved too.
 
 with $P_{el} = \dot{Q} / COP$ and the operating funding
 
@@ -156,7 +185,7 @@ $$
 F_{op}(t) = \begin{cases} f_{op} \cdot \dot{Q} \cdot h & t \le t_{op} \\ 0 & \text{otherwise} \end{cases}
 $$
 
-Maintenance, capacity charge and operating funding apply to the heat pump only. The **cost saving in year 1** is $S(1) = K_{ref}(1) - K_{HP}(1)$.
+Maintenance, operation, capacity charge and operating funding apply to the heat pump only. The **cost saving in year 1** is $S(1) = K_{ref}(1) - K_{HP}(1)$.
 
 <details>
 <summary><b>Source code:</b> <code>frontend/src/utils/economics.ts</code> (<code>flows</code>)</summary>
@@ -180,18 +209,22 @@ $$
 The net present value discounts every cash flow to the base year, after the investment net of funding, any reinvestment $R(t)$, and the residual value at the end of the period:
 
 $$
-NPV = -(1 - \varphi) \cdot I + \sum_{t=1}^{T} \frac{CF(t) - R(t)}{(1 + i)^t} + \frac{RV}{(1 + i)^T}
+NPV = -(1 - \varphi) \cdot I + I_{ref} + \sum_{t=1}^{T} \frac{CF(t) - R(t)}{(1 + i)^t} + \frac{RV}{(1 + i)^T}
 $$
 
-The **residual value** depreciates the investment linearly over its service life:
+$R(t)$ are the **replacements** of [2067] eq. (1)–(2), p. 16–17 — the heat pump is bought again at the end of each service life, at the then-current price — plus an optional manual reinvestment:
 
 $$
-RV = I \cdot \max\left(0,\ 1 - \frac{T}{L}\right)
+R(t) = I \cdot (1 + r_{inv})^t \quad \text{at } t = L, 2L, \dots < T
 $$
 
-A positive NPV means the heat pump earns more over $T$ years than the money would earn at the discount rate $i$.
+The **residual value** is the last purchase, depreciated linearly over its service life ([2067] eq. (3), p. 17):
 
-**ROI** is reported as $NPV / ((1 - \varphi) \cdot I)$. The reference study shows an ROI without its definition, so this one is an assumption.
+$$
+RV = I \cdot (1 + r_{inv})^{nL} \cdot \frac{(n+1) \cdot L - T}{L}, \qquad n = \lceil T/L \rceil - 1
+$$
+
+A positive NPV means the heat pump earns more over $T$ years than the money would earn at the discount rate $i$. The annuity of [2067] eq. (12) / [4646] eq. (22) is the same result spread over the years: $A = NPV \cdot a$ with the annuity factor $a = i / (1 - (1+i)^{-T})$ ([2067] eq. (4), p. 17; [4646] eq. (24), p. 57).
 
 ## Step 5 — Dynamic payback
 
@@ -228,6 +261,40 @@ $$
 ```{literalinclude} ../frontend/src/utils/economics.ts
 :language: typescript
 :start-at: export function breakEvenElPrice
+:end-before: /** VDI 4646 cost function
+```
+
+</details>
+
+## Step 7 — The VDI 4646 results
+
+Shown under *Detailed results*:
+
+| Result | Formula | Source |
+|---|---|---|
+| **Static payback** | $PP = \dfrac{(1-\varphi) \cdot I - I_{ref}}{S(1)}$ | [4646] eq. (C5), p. 90 |
+| **Internal rate of return** | the discount rate at which $NPV = 0$ | [4646] eq. (C6), p. 91 |
+| **Heat cost of the heat pump** | $LCOH_{HP} = a \cdot PV\big(\text{capital} + f_M I + t_{AB} w + p_C P_{el} + \alpha \, E_{el} \, p_{el}(t) - F_{op}\big) / (\dot{Q} h)$ | [4646] eq. (21)–(23), p. 57 |
+| **Heat cost of the reference** | $LCOH_{ref} = a \cdot PV\big(\dot{Q} h / \eta \cdot p_{fuel}(t) + f_{k,ref} I_{ref}\big) / (\dot{Q} h)$ | [4646] p. 61 (efficiency case: demand-related costs only) |
+| **Allocation factor** (Finnish method) | $\alpha = \dfrac{COP/\eta}{COP/\eta + a \cdot (COP-1)/EER}$, $COP_\alpha = COP/\alpha$ | [4646] eq. (17)–(19), p. 55–57 |
+| **VDI cost function** (reference only) | $k_{Inv} = F_{WP} \, \dot{Q}^{E_{WP}} \, F_{PI} \, F_{Per} / \dot{Q}$ | [4646] eq. (26), Tabelle 6, p. 58–59 |
+
+"Capital" is the investment net of funding plus replacements minus the residual value, all as present values. The allocation factor charges the heat pump's electricity partly to the cooling its cold side provides, so the heat cost is not burdened with it. The app multiplies the cooling term by the actively cooled share $a$ — **an extension of [4646]**, whose formula assumes the whole cold side is useful (it is the case $a = 1$); cold that replaces no chiller earns no credit. The NPV does not need $\alpha$: it compares the whole systems, heating and cooling, as in [4646] Bild 9 (p. 54).
+
+The ROI shown in earlier versions has been replaced by the internal rate of return: the ROI's definition was an assumption, the IRR is the norm's.
+
+<details>
+<summary><b>Source code:</b> <code>frontend/src/utils/economics.ts</code> (<code>allocationFactor</code>, <code>vdiSpecificCost</code>)</summary>
+
+```{literalinclude} ../frontend/src/utils/economics.ts
+:language: typescript
+:start-at: /** Finnish allocation factor
+:end-before: export function evaluate
+```
+
+```{literalinclude} ../frontend/src/utils/economics.ts
+:language: typescript
+:start-at: /** VDI 4646 cost function
 ```
 
 </details>
@@ -267,9 +334,25 @@ The panel, the comparison and the report are all built from one module, so they 
 
 ---
 
-## Validation against the reference study
+## Validation
 
-The study compares a gas boiler (current situation, 7 ct/kWh incl. CO₂) with two heat pump variants, *Status Quo* and *Max. WRG* (maximum heat recovery), at 13 ct/kWh electricity, 3 % price change, 6 % discount rate, 15 years and 5 % maintenance. With the extensions it does not have switched off (separate CO₂ cost, cooling, capacity charge, reinvestment, residual value), the implementation reproduces its table exactly:
+### Against VDI 2067, VDI 4646 and the training course
+
+| Example | Source | Expected | App |
+|---|---|---|---|
+| Replacements and residual value | [2067] Annex B, p. 37 | $A_1$ = 1.266,11 €, $A_2$ = 801,52 €, $RV$ = 267,04 € | identical |
+| Heat cost of a 250 kW heat pump | [L] slides 15–22 | 6,75 ct/kWh | 6,75 ct/kWh |
+| Annuity factor (6 %, 20 a) | [L] slide 20; [2067] eq. (4) | 0,087185 | 0,087185 |
+| VDI cost function at 250 kW | [L] slide 15 | 483,74 €/kW | 483,74 €/kW |
+| Static payback / IRR, example of §8.2 | [4646] p. 72, eq. (C5)/(C6) | 13,65 a / 3,95 % from the equations | 13,65 a / 3,95 % |
+| Allocated COP (COP 3,2, η 0,87, COP$_{KA,ref}$ 15) | [4646] p. 73 | 3,35 (read off Bild 24) | 3,33 |
+| NPV × annuity factor = annuity difference | [L] slide 11 | −20.171,78 €/a | −20.171,78 €/a |
+
+The text of [4646] §8.2 states "just under 12 years" and an IRR of 6 % for the static-payback example. These are read off the nomogram (Bild 22); its own equations (C5)/(C6) give 13,65 years and 3,95 % for the stated inputs, as does the app.
+
+### Against the reference study
+
+The study compares a gas boiler (current situation, 7 ct/kWh incl. CO₂) with two heat pump variants, *Status Quo* and *Max. WRG* (maximum heat recovery), at 13 ct/kWh electricity, 3 % price change, 6 % discount rate, 15 years and 5 % maintenance — values that differ from the VDI defaults above. Set to the study's values, with the extensions it does not have switched off (separate CO₂ cost, Hs/Hi, operation effort, cooling, capacity charge, replacements, residual value), the implementation reproduces its table exactly:
 
 | Value | Study | HeatTransPlan |
 |---|---|---|
