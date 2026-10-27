@@ -110,7 +110,10 @@ export default function HPIOptimizationChart({
       (p) => `${p.refrigerant}_${p.T_sink.toFixed(2)}`
     )
   );
-  const keepActive = (points: OptimizedIntegrationPoint[], thinned: OptimizedIntegrationPoint[]) => {
+  const keepActive = (
+    points: OptimizedIntegrationPoint[],
+    thinned: OptimizedIntegrationPoint[]
+  ) => {
     const have = new Set(thinned.map((p) => `${p.refrigerant}_${p.T_sink.toFixed(2)}`));
     const extra = points.filter((p) => {
       const k = `${p.refrigerant}_${p.T_sink.toFixed(2)}`;
@@ -421,9 +424,7 @@ export default function HPIOptimizationChart({
   // machine at that sink temperature to the end of the selection, so the last
   // entry's temperature is the one just clicked; the earlier selections stay
   // on the chart as enlarged markers and in the table.
-  const lastTemp = activePoints.length
-    ? activePoints[activePoints.length - 1].T_sink
-    : null;
+  const lastTemp = activePoints.length ? activePoints[activePoints.length - 1].T_sink : null;
   const boxPoints =
     lastTemp === null
       ? []
@@ -432,9 +433,7 @@ export default function HPIOptimizationChart({
           // The best machine there represents the temperature.
           const best = atTemp.reduce<OptimizedIntegrationPoint | null>(
             (b, p) =>
-              !b || p.Q_demand > b.Q_demand || (p.Q_demand === b.Q_demand && p.COP > b.COP)
-                ? p
-                : b,
+              !b || p.Q_demand > b.Q_demand || (p.Q_demand === b.Q_demand && p.COP > b.COP) ? p : b,
             null
           );
           return best ? [best] : [];
@@ -548,57 +547,57 @@ export default function HPIOptimizationChart({
 
     // Source leg: across at the source temperature, then up into the box.
     traces.push({
-    x: [srcX, boxX, boxX],
-    y: [srcY, srcY, boxY],
-    mode: 'lines' as const,
-    line: { color: SOURCE_SOFT, width: 2 },
-    showlegend: false,
-    hoverinfo: 'skip' as const,
+      x: [srcX, boxX, boxX],
+      y: [srcY, srcY, boxY],
+      mode: 'lines' as const,
+      line: { color: SOURCE_SOFT, width: 2 },
+      showlegend: false,
+      hoverinfo: 'skip' as const,
     });
 
     // Sink leg: straight up from the box to the sink point.
     traces.push({
-    x: [boxX, snkX],
-    y: [boxY, snkY],
-    mode: 'lines' as const,
-    line: { color: SINK_SOFT, width: 2 },
-    showlegend: false,
-    hoverinfo: 'skip' as const,
+      x: [boxX, snkX],
+      y: [boxY, snkY],
+      mode: 'lines' as const,
+      line: { color: SINK_SOFT, width: 2 },
+      showlegend: false,
+      hoverinfo: 'skip' as const,
     });
 
     hpBoxAnnotations.push({
-    x: boxX,
-    y: snkY,
-    ax: boxX,
-    ay: snkY - (snkY - boxY) * 0.25,
-    xref: 'x',
-    yref: 'y',
-    axref: 'x',
-    ayref: 'y',
-    showarrow: true,
-    arrowhead: 3,
-    arrowsize: 1.4,
-    arrowwidth: 2,
-    arrowcolor: SINK_SOFT,
-    standoff: 8,
-    text: '',
+      x: boxX,
+      y: snkY,
+      ax: boxX,
+      ay: snkY - (snkY - boxY) * 0.25,
+      xref: 'x',
+      yref: 'y',
+      axref: 'x',
+      ayref: 'y',
+      showarrow: true,
+      arrowhead: 3,
+      arrowsize: 1.4,
+      arrowwidth: 2,
+      arrowcolor: SINK_SOFT,
+      standoff: 8,
+      text: '',
     });
     hpBoxAnnotations.push({
-    x: boxX,
-    y: boxY,
-    ax: boxX,
-    ay: boxY - (boxY - srcY) * 0.25,
-    xref: 'x',
-    yref: 'y',
-    axref: 'x',
-    ayref: 'y',
-    showarrow: true,
-    arrowhead: 3,
-    arrowsize: 1.4,
-    arrowwidth: 2,
-    arrowcolor: SOURCE_SOFT,
-    standoff: halfH + 1,
-    text: '',
+      x: boxX,
+      y: boxY,
+      ax: boxX,
+      ay: boxY - (boxY - srcY) * 0.25,
+      xref: 'x',
+      yref: 'y',
+      axref: 'x',
+      ayref: 'y',
+      showarrow: true,
+      arrowhead: 3,
+      arrowsize: 1.4,
+      arrowwidth: 2,
+      arrowcolor: SOURCE_SOFT,
+      standoff: halfH + 1,
+      text: '',
     });
 
     // Electrical input enters from the right, clear of the source leg. Only the
@@ -630,7 +629,9 @@ export default function HPIOptimizationChart({
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     xaxis: {
-      title: { text: mirrored ? t('analysis.charts.q_source_sink') : t('analysis.charts.net_enthalpy') },
+      title: {
+        text: mirrored ? t('analysis.charts.q_source_sink') : t('analysis.charts.net_enthalpy'),
+      },
       automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
@@ -720,19 +721,36 @@ export default function HPIOptimizationChart({
             <p>{t('optimization.desc_opt_chart_p2')}</p>
             <p>{t('optimization.desc_opt_chart_p3')}</p>
             <hr style={{ margin: '8px 0', borderColor: 'var(--border)' }} />
-            <p style={{ fontWeight: 600, marginBottom: '4px' }}>{t('optimization.desc_opt_chart_how')}</p>
+            <p style={{ fontWeight: 600, marginBottom: '4px' }}>
+              {t('optimization.desc_opt_chart_how')}
+            </p>
             <p style={{ fontSize: '0.8rem' }}>
-              {t('optimization.desc_opt_chart_blue_1')}<b>{t('optimization.desc_opt_chart_blue_2')}</b>{t('optimization.desc_opt_chart_blue_3')}
-              <br/><br/>
-              {t('optimization.desc_opt_chart_red_1')}<b>{t('optimization.desc_opt_chart_red_2')}</b>{t('optimization.desc_opt_chart_red_3')}
-              <br/><br/>
-              {t('optimization.desc_opt_chart_aims_1')}<b>{t('optimization.desc_opt_chart_aims_2')}</b>{t('optimization.desc_opt_chart_aims_3')}
+              {t('optimization.desc_opt_chart_blue_1')}
+              <b>{t('optimization.desc_opt_chart_blue_2')}</b>
+              {t('optimization.desc_opt_chart_blue_3')}
+              <br />
+              <br />
+              {t('optimization.desc_opt_chart_red_1')}
+              <b>{t('optimization.desc_opt_chart_red_2')}</b>
+              {t('optimization.desc_opt_chart_red_3')}
+              <br />
+              <br />
+              {t('optimization.desc_opt_chart_aims_1')}
+              <b>{t('optimization.desc_opt_chart_aims_2')}</b>
+              {t('optimization.desc_opt_chart_aims_3')}
             </p>
             <hr style={{ margin: '8px 0', borderColor: 'var(--border)' }} />
-            <p style={{ fontWeight: 600, marginBottom: '4px' }}>{t('optimization.desc_opt_chart_why')}</p>
+            <p style={{ fontWeight: 600, marginBottom: '4px' }}>
+              {t('optimization.desc_opt_chart_why')}
+            </p>
             <p style={{ fontSize: '0.8rem' }}>
-              {t('optimization.desc_opt_chart_off_1')}<b>{t('optimization.desc_opt_chart_off_2')}</b>{t('optimization.desc_opt_chart_off_3')}<i>{t('optimization.desc_opt_chart_off_4')}</i>{t('optimization.desc_opt_chart_off_5')}
-              <br/><br/>
+              {t('optimization.desc_opt_chart_off_1')}
+              <b>{t('optimization.desc_opt_chart_off_2')}</b>
+              {t('optimization.desc_opt_chart_off_3')}
+              <i>{t('optimization.desc_opt_chart_off_4')}</i>
+              {t('optimization.desc_opt_chart_off_5')}
+              <br />
+              <br />
               {t('optimization.desc_opt_chart_rest')}
             </p>
           </>

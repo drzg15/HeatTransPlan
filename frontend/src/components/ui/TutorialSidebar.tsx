@@ -66,9 +66,9 @@ export default function TutorialSidebar({ onLoadExample, loadingExample }: Tutor
       <div className={styles.tutorialHeader}>{t('tutorial.quick_title')}</div>
       <div className={styles.tutorialContent}>
         {steps[currentStep].image && (
-          <img 
-            src={steps[currentStep].image} 
-            alt={steps[currentStep].title} 
+          <img
+            src={steps[currentStep].image}
+            alt={steps[currentStep].title}
             className={styles.slideImage}
           />
         )}
@@ -79,7 +79,12 @@ export default function TutorialSidebar({ onLoadExample, loadingExample }: Tutor
             <div style={{ marginTop: '16px' }}>
               <span
                 onClick={!loadingExample ? onLoadExample : undefined}
-                style={{ cursor: loadingExample ? 'wait' : 'pointer', color: 'var(--brand-magenta)', textDecoration: 'underline', fontWeight: 600 }}
+                style={{
+                  cursor: loadingExample ? 'wait' : 'pointer',
+                  color: 'var(--brand-magenta)',
+                  textDecoration: 'underline',
+                  fontWeight: 600,
+                }}
               >
                 {loadingExample ? t('tutorial.loading_example') : t('tutorial.test_example')}
               </span>
@@ -88,20 +93,14 @@ export default function TutorialSidebar({ onLoadExample, loadingExample }: Tutor
         </div>
       </div>
       <div className={styles.tutorialFooter}>
-        <button
-          className={styles.navBtn}
-          onClick={handlePrev}
-          disabled={currentStep === 0}
-        >
+        <button className={styles.navBtn} onClick={handlePrev} disabled={currentStep === 0}>
           {t('tutorial.back')}
         </button>
         <div className={styles.stepDots}>
           {steps.map((_, index) => (
             <div
               key={index}
-              className={`${styles.dot} ${
-                index === currentStep ? styles.active : ''
-              }`}
+              className={`${styles.dot} ${index === currentStep ? styles.active : ''}`}
             />
           ))}
         </div>

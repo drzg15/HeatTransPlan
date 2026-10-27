@@ -4,6 +4,7 @@
  *  Gaspreis sensitivity); the numbers and charts come from econModel.ts, the
  *  formulas from utils/economics.ts. */
 
+import { RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import Plot from 'react-plotly.js';
 import { useTranslation } from 'react-i18next';
@@ -323,7 +324,7 @@ export default function EconomicAnalysis() {
         onClick={reset}
         title={t('economics.reset_hint')}
       >
-        ↺ {t('economics.reset')}
+        <RotateCcw size={13} /> {t('economics.reset')}
       </button>
     </>
   );

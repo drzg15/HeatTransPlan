@@ -250,7 +250,9 @@ export default function GrandCompositeCurveChart() {
         description={
           <>
             <p>
-              {t('optimization.desc_gcc_chart_p1a')}<strong>{t('optimization.desc_gcc_chart_p1b')}</strong>{t('optimization.desc_gcc_chart_p1c')}
+              {t('optimization.desc_gcc_chart_p1a')}
+              <strong>{t('optimization.desc_gcc_chart_p1b')}</strong>
+              {t('optimization.desc_gcc_chart_p1c')}
             </p>
             <p>{t('optimization.desc_gcc_chart_p2')}</p>
             <p>{t('optimization.desc_gcc_chart_p3')}</p>

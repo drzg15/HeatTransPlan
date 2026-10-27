@@ -160,8 +160,6 @@ export default function HPIChart() {
     }
   });
 
-
-
   const titleText = usesGCC
     ? t('analysis.charts.hpi_gcc')
     : profileMode === 'composite'
@@ -174,7 +172,9 @@ export default function HPIChart() {
       font: { size: 14, color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     xaxis: {
-      title: { text: mirrored ? t('analysis.charts.q_source_sink') : t('analysis.charts.net_enthalpy') },
+      title: {
+        text: mirrored ? t('analysis.charts.q_source_sink') : t('analysis.charts.net_enthalpy'),
+      },
       automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },
@@ -266,7 +266,10 @@ export default function HPIChart() {
           <>
             <p>
               {t('optimization.desc_hpi_chart_p1')}
-              <strong>{t('optimization.desc_hpi_chart_below')}</strong>{t('optimization.desc_hpi_chart_source')}<strong>{t('optimization.desc_hpi_chart_above')}</strong>{t('optimization.desc_hpi_chart_sink')}
+              <strong>{t('optimization.desc_hpi_chart_below')}</strong>
+              {t('optimization.desc_hpi_chart_source')}
+              <strong>{t('optimization.desc_hpi_chart_above')}</strong>
+              {t('optimization.desc_hpi_chart_sink')}
             </p>
             <p>{t('optimization.desc_hpi_chart_p2')}</p>
             <p>{t('optimization.desc_hpi_chart_p3')}</p>

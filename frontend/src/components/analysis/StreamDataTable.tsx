@@ -344,10 +344,25 @@ export default function StreamDataTable({
           >
             {/* Top level grouped headers */}
             <tr>
-              <th colSpan={4} style={{ ...headStyle('' as SortKey), textAlign: 'center', borderRight: '1px solid var(--border)' }}>
+              <th
+                colSpan={4}
+                style={{
+                  ...headStyle('' as SortKey),
+                  textAlign: 'center',
+                  borderRight: '1px solid var(--border)',
+                }}
+              >
                 Process & Stream Info
               </th>
-              <th colSpan={2} style={{ ...headStyle('' as SortKey), textAlign: 'center', background: 'var(--surface-hover)', borderRight: '1px solid var(--border)' }}>
+              <th
+                colSpan={2}
+                style={{
+                  ...headStyle('' as SortKey),
+                  textAlign: 'center',
+                  background: 'var(--surface-hover)',
+                  borderRight: '1px solid var(--border)',
+                }}
+              >
                 Actual Temp. [°C]
               </th>
               <th colSpan={12} style={{ ...headStyle('' as SortKey), textAlign: 'center' }}>
@@ -413,7 +428,9 @@ export default function StreamDataTable({
                   </td>
                   <td style={cellStyle}>{r.type}</td>
                   <td style={cellStyle}>{r.tin?.toFixed(1) ?? '—'}</td>
-                  <td style={{ ...cellStyle, borderRight: '1px solid var(--border)' }}>{r.tout?.toFixed(1) ?? '—'}</td>
+                  <td style={{ ...cellStyle, borderRight: '1px solid var(--border)' }}>
+                    {r.tout?.toFixed(1) ?? '—'}
+                  </td>
                   <td style={cellStyle}>{r.mdot?.toFixed(2) ?? '—'}</td>
                   <td style={cellStyle}>{r.cp?.toFixed(2) ?? '—'}</td>
                   <td style={cellStyle}>{r.CP?.toFixed(2) ?? '—'}</td>
@@ -442,4 +459,3 @@ export default function StreamDataTable({
     </div>
   );
 }
-

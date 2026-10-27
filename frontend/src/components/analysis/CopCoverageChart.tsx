@@ -88,9 +88,7 @@ export default function CopCoverageChart() {
       // Each coverage level is a duty, so the tick carries both.
       tickmode: 'array' as const,
       tickvals: kwTicks.map((k) => k.c),
-      ticktext: kwTicks.map(
-        (k) => `${k.c} %<br>${k.kw.toFixed(0)} kW<br>${k.t.toFixed(0)} °C`
-      ),
+      ticktext: kwTicks.map((k) => `${k.c} %<br>${k.kw.toFixed(0)} kW<br>${k.t.toFixed(0)} °C`),
       automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },

@@ -38,7 +38,7 @@ export default function HeatPumpTable() {
                   />
                 </th>
                 <th>
-                  Shifted Source (T-{tMin/2}K) [°C]
+                  Shifted Source (T-{tMin / 2}K) [°C]
                   <ChartHelpButton
                     title={t('optimization.title_shifted_source_temp')}
                     description={t('optimization.desc_shifted_source_temp')}
@@ -54,7 +54,7 @@ export default function HeatPumpTable() {
                   />
                 </th>
                 <th>
-                  Shifted Sink (T+{tMin/2}K) [°C]
+                  Shifted Sink (T+{tMin / 2}K) [°C]
                   <ChartHelpButton
                     title={t('optimization.title_shifted_sink_temp')}
                     description={t('optimization.desc_shifted_sink_temp')}
@@ -78,7 +78,14 @@ export default function HeatPumpTable() {
                             inline
                             title={`${hp.name} Calculation`}
                             description={
-                              <pre style={{ margin: 0, whiteSpace: 'pre-wrap', fontFamily: 'monospace', fontSize: '0.9em' }}>
+                              <pre
+                                style={{
+                                  margin: 0,
+                                  whiteSpace: 'pre-wrap',
+                                  fontFamily: 'monospace',
+                                  fontSize: '0.9em',
+                                }}
+                              >
                                 {hp.calculation_details}
                               </pre>
                             }
@@ -88,9 +95,9 @@ export default function HeatPumpTable() {
                     </td>
                     <td>{hp.cop?.toFixed(2) ?? '—'}</td>
                     <td>{hp.t_source?.toFixed(1) ?? '—'}</td>
-                    <td>{hp.t_source != null ? (hp.t_source - tMin/2).toFixed(1) : '—'}</td>
+                    <td>{hp.t_source != null ? (hp.t_source - tMin / 2).toFixed(1) : '—'}</td>
                     <td>{hp.t_sink?.toFixed(1) ?? '—'}</td>
-                    <td>{hp.t_sink != null ? (hp.t_sink + tMin/2).toFixed(1) : '—'}</td>
+                    <td>{hp.t_sink != null ? (hp.t_sink + tMin / 2).toFixed(1) : '—'}</td>
                     <td>{hp.q_source?.toFixed(1) ?? '—'}</td>
                     <td>{hp.q_sink?.toFixed(1) ?? '—'}</td>
                   </tr>
@@ -130,7 +137,9 @@ export default function HeatPumpTable() {
                 <div key={hp.name} className="pa-excluded-card">
                   <div className="pa-excluded-card-header">
                     <span className="pa-excluded-name">{hp.name}</span>
-                    <span className="pa-excluded-badge">{t('analysis.tables.cannot_integrate')}</span>
+                    <span className="pa-excluded-badge">
+                      {t('analysis.tables.cannot_integrate')}
+                    </span>
                   </div>
                   <div className="pa-excluded-reason">{hp.reason}</div>
                 </div>

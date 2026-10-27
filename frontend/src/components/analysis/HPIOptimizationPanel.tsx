@@ -291,7 +291,6 @@ export default function HPIOptimizationPanel() {
     return b.COP - a.COP;
   });
 
-
   const rowsToRender = pointsToShow;
 
   const handleSort = (key: SortKey) => {
@@ -383,7 +382,9 @@ export default function HPIOptimizationPanel() {
   // back to the arrow it belongs to. Kept pale: these sit behind black text on
   // alternating row stripes, so anything saturated is hard on the eyes.
   const sinkCell = { backgroundColor: isDark ? 'rgba(59,130,246,0.14)' : 'rgba(143,174,224,0.20)' };
-  const sourceCell = { backgroundColor: isDark ? 'rgba(248,113,113,0.14)' : 'rgba(232,139,139,0.20)' };
+  const sourceCell = {
+    backgroundColor: isDark ? 'rgba(248,113,113,0.14)' : 'rgba(232,139,139,0.20)',
+  };
   const elCell = { backgroundColor: isDark ? 'rgba(110,231,183,0.13)' : 'rgba(95,174,140,0.18)' };
   // COP belongs to the heat pump itself, so it takes the box's lilac.
   const copCell = {
@@ -542,7 +543,7 @@ export default function HPIOptimizationPanel() {
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_sink')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          Shifted Sink (T+{tMin/2}K) [°C]
+                          Shifted Sink (T+{tMin / 2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
                               title={t('optimization.title_shifted_sink_temp')}
@@ -567,7 +568,7 @@ export default function HPIOptimizationPanel() {
                       </th>
                       <th style={thStyle} onClick={() => handleSort('T_source')}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                          Shifted Source (T−{tMin/2}K) [°C]
+                          Shifted Source (T−{tMin / 2}K) [°C]
                           <span onClick={(e) => e.stopPropagation()}>
                             <ChartHelpButton
                               title={t('optimization.title_shifted_source_temp')}
@@ -631,53 +632,53 @@ export default function HPIOptimizationPanel() {
                                 whiteSpace: 'nowrap',
                               }}
                             >
-                            <span
-                              style={{
-                                display: 'inline-block',
-                                padding: '0.1rem 0.4rem',
-                                borderRadius: '4px',
-                                fontSize: '0.75rem',
-                                fontWeight: 600,
-                                backgroundColor: pt.theoretical
-                                  ? isDark
-                                    ? '#065F46'
-                                    : '#D1FAE5'
-                                  : isDark
-                                    ? '#1E3A8A'
-                                    : '#DBEAFE',
-                                color: pt.theoretical
-                                  ? isDark
-                                    ? '#A7F3D0'
-                                    : '#065F46'
-                                  : isDark
-                                    ? '#BFDBFE'
-                                    : '#1E3A8A',
-                              }}
-                              title={entryHint(pt)}
-                            >
-                              {pt.theoretical
-                                ? t('optimization.theoretical')
-                                : t('optimization.real')}
-                            </span>
-                            {/* The refrigerant column is blank for archetypes,
+                              <span
+                                style={{
+                                  display: 'inline-block',
+                                  padding: '0.1rem 0.4rem',
+                                  borderRadius: '4px',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 600,
+                                  backgroundColor: pt.theoretical
+                                    ? isDark
+                                      ? '#065F46'
+                                      : '#D1FAE5'
+                                    : isDark
+                                      ? '#1E3A8A'
+                                      : '#DBEAFE',
+                                  color: pt.theoretical
+                                    ? isDark
+                                      ? '#A7F3D0'
+                                      : '#065F46'
+                                    : isDark
+                                      ? '#BFDBFE'
+                                      : '#1E3A8A',
+                                }}
+                                title={entryHint(pt)}
+                              >
+                                {pt.theoretical
+                                  ? t('optimization.theoretical')
+                                  : t('optimization.real')}
+                              </span>
+                              {/* The refrigerant column is blank for archetypes,
                                 so the technology name rides here — otherwise
                                 Carnot and VHTHP rows look identical. Kept on
                                 the same line so every row is one line tall. */}
-                            <span
-                              style={{
-                                fontSize: '0.75rem',
-                                color: isDark ? '#94A3B8' : '#64748B',
-                              }}
-                            >
-                              {/* The Carnot entry is 50 % of the ceiling, not
+                              <span
+                                style={{
+                                  fontSize: '0.75rem',
+                                  color: isDark ? '#94A3B8' : '#64748B',
+                                }}
+                              >
+                                {/* The Carnot entry is 50 % of the ceiling, not
                                   the ceiling, so it says so on the row. */}
-                              {pt.theoretical
-                                ? pt.refrigerant === 'Carnot'
-                                  ? t('optimization.carnot_50')
-                                  : pt.refrigerant
-                                : ''}
-                            </span>
-                            {pt.calculation_details && (
+                                {pt.theoretical
+                                  ? pt.refrigerant === 'Carnot'
+                                    ? t('optimization.carnot_50')
+                                    : pt.refrigerant
+                                  : ''}
+                              </span>
+                              {pt.calculation_details && (
                                 <ChartHelpButton
                                   inline
                                   title={
@@ -687,9 +688,7 @@ export default function HPIOptimizationPanel() {
                                   }
                                   description={
                                     <>
-                                      <p>
-                                        {entryHint(pt)}
-                                      </p>
+                                      <p>{entryHint(pt)}</p>
                                       <pre
                                         style={{
                                           margin: 0,
@@ -850,7 +849,9 @@ export default function HPIOptimizationPanel() {
                   <span
                     style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
-                    {refrigerantFilter.length === 0 ? t('optimization.panel.filters.all') : refrigerantFilter.join(', ')}
+                    {refrigerantFilter.length === 0
+                      ? t('optimization.panel.filters.all')
+                      : refrigerantFilter.join(', ')}
                   </span>
                   <span style={{ fontSize: '0.8em', marginLeft: '8px' }}>▼</span>
                 </div>
@@ -911,7 +912,9 @@ export default function HPIOptimizationPanel() {
                   <span
                     style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}
                   >
-                    {hpLevelFilter.length === 0 ? t('optimization.panel.filters.all') : hpLevelFilter.join(', ')}
+                    {hpLevelFilter.length === 0
+                      ? t('optimization.panel.filters.all')
+                      : hpLevelFilter.join(', ')}
                   </span>
                   <span style={{ fontSize: '0.8em', marginLeft: '8px' }}>▼</span>
                 </div>
@@ -1090,7 +1093,9 @@ export default function HPIOptimizationPanel() {
                   {(sourceLimitedCount > 0 || demandLimitedCount > 0) && (
                     <>
                       <br />
-                      <span style={{ fontWeight: 400 }}>{t('optimization.panel.filters.shown')} {chartPoints.length}</span>
+                      <span style={{ fontWeight: 400 }}>
+                        {t('optimization.panel.filters.shown')} {chartPoints.length}
+                      </span>
                     </>
                   )}
                 </p>
@@ -1114,45 +1119,60 @@ export default function HPIOptimizationPanel() {
                     inline
                     title={t('optimization.title_custom_cop_formula')}
                     description={
-          <>
-            <p>
-              {t('optimization.desc_opt_panel_c1')}{' '}
-              <strong>{t('optimization.desc_opt_panel_c2')}</strong>{t('optimization.desc_opt_panel_c3')}
-            </p>
-            <p>
-              {t('optimization.desc_opt_panel_c4')}
-            </p>
-            <ul style={{ margin: '4px 0 8px 16px', padding: 0 }}>
-              <li>
-                <code>T_source</code>, <code>T_sink</code>{t('optimization.desc_opt_panel_c5')}
-              </li>
-              <li>
-                <code>T_lift</code>{t('optimization.desc_opt_panel_c6')}
-              </li>
-              <li>
-                <code>carnot</code>{t('optimization.desc_opt_panel_c7')}
-              </li>
-            </ul>
-            <p>
-              {t('optimization.desc_opt_panel_c8')}{' '}
-              <code>0.5 * (T_sink + 273.15) / T_lift</code>{t('optimization.desc_opt_panel_c9')}<code>0.5 * carnot</code>{t('optimization.desc_opt_panel_c10')}
-            </p>
-            <p>
-              {t('optimization.desc_opt_panel_c11')}<strong>{t('optimization.desc_opt_panel_c12')}</strong>{t('optimization.desc_opt_panel_c13')}{' '}
-              <code>(0.5 * (T_sink + 273.15) / T_lift) if T_sink &lt;= 100 else (0.4 * (T_sink + 273.15) / T_lift)</code>{t('optimization.desc_opt_panel_c14')}
-            </p>
-            <p>
-              {t('optimization.desc_opt_panel_c15')}<strong>{t('optimization.desc_opt_panel_c16')}</strong>{t('optimization.desc_opt_panel_c17')}
-            </p>
-          </>
-        }
+                      <>
+                        <p>
+                          {t('optimization.desc_opt_panel_c1')}{' '}
+                          <strong>{t('optimization.desc_opt_panel_c2')}</strong>
+                          {t('optimization.desc_opt_panel_c3')}
+                        </p>
+                        <p>{t('optimization.desc_opt_panel_c4')}</p>
+                        <ul style={{ margin: '4px 0 8px 16px', padding: 0 }}>
+                          <li>
+                            <code>T_source</code>, <code>T_sink</code>
+                            {t('optimization.desc_opt_panel_c5')}
+                          </li>
+                          <li>
+                            <code>T_lift</code>
+                            {t('optimization.desc_opt_panel_c6')}
+                          </li>
+                          <li>
+                            <code>carnot</code>
+                            {t('optimization.desc_opt_panel_c7')}
+                          </li>
+                        </ul>
+                        <p>
+                          {t('optimization.desc_opt_panel_c8')}{' '}
+                          <code>0.5 * (T_sink + 273.15) / T_lift</code>
+                          {t('optimization.desc_opt_panel_c9')}
+                          <code>0.5 * carnot</code>
+                          {t('optimization.desc_opt_panel_c10')}
+                        </p>
+                        <p>
+                          {t('optimization.desc_opt_panel_c11')}
+                          <strong>{t('optimization.desc_opt_panel_c12')}</strong>
+                          {t('optimization.desc_opt_panel_c13')}{' '}
+                          <code>
+                            (0.5 * (T_sink + 273.15) / T_lift) if T_sink &lt;= 100 else (0.4 *
+                            (T_sink + 273.15) / T_lift)
+                          </code>
+                          {t('optimization.desc_opt_panel_c14')}
+                        </p>
+                        <p>
+                          {t('optimization.desc_opt_panel_c15')}
+                          <strong>{t('optimization.desc_opt_panel_c16')}</strong>
+                          {t('optimization.desc_opt_panel_c17')}
+                        </p>
+                      </>
+                    }
                   />
                 </div>
                 <button
                   className={`cf-trigger ${copFormula ? 'active' : ''}`}
                   onClick={() => setFormulaOpen(true)}
                 >
-                  {copFormula ? `ƒ ${copFormula.name}` : `ƒ ${t('optimization.panel.filters.custom_cop_btn')}`}
+                  {copFormula
+                    ? `ƒ ${copFormula.name}`
+                    : `ƒ ${t('optimization.panel.filters.custom_cop_btn')}`}
                   <span className="cf-trigger-sub">
                     {copFormula
                       ? copFormula.expression

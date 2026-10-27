@@ -87,7 +87,6 @@ export default function StreamSelector() {
                 if (info.tout !== null) parts.push(`Tout:${info.tout}°C`);
                 if (info.CP !== null) parts.push(`CP:${info.CP.toFixed(2)}`);
                 if (info.Q !== null) parts.push(`Q:${info.Q.toFixed(2)} kW`);
-                if (info.type) parts.push(info.type.includes('Hot') ? '🔴' : '🔵');
 
                 const hot = info.tin !== null && info.tout !== null && info.tin > info.tout;
                 const complete = checked && info.tin !== null && info.tout !== null;
@@ -118,6 +117,11 @@ export default function StreamSelector() {
                     <span className="pa-stream-name">{streamName}</span>
                     <span className="pa-stream-info">
                       {parts.length > 0 ? parts.join(' | ') : t('stream_selector.incomplete')}
+                      {info.type && (
+                        <span
+                          className={`pa-dot ${info.type.includes('Hot') ? 'pa-dot-hot' : 'pa-dot-cold'}`}
+                        />
+                      )}
                     </span>
                   </label>
                 );

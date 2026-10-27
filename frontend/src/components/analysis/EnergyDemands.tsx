@@ -1,5 +1,6 @@
 /** EnergyDemands — current energy supply panel (heat/cooling kW + stream selection). */
 
+import { Plus, Trash2 } from 'lucide-react';
 import { useCallback, useMemo, useEffect } from 'react';
 import { useProjectStore } from '../../store/projectStore';
 import { useAnalysisStore } from '../../store/analysisStore';
@@ -109,7 +110,7 @@ export default function EnergyDemands() {
                   onClick={() => removeEnergyDemand(i)}
                   title={t('energy_demands.remove')}
                 >
-                  🗑️
+                  <Trash2 size={14} />
                 </button>
               )}
             </div>
@@ -185,7 +186,7 @@ export default function EnergyDemands() {
         ))}
 
         <button className="pa-btn" onClick={handleAddSupply}>
-          ➕ {t('energy_demands.add_supply')}
+          <Plus size={14} /> {t('energy_demands.add_supply')}
         </button>
       </>
     </div>
