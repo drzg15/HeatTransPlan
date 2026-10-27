@@ -66,7 +66,7 @@ export default function DataCollectionPage() {
     });
 
     const groups = { ...state.proc_group_coordinates };
-    Object.keys(groups).forEach(k => {
+    Object.keys(groups).forEach((k) => {
       const g = groups[parseInt(k)];
       if (g && (g.box_scale == null || parseFloat(String(g.box_scale)) < 1.5)) {
         groups[parseInt(k)] = { ...g, box_scale: 1.5 };
@@ -264,9 +264,9 @@ export default function DataCollectionPage() {
         const lon = parseFloat(data[0].lon);
         setMapCenter([lat, lon]);
         setMapZoom(17);
-        setStatusMsg(`Found: ${data[0].display_name}`);
+        setStatusMsg(t('ui.found', { name: data[0].display_name }));
       } else {
-        setStatusMsg('No results found');
+        setStatusMsg(t('ui.no_results'));
       }
     } catch {
       setStatusMsg('Search failed');
@@ -401,7 +401,7 @@ export default function DataCollectionPage() {
       {/* Pane switcher — only reachable on narrow screens, where the split
           view collapses and the two panes take turns. */}
       {isMobile && (
-        <div className="dc-pane-switch" role="tablist" aria-label="Data collection view">
+        <div className="dc-pane-switch" role="tablist" aria-label={t('ui.data_collection_view')}>
           <button
             role="tab"
             aria-selected={mobilePane === 'editor'}
@@ -474,7 +474,7 @@ export default function DataCollectionPage() {
             onTouchStart={startResizing}
             role="separator"
             aria-orientation="vertical"
-            aria-label="Resize process panel"
+            aria-label={t('ui.resize_panel')}
           />
         )}
 
@@ -557,7 +557,9 @@ export default function DataCollectionPage() {
                 </span>
                 {/* Cold scale */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('data_collection.cold')}</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                    {t('data_collection.cold')}
+                  </span>
                   <div
                     style={{
                       width: 40,
@@ -569,7 +571,9 @@ export default function DataCollectionPage() {
                 </div>
                 {/* Hot scale */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('data_collection.hot')}</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                    {t('data_collection.hot')}
+                  </span>
                   <div
                     style={{
                       width: 40,
@@ -598,7 +602,9 @@ export default function DataCollectionPage() {
                       />
                     </svg>
                   ))}
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('data_collection.q_power')}</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                    {t('data_collection.q_power')}
+                  </span>
                 </div>
               </div>
             )}

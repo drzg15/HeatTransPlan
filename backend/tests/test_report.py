@@ -76,7 +76,7 @@ def test_report_drops_the_single_point_integration():
 def test_german_report_has_every_label():
     assert set(I18N["de"]) == set(I18N["en"])
     html = generate_html_report(_request("de"))
-    assert "Integration in Wärmepumpenmodell und Optimierung" in html
+    assert "Integration mit Wärmepumpenmodell und Optimierung" in html
 
 
 def test_table_lists_the_pumps_the_page_lists():

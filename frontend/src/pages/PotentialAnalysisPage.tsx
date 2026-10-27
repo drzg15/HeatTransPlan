@@ -389,6 +389,7 @@ export default function PotentialAnalysisPage() {
           cop_formula: copFormula,
           cop_model: copModel,
           recovery_pct: recoveryPct,
+          lang: i18n.language,
         });
         setHPIOptimizationResult(result);
       } catch (err: unknown) {
@@ -399,7 +400,7 @@ export default function PotentialAnalysisPage() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [profileMode, copFormula, copModel, recoveryPct]
+    [profileMode, copFormula, copModel, recoveryPct, i18n.language]
   );
 
   // Run status-quo analysis
@@ -535,7 +536,7 @@ export default function PotentialAnalysisPage() {
   const isMobile = useIsMobile();
 
   // Auto-calculated default scenario name
-  const defaultScenarioName = `Scenario ${scenarios.length + 1}`;
+  const defaultScenarioName = t('ui.scenario_default', { n: scenarios.length + 1 });
 
   const handleSaveScenario = () => {
     saveScenario(scenarioName.trim() || defaultScenarioName);
@@ -616,7 +617,7 @@ export default function PotentialAnalysisPage() {
                       style={{ cursor: 'pointer', fontWeight: 600 }}
                       onClick={() => loadScenario(idx)}
                       onDoubleClick={() => setEditingScenarioIdx(idx)}
-                      title="Click to load, double-click to rename"
+                      title={t('ui.scenario_hint')}
                     >
                       {scen.name}
                     </span>
@@ -660,14 +661,10 @@ export default function PotentialAnalysisPage() {
         </div>
 
         <div className="pa-header-actions">
-          <button className="btn btn-sm" onClick={handleSaveProject} title="Save project to JSON">
+          <button className="btn btn-sm" onClick={handleSaveProject} title={t('ui.save_json')}>
             <Save size={14} /> {t('analysis.buttons.save')}
           </button>
-          <label
-            className="btn btn-sm"
-            style={{ cursor: 'pointer' }}
-            title="Load project from JSON"
-          >
+          <label className="btn btn-sm" style={{ cursor: 'pointer' }} title={t('ui.load_json')}>
             <FolderOpen size={14} /> {t('analysis.buttons.load')}
             <input
               ref={fileRef}
@@ -698,7 +695,7 @@ export default function PotentialAnalysisPage() {
           <button
             className={`btn btn-sm icon-btn ${showHelp ? 'btn-primary' : ''}`}
             onClick={() => setShowHelp(!showHelp)}
-            title="Toggle Analysis Guide"
+            title={t('ui.toggle_guide')}
           >
             <BookOpen size={16} />
           </button>
@@ -755,7 +752,7 @@ export default function PotentialAnalysisPage() {
             {t('analysis.messages.need_more_streams')}
             {selectedCount > 0 && (
               <div className="pa-data-status">
-                <strong>Data status for selected items:</strong>
+                <strong>{t('ui.data_status')}</strong>
                 {Object.entries(selectedStreams)
                   .filter(([, v]) => v)
                   .map(([key]) => {
@@ -783,12 +780,13 @@ export default function PotentialAnalysisPage() {
                       <div key={key} className={missing.length > 0 ? 'pa-missing' : 'pa-complete'}>
                         {missing.length > 0 ? (
                           <>
-                            <TriangleAlert size={14} /> {procName} - {streamName}: Missing{' '}
+                            <TriangleAlert size={14} /> {procName} - {streamName}: {t('ui.missing')}{' '}
                             {missing.join(', ')}
                           </>
                         ) : (
                           <>
-                            <CircleCheck size={14} /> {procName} - {streamName}: Complete data
+                            <CircleCheck size={14} /> {procName} - {streamName}:{' '}
+                            {t('ui.complete_data')}
                           </>
                         )}
                       </div>

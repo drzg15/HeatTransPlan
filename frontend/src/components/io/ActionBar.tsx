@@ -78,7 +78,7 @@ export default function ActionBar({
         }
 
         const data = parsed.data;
-        
+
         const isLegacy = (scale: any, threshold: number) => {
           if (scale == null) return true;
           const num = parseFloat(String(scale));
@@ -88,21 +88,21 @@ export default function ActionBar({
 
         // Upgrade legacy box scales to the new larger defaults
         if (data.processes) {
-          data.processes = data.processes.map(p => ({
+          data.processes = data.processes.map((p) => ({
             ...p,
             box_scale: isLegacy(p.box_scale, 1.5) ? 1.5 : p.box_scale,
-            children: (p.children || []).map(c => ({
+            children: (p.children || []).map((c) => ({
               ...c,
               box_scale: isLegacy(c.box_scale, 1.2) ? 1.2 : c.box_scale,
-            }))
+            })),
           }));
         }
         if (data.proc_group_coordinates) {
-          Object.keys(data.proc_group_coordinates).forEach(k => {
+          Object.keys(data.proc_group_coordinates).forEach((k) => {
             const numK = parseInt(k, 10);
             const gc = data.proc_group_coordinates[numK];
             if (gc) {
-               gc.box_scale = isLegacy(gc.box_scale, 1.5) ? 1.5 : gc.box_scale;
+              gc.box_scale = isLegacy(gc.box_scale, 1.5) ? 1.5 : gc.box_scale;
             }
           });
         }
@@ -150,11 +150,7 @@ export default function ActionBar({
           {/* Primary mode actions */}
           {uiMode === 'analyze' && (
             <>
-              <button
-                className="btn btn-sm"
-                onClick={onUnlockMap}
-                title="Unlock map to move selection"
-              >
+              <button className="btn btn-sm" onClick={onUnlockMap} title={t('ui.unlock_map')}>
                 🔓 {t('action_bar.unlock_map')}
               </button>
               <button
@@ -168,11 +164,11 @@ export default function ActionBar({
             </>
           )}
 
-          <button className="btn btn-sm" onClick={handleSave} title="Save project to JSON">
+          <button className="btn btn-sm" onClick={handleSave} title={t('ui.save_json')}>
             💾 {t('action_bar.save')}
           </button>
 
-          <label className="btn btn-sm ab-load-label" title="Load project from JSON">
+          <label className="btn btn-sm ab-load-label" title={t('ui.load_json')}>
             📂 {t('action_bar.load')}
             <input
               ref={fileRef}
@@ -217,7 +213,7 @@ export default function ActionBar({
               <button
                 className="btn btn-sm ab-search-btn"
                 onClick={onAddressSearchSubmit}
-                aria-label="Search for address"
+                aria-label={t('ui.search_address')}
               >
                 🔍
               </button>
@@ -226,7 +222,8 @@ export default function ActionBar({
 
           {/* Global info message */}
           <div className="ab-status">
-            {statusMsg || (uiMode === 'select' ? t('action_bar.lock_map_hint') : t('action_bar.locked_map'))}
+            {statusMsg ||
+              (uiMode === 'select' ? t('action_bar.lock_map_hint') : t('action_bar.locked_map'))}
           </div>
         </div>
 
@@ -236,7 +233,7 @@ export default function ActionBar({
             className="ab-base-select"
             value={currentBase}
             onChange={(e) => onBaseChange(e.target.value)}
-            aria-label="Map base layer"
+            aria-label={t('ui.base_layer')}
           >
             {BASE_OPTIONS.map((b) => (
               <option key={b} value={b}>
@@ -247,15 +244,13 @@ export default function ActionBar({
           <button
             className={`btn btn-sm icon-btn ${showHelp ? 'btn-primary' : ''}`}
             onClick={onHelpToggle}
-            title="Toggle Help / Tutorial"
-            aria-label="Toggle help"
+            title={t('ui.toggle_help')}
+            aria-label={t('ui.toggle_help')}
           >
             💡
           </button>
         </div>
       </div>
-
     </>
   );
 }
-

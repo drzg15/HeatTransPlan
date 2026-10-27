@@ -714,7 +714,10 @@ export default function HPIOptimizationPanel() {
                             style={sinkCell}
                             title={
                               pt.source_limited && pt.Q_demand_total
-                                ? `Source-limited: the available waste heat only covers ${((100 * pt.Q_demand) / pt.Q_demand_total).toFixed(0)} % of the ${pt.Q_demand_total.toFixed(1)} kW required above this sink temperature.`
+                                ? t('ui.source_limited', {
+                                    pct: ((100 * pt.Q_demand) / pt.Q_demand_total).toFixed(0),
+                                    kw: pt.Q_demand_total.toFixed(1),
+                                  })
                                 : undefined
                             }
                           >
@@ -751,9 +754,7 @@ export default function HPIOptimizationPanel() {
             ) : (
               <div style={{ marginTop: '1rem', color: isDark ? '#94A3B8' : '#64748B' }}>
                 <p>
-                  {feasible_points.length === 0
-                    ? 'No heat pump can be integrated with this stream selection.'
-                    : 'No feasible optimizations found for these filters.'}
+                  {feasible_points.length === 0 ? t('ui.no_hp_possible') : t('ui.no_hp_filters')}
                 </p>
                 {feasible_points.length === 0 &&
                   diagnosticMessages.map((m, i) => (

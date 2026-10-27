@@ -195,7 +195,7 @@ export default function ProcessGroupList({
                   step={0.1}
                   value={gCoords.box_scale ?? 1.5}
                   onChange={(e) => updateGroupCoord(gIdx, 'box_scale', parseFloat(e.target.value))}
-                  title={`Box size: ${gCoords.box_scale ?? 1.5}`}
+                  title={t('ui.box_size', { v: gCoords.box_scale ?? 1.5 })}
                 />
               </div>
 
@@ -223,7 +223,7 @@ export default function ProcessGroupList({
                 <button
                   className="btn btn-sm"
                   onClick={() => setConfirmDelete(gIdx)}
-                  title="Delete group"
+                  title={t('ui.delete_group')}
                 >
                   ✕
                 </button>
@@ -276,12 +276,14 @@ export default function ProcessGroupList({
                       {t('process.subprocesses')} ({subIdxs.length})
                     </span>
                     <div className="flex gap-xs">
-                      <button 
-                        className="btn btn-sm" 
+                      <button
+                        className="btn btn-sm"
                         onClick={() => {
                           const state = useUIStore.getState();
-                          const anyExpanded = subIdxs.some(si => state.expandedSubprocesses.has(si));
-                          subIdxs.forEach(si => state.setSubprocessExpanded(si, !anyExpanded));
+                          const anyExpanded = subIdxs.some((si) =>
+                            state.expandedSubprocesses.has(si)
+                          );
+                          subIdxs.forEach((si) => state.setSubprocessExpanded(si, !anyExpanded));
                         }}
                         title="Collapse / Expand All"
                       >

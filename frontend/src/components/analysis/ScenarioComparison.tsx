@@ -49,8 +49,8 @@ const ScenarioComparison: React.FC = () => {
   return (
     <div className="scenario-comparison">
       <div className="sc-header">
-        <h2>Scenario Comparison Dashboard</h2>
-        <p className="sc-subtitle">Analyze and compare saved exploration states side-by-side</p>
+        <h2>{t('scenario_cmp.title')}</h2>
+        <p className="sc-subtitle">{t('scenario_cmp.subtitle')}</p>
       </div>
 
       {/* 1. Scenario Cards - Now at Top */}
@@ -72,7 +72,7 @@ const ScenarioComparison: React.FC = () => {
                   <h3
                     onClick={() => loadScenario(idx)}
                     style={{ cursor: 'pointer', margin: 0 }}
-                    title="Click to load this scenario"
+                    title={t('scenario_cmp.load_hint')}
                   >
                     {scen.name}
                     {isActive && (
@@ -146,7 +146,7 @@ const ScenarioComparison: React.FC = () => {
                     marginBottom: 8,
                   }}
                 >
-                  <span style={{ color: '#64748b' }}>Pinch Temp.</span>
+                  <span style={{ color: '#64748b' }}>{t('scenario_cmp.pinch_temp')}</span>
                   <span style={{ fontWeight: 600 }}>
                     {scen.pinchResult?.pinch_temperature.toFixed(1)} °C
                   </span>
@@ -159,7 +159,7 @@ const ScenarioComparison: React.FC = () => {
                     marginBottom: 4,
                   }}
                 >
-                  <span style={{ color: '#64748b' }}>Heat Savings</span>
+                  <span style={{ color: '#64748b' }}>{t('scenario_cmp.heat_savings')}</span>
                   <span style={{ color: '#10b981', fontWeight: 700 }}>
                     {scen.statusQuoResult?.heating_savings_pct.toFixed(1)}%
                   </span>
@@ -171,7 +171,7 @@ const ScenarioComparison: React.FC = () => {
                 onClick={() => loadScenario(idx)}
                 style={{ background: isActive ? '#3b82f6' : '', color: isActive ? 'white' : '' }}
               >
-                {isActive ? 'Scenario Selected' : 'Load Scenario'}
+                {isActive ? t('scenario_cmp.selected') : t('scenario_cmp.load')}
               </button>
             </div>
           );
@@ -180,7 +180,7 @@ const ScenarioComparison: React.FC = () => {
 
       {/* 2. Combined Comparison Table - Now in Middle */}
       <div className="sc-table-section pa-section">
-        <h3>Combined Status Quo vs. Proposal Comparison</h3>
+        <h3>{t('scenario_cmp.combined')}</h3>
         <p className="sc-subtitle" style={{ marginBottom: 16 }}>
           Aggregated performance data across all saved scenarios.{' '}
           {t('economics.compare_note', { T: Math.round(econForm.T) })}
@@ -193,31 +193,31 @@ const ScenarioComparison: React.FC = () => {
                   rowSpan={2}
                   style={{ textAlign: 'left', background: '#f1f5f9', color: '#334155' }}
                 >
-                  Scenario
+                  {t('scenario_cmp.scenario')}
                 </th>
                 <th
                   colSpan={2}
                   style={{ textAlign: 'center', background: '#fecaca', color: '#991b1b' }}
                 >
-                  Heating (kW)
+                  {t('scenario_cmp.heating')}
                 </th>
                 <th
                   colSpan={2}
                   style={{ textAlign: 'center', background: '#bfdbfe', color: '#1e40af' }}
                 >
-                  Cooling (kW)
+                  {t('scenario_cmp.cooling')}
                 </th>
                 <th
                   colSpan={2}
                   style={{ textAlign: 'center', background: '#a7f3d0', color: '#065f46' }}
                 >
-                  Heat Recovery Potential
+                  {t('scenario_cmp.recovery')}
                 </th>
                 <th
                   colSpan={2}
                   style={{ textAlign: 'center', background: '#ddd6fe', color: '#5b21b6' }}
                 >
-                  HP Integration
+                  {t('scenario_cmp.hpi')}
                 </th>
                 <th
                   colSpan={4}
@@ -227,14 +227,30 @@ const ScenarioComparison: React.FC = () => {
                 </th>
               </tr>
               <tr>
-                <th style={{ background: '#fee2e2', color: '#b91c1c' }}>Status Quo</th>
-                <th style={{ background: '#fee2e2', color: '#b91c1c' }}>Pinch Min.</th>
-                <th style={{ background: '#dbeafe', color: '#1d4ed8' }}>Status Quo</th>
-                <th style={{ background: '#dbeafe', color: '#1d4ed8' }}>Pinch Min.</th>
-                <th style={{ background: '#d1fae5', color: '#047857' }}>Savings (kW)</th>
-                <th style={{ background: '#d1fae5', color: '#047857' }}>Savings (%)</th>
-                <th style={{ background: '#ede9fe', color: '#6d28d9' }}>Best COP</th>
-                <th style={{ background: '#ede9fe', color: '#6d28d9' }}>Coverage (%)</th>
+                <th style={{ background: '#fee2e2', color: '#b91c1c' }}>
+                  {t('scenario_cmp.status_quo')}
+                </th>
+                <th style={{ background: '#fee2e2', color: '#b91c1c' }}>
+                  {t('scenario_cmp.pinch_min')}
+                </th>
+                <th style={{ background: '#dbeafe', color: '#1d4ed8' }}>
+                  {t('scenario_cmp.status_quo')}
+                </th>
+                <th style={{ background: '#dbeafe', color: '#1d4ed8' }}>
+                  {t('scenario_cmp.pinch_min')}
+                </th>
+                <th style={{ background: '#d1fae5', color: '#047857' }}>
+                  {t('scenario_cmp.savings_kw')}
+                </th>
+                <th style={{ background: '#d1fae5', color: '#047857' }}>
+                  {t('scenario_cmp.savings_pct')}
+                </th>
+                <th style={{ background: '#ede9fe', color: '#6d28d9' }}>
+                  {t('scenario_cmp.best_cop')}
+                </th>
+                <th style={{ background: '#ede9fe', color: '#6d28d9' }}>
+                  {t('scenario_cmp.coverage')}
+                </th>
                 <th style={{ background: '#fef3c7', color: '#92400e' }}>
                   {t('economics.rows.capex')} (€)
                 </th>
@@ -277,7 +293,9 @@ const ScenarioComparison: React.FC = () => {
                     <td style={{ fontWeight: 600 }}>
                       {sc.name}{' '}
                       {sc.id === activeScenarioId && (
-                        <span style={{ color: '#3b82f6', fontSize: '0.8em' }}>(Active)</span>
+                        <span style={{ color: '#3b82f6', fontSize: '0.8em' }}>
+                          {t('scenario_cmp.active')}
+                        </span>
                       )}
                     </td>
                     <td style={{ textAlign: 'right' }}>
@@ -399,7 +417,7 @@ const ScenarioComparison: React.FC = () => {
                 margin: { l: 40, r: 40, t: 40, b: 60 },
                 legend: { orientation: 'h', y: -0.2 },
                 yaxis: {
-                  title: 'Best COP',
+                  title: t('scenario_cmp.best_cop'),
                   autorange: true,
                   rangemode: 'tozero',
                   gridcolor: '#f1f5f9',

@@ -214,6 +214,8 @@ export interface HPIOptimizationRequest {
   cop_model?: CopModel;
   /** Share of the maximum heat recovery credited, % (net_load only). */
   recovery_pct?: number;
+  /** Language of the diagnostic messages. */
+  lang?: string;
 }
 
 export interface HPIOptimizationResult {

@@ -271,6 +271,8 @@ class HPIOptimizationRequest(BaseModel):
     # Share of the maximum heat recovery credited, %. Below 100 (net_load only)
     # the heat not recovered flows through the pinch: GCC and profiles shift.
     recovery_pct: float = Field(100.0, ge=0, le=100)
+    # Language of the diagnostic messages ("en" or "de").
+    lang: str = "en"
 
 
 class HPIOptimizationResult(BaseModel):

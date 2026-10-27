@@ -92,7 +92,18 @@ export default function HomePage() {
 
         {/* Right column */}
         <div className={styles['home-right']}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', padding: '16px', background: 'var(--surface)', borderRadius: 'var(--radius-lg)', border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+          <div
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+              padding: '16px',
+              background: 'var(--surface)',
+              borderRadius: 'var(--radius-lg)',
+              border: '1px solid var(--border)',
+              boxShadow: 'var(--shadow)',
+            }}
+          >
             <h2 style={{ margin: 0, fontSize: '1.2rem' }}>{t('home.get_started')}</h2>
             <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
               <div style={{ flex: '1 1 45%' }}>
@@ -100,7 +111,9 @@ export default function HomePage() {
                   className={`${styles['action-card']} ${styles['action-card-primary']}`}
                   onClick={() => setShowTutorial(!showTutorial)}
                 >
-                  <span className={styles['action-card-title']}>{t('home.tutorial_btn_title')}</span>
+                  <span className={styles['action-card-title']}>
+                    {t('home.tutorial_btn_title')}
+                  </span>
                   <span className={styles['action-card-desc']}>{t('home.tutorial_btn_desc')}</span>
                 </button>
               </div>
@@ -116,10 +129,18 @@ export default function HomePage() {
                 </a>
               </div>
             </div>
-            
+
             <div style={{ marginTop: '0px' }}>
-              {error && <div className={styles['home-error']} style={{ marginBottom: '8px' }}>{error}</div>}
-              {successMsg && <div className={styles['home-success']} style={{ marginBottom: '8px' }}>{successMsg}</div>}
+              {error && (
+                <div className={styles['home-error']} style={{ marginBottom: '8px' }}>
+                  {error}
+                </div>
+              )}
+              {successMsg && (
+                <div className={styles['home-success']} style={{ marginBottom: '8px' }}>
+                  {successMsg}
+                </div>
+              )}
               <div style={{ flex: '1 1 100%' }}>
                 <button
                   className={`${styles['action-card']} ${styles['action-card-gradient']}`}
@@ -138,7 +159,17 @@ export default function HomePage() {
           </div>
 
           {showTutorial && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', flex: 1, minHeight: 0, maxHeight: '70vh', marginTop: '16px' }}>
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px',
+                flex: 1,
+                minHeight: 0,
+                maxHeight: '70vh',
+                marginTop: '16px',
+              }}
+            >
               <TutorialSidebar
                 onLoadExample={() => loadExample('heat_integration_example_1.json')}
                 loadingExample={loadingExample}
