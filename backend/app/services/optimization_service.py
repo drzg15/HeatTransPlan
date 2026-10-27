@@ -259,6 +259,14 @@ def _pin_carnot(alternatives, pinch):
         with np.errstate(all="ignore"):
             return np.where(lift > 0, carnot_cop(t_snk, lift), -1.0)
 
+    def beats_carnot(fn):
+        # The other archetypes only where they beat the Carnot line at the same
+        # sink temperature; elsewhere -1 makes the optimiser drop them.
+        def predict(t_src, t_snk):
+            cop = np.asarray(fn(t_src, t_snk), dtype=float)
+            return np.where(cop > cop_fn(t_src, t_snk), cop, -1.0)
+        return predict
+
     pinned = []
     for alt in alternatives:
         if alt["name"] == "Carnot":
@@ -267,6 +275,8 @@ def _pin_carnot(alternatives, pinch):
                 cop_fn=cop_fn,
                 formula_fn=lambda t_sink, _dt: HP_COP_FORMULAS["Carnot"](t_sink - half, t_sink - half - t_source),
             )
+        elif alt.get("theoretical"):
+            alt = dict(alt, cop_fn=beats_carnot(alt["cop_fn"]))
         pinned.append(alt)
     return pinned
 

@@ -10,7 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
-import Section from '../ui/Section';
+import Part from '../ui/Part';
 import {
   BOOL_FIELDS,
   buildEconomics,
@@ -291,9 +291,9 @@ export default function EconomicAnalysis() {
     setResetCount((n) => n + 1);
   };
 
+  // The part's banner is the title; it carries the help bulb and reset.
   const header = (
-    <h3 className="pa-section-title" style={{ flex: 1 }}>
-      {t('economics.title')}
+    <>
       <ChartHelpButton
         title={t('economics.title')}
         inline
@@ -325,15 +325,20 @@ export default function EconomicAnalysis() {
       >
         ↺ {t('economics.reset')}
       </button>
-    </h3>
+    </>
   );
 
   const e = buildEconomics(t, form, refType, selected, opt, isDark, sensBase);
   if (!e) {
     return (
-      <Section title={header}>
+      <Part
+        n={3}
+        title={t('analysis.parts.costs')}
+        input={t('analysis.parts.costs_in')}
+        actions={header}
+      >
         <p style={{ fontSize: '0.85rem' }}>{t('economics.empty')}</p>
-      </Section>
+      </Part>
     );
   }
 
@@ -456,7 +461,12 @@ export default function EconomicAnalysis() {
   );
 
   return (
-    <Section title={header}>
+    <Part
+      n={3}
+      title={t('analysis.parts.costs')}
+      input={t('analysis.parts.costs_in')}
+      actions={header}
+    >
       {/* 1. The few inputs people actually change, as cards in one row. */}
       <div className="econ-card">
         <div className="econ-card-title">{t('economics.blocks.inputs')}</div>
@@ -787,6 +797,6 @@ export default function EconomicAnalysis() {
           </p>
         ))}
       </div>
-    </Section>
+    </Part>
   );
 }
