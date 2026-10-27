@@ -38,8 +38,8 @@ import type { OptimizedIntegrationPoint } from '../../types/analysis';
 const CAPEX_SOURCES = [
   {
     label: 'Danish Energy Agency (2026): Technology Data – Industrial Process Heat, v0006',
-    note: '1,400 €/kW ≤125 °C, 1,750 €/kW ≤150 °C (steam HP, 2025 prices, equipment + installation)',
-    url: 'https://ens.dk/media/7757/download',
+    note: 'installed, 2025: HTHP 1,200 €/kW ≤125 °C, 1,550 €/kW ≤150 °C; steam HP 1,400 / 1,750 €/kW',
+    url: 'https://ens.dk/media/8517/download',
   },
   {
     label:

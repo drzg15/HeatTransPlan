@@ -75,9 +75,9 @@ The six inputs people change most sit in the **Key inputs** row; everything else
 | | Electricity price change | $r_{el}$ | %/year | 3 | as the fuel; **deviation** from [4646] p. 57 |
 | | CO₂ factor of electricity | $c_{CO_2,el}$ | t/MWh | 0,352 | UBA 2025 |
 | | Add CO₂ cost on electricity | | yes/no | no | [4646] p. 60: check if in the price (EU ETS) |
-| Heat pump | Heat pump price per kW (equipment) | $c_{spec}$ | €/kW | **380** | literature (see below), installed ≈ 855 €/kW |
+| Heat pump | Heat pump price per kW (machine only) | $c_{spec}$ | €/kW | **1.000** | manufacturer offers (see below), installed 2.250 €/kW |
 | | Planning & installation factor | $F_{PI}$ | – | 1,25 | [4646] Tabelle 6, p. 59 |
-| | Integration factor (periphery) | $F_{Per}$ | – | 1,8 | [4646] Tabelle 6, p. 59 |
+| | Integration factor (periphery) | $F_{Per}$ | – | 1,25 | **deviation** from [4646] Tabelle 6, p. 59 (1,8), see below |
 | | Maintenance | $f_M$ | % of $I$ per year | 2,5 | [2067] Tabelle A2, p. 22 (1 + 1,5 %) |
 | | Operation effort × hourly rate | $t_{AB} \cdot w$ | h/year × €/h | 5 × 100 | [2067] Tabelle A2, p. 22; [L] slide 18 |
 | | Capacity charge | $p_C$ | €/kW$_{el}$ per year | 0 | [2067] p. 15 |
@@ -103,11 +103,12 @@ $$
 I = c_{spec} \cdot F_{PI} \cdot F_{Per} \cdot \dot{Q}
 $$
 
-Editing the investment sets the price per kW back through the same factors. The default 380 €/kW × 1,25 × 1,8 ≈ 855 €/kW installed, the middle of the literature range for installed industrial high-temperature heat pumps:
+Editing the investment sets the price per kW back through the same factors. The default of 1.000 €/kW is the machine alone, taken from manufacturer offers (SPH) for large industrial high-temperature heat pumps up to about 150 °C, which lie at about 1.000–1.200 €/kW; 175 °C steam cascades cost about 2.000 €/kW. With the factors, 1.000 × 1,25 × 1,25 ≈ 1.560 €/kW installed, the Danish Energy Agency value for heat pumps up to 150 °C (1.550 €/kW). The integration factor is 1,25 instead of the norm's 1,8: the VDI factors are fitted to cheap machines (≈ 215 €/kW at 250 kW), where the periphery is a large share; with a 1.000 €/kW machine, 1,8 would give 2.250 €/kW installed, far above current data. For comparison:
 
 | Source | Specific investment |
 |---|---|
-| [Danish Energy Agency (2026), Technology Data – Industrial Process Heat](https://ens.dk/media/7757/download) | 1.400 €/kW ≤ 125 °C, 1.750 €/kW ≤ 150 °C (steam, incl. installation) |
+| Manufacturer offers (SPH), machine only | ≈ 1.000–1.200 €/kW up to ~150 °C; ≈ 1.440 €/kW for 853 kW at 105 °C; ≈ 2.000–2.200 €/kW for 175 °C steam |
+| [Danish Energy Agency (2026), Technology Data – Industrial Process Heat](https://ens.dk/media/8517/download) | installed: 1.200 €/kW ≤ 125 °C, 1.550 €/kW ≤ 150 °C; steam 1.400 / 1.750 €/kW |
 | [Energy (2024): VHTHPs in European markets](https://www.sciencedirect.com/science/article/pii/S0360544224029220) | ~200–1.500 €/kW, ≥ 600 €/kW for lifts > 100 K |
 | [TNO / energy.nl factsheet](https://energy.nl/wp-content/uploads/industrial-high-temperature-heat-pump-2-7.pdf) | 300–900 €/kW up to 160 °C |
 
