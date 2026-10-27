@@ -637,7 +637,7 @@
       "paid_back": "Paid back",
       "period_line": "End of period ({{T}} years)"
     },
-    "help_4": "Investment = heat pump price per kW × planning & installation factor × integration factor × heat output; the fields are linked. The factors are those of VDI 4646 (1,25 and 1,8) and can be changed under \"More assumptions\". Default: 380 €/kW × 1,25 × 1,8 ≈ 855 €/kW installed, the midpoint of the literature range for industrial high-temperature heat pumps (about 200–1,500 €/kW installed, at least ~600 €/kW for lifts above 100 K).",
+    "help_4": "Investment = heat pump price per kW × planning & installation factor × integration factor × heat output; the fields are linked. The factors can be changed under \"More assumptions\". Default: 1,000 €/kW for the machine alone, from manufacturer offers for large industrial high-temperature heat pumps up to about 150 °C (about 1,000–1,200 €/kW; 175 °C steam about 2,000 €/kW). With the factors 1,25 × 1,25 that is about 1,560 €/kW installed, the Danish Energy Agency value for heat pumps up to 150 °C.",
     "help_4_source": "References:",
     "terms": {
       "I": "investment cost [€]",
@@ -733,7 +733,7 @@
       "rEl": "How much the electricity price changes per year, in %.\n3 %/year by default, the same as the fuel, so neither side is favoured; VDI 4646 (p. 57) assumes constant prices (0 %).",
       "co2El": "CO₂ emitted per MWh of grid electricity, in t/MWh. Used for the CO₂ rows, and for a CO₂ cost only if \"Add CO₂ cost on electricity\" is on.\n0,352 = German grid mix (UBA 2025, location-based). VDI 4646 used 0,401 (2019, p. 74). 0 for a green power contract (PPA).",
       "pDemand": "Capacity charge on the heat pump's electrical power, in € per kW and year.\nOnly set it if your electricity price does not already include it. Industrial grid capacity charges are often 50–150 €/kW per year.\nCost = p_L · Q / COP.",
-      "specCost": "Price of the heat pump itself (the machine) per kW of heat output, in €/kW, without planning, installation and integration.\nThe investment is this price × the planning & installation factor × the integration factor × the heat output: I = c · F_PI · F_Per · Q. The factors are those of VDI 4646 (Tabelle 6, p. 59: 1,25 and 1,8) and can be changed under \"More assumptions\".",
+      "specCost": "Price of the heat pump itself (the machine) per kW of heat output, in €/kW, without planning, installation and integration.\nThe investment is this price × the planning & installation factor × the integration factor × the heat output: I = c · F_PI · F_Per · Q. The factors (1,25 and 1,25) can be changed under \"More assumptions\".",
       "fMaint": "Maintenance per year as a share of the investment, in %: repair (f_Inst) plus servicing and inspection (f_W+Insp).\nVDI 2067 Tabelle A2 (p. 22) for an electric heat pump: 1 % + 1,5 % = 2,5 %; VDI 4646 Tabelle 7/8 uses the same 2,5 %. The Hipp slides used 5 %.",
       "reinvestShare": "A reinvestment during the period, as a share of the investment, in %, e.g. a compressor overhaul. 0 = none.\nIt is paid once, in the year below, and discounted like any cash flow.",
       "reinvestYear": "Year of operation in which the reinvestment above is paid.\nOnly used if the reinvestment share is above 0.",
@@ -751,7 +751,7 @@
       "boilerInvest": "Replacement case: the old boiler would have to be replaced anyway, so buying the heat pump saves that boiler investment, in € per kW of heat pump output.\nVDI 4646 (p. 74) uses 131 €/kW for a gas condensing boiler. 0 = efficiency case: the boiler exists and stays (VDI 4646 Tabelle 8, p. 62), the default.",
       "fMaintRef": "Maintenance of the avoided boiler per year as a share of its investment, saved every year in the replacement case.\nVDI 4646 Tabelle 8 (p. 62): 3 % for the gas condensing boiler.",
       "fPI": "Factor for planning and installation of the heat pump: the investment is the heat pump price × this factor × the integration factor.\nVDI 4646 Tabelle 6 (p. 59): 1,25. 1 = no planning or installation cost.",
-      "fPer": "Factor for integrating the heat pump into the plant (periphery: pipes, hydraulics, storage, electrical connection, control).\nVDI 4646 Tabelle 6 (p. 59): 1,8. It depends strongly on the site; 1 = no integration cost."
+      "fPer": "Factor for integrating the heat pump into the plant (periphery: pipes, hydraulics, storage, electrical connection, control).\nDefault 1,25. VDI 4646 Tabelle 6 (p. 59) has 1,8, but that is fitted to cheap machines; with a machine price of 1,000 €/kW it would give 2,250 €/kW installed, far above current data. It depends strongly on the site; 1 = no integration cost."
     },
     "reset": "Reset",
     "reset_hint": "Restore all inputs and investments to their starting values",

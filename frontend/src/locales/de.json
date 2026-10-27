@@ -637,7 +637,7 @@
       "paid_back": "Amortisiert",
       "period_line": "Ende Betrachtungszeitraum ({{T}} Jahre)"
     },
-    "help_4": "Investition = Preis Wärmepumpe je kW × Faktor Planung & Installation × Faktor Einbindung × Heizleistung; die Felder sind verknüpft. Die Faktoren stammen aus der VDI 4646 (1,25 und 1,8) und sind unter „Weitere Annahmen“ änderbar. Vorgabe: 380 €/kW × 1,25 × 1,8 ≈ 855 €/kW installiert, der Mittelwert der Literatur für industrielle Hochtemperatur-Wärmepumpen (ca. 200–1.500 €/kW installiert, ab ~100 K Temperaturhub mindestens ~600 €/kW).",
+    "help_4": "Investition = Preis Wärmepumpe je kW × Faktor Planung & Installation × Faktor Einbindung × Heizleistung; die Felder sind verknüpft. Die Faktoren sind unter „Weitere Annahmen“ änderbar. Vorgabe: 1.000 €/kW für die Maschine allein, nach Herstellerangeboten für große industrielle Hochtemperatur-Wärmepumpen bis etwa 150 °C (ca. 1.000–1.200 €/kW; 175 °C Dampf ca. 2.000 €/kW). Mit den Faktoren 1,25 × 1,25 sind das ca. 1.560 €/kW installiert, der Wert der Danish Energy Agency für Wärmepumpen bis 150 °C.",
     "help_4_source": "Quellen:",
     "terms": {
       "I": "Investitionskosten [€]",
@@ -733,7 +733,7 @@
       "rEl": "Wie stark sich der Strompreis pro Jahr ändert, in %.\nStandardmäßig 3 %/Jahr wie beim Brennstoff, damit keine Seite bevorzugt wird; VDI 4646 (S. 57) nimmt konstante Preise an (0 %).",
       "co2El": "CO₂-Ausstoß je MWh Netzstrom, in t/MWh. Für die CO₂-Zeilen und für CO₂-Kosten nur, wenn „CO₂-Kosten auf Strom aufschlagen“ an ist.\n0,352 = deutscher Strommix (UBA 2025, standortbasiert). VDI 4646 nutzte 0,401 (2019, S. 74). 0 bei Ökostromvertrag (PPA).",
       "pDemand": "Leistungspreis auf die elektrische Leistung der Wärmepumpe in € pro kW und Jahr.\nNur ansetzen, wenn der Strompreis ihn nicht schon enthält. Industrielle Leistungspreise liegen oft bei 50–150 €/kW pro Jahr.\nKosten = p_L · Q / COP.",
-      "specCost": "Preis der Wärmepumpe selbst (der Maschine) je kW Heizleistung, in €/kW, ohne Planung, Installation und Einbindung.\nDie Investition ist dieser Preis × Faktor Planung & Installation × Faktor Einbindung × Heizleistung: I = c · F_PI · F_Per · Q. Die Faktoren stammen aus der VDI 4646 (Tabelle 6, S. 59: 1,25 und 1,8) und sind unter „Weitere Annahmen“ änderbar.",
+      "specCost": "Preis der Wärmepumpe selbst (der Maschine) je kW Heizleistung, in €/kW, ohne Planung, Installation und Einbindung.\nDie Investition ist dieser Preis × Faktor Planung & Installation × Faktor Einbindung × Heizleistung: I = c · F_PI · F_Per · Q. Die Faktoren (1,25 und 1,25) sind unter „Weitere Annahmen“ änderbar.",
       "fMaint": "Instandhaltung pro Jahr als Anteil der Investition, in %: Instandsetzung (f_Inst) plus Wartung und Inspektion (f_W+Insp).\nVDI 2067 Tabelle A2 (S. 22) für eine Elektro-Wärmepumpe: 1 % + 1,5 % = 2,5 %; VDI 4646 Tabelle 7/8 nutzt dieselben 2,5 %. Die Hipp-Präsentation nutzte 5 %.",
       "reinvestShare": "Eine Reinvestition im Betrachtungszeitraum als Anteil der Investition in %, z. B. eine Verdichter-Überholung. 0 = keine.\nSie fällt einmal im Jahr darunter an und wird wie jede Zahlung abgezinst.",
       "reinvestYear": "Betriebsjahr, in dem die Reinvestition oben anfällt.\nNur relevant, wenn der Reinvestitionsanteil über 0 liegt.",
@@ -751,7 +751,7 @@
       "boilerInvest": "Ersatzinvestition: Der alte Kessel müsste ohnehin ersetzt werden; die Wärmepumpe spart diese Kesselinvestition, in € je kW Wärmepumpenleistung.\nVDI 4646 (S. 74) setzt 131 €/kW für einen Gas-Brennwertkessel an. 0 = Effizienzinvestition: Der Kessel ist vorhanden und bleibt (VDI 4646 Tabelle 8, S. 62), die Vorgabe.",
       "fMaintRef": "Instandhaltung des vermiedenen Kessels pro Jahr als Anteil seiner Investition, bei der Ersatzinvestition jedes Jahr eingespart.\nVDI 4646 Tabelle 8 (S. 62): 3 % für den Gas-Brennwertkessel.",
       "fPI": "Faktor für Planung und Installation der Wärmepumpe: Die Investition ist Preis der Wärmepumpe × dieser Faktor × Faktor Einbindung.\nVDI 4646 Tabelle 6 (S. 59): 1,25. 1 = keine Planungs- oder Installationskosten.",
-      "fPer": "Faktor für die Einbindung der Wärmepumpe in die Anlage (Peripherie: Rohrleitungen, Hydraulik, Speicher, Elektroanschluss, Regelung).\nVDI 4646 Tabelle 6 (S. 59): 1,8. Stark standortabhängig; 1 = keine Einbindungskosten."
+      "fPer": "Faktor für die Einbindung der Wärmepumpe in die Anlage (Peripherie: Rohrleitungen, Hydraulik, Speicher, Elektroanschluss, Regelung).\nVorgabe 1,25. Die VDI 4646 Tabelle 6 (S. 59) nennt 1,8, angepasst an günstige Maschinen; mit einem Maschinenpreis von 1.000 €/kW ergäbe das 2.250 €/kW installiert, weit über aktuellen Daten. Stark standortabhängig; 1 = keine Einbindungskosten."
     },
     "reset": "Zurücksetzen",
     "reset_hint": "Alle Eingaben und Investitionen auf die Startwerte zurücksetzen",

@@ -44,13 +44,15 @@ export const DEFAULTS = {
   co2El: 0.352, // UBA 2025, location-based
   co2ElPriced: 0, // 1 = add CO₂ cost on electricity (lecture slide 19); VDI: check if in the price
   pDemand: 0, // only if not already in the electricity price
-  // Price of the heat pump itself per kW (equipment). × planning and
-  // installation × integration (VDI 4646 Tabelle 6: 1,25 × 1,8) ≈ 855 €/kW,
-  // the midpoint of the 200–1.500 €/kW literature range for installed
-  // industrial high-temperature heat pumps.
-  specCost: 380,
+  // Price of the heat pump itself per kW (machine only): SPH offers for large
+  // industrial high-temperature heat pumps up to ~150 °C (≈ 1.000–1.200 €/kW);
+  // 175 °C steam ≈ 2.000 €/kW. See economic_calculation rationale D1.
+  specCost: 1000,
   fPI: 1.25, // VDI 4646 Tabelle 6, p. 59: planning and installation
-  fPer: 1.8, // VDI 4646 Tabelle 6, p. 59: system integration (periphery)
+  // System integration (periphery). VDI 4646 Tabelle 6 (p. 59) has 1,8, fitted to
+  // cheap machines; with a 1.000 €/kW machine 1,25 gives ≈ 1.560 €/kW installed,
+  // the Danish Energy Agency value up to 150 °C. Rationale D1.
+  fPer: 1.25,
   fMaint: 2.5, // VDI 2067 Tabelle A2: f_Inst 1 % + f_W+Insp 1,5 %
   opHours: 5, // VDI 2067 Tabelle A2: 5 h/a operation
   wage: 100, // lecture slide 18: 100 €/h
@@ -118,7 +120,7 @@ export const FIELDS: Array<[keyof Form, string, Group, Range]> = [
   ['co2El', 't/MWh', 'electricity', { step: 0.01, min: 0, max: 1 }],
   ['co2ElPriced', '-', 'electricity', { step: 1, min: 0, max: 1 }],
   ['pDemand', '€/kW/a', 'hp', { step: 10, min: 0, max: 300, open: true }],
-  ['specCost', '€/kW', 'hp', { step: 10, min: 0, max: 1500, open: true }],
+  ['specCost', '€/kW', 'hp', { step: 10, min: 0, max: 2500, open: true }],
   ['fPI', '-', 'hp', { step: 0.05, min: 1, max: 3, open: true }],
   ['fPer', '-', 'hp', { step: 0.05, min: 1, max: 3, open: true }],
   ['fMaint', '%/a', 'hp', { step: 0.5, min: 0, max: 10, open: true }],
@@ -840,11 +842,19 @@ export function buildEconomics(
   // Kapitalwert over time for every pump at the selected prices (clicking the
   // heatmap changes them). Run past T up to the payback horizon, so the year a
   // pump turns profitable shows even when that is after T.
-  const runs = variants.map((v) => evaluate({ ...inp, T: PAYBACK_HORIZON }, refSys, v));
-  // Zero crossing, interpolated between the two years around it.
-  const crossings = runs.map(({ npvCurve: c, payback: k }) =>
-    k === null ? null : k === 0 ? 0 : k - 1 + -c[k - 1] / (c[k] - c[k - 1])
+  // Up to T the curve is the period's own, so its last point is the Kapitalwert:
+  // the longer run would buy a replacement at the end of the service life
+  // (year T when T = life), which the period does not.
+  const runs = variants.map((v, k) =>
+    evaluate({ ...inp, T: PAYBACK_HORIZON }, refSys, v).npvCurve.map((y, j) =>
+      j <= inp.T ? results[k].npvCurve[j] : y
+    )
   );
+  // Zero crossing, interpolated between the two years around it.
+  const crossings = runs.map((c) => {
+    const k = c.findIndex((y) => y >= 0);
+    return k === -1 ? null : k === 0 ? 0 : k - 1 + -c[k - 1] / (c[k] - c[k - 1]);
+  });
   const lastCrossing = Math.max(0, ...crossings.map((c) => (c === null ? 0 : Math.ceil(c) + 3)));
   const kMax = Math.min(PAYBACK_HORIZON, Math.max(inp.T, lastCrossing));
   const tYears = Array.from({ length: kMax + 1 }, (_, j) => form.year + j);
@@ -858,7 +868,7 @@ export function buildEconomics(
   const npv: Fig = {
     data: runs
       .map((r, k) => {
-        const y = r.npvCurve.slice(0, kMax + 1);
+        const y = r.slice(0, kMax + 1);
         return {
           type: 'scatter',
           mode: 'lines+markers',
