@@ -359,6 +359,51 @@
   border-radius: 4px;
 }
 
+/* ---------- Parts: the page's three main blocks ---------- */
+.pa-part {
+  margin: 28px 0 0;
+}
+.pa-part-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 10px 16px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: 8px 8px 0 0;
+  font-size: 1.25rem;
+}
+.pa-part-banner {
+  flex-wrap: wrap;
+}
+.pa-part-input {
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.85;
+}
+.pa-part-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--primary);
+  font-weight: 700;
+}
+.pa-part-body {
+  padding: 4px 16px 12px;
+  border: 2px solid var(--primary);
+  border-top: none;
+  border-radius: 0 0 8px 8px;
+}
+/* The banner already opens the part: no rule right under it. */
+.pa-part-body > .pa-divider:first-child {
+  display: none;
+}
+
 /* ---------- Divider ---------- */
 .pa-divider {
   border: none;
@@ -369,7 +414,9 @@
 /* The page's own rule right before a section's rule: show one, not two. */
 /* A metric card whose area is hovered in the composite curves or the GCC. */
 .pa-metric-card {
-  transition: box-shadow 0.15s, transform 0.15s;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
 }
 .pa-metric-card.pa-metric-linked {
   transform: translateY(-2px);

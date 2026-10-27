@@ -152,7 +152,9 @@
     },
     "controls": {
       "show_shifted": "Show Shifted Composite Curves",
-      "show_explanations": "Show explanations"
+      "show_explanations": "Show explanations",
+      "reset_pinch_hint": "Restore ΔTmin (10 K), shifted curves and explanations to their starting values",
+      "reset_hpi_hint": "Restore heat recovery, COP model, filters and the selected heat pump to their starting values"
     },
     "sections": {
       "notes": "Notes",
@@ -242,6 +244,14 @@
       "no_desc": "Composite curves",
       "explanation_with": "Net load curves — the pocket-free Grand Composite Curve split into a source and a sink profile. Heat is recovered wherever the temperatures allow it, so the heat pump only covers the utility demand that is left over. This is standard pinch practice and the recommended default.",
       "explanation_no": "Composite curves — hot and cold composite curves used directly as source and sink profiles. Internal heat recovery is not assumed, so the heat pump meets the full heating and cooling demands where possible."
+    },
+    "parts": {
+      "integration": "Streams & heat integration",
+      "heat_pump": "Heat pump integration",
+      "costs": "Cost analysis",
+      "integration_in": "Input: streams of the selected processes",
+      "heat_pump_in": "Input: Grand Composite Curve",
+      "costs_in": "Input: selected heat pump (heat output, COP)"
     }
   },
   "stream_selector": {
@@ -797,13 +807,13 @@
   "summaries": {
     "title": "Summary",
     "pinch": {
-      "pinch": "ΔTmin = {{dt}} K is the smallest temperature difference allowed wherever a hot stream heats a cold one. With it, the pinch lies at {{T}} °C (shifted temperature: hot streams at {{th}} °C, cold streams at {{tc}} °C).",
-      "recovery": "Of the {{hot}} kW the hot streams give off, {{rec}} kW can be recovered by exchanging heat between the process streams themselves: the green band on the composite curves.",
-      "utilities": "What is left has to come from outside: at least {{qh}} kW of heating above the pinch (the red band, and the red bar at the top of the grand composite curve) and {{qc}} kW of cooling below it (the blue band, and the blue bar at the bottom). Each amount is the width of its band.",
-      "status_quo": "Today the process uses {{h}} kW of heating and {{c}} kW of cooling, so full heat recovery could save {{sh}} kW of heating ({{shp}} %) and {{sc}} kW of cooling ({{scp}} %).",
-      "rule": "Rule of the pinch: supply heat only above {{T}} °C and remove heat only below it. A heat pump pays off when it lifts waste heat from below the pinch to above it, which is what the next section looks for.",
-      "pockets": " The grey pockets on the grand composite curve ({{kw}} kW) are heat exchanged within temperature ranges where the curve doubles back, a part of the recovery.",
-      "interact": "Hover over a band, a bar or a card above and its counterparts light up; the mouse shows the same temperature in both charts, and a legend click hides an area in both. Everything updates as soon as you change ΔTmin, the stream selection or the shifted-temperature switch."
+      "pinch": "ΔTmin = {{dt}} K, the smallest allowed difference between a hot and a cold stream, puts the pinch at {{T}} °C (hot streams {{th}} °C, cold {{tc}} °C).",
+      "recovery": "Of the {{hot}} kW the hot streams give off, {{rec}} kW are recovered between the streams (green band).",
+      "utilities": "The rest comes from outside: at least {{qh}} kW heating above the pinch (red) and {{qc}} kW cooling below it (blue), each the width of its band or bar.",
+      "status_quo": "Today the process uses {{h}} kW heating and {{c}} kW cooling, so heat recovery could save {{sh}} kW heating ({{shp}} %) and {{sc}} kW cooling ({{scp}} %).",
+      "rule": "Supply heat only above {{T}} °C and remove it only below; a heat pump pays off by lifting waste heat across the pinch (next part).",
+      "pockets": " The grey pockets in the grand composite curve ({{kw}} kW) are recovery within a temperature range.",
+      "interact": "Hover over a band, bar or card to highlight its counterparts; a legend click hides an area in both charts."
     },
     "hpi": {
       "search": "The optimisation tried {{n}} combinations of source and sink temperature and found {{m}} real heat pumps that work: {{full}} cover the whole demand above their sink temperature, {{src}} are limited by the waste heat available and {{dem}} by the demand.",
