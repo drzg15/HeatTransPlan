@@ -3,7 +3,7 @@
    ============================== */
 
 .pa-page {
-  padding: 12px 16px;
+  padding: 20px 24px;
   width: 100%;
   min-width: 0;
 }
@@ -420,7 +420,7 @@
 
 /* ---------- Parts: the page's three main blocks ---------- */
 .pa-part {
-  margin: 28px 0 0;
+  margin: 32px 0 0;
 }
 .pa-part-banner {
   display: flex;
@@ -430,7 +430,7 @@
   padding: 10px 16px;
   background: var(--primary);
   color: #fff;
-  border-radius: 8px 8px 0 0;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   font-size: 1.25rem;
 }
 .pa-part-banner {
@@ -449,7 +449,7 @@
   transform: rotate(90deg);
 }
 .pa-part:not([open]) > .pa-part-banner {
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
 }
 .pa-part-banner h2 {
   margin: 0;
@@ -473,10 +473,12 @@
   font-weight: 700;
 }
 .pa-part-body {
-  padding: 4px 16px 12px;
-  border: 2px solid var(--primary);
+  padding: 8px 20px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-top: none;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow);
 }
 /* The banner already opens the part: no rule right under it. */
 .pa-part-body > .pa-divider:first-child {
@@ -486,9 +488,8 @@
 /* ---------- Divider ---------- */
 .pa-divider {
   border: none;
-  border-top: 3px solid var(--primary);
-  opacity: 0.35;
-  margin: 28px 0 10px;
+  border-top: 1px solid var(--border);
+  margin: 28px 0 16px;
 }
 /* The page's own rule right before a section's rule: show one, not two. */
 /* A metric card whose area is hovered in the composite curves or the GCC. */
@@ -671,9 +672,10 @@
   width: 100%;
   box-sizing: border-box;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
-  padding: 8px;
+  box-shadow: var(--shadow-sm);
+  padding: 12px;
 }
 /* Charts already grouped on an economic-analysis card get no second frame. */
 .econ-card .pa-chart {
@@ -740,10 +742,9 @@
   gap: 0.5rem;
   /* A band across the page, so each section's start stands out. */
   background: var(--primary-light);
-  border-left: 4px solid var(--primary);
-  border-radius: 6px;
-  padding: 2px 12px;
-  margin-bottom: 10px;
+  border-radius: var(--radius);
+  padding: 4px 14px;
+  margin-bottom: 14px;
 }
 .pa-section > .pa-section-summary .pa-section-title {
   font-size: 1.05rem;
@@ -766,11 +767,10 @@
 }
 /* Plain-language summary closing a section. */
 .pa-summary {
-  margin: 0.75rem 0 0.25rem;
-  padding: 0.5rem 0.75rem;
-  border-left: 4px solid var(--primary);
+  margin: 1rem 0 0.25rem;
+  padding: 0.75rem 1rem;
   background: var(--primary-light);
-  border-radius: 4px;
+  border-radius: var(--radius);
 }
 .pa-summary h5 {
   margin: 0 0 0.25rem;
@@ -917,10 +917,11 @@
 /* Each part of the economic analysis sits in its own card with a title. */
 .econ-card {
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--radius-lg);
   background: var(--surface);
-  padding: 8px 12px 10px;
-  margin: 10px 0;
+  box-shadow: var(--shadow-sm);
+  padding: 14px 18px 16px;
+  margin: 14px 0;
 }
 .econ-card-title {
   font-size: 0.75rem;
