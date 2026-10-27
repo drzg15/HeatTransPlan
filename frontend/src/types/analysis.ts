@@ -212,6 +212,8 @@ export interface HPIOptimizationRequest {
   profile_mode?: ProfileMode;
   cop_formula?: CopFormulaSpec | null;
   cop_model?: CopModel;
+  /** Share of the maximum heat recovery credited, % (net_load only). */
+  recovery_pct?: number;
 }
 
 export interface HPIOptimizationResult {

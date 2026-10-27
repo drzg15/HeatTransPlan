@@ -42,6 +42,10 @@ interface AnalysisStore {
 
   // How much heat recovery the heat pump integration credits
   profileMode: ProfileMode;
+  /** Share of the maximum heat recovery credited, %. 100 = pinch targets,
+   *  0 = no recovery (composite profiles); in between the GCC moves right by
+   *  the heat not recovered, in part 1 and in the optimization alike. */
+  recoveryPct: number;
   /** User-supplied COP correlation, evaluated alongside the trained model.
    *  null means "model only", which is the default. */
   copFormula: CopFormulaSpec | null;
@@ -92,6 +96,7 @@ interface AnalysisStore {
   setTMin: (val: number) => void;
   setShowShifted: (val: boolean) => void;
   setProfileMode: (mode: ProfileMode) => void;
+  setRecoveryPct: (pct: number) => void;
   setCopFormula: (formula: CopFormulaSpec | null) => void;
   setCopModel: (model: CopModel) => void;
   setPinchResult: (result: PinchResult | null) => void;
@@ -154,6 +159,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   // too and the two share one scale.
   showShifted: true,
   profileMode: 'net_load',
+  recoveryPct: 100,
   copFormula: null,
   copModel: '2t',
   pinchResult: null,
@@ -244,7 +250,9 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   },
 
   setShowShifted: (val) => set({ showShifted: val }),
-  setProfileMode: (mode) => set({ profileMode: mode }),
+  setProfileMode: (mode) => set({ profileMode: mode, recoveryPct: mode === 'net_load' ? 100 : 0 }),
+  setRecoveryPct: (pct) =>
+    set({ recoveryPct: pct, profileMode: pct === 0 ? 'composite' : 'net_load' }),
   setCopFormula: (formula) => set({ copFormula: formula }),
   setCopModel: (model) => set({ copModel: model }),
 

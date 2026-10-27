@@ -26,9 +26,10 @@ export default function PinchCurvesChart() {
   const { t } = useTranslation();
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
   const showShifted = useAnalysisStore((s) => s.showShifted);
-  // Without heat recovery the heat pump works on all hot and all cold streams,
-  // not on what the GCC leaves over: the right plot then shows those profiles.
-  const noRecovery = useAnalysisStore((s) => s.profileMode) === 'composite';
+  // Share of the maximum heat recovery credited. At 0 the heat pump works on
+  // all hot and all cold streams, so the right plot shows those profiles.
+  const recoveryPct = useAnalysisStore((s) => s.recoveryPct);
+  const noRecovery = recoveryPct === 0;
   const isDark = useUIStore((s) => s.theme) === 'dark';
   const gd = useRef<any>(null);
   // Set while the mouse is on the pinch line, so a hover on the band under it
@@ -55,17 +56,16 @@ export default function PinchCurvesChart() {
 
   // ---- Left: composite curves, with the recovery, surplus and deficit bands.
   const base = showShifted ? pinchResult.shifted_composite_diagram : pinchResult.composite_diagram;
-  // Without heat recovery the cold curve starts where the hot one ends: no
-  // overlap, so the bands show all hot heat as surplus and all cold as deficit.
-  const diagram = noRecovery
-    ? {
-        ...base,
-        cold: {
-          ...base.cold,
-          H: base.cold.H.map((h) => h + Math.max(...base.hot.H) - Math.min(...base.cold.H)),
-        },
-      }
-    : base;
+  // Heat not recovered, d = (1 − p) · maximum recovery. Each kW of it has to be
+  // heated in and cooled away: the cold curve slides d to the right (less
+  // overlap, wider surplus and deficit bands) and the GCC moves d right, so d
+  // flows through the pinch. At 0 % the two curves no longer overlap.
+  const maxRecovery =
+    pinchResult.streams_data
+      .filter((st) => st.ts > st.tt)
+      .reduce((sum, st) => sum + Math.abs(st.cp * (st.tt - st.ts)), 0) - pinchResult.cold_utility;
+  const d = (1 - recoveryPct / 100) * maxRecovery;
+  const diagram = d ? { ...base, cold: { ...base.cold, H: base.cold.H.map((h) => h + d) } } : base;
   const left: any[] = [
     // The explanations switch takes every marking off, leaving the curves.
     ...(!explain
@@ -121,7 +121,8 @@ export default function PinchCurvesChart() {
 
   // ---- Right: grand composite curve, segment by segment so each interval
   // shows whether it has heat to spare (red) or needs heat (blue).
-  const gccH = pinchResult.grand_composite_curve.H;
+  const gccShift = noRecovery ? 0 : d;
+  const gccH = pinchResult.grand_composite_curve.H.map((h) => h + gccShift);
   const gccT = pinchResult.grand_composite_curve.T;
   const right: any[] = [];
   const legendShown = { red: false, blue: false };
@@ -149,10 +150,14 @@ export default function PinchCurvesChart() {
 
   // Pockets: heat exchanged within the temperature ranges where the curve
   // doubles back. Only a part of the total recovery, so neutral and unlinked.
-  const pockets = gccPockets(gccH, gccT, pinchResult.pinch_temperature);
+  const pockets = gccPockets(
+    pinchResult.grand_composite_curve.H,
+    gccT,
+    pinchResult.pinch_temperature
+  );
   if (explain && !noRecovery && pockets.heat > 0)
     right.unshift({
-      x: pockets.x,
+      x: pockets.x.map((x) => (x === null ? null : x + gccShift)),
       y: pockets.y,
       fill: 'toself',
       fillcolor: 'rgba(100,116,139,0.3)',

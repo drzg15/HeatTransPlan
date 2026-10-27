@@ -169,3 +169,20 @@ def test_pinned_carnot_uses_the_non_shifted_sink_and_the_pinch_source():
     fn = _pin_carnot([alt], pinch)[0]["cop_fn"]
     cop = fn(np.array([58.2]), np.array([113.0]))[0]
     assert cop == pytest.approx(0.5 * (108.0 + 273.15) / (108.0 - 68.0))
+
+
+def test_unrecovered_heat_scales_with_recovery_share():
+    """d = (1 − p) · (hot duty − minimum cooling): 0 at 100 %, all of it at 0 %."""
+    from types import SimpleNamespace
+    from app.services.optimization_service import _unrecovered_heat
+
+    pinch = SimpleNamespace(
+        streams_data=[
+            {"cp": 10, "ts": 150, "tt": 50},  # hot: 1000 kW
+            {"cp": 5, "ts": 20, "tt": 120},  # cold
+        ],
+        cold_utility=300,
+    )
+    assert _unrecovered_heat(pinch, 100) == 0
+    assert _unrecovered_heat(pinch, 0) == 700
+    assert _unrecovered_heat(pinch, 40) == 420

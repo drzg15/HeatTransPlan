@@ -408,18 +408,44 @@ def _diagnostic_messages(diag: HPIOptimizationDiagnostics, n_points: int) -> lis
     return msgs
 
 
+def _unrecovered_heat(pinch: PinchResult, recovery_pct: float) -> float:
+    """Heat not recovered at the given share of the maximum recovery, kW.
+
+    Maximum recovery = heat the hot streams give off − minimum cooling. Each kW
+    not recovered has to be heated in above the pinch and cooled away below
+    it, so it flows through the pinch: the whole GCC moves right by this much.
+    """
+    hot_duty = sum(
+        abs(float(s["cp"]) * (float(s["tt"]) - float(s["ts"])))
+        for s in pinch.streams_data
+        if float(s["ts"]) > float(s["tt"])
+    )
+    return (1.0 - recovery_pct / 100.0) * max(hot_duty - float(pinch.cold_utility), 0.0)
+
+
+def _shift(curve: dict, d: float) -> dict:
+    return {**curve, "H": [float(h) + d for h in curve["H"]]}
+
+
 def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOptimizationResult:
     # Accept a bare PinchResult as well, so older callers keep working.
     cop_formula = None
     cop_model = "2t"
+    recovery_pct = 100.0
     if isinstance(request, HPIOptimizationRequest):
         pinch = request.pinch_result
         profile_mode = request.profile_mode
         cop_formula = request.cop_formula
         cop_model = request.cop_model
+        recovery_pct = request.recovery_pct
     else:
         pinch = request
         profile_mode = "net_load"
+    # Partial recovery only makes sense on the GCC; "composite" is 0 % already.
+    d = _unrecovered_heat(pinch, recovery_pct) if profile_mode == "net_load" else 0.0
+    original_gcc = _shift(
+        {"H": pinch.grand_composite_curve.get("H", []), "T": pinch.grand_composite_curve.get("T", [])}, d
+    )
 
     _, alternatives = _load_model_and_data()
     if cop_model == "4t":
@@ -467,6 +493,8 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         hpi.gcc_source, hpi.gcc_sink = resolve_profiles(
             pm.pinch_analyse, hpi, profile_mode
         )
+        if d:
+            hpi.gcc_source, hpi.gcc_sink = _shift(hpi.gcc_source, d), _shift(hpi.gcc_sink, d)
 
         # Extract the source/sink curves for the selected profile mode
         src_T_raw = np.array(hpi.gcc_source['T'])
@@ -482,7 +510,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
             return HPIOptimizationResult(
                 feasible_points=[],
                 max_q_point=None,
-                original_gcc={"H": pinch.grand_composite_curve.get("H", []), "T": pinch.grand_composite_curve.get("T", [])},
+                original_gcc=original_gcc,
                 profile_mode=profile_mode,
                 diagnostics=HPIOptimizationDiagnostics(messages=[
                     f"The {missing} profile is empty — there is no "
@@ -695,7 +723,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         return HPIOptimizationResult(
             feasible_points=feasible_points,
             max_q_point=max_q_point,
-            original_gcc={"H": pinch.grand_composite_curve.get("H", []), "T": pinch.grand_composite_curve.get("T", [])},
+            original_gcc=original_gcc,
             pocketless_source={"H": q_avail_clean.tolist(), "T": t_source_clean.tolist()},
             pocketless_sink={"H": q_demand_clean.tolist(), "T": t_sink_clean.tolist()},
             profile_mode=profile_mode,

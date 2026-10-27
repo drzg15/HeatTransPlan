@@ -1381,3 +1381,48 @@
     padding: 4px 0;
   }
 }
+
+/* ---------- Heat recovery: the two cases at the ends, the share between ---------- */
+/* One slim line, no box: a setting, not a section. */
+.pa-recovery {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin: 8px 0;
+  font-size: 0.8rem;
+}
+.pa-recovery-title {
+  display: inline-flex;
+  align-items: center;
+  color: var(--text-muted);
+}
+.pa-recovery-end {
+  padding: 1px 9px;
+  font-size: 0.78rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.pa-recovery-end.active {
+  border-color: var(--primary);
+  color: var(--primary);
+  font-weight: 600;
+}
+.pa-recovery-end:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
+.pa-recovery-slider {
+  width: 180px;
+  height: 4px;
+  accent-color: var(--primary);
+}
+.pa-recovery-pct {
+  min-width: 3em;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-main);
+}
