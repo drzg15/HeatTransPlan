@@ -119,3 +119,60 @@
 :global(.dark) .leaflet-container {
   background: #242424 !important;
 }
+
+/* Smooth zoom slider, vertical, under Leaflet's +/− buttons. */
+.map-zoom-slider {
+  position: absolute;
+  top: 84px;
+  left: 10px;
+  z-index: 1000;
+  padding: 6px 4px;
+  background: var(--surface, #fff);
+  border: 2px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.map-zoom-slider input {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  height: 120px;
+  width: 18px;
+  margin: 0;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+/* A process diagram holds the map still: no zooming then. */
+.map-frozen .leaflet-control-zoom {
+  display: none;
+}
+
+/* Site plan: load, place, fade, remove. */
+.map-plan-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.map-plan-controls .pa-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+}
+/* With a site plan there is no map behind it, just white. */
+.map-plan-only .leaflet-container {
+  background: #fff;
+}
+.map-plan-error {
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--surface, #fff);
+  color: var(--danger, #ef4444);
+  font-size: 0.8rem;
+}
+.map-plan-controls .pa-spin {
+  animation: map-plan-spin 1s linear infinite;
+}
+@keyframes map-plan-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   MapContainer,
   TileLayer,
+  ImageOverlay,
   Marker,
   Rectangle,
   useMap,
@@ -10,7 +12,11 @@ import {
 } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useTranslation } from 'react-i18next';
+import { ImagePlus, LoaderCircle, Scan, Trash2 } from 'lucide-react';
 import type { ProcessNode } from '../../types/process';
+import type { SitePlan } from '../../types/project';
+import { fileToPlanImage } from '../../utils/planImage';
 import { extractStreamInfo } from '../../utils/streamInfo';
 import './MapViewer.css';
 
@@ -59,6 +65,13 @@ interface Props {
   selectionActive?: boolean;
   className?: string;
   allowMultiMove?: boolean;
+
+  // The user's own site plan: over the map, and behind each process diagram.
+  // Without the change handlers the plans are only shown, not edited.
+  sitePlan?: SitePlan | null;
+  onSitePlanChange?: (plan: SitePlan | null) => void;
+  canvasPlans?: Record<string, string>;
+  onCanvasPlansChange?: (plans: Record<string, string>) => void;
 }
 
 /**
@@ -231,13 +244,18 @@ function MapController({
     if (locked) {
       map.setView(center, zoom, { animate: false });
       map.dragging.disable();
-      map.scrollWheelZoom.disable();
+      // Zooming stays: locking is about placing things, not about the view.
+      // Around the centre, so a locked map cannot drift sideways.
+      L.setOptions(map, { scrollWheelZoom: 'center', touchZoom: 'center' });
+      if (frozen) map.scrollWheelZoom.disable();
+      else map.scrollWheelZoom.enable();
       map.doubleClickZoom.disable();
       map.boxZoom.disable();
       map.keyboard.disable();
-      if ((map as any).touchZoom) (map as any).touchZoom.disable();
+      if ((map as any).touchZoom) (map as any).touchZoom[frozen ? 'disable' : 'enable']();
       if ((map as any).tap) (map as any).tap.disable();
     } else if (!frozen) {
+      L.setOptions(map, { scrollWheelZoom: true, touchZoom: true });
       // Only when nothing else is holding the map still. This effect reruns on
       // every centre/zoom change, so without the guard it would re-enable
       // panning behind the freeze's back.
@@ -374,7 +392,15 @@ function SubprocessMapFreeze({ active, locked }: { active: boolean; locked: bool
   return null;
 }
 
-function SubprocessCanvasOverlay({ active, deps }: { active: boolean; deps?: any }) {
+function SubprocessCanvasOverlay({
+  active,
+  deps,
+  image,
+}: {
+  active: boolean;
+  deps?: any;
+  image?: string;
+}) {
   const map = useMap();
   const [center, setCenter] = useState<L.LatLng | null>(null);
   const [size, setSize] = useState<L.Point | null>(null);
@@ -400,7 +426,8 @@ function SubprocessCanvasOverlay({ active, deps }: { active: boolean; deps?: any
   // Leaflet's SVG renderer limitations with custom panes.
   const bgIcon = L.divIcon({
     className: 'subprocess-canvas-bg',
-    html: `<div style="width: ${width}px; height: ${height}px; margin-left: -${width / 2}px; margin-top: -${height / 2}px; background: var(--surface, #ffffff); opacity: 0.91; pointer-events: none; border-radius: 12px; border: 1px solid var(--border, #e0e0e0); box-shadow: 0 8px 32px rgba(0,0,0,0.08);"></div>`,
+    // The process's own plan, if one was loaded, fills the canvas behind the diagram.
+    html: `<div style="width: ${width}px; height: ${height}px; margin-left: -${width / 2}px; margin-top: -${height / 2}px; background: var(--surface, #ffffff)${image ? ` url('${image}') center / contain no-repeat` : ''}; opacity: ${image ? 1 : 0.91}; pointer-events: none; border-radius: 12px; border: 1px solid var(--border, #e0e0e0); box-shadow: 0 8px 32px rgba(0,0,0,0.08);"></div>`,
     iconSize: [0, 0],
   });
 
@@ -412,6 +439,158 @@ function SubprocessCanvasOverlay({ active, deps }: { active: boolean; deps?: any
       interactive={false}
       keyboard={false}
     />
+  );
+}
+
+/** Smooth zoom: a slider under the +/− buttons, in the same quarter steps. */
+function ZoomSlider({ hidden }: { hidden: boolean }) {
+  const map = useMap();
+  const { t } = useTranslation();
+  const [z, setZ] = useState(map.getZoom());
+  const ref = useRef<HTMLDivElement>(null);
+  useMapEvents({ zoomend: () => setZ(map.getZoom()) });
+  useEffect(() => {
+    // Dragging the slider must not pan or zoom the map underneath.
+    if (!ref.current) return;
+    L.DomEvent.disableClickPropagation(ref.current);
+    L.DomEvent.disableScrollPropagation(ref.current);
+  }, []);
+  return createPortal(
+    <div ref={ref} className="map-zoom-slider" style={{ display: hidden ? 'none' : undefined }}>
+      <input
+        type="range"
+        min={3}
+        max={map.getMaxZoom()}
+        step={0.25}
+        value={z}
+        onChange={(e) => {
+          const v = Number(e.target.value);
+          setZ(v);
+          map.setZoom(v, { animate: false });
+        }}
+        aria-label={t('map.zoom')}
+        title={t('map.zoom')}
+      />
+    </div>,
+    map.getContainer()
+  );
+}
+
+/** Where a plan of this aspect ratio sits in the current view: centred and
+ *  filling the whole screen, without distortion, so in one direction it
+ *  reaches past the edges. */
+function planBoundsInView(map: L.Map, aspect: number): SitePlan['bounds'] {
+  const size = map.getSize();
+  const [w, h] = size.x / size.y > aspect ? [size.x, size.x / aspect] : [size.y * aspect, size.y];
+  const a = map.containerPointToLatLng([size.x / 2 - w / 2, size.y / 2 + h / 2]);
+  const b = map.containerPointToLatLng([size.x / 2 + w / 2, size.y / 2 - h / 2]);
+  return [
+    [a.lat, a.lng],
+    [b.lat, b.lng],
+  ];
+}
+
+/** Load, place and remove the site plan; with a process diagram open,
+ *  load or remove that diagram's background instead. */
+function PlanControls({
+  map,
+  canvasKey,
+  sitePlan,
+  onSitePlanChange,
+  canvasPlans,
+  onCanvasPlansChange,
+}: {
+  map: L.Map | null;
+  canvasKey: string | null;
+  sitePlan?: SitePlan | null;
+  onSitePlanChange: (plan: SitePlan | null) => void;
+  canvasPlans: Record<string, string>;
+  onCanvasPlansChange?: (plans: Record<string, string>) => void;
+}) {
+  const { t } = useTranslation();
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState(false);
+  const onCanvas = canvasKey !== null && !!onCanvasPlansChange;
+  const hasPlan = onCanvas ? !!canvasPlans[canvasKey!] : !!sitePlan;
+
+  const load = async (file: File) => {
+    setBusy(true);
+    setError(false);
+    try {
+      const img = await fileToPlanImage(file);
+      if (onCanvas) onCanvasPlansChange!({ ...canvasPlans, [canvasKey!]: img.url });
+      else if (map)
+        onSitePlanChange({
+          url: img.url,
+          bounds: planBoundsInView(map, img.width / img.height),
+        });
+    } catch {
+      setError(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const aspect = () => {
+    const [[s, w], [n, e]] = sitePlan!.bounds;
+    const p1 = map!.latLngToContainerPoint([s, w]);
+    const p2 = map!.latLngToContainerPoint([n, e]);
+    return Math.abs(p2.x - p1.x) / Math.abs(p2.y - p1.y);
+  };
+
+  return (
+    <div className="map-plan-controls">
+      <button
+        className="pa-btn"
+        onClick={() => fileRef.current?.click()}
+        disabled={busy}
+        title={t(onCanvas ? 'map.plan_canvas' : 'map.plan_upload')}
+      >
+        {busy ? <LoaderCircle size={16} className="pa-spin" /> : <ImagePlus size={16} />}
+        <span>{t('map.plan')}</span>
+      </button>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/png,image/jpeg,application/pdf,.pdf"
+        style={{ display: 'none' }}
+        onChange={(e) => {
+          const f = e.target.files?.[0];
+          if (f) load(f);
+          e.target.value = '';
+        }}
+      />
+      {hasPlan && !onCanvas && sitePlan && (
+        <>
+          <button
+            className="pa-btn"
+            onClick={() =>
+              map && onSitePlanChange({ ...sitePlan, bounds: planBoundsInView(map, aspect()) })
+            }
+            title={t('map.plan_place')}
+          >
+            <Scan size={16} />
+          </button>
+        </>
+      )}
+      {hasPlan && (
+        <button
+          className="pa-btn"
+          onClick={() => {
+            if (onCanvas) {
+              const next = { ...canvasPlans };
+              delete next[canvasKey!];
+              onCanvasPlansChange!(next);
+            } else onSitePlanChange(null);
+          }}
+          title={t('map.plan_remove')}
+        >
+          <Trash2 size={16} />
+        </button>
+      )}
+      {error && <span className="map-plan-error">{t('map.plan_error')}</span>}
+    </div>
   );
 }
 
@@ -1381,8 +1560,13 @@ export default function MapViewer({
   selectionActive,
   className,
   allowMultiMove = false,
+  sitePlan,
+  onSitePlanChange,
+  canvasPlans = {},
+  onCanvasPlansChange,
 }: Props) {
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [mapObj, setMapObj] = useState<L.Map | null>(null);
 
   // A subprocess belongs to its process, so it sits where the process sits
   // unless it has been given a spot of its own. The export table already
@@ -1575,10 +1759,18 @@ export default function MapViewer({
       Object.values(subprocessMapExpanded).some(Boolean),
     [childMapExpanded, subprocessMapExpanded]
   );
+  // The open diagram whose background the plan button sets: a process (group)
+  // or, one level down, a subprocess.
+  const canvasKey = useMemo(() => {
+    const g = Object.keys(subprocessMapExpanded).find((k) => subprocessMapExpanded[+k]);
+    if (g !== undefined) return `g${g}`;
+    const c = Object.keys(childMapExpanded).find((k) => childMapExpanded[+k]);
+    return c !== undefined ? `s${c}` : null;
+  }, [subprocessMapExpanded, childMapExpanded]);
 
   return (
     <div
-      className={`map-viewer-container ${className || ''} ${isFullscreen ? 'fullscreen' : ''} ${selectionActive ? 'pa-selection-active' : ''}`}
+      className={`map-viewer-container ${className || ''} ${isFullscreen ? 'fullscreen' : ''} ${selectionActive ? 'pa-selection-active' : ''} ${isCanvasActive ? 'map-frozen' : ''} ${sitePlan ? 'map-plan-only' : ''}`}
       style={
         !isFullscreen
           ? { height: height || '850px', flex: 'none', position: 'relative' }
@@ -1589,6 +1781,16 @@ export default function MapViewer({
         className="map-viewer-controls"
         style={{ position: 'absolute', top: 10, right: 10, zIndex: 1000, display: 'flex', gap: 8 }}
       >
+        {onSitePlanChange && (
+          <PlanControls
+            map={mapObj}
+            canvasKey={isCanvasActive ? canvasKey : null}
+            sitePlan={sitePlan}
+            onSitePlanChange={onSitePlanChange}
+            canvasPlans={canvasPlans}
+            onCanvasPlansChange={onCanvasPlansChange}
+          />
+        )}
         <button
           className="pa-btn"
           onClick={() => setIsFullscreen(!isFullscreen)}
@@ -1600,10 +1802,12 @@ export default function MapViewer({
       </div>
 
       <MapContainer
+        ref={setMapObj}
         center={center}
         zoom={zoom}
         style={{ height: '100%', width: '100%' }}
-        zoomControl={!locked}
+        // Always there: a locked map still zooms, it only stops panning.
+        zoomControl
         dragging={!locked}
         scrollWheelZoom={!locked}
         doubleClickZoom={!locked}
@@ -1612,7 +1816,26 @@ export default function MapViewer({
         zoomSnap={0.25}
         zoomDelta={0.25}
       >
-        <TileLayer key={tileUrl} url={tileUrl} maxNativeZoom={19} maxZoom={24} />
+        {/* A site plan replaces the map: on white, nothing behind it.
+            Google has sharper satellite tiles one level further than OSM. */}
+        {!sitePlan && (
+          <TileLayer
+            key={tileUrl}
+            url={tileUrl}
+            maxNativeZoom={baseTile === 'Satellite' ? 20 : 19}
+            maxZoom={24}
+          />
+        )}
+        <ZoomSlider hidden={isCanvasActive} />
+        {sitePlan && (
+          <Pane name="sitePlanPane" style={{ zIndex: 300 }}>
+            <ImageOverlay
+              key={sitePlan.url.length + sitePlan.bounds.flat().join()}
+              url={sitePlan.url}
+              bounds={sitePlan.bounds}
+            />
+          </Pane>
+        )}
         <MapController center={center} zoom={zoom} locked={locked} frozen={isCanvasActive} />
         <MapClickHandler onClick={handleMapClick} />
         <MapFullscreenResizer active={isFullscreen} />
@@ -1639,6 +1862,7 @@ export default function MapViewer({
         <Pane name="canvasPane" style={{ zIndex: 650 }}>
           <SubprocessCanvasOverlay
             active={isCanvasActive}
+            image={canvasKey ? canvasPlans[canvasKey] : undefined}
             deps={
               isCanvasActive ? JSON.stringify({ subprocessMapExpanded, childMapExpanded }) : null
             }

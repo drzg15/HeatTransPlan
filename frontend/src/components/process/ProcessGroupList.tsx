@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
 import SubprocessCard from './SubprocessCard';
 import { useUIStore } from '../../store/uiStore';
+import { useProjectStore } from '../../store/projectStore';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { removeProcesses } from '../../utils/processIndex';
 import './ProcessGroupList.css';
@@ -50,6 +51,8 @@ export default function ProcessGroupList({
   onExpandedGroupsChange,
 }: Props) {
   const { t } = useTranslation();
+  // On a site plan the positions are not geographic: no latitude/longitude.
+  const hasPlan = useProjectStore((s) => !!s.state.site_plan);
   const [infoExpanded, setInfoExpanded] = useState<Set<number>>(new Set());
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
 
@@ -241,22 +244,26 @@ export default function ProcessGroupList({
                   </div>
                   {showInfo && (
                     <div className="pgl-info-grid">
-                      <div>
-                        <label>{t('process.lat')}</label>
-                        <input
-                          type="text"
-                          value={gCoords.lat || ''}
-                          onChange={(e) => updateGroupCoord(gIdx, 'lat', e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label>{t('process.lon')}</label>
-                        <input
-                          type="text"
-                          value={gCoords.lon || ''}
-                          onChange={(e) => updateGroupCoord(gIdx, 'lon', e.target.value)}
-                        />
-                      </div>
+                      {!hasPlan && (
+                        <>
+                          <div>
+                            <label>{t('process.lat')}</label>
+                            <input
+                              type="text"
+                              value={gCoords.lat || ''}
+                              onChange={(e) => updateGroupCoord(gIdx, 'lat', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <label>{t('process.lon')}</label>
+                            <input
+                              type="text"
+                              value={gCoords.lon || ''}
+                              onChange={(e) => updateGroupCoord(gIdx, 'lon', e.target.value)}
+                            />
+                          </div>
+                        </>
+                      )}
                       <div>
                         <label>{t('process.hours')}</label>
                         <input

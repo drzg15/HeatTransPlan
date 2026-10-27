@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { ProjectState } from '../types/project';
+import type { ProjectState, SitePlan } from '../types/project';
 import type { ProcessNode } from '../types/process';
 
 interface ProjectStore {
@@ -23,6 +23,8 @@ interface ProjectStore {
   setGroups: (groups: number[][]) => void;
   setGroupCoordinates: (coords: ProjectState['proc_group_coordinates']) => void;
   setMapSnapshots: (snapshots: Record<string, string>) => void;
+  setSitePlan: (plan: SitePlan | null) => void;
+  setCanvasPlans: (plans: Record<string, string>) => void;
 
   // Potential Analysis
   setAnalysisSelection: (streams: Record<string, boolean>) => void;
@@ -78,6 +80,8 @@ export const useProjectStore = create<ProjectStore>()(
         set((s) => ({ state: { ...s.state, proc_group_coordinates: coords } })),
       setMapSnapshots: (snapshots) =>
         set((s) => ({ state: { ...s.state, map_snapshots_encoded: snapshots } })),
+      setSitePlan: (plan) => set((s) => ({ state: { ...s.state, site_plan: plan } })),
+      setCanvasPlans: (plans) => set((s) => ({ state: { ...s.state, canvas_plans: plans } })),
 
       // Potential Analysis
       setAnalysisSelection: (streams) =>
