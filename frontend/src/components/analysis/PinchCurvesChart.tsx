@@ -26,6 +26,9 @@ export default function PinchCurvesChart() {
   const { t } = useTranslation();
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
   const showShifted = useAnalysisStore((s) => s.showShifted);
+  // Without heat recovery the heat pump works on all hot and all cold streams,
+  // not on what the GCC leaves over: the right plot then shows those profiles.
+  const noRecovery = useAnalysisStore((s) => s.profileMode) === 'composite';
   const isDark = useUIStore((s) => s.theme) === 'dark';
   const gd = useRef<any>(null);
   // Set while the mouse is on the pinch line, so a hover on the band under it
@@ -51,9 +54,18 @@ export default function PinchCurvesChart() {
   const gccTitle = t('optimization.title_grand_composite_curve');
 
   // ---- Left: composite curves, with the recovery, surplus and deficit bands.
-  const diagram = showShifted
-    ? pinchResult.shifted_composite_diagram
-    : pinchResult.composite_diagram;
+  const base = showShifted ? pinchResult.shifted_composite_diagram : pinchResult.composite_diagram;
+  // Without heat recovery the cold curve starts where the hot one ends: no
+  // overlap, so the bands show all hot heat as surplus and all cold as deficit.
+  const diagram = noRecovery
+    ? {
+        ...base,
+        cold: {
+          ...base.cold,
+          H: base.cold.H.map((h) => h + Math.max(...base.hot.H) - Math.min(...base.cold.H)),
+        },
+      }
+    : base;
   const left: any[] = [
     // The explanations switch takes every marking off, leaving the curves.
     ...(!explain
@@ -138,7 +150,7 @@ export default function PinchCurvesChart() {
   // Pockets: heat exchanged within the temperature ranges where the curve
   // doubles back. Only a part of the total recovery, so neutral and unlinked.
   const pockets = gccPockets(gccH, gccT, pinchResult.pinch_temperature);
-  if (explain && pockets.heat > 0)
+  if (explain && !noRecovery && pockets.heat > 0)
     right.unshift({
       x: pockets.x,
       y: pockets.y,
@@ -153,17 +165,69 @@ export default function PinchCurvesChart() {
       legendrank: 4,
     });
 
+  // No heat recovery: the source is every hot stream (heat released below the
+  // hottest point, mirrored left of zero as in the optimization chart), the
+  // sink every cold stream (heat taken up above the coldest point). Both on
+  // shifted temperatures, like the GCC, which stays as a faint reference.
+  const sd = pinchResult.shifted_composite_diagram;
+  const hotTop = Math.max(...sd.hot.H);
+  const coldBottom = Math.min(...sd.cold.H);
+  const source = { H: sd.hot.H.map((h) => hotTop - h), T: sd.hot.T };
+  const sink = { H: sd.cold.H.map((h) => h - coldBottom), T: sd.cold.T };
+  if (noRecovery)
+    right.splice(
+      0,
+      right.length,
+      {
+        x: gccH,
+        y: gccT,
+        mode: 'lines',
+        line: { color: isDark ? '#64748B' : '#94A3B8', width: 1, dash: 'dot' },
+        name: gccTitle,
+        hoverinfo: 'skip',
+        legendrank: 3,
+      },
+      {
+        x: source.H.map((h) => -h),
+        y: source.T,
+        mode: 'lines+markers',
+        line: { color: 'red', width: 2 },
+        marker: { size: 6 },
+        name: t('analysis.charts.source_profile'),
+        legendrank: 3,
+        hovertemplate: `T: %{y:.1f}°C<br>Q: %{customdata:.1f} kW<extra></extra>`,
+        customdata: source.H,
+      },
+      {
+        x: sink.H,
+        y: sink.T,
+        mode: 'lines+markers',
+        line: { color: 'blue', width: 2 },
+        marker: { size: 6 },
+        name: t('analysis.charts.sink_profile'),
+        legendrank: 3,
+        hovertemplate: `T: %{y:.1f}°C<br>Q: %{x:.1f} kW<extra></extra>`,
+      }
+    );
+
   // Where the curve ends: minimum heating at the top, minimum cooling at the
   // bottom, as bars from the axis. They share the bands' keys, so the bands'
   // legend entries cover them and they carry none of their own.
   const byT = gccH.map((h, k) => [h, gccT[k]]).sort((a, b) => a[1] - b[1]);
   if (explain && byT.length > 1) {
-    const [[hBottom, tBottom], [hTop, tTop]] = [byT[0], byT[byT.length - 1]];
+    // Without recovery: all heating at the top of the sink, all cooling at the
+    // bottom of the source (left of zero).
+    const [[hBottom, tBottom], [hTop, tTop]] = noRecovery
+      ? [
+          [-Math.max(...source.H), Math.min(...source.T)],
+          [Math.max(...sink.H), Math.max(...sink.T)],
+        ]
+      : [byT[0], byT[byT.length - 1]];
     for (const [h, tt, color, name, meta] of [
       [hTop, tTop, 'rgba(220,38,38,0.4)', t('analysis.charts.cc_deficit'), 'deficit'],
       [hBottom, tBottom, 'rgba(37,99,235,0.4)', t('analysis.charts.cc_surplus'), 'surplus'],
     ] as const)
-      if (h > 0) {
+      if (h !== 0) {
         // Written above the top bar and below the bottom one.
         if (!hidden[meta])
           labels.push({
@@ -173,7 +237,7 @@ export default function PinchCurvesChart() {
             yanchor: meta === 'deficit' ? 'bottom' : 'top',
             yshift: meta === 'deficit' ? 6 : -6,
             showarrow: false,
-            text: `${name}: ${kw(h)}`,
+            text: `${name}: ${kw(Math.abs(h))}`,
             font: { size: 10, color: LABEL_INK[meta] },
           });
         right.push({
@@ -183,7 +247,7 @@ export default function PinchCurvesChart() {
           y: Array(41).fill(tt),
           mode: 'lines',
           line: { color, width: 10 },
-          name: `${name}: ${kw(h)}`,
+          name: `${name}: ${kw(Math.abs(h))}`,
           hoverinfo: 'name',
           showlegend: false,
           meta,
@@ -290,7 +354,9 @@ export default function PinchCurvesChart() {
       const h = hAtT(c.H, c.T, temp);
       return h === null ? '–' : kw(h, 0);
     };
-    const gccText = `ΔH: ${hAt({ H: gccH, T: gccT }, hoverT)}`;
+    const gccText = noRecovery
+      ? `${t('analysis.charts.source_profile')}: ${hAt(source, hoverT)} · ${t('analysis.charts.sink_profile')}: ${hAt(sink, hoverT)}`
+      : `ΔH: ${hAt({ H: gccH, T: gccT }, hoverT)}`;
     if (showShifted) {
       line('paper', hoverT, muted);
       note(
@@ -345,7 +411,10 @@ export default function PinchCurvesChart() {
       ...axis,
       domain: [0.52, 1],
       anchor: 'y',
-      title: { text: t('analysis.charts.net_enthalpy'), font: { color: ink } },
+      title: {
+        text: noRecovery ? t('analysis.charts.profiles_axis') : t('analysis.charts.net_enthalpy'),
+        font: { color: ink },
+      },
     },
     yaxis: {
       ...axis,
@@ -374,7 +443,7 @@ export default function PinchCurvesChart() {
       },
       // The arrow from one title to the other: the GCC is what the composite
       // curves leave over. Its head is the annotation below.
-      ...(!explain
+      ...(!explain || noRecovery
         ? []
         : [
             {
@@ -412,7 +481,10 @@ export default function PinchCurvesChart() {
           [0.24, ccTitle],
           [
             0.76,
-            showShifted ? gccTitle : `${gccTitle} (${t('analysis.charts.shifted_temp_short')})`,
+            ((title) =>
+              showShifted ? title : `${title} (${t('analysis.charts.shifted_temp_short')})`)(
+              noRecovery ? t('analysis.charts.profiles_no_recovery') : gccTitle
+            ),
           ],
         ] as const
       ).map(([x, text]) => ({
@@ -426,7 +498,7 @@ export default function PinchCurvesChart() {
         text,
         font: { size: 14, color: ink },
       })),
-      ...(!explain
+      ...(!explain || noRecovery
         ? []
         : [
             {

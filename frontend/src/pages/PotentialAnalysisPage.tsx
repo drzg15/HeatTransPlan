@@ -815,6 +815,7 @@ export default function PotentialAnalysisPage() {
                         hint={t('analysis.controls.reset_pinch_hint')}
                         onClick={() => {
                           setTMin(10);
+                          setProfileMode('net_load');
                           setShowShifted(true);
                           setExplain(true);
                         }}
@@ -859,6 +860,10 @@ export default function PotentialAnalysisPage() {
 
                   <PinchMetrics />
 
+                  {/* With or without heat recovery: the right plot below and the
+                      heat pump integration in part 2 follow it. */}
+                  <HeatRecoveryToggle />
+
                   {/* Composite curves and GCC as one figure on one temperature axis */}
                   <PinchCurvesChart />
                   <PinchSummary />
@@ -886,7 +891,6 @@ export default function PotentialAnalysisPage() {
                   hint={t('analysis.controls.reset_hpi_hint')}
                   onClick={() => {
                     const s = useAnalysisStore.getState();
-                    s.setProfileMode('net_load');
                     s.setCopModel('2t');
                     s.setCopFormula(null);
                     s.setSelectedHPPoints([]);
@@ -897,8 +901,6 @@ export default function PotentialAnalysisPage() {
               </>
             }
           >
-            <HeatRecoveryToggle />
-
             {/* Heat Integration Analysis Optimization */}
             <HPIOptimizationPanel key={hpiReset} />
             <HPISummary />

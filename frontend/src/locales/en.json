@@ -153,8 +153,8 @@
     "controls": {
       "show_shifted": "Show Shifted Composite Curves",
       "show_explanations": "Show explanations",
-      "reset_pinch_hint": "Restore ΔTmin (10 K), shifted curves and explanations to their starting values",
-      "reset_hpi_hint": "Restore heat recovery, COP model, filters and the selected heat pump to their starting values"
+      "reset_pinch_hint": "Restore ΔTmin (10 K), heat recovery, shifted curves and explanations to their starting values",
+      "reset_hpi_hint": "Restore the COP model, filters and the selected heat pump to their starting values"
     },
     "sections": {
       "notes": "Notes",
@@ -234,7 +234,9 @@
       "cc_cold_at": "cold",
       "shifted_temp_short": "shifted temperatures",
       "cc_to_gcc": "Remaining demand after direct heat recovery",
-      "cc_to_gcc_hint": "At every temperature the grand composite curve is the horizontal gap between the hot and cold composite curves (on shifted temperatures): the heat still missing or left over once the streams have exchanged heat directly. Where the gap closes is the pinch."
+      "cc_to_gcc_hint": "At every temperature the grand composite curve is the horizontal gap between the hot and cold composite curves (on shifted temperatures): the heat still missing or left over once the streams have exchanged heat directly. Where the gap closes is the pinch.",
+      "profiles_no_recovery": "Heat pump source and sink without heat recovery",
+      "profiles_axis": "Heat flow in kW (source ← 0 → sink)"
     },
     "recovery": {
       "title": "Heat recovery before integration",
@@ -813,7 +815,8 @@
       "status_quo": "Today the process uses {{h}} kW heating and {{c}} kW cooling, so heat recovery could save {{sh}} kW heating ({{shp}} %) and {{sc}} kW cooling ({{scp}} %).",
       "rule": "Supply heat only above {{T}} °C and remove it only below; a heat pump pays off by lifting waste heat across the pinch (next part).",
       "pockets": " The grey pockets in the grand composite curve ({{kw}} kW) are recovery within a temperature range.",
-      "interact": "Hover over a band, bar or card to highlight its counterparts; a legend click hides an area in both charts."
+      "interact": "Hover over a band, bar or card to highlight its counterparts; a legend click hides an area in both charts.",
+      "no_recovery": "Heat recovery is switched off: all {{qh}} kW of heating and {{qc}} kW of cooling then come from outside (cards above, bands and bars in the charts), and the heat pump in part 2 works on all hot and cold streams."
     },
     "hpi": {
       "search": "The optimisation tried {{n}} combinations of source and sink temperature and found {{m}} real heat pumps that work: {{full}} cover the whole demand above their sink temperature, {{src}} are limited by the waste heat available and {{dem}} by the demand.",
