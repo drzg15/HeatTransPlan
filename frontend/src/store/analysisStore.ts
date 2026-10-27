@@ -150,7 +150,9 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   econForm: ECON_DEFAULTS,
   econRefType: 'gas',
   tMin: 10,
-  showShifted: false,
+  // The GCC is on shifted temperatures, so the composite curves start there
+  // too and the two share one scale.
+  showShifted: true,
   profileMode: 'net_load',
   copFormula: null,
   copModel: '2t',

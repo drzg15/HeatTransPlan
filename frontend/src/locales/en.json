@@ -151,7 +151,8 @@
       "error": "Error:"
     },
     "controls": {
-      "show_shifted": "Show Shifted Composite Curves"
+      "show_shifted": "Show Shifted Composite Curves",
+      "show_explanations": "Show explanations"
     },
     "sections": {
       "notes": "Notes",
@@ -189,8 +190,8 @@
       }
     },
     "charts": {
-      "heat_sinks": "Cold streams (Heat sinks)",
-      "heat_sources": "Hot streams (Heat sources)",
+      "heat_sinks": "Cold streams",
+      "heat_sources": "Hot streams",
       "composite_curves": "Composite Curves",
       "shifted_composite_curves": "Shifted Composite Curves",
       "gcc": "Grand Composite Curve",
@@ -226,7 +227,12 @@
       "cc_recovery": "Heat recovery",
       "cc_surplus": "Heat surplus",
       "cc_deficit": "Heat deficit",
-      "gcc_pocket": "Pockets"
+      "gcc_pocket": "Pockets",
+      "cc_hot_at": "hot",
+      "cc_cold_at": "cold",
+      "shifted_temp_short": "shifted temperatures",
+      "cc_to_gcc": "Remaining demand after direct heat recovery",
+      "cc_to_gcc_hint": "At every temperature the grand composite curve is the horizontal gap between the hot and cold composite curves (on shifted temperatures): the heat still missing or left over once the streams have exchanged heat directly. Where the gap closes is the pinch."
     },
     "recovery": {
       "title": "Heat recovery before integration",
@@ -746,11 +752,13 @@
   "summaries": {
     "title": "Summary",
     "pinch": {
-      "pinch": "With a minimum temperature difference of ΔTmin = {{dt}} K between hot and cold streams, the pinch lies at {{T}} °C (shifted temperature).",
-      "recovery": "Of the {{hot}} kW the hot streams give off, {{rec}} kW can be recovered by exchanging heat between the process streams themselves.",
-      "utilities": "What is left has to come from outside: at least {{qh}} kW of heating above the pinch and {{qc}} kW of cooling below it.",
+      "pinch": "ΔTmin = {{dt}} K is the smallest temperature difference allowed wherever a hot stream heats a cold one. With it, the pinch lies at {{T}} °C (shifted temperature: hot streams at {{th}} °C, cold streams at {{tc}} °C).",
+      "recovery": "Of the {{hot}} kW the hot streams give off, {{rec}} kW can be recovered by exchanging heat between the process streams themselves: the green band on the composite curves.",
+      "utilities": "What is left has to come from outside: at least {{qh}} kW of heating above the pinch (the red band, and the red bar at the top of the grand composite curve) and {{qc}} kW of cooling below it (the blue band, and the blue bar at the bottom). Each amount is the width of its band.",
       "status_quo": "Today the process uses {{h}} kW of heating and {{c}} kW of cooling, so full heat recovery could save {{sh}} kW of heating ({{shp}} %) and {{sc}} kW of cooling ({{scp}} %).",
-      "rule": "Rule of the pinch: supply heat only above {{T}} °C and remove heat only below it. A heat pump pays off when it lifts waste heat from below the pinch to above it, which is what the next section looks for."
+      "rule": "Rule of the pinch: supply heat only above {{T}} °C and remove heat only below it. A heat pump pays off when it lifts waste heat from below the pinch to above it, which is what the next section looks for.",
+      "pockets": " The grey pockets on the grand composite curve ({{kw}} kW) are heat exchanged within temperature ranges where the curve doubles back, a part of the recovery.",
+      "interact": "Hover over a band, a bar or a card above and its counterparts light up; the mouse shows the same temperature in both charts, and a legend click hides an area in both. Everything updates as soon as you change ΔTmin, the stream selection or the shifted-temperature switch."
     },
     "hpi": {
       "search": "The optimisation tried {{n}} combinations of source and sink temperature and found {{m}} real heat pumps that work: {{full}} cover the whole demand above their sink temperature, {{src}} are limited by the waste heat available and {{dem}} by the demand.",

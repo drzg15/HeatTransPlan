@@ -19,8 +19,8 @@ import StreamSelector from '../components/analysis/StreamSelector';
 import EnergyDemands from '../components/analysis/EnergyDemands';
 import MapViewer from '../components/map/MapViewer';
 import PinchMetrics from '../components/analysis/PinchMetrics';
-import CompositeCurvesChart from '../components/analysis/CompositeCurvesChart';
-import GrandCompositeCurveChart from '../components/analysis/GrandCompositeCurveChart';
+import PinchCurvesChart from '../components/analysis/PinchCurvesChart';
+import { usePinchLink } from '../store/pinchLinkStore';
 import HeatPumpTable from '../components/analysis/HeatPumpTable';
 import HPIChart from '../components/analysis/HPIChart';
 import StatusQuoComparison from '../components/analysis/StatusQuoComparison';
@@ -60,6 +60,8 @@ export default function PotentialAnalysisPage() {
   const profileMode = useAnalysisStore((s) => s.profileMode);
   const setTMin = useAnalysisStore((s) => s.setTMin);
   const setShowShifted = useAnalysisStore((s) => s.setShowShifted);
+  const explain = usePinchLink((s) => s.explain);
+  const setExplain = usePinchLink((s) => s.setExplain);
   const setProfileMode = useAnalysisStore((s) => s.setProfileMode);
   const setPinchResult = useAnalysisStore((s) => s.setPinchResult);
   const setHPIResult = useAnalysisStore((s) => s.setHPIResult);
@@ -796,6 +798,14 @@ export default function PotentialAnalysisPage() {
                     />
                     {t('analysis.controls.show_shifted')}
                   </label>
+                  <label className="pa-toggle-label">
+                    <input
+                      type="checkbox"
+                      checked={explain}
+                      onChange={(e) => setExplain(e.target.checked)}
+                    />
+                    {t('analysis.controls.show_explanations')}
+                  </label>
 
                   <label className="pa-input-label pa-tmin-label">
                     ΔTmin
@@ -813,11 +823,8 @@ export default function PotentialAnalysisPage() {
 
                 <PinchMetrics />
 
-                {/* Charts row: Composite Curves + GCC */}
-                <div className="pa-charts-row">
-                  <CompositeCurvesChart />
-                  <GrandCompositeCurveChart />
-                </div>
+                {/* Composite curves and GCC as one figure on one temperature axis */}
+                <PinchCurvesChart />
                 <PinchSummary />
               </Section>
 

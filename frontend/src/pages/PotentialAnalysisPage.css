@@ -206,6 +206,29 @@
   cursor: pointer;
   padding: 2px 0;
 }
+/* The stream under the mouse: a stronger tint in its own colour and a bar
+   on the left, so it is clear which one the curves are showing. */
+.pa-stream-item {
+  border-radius: 4px;
+  padding-left: 4px;
+}
+.pa-stream-item.pa-stream-hot:hover {
+  background: rgba(220, 38, 38, 0.24);
+  box-shadow: inset 3px 0 0 #dc2626;
+}
+.pa-stream-item.pa-stream-cold:hover {
+  background: rgba(37, 99, 235, 0.24);
+  box-shadow: inset 3px 0 0 #2563eb;
+}
+/* Streams running through the temperature hovered on the pinch charts. */
+.pa-stream-item.pa-stream-hot-active {
+  background: rgba(220, 38, 38, 0.14);
+  border-radius: 4px;
+}
+.pa-stream-item.pa-stream-cold-active {
+  background: rgba(37, 99, 235, 0.14);
+  border-radius: 4px;
+}
 .pa-stream-item input[type='checkbox'] {
   margin: 0;
   flex-shrink: 0;
@@ -344,6 +367,25 @@
   margin: 28px 0 10px;
 }
 /* The page's own rule right before a section's rule: show one, not two. */
+/* A metric card whose area is hovered in the composite curves or the GCC. */
+.pa-metric-card {
+  transition: box-shadow 0.15s, transform 0.15s;
+}
+.pa-metric-card.pa-metric-linked {
+  transform: translateY(-2px);
+}
+.pa-metric-hot.pa-metric-linked {
+  box-shadow: 0 0 0 2px #dc2626;
+}
+.pa-metric-cold.pa-metric-linked {
+  box-shadow: 0 0 0 2px #2563eb;
+}
+.pa-metric-recovery.pa-metric-linked {
+  box-shadow: 0 0 0 2px #059669;
+}
+.pa-metric-pinch.pa-metric-linked {
+  box-shadow: 0 0 0 2px #7c3aed;
+}
 .pa-divider + .pa-divider {
   display: none;
 }
