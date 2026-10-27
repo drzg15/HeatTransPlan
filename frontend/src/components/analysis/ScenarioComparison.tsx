@@ -49,7 +49,7 @@ const ScenarioComparison: React.FC = () => {
   return (
     <div className="scenario-comparison">
       <div className="sc-header">
-        <h2>📊 Scenario Comparison Dashboard</h2>
+        <h2>Scenario Comparison Dashboard</h2>
         <p className="sc-subtitle">Analyze and compare saved exploration states side-by-side</p>
       </div>
 
@@ -180,7 +180,7 @@ const ScenarioComparison: React.FC = () => {
 
       {/* 2. Combined Comparison Table - Now in Middle */}
       <div className="sc-table-section pa-section">
-        <h3>📊 Combined Status Quo vs. Proposal Comparison</h3>
+        <h3>Combined Status Quo vs. Proposal Comparison</h3>
         <p className="sc-subtitle" style={{ marginBottom: 16 }}>
           Aggregated performance data across all saved scenarios.{' '}
           {t('economics.compare_note', { T: Math.round(econForm.T) })}

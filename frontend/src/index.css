@@ -584,3 +584,16 @@ canvas {
     height: 10px;
   }
 }
+
+/* ── Icons (Lucide) ───────────────────────────────────── */
+/* Line icons sit on the text baseline and never squeeze. */
+.lucide {
+  flex-shrink: 0;
+  vertical-align: -0.125em;
+}
+.analysis-help-panel h3,
+.analysis-help-panel h4 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}

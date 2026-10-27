@@ -3,6 +3,16 @@
  */
 
 import {
+  BookOpen,
+  CircleCheck,
+  FileText,
+  FolderOpen,
+  LoaderCircle,
+  RotateCcw,
+  Save,
+  TriangleAlert,
+} from 'lucide-react';
+import {
   useCallback,
   useEffect,
   useMemo,
@@ -649,14 +659,14 @@ export default function PotentialAnalysisPage() {
 
         <div className="pa-header-actions">
           <button className="btn btn-sm" onClick={handleSaveProject} title="Save project to JSON">
-            💾 {t('analysis.buttons.save')}
+            <Save size={14} /> {t('analysis.buttons.save')}
           </button>
           <label
             className="btn btn-sm"
             style={{ cursor: 'pointer' }}
             title="Load project from JSON"
           >
-            📂 {t('analysis.buttons.load')}
+            <FolderOpen size={14} /> {t('analysis.buttons.load')}
             <input
               ref={fileRef}
               type="file"
@@ -672,9 +682,15 @@ export default function PotentialAnalysisPage() {
             onClick={handleGenerateReport}
             style={{ padding: '6px 14px', fontSize: '0.8rem' }}
           >
-            {reportLoading
-              ? `⏳ ${t('analysis.buttons.generating')}`
-              : `📄 ${t('analysis.buttons.report')}`}
+            {reportLoading ? (
+              <>
+                <LoaderCircle size={14} className="pa-spin" /> {t('analysis.buttons.generating')}
+              </>
+            ) : (
+              <>
+                <FileText size={14} /> {t('analysis.buttons.report')}
+              </>
+            )}
           </button>
           <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px' }} />
           <button
@@ -682,7 +698,7 @@ export default function PotentialAnalysisPage() {
             onClick={() => setShowHelp(!showHelp)}
             title="Toggle Analysis Guide"
           >
-            💡
+            <BookOpen size={16} />
           </button>
         </div>
       </div>
@@ -763,9 +779,16 @@ export default function PotentialAnalysisPage() {
                     }
                     return (
                       <div key={key} className={missing.length > 0 ? 'pa-missing' : 'pa-complete'}>
-                        {missing.length > 0
-                          ? `⚠️ ${procName} - ${streamName}: Missing ${missing.join(', ')}`
-                          : `✅ ${procName} - ${streamName}: Complete data`}
+                        {missing.length > 0 ? (
+                          <>
+                            <TriangleAlert size={14} /> {procName} - {streamName}: Missing{' '}
+                            {missing.join(', ')}
+                          </>
+                        ) : (
+                          <>
+                            <CircleCheck size={14} /> {procName} - {streamName}: Complete data
+                          </>
+                        )}
                       </div>
                     );
                   })}
@@ -919,12 +942,12 @@ export default function PotentialAnalysisPage() {
   );
 }
 
-/** The ↺ button at the right of a section heading; a button, so it does not fold the section. */
+/** The reset button at the right of a section heading; a button, so it does not fold the section. */
 function ResetButton({ hint, onClick }: { hint: string; onClick: () => void }) {
   const { t } = useTranslation();
   return (
     <button type="button" className="econ-reset" onClick={onClick} title={hint}>
-      ↺ {t('economics.reset')}
+      <RotateCcw size={13} /> {t('economics.reset')}
     </button>
   );
 }

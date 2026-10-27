@@ -359,6 +359,65 @@
   border-radius: 4px;
 }
 
+/* ---------- Icons ---------- */
+/* One chevron for every fold-out heading: a Lucide chevron drawn in the text colour. */
+.pa-part-banner::before,
+.pa-section > .pa-section-summary::before,
+.econ-more > summary::before {
+  content: '';
+  display: inline-block;
+  vertical-align: -0.125em;
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+  background: currentColor;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m9 18 6-6-6-6'/%3E%3C/svg%3E")
+    center / contain no-repeat;
+}
+.pa-spin {
+  animation: pa-spin 1s linear infinite;
+}
+@keyframes pa-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+/* Hot / cold marker after a stream's data. */
+.pa-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin-left: 6px;
+  border-radius: 50%;
+  vertical-align: middle;
+}
+.pa-dot-hot {
+  background: #dc2626;
+}
+.pa-dot-cold {
+  background: #2563eb;
+}
+.pa-btn-report,
+.econ-reset,
+.pa-error,
+.pa-data-status > div {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+/* Help and reset on a part's blue banner: white, quiet until hovered. */
+.pa-part-banner .chart-help-btn,
+.pa-part-banner .econ-reset {
+  color: #fff !important;
+}
+.pa-part-banner .econ-reset {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.35);
+}
+.pa-part-banner .econ-reset:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
 /* ---------- Parts: the page's three main blocks ---------- */
 .pa-part {
   margin: 28px 0 0;
@@ -382,9 +441,8 @@
 .pa-part-banner::-webkit-details-marker {
   display: none;
 }
-/* Chevron: ▸ folded, ▾ open. */
+/* Chevron, rotated when open. */
 .pa-part-banner::before {
-  content: '▸';
   transition: transform 0.15s;
 }
 .pa-part[open] > .pa-part-banner::before {
@@ -693,10 +751,8 @@
 .pa-section > .pa-section-summary::-webkit-details-marker {
   display: none;
 }
-/* Chevron: ▸ closed, ▾ open. */
+/* Chevron, rotated when open. */
 .pa-section > .pa-section-summary::before {
-  content: '▸';
-  font-size: 0.9rem;
   transition: transform 0.15s;
 }
 .pa-section[open] > .pa-section-summary::before {
@@ -896,8 +952,6 @@
   display: none;
 }
 .econ-more > summary::before {
-  content: '▸';
-  font-size: 1rem;
   transition: transform 0.15s;
 }
 .econ-more[open] > summary::before {

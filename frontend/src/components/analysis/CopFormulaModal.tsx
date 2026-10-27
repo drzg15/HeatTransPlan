@@ -3,6 +3,7 @@
  *  The expression is never evaluated in the browser. It is sent to the backend,
  *  which parses it and whitelists every AST node before anything runs.
  */
+import { Check, ChevronDown, ChevronRight, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { validateCopFormula } from '../../api/analysis';
@@ -29,13 +30,39 @@ const DEFAULT_COP_FORMULA: CopFormulaSpec = {
   hp_level: '1',
 };
 
-
-
-const BUILTIN_FORMULAS: Array<{ label: string; expression: string; T_sink_min: number; T_sink_max: number }> = [
-  { label: 'Theoretical Carnot (50 %)', expression: '0.5 * (T_sink + 273.15) / (T_sink - T_source)', T_sink_min: 0, T_sink_max: 250 },
-  { label: 'Stirling Engine', expression: '1.28792 * ((T_sink - T_source) + 1.08206)**-0.37606 * (T_sink + 273.54103)**0.35992', T_sink_min: 144, T_sink_max: 212 },
-  { label: 'SHP (HFC/HFO)', expression: '1.9118 * ((T_sink - T_source) + 2*0.04419)**(-0.89094) * (T_sink + 273 + 0.04419)**0.67895', T_sink_min: 80, T_sink_max: 160 },
-  { label: 'SHP (R717)', expression: '40.789 * ((T_sink - T_source) + 2*1.0305)**(-1.0489) * (T_sink + 273 + 1.0305)**0.29998', T_sink_min: 70, T_sink_max: 85 },
+const BUILTIN_FORMULAS: Array<{
+  label: string;
+  expression: string;
+  T_sink_min: number;
+  T_sink_max: number;
+}> = [
+  {
+    label: 'Theoretical Carnot (50 %)',
+    expression: '0.5 * (T_sink + 273.15) / (T_sink - T_source)',
+    T_sink_min: 0,
+    T_sink_max: 250,
+  },
+  {
+    label: 'Stirling Engine',
+    expression:
+      '1.28792 * ((T_sink - T_source) + 1.08206)**-0.37606 * (T_sink + 273.54103)**0.35992',
+    T_sink_min: 144,
+    T_sink_max: 212,
+  },
+  {
+    label: 'SHP (HFC/HFO)',
+    expression:
+      '1.9118 * ((T_sink - T_source) + 2*0.04419)**(-0.89094) * (T_sink + 273 + 0.04419)**0.67895',
+    T_sink_min: 80,
+    T_sink_max: 160,
+  },
+  {
+    label: 'SHP (R717)',
+    expression:
+      '40.789 * ((T_sink - T_source) + 2*1.0305)**(-1.0489) * (T_sink + 273 + 1.0305)**0.29998',
+    T_sink_min: 70,
+    T_sink_max: 85,
+  },
 ];
 
 export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
@@ -121,7 +148,7 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
         <header className="cf-header">
           <h3>{t('cop_modal.title')}</h3>
           <button className="cf-close" onClick={onCancel} aria-label={t('cop_modal.close')}>
-            ✕
+            <X size={16} />
           </button>
         </header>
 
@@ -157,14 +184,21 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
             {checking && <span className="cf-muted">{t('cop_modal.checking')}</span>}
             {!checking && check?.valid && (
               <span>
-                ✓ COP = <strong>{check.cop?.toFixed(3)}</strong> at {probeSource} °C → {probeSink}{' '}
-                °C
+                <Check size={14} /> COP = <strong>{check.cop?.toFixed(3)}</strong> at {probeSource}{' '}
+                °C → {probeSink} °C
               </span>
             )}
             {!checking && check && !check.valid && (
-              <span>✕ {check.error === 'Could not reach the server.' ? t('cop_modal.server_error') : check.error}</span>
+              <span>
+                <X size={14} />{' '}
+                {check.error === 'Could not reach the server.'
+                  ? t('cop_modal.server_error')
+                  : check.error}
+              </span>
             )}
-            {!checking && !check && <span className="cf-muted">{t('cop_modal.enter_formula')}</span>}
+            {!checking && !check && (
+              <span className="cf-muted">{t('cop_modal.enter_formula')}</span>
+            )}
           </div>
 
           <div className="cf-probe">
@@ -203,7 +237,8 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
             <button
               className="cf-chip"
               title="Conditional logic for intervals (formatted for readability)"
-              onClick={() => insert(`where(
+              onClick={() =>
+                insert(`where(
   T_sink < 110, 
   carnot * 0.55, 
   where(
@@ -211,13 +246,16 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
     carnot * 0.45, 
     carnot * 0.5
   )
-)`)}
+)`)
+              }
             >
               Interval Example
             </button>
           </div>
           {check?.functions?.length ? (
-            <p className="cf-muted cf-funcs">{t('cop_modal.functions')} {check.functions.join(', ')}</p>
+            <p className="cf-muted cf-funcs">
+              {t('cop_modal.functions')} {check.functions.join(', ')}
+            </p>
           ) : null}
 
           <div className="cf-section-title">{t('cop_modal.built_in_title')}</div>
@@ -238,7 +276,8 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
           </div>
 
           <button className="cf-disclosure" onClick={() => setShowEnvelope((v) => !v)}>
-            {showEnvelope ? '▾' : '▸'} {t('cop_modal.validity_range')}
+            {showEnvelope ? <ChevronDown size={14} /> : <ChevronRight size={14} />}{' '}
+            {t('cop_modal.validity_range')}
             <span className="cf-muted">{t('cop_modal.validity_sub')}</span>
           </button>
           {showEnvelope && (

@@ -23,7 +23,16 @@ const TutorialPanel: React.FC<Props> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
-        <div className="tutorial-pdf-container" style={{ width: '100%', flex: 1, backgroundColor: 'var(--surface)', overflow: 'hidden', padding: '0 16px 16px 16px' }}>
+        <div
+          className="tutorial-pdf-container"
+          style={{
+            width: '100%',
+            flex: 1,
+            backgroundColor: 'var(--surface)',
+            overflow: 'hidden',
+            padding: '0 16px 16px 16px',
+          }}
+        >
           <TutorialSidebar />
         </div>
       </div>

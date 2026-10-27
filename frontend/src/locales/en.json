@@ -178,7 +178,7 @@
       "cannot_integrate": "Cannot be integrated",
       "hp_coverage": "Heat Pump Coverage (%)",
       "status_quo": {
-        "title": "📊 Comparison of Status Quo and Proposal",
+        "title": "Comparison of Status Quo and Proposal",
         "desc": "Compare the current external energy supply with the absolute minimum external energy required after maximal internal heat recovery (the proposal). Savings indicate how much external utility is avoided.",
         "type": "Type of Energy Demand",
         "current": "Current Status Quo (kW)",
@@ -188,7 +188,7 @@
         "hp_cov_kw": "HP Coverage (kW)",
         "heating": "Heating Demand",
         "cooling": "Cooling Demand",
-        "warning": "💡 Current energy supplies are required to calculate the difference to status quo. Please configure them in the \"Current energy supply\" section above."
+        "warning": "Current energy supplies are required to calculate the difference to status quo. Please configure them in the \"Current energy supply\" section above."
       }
     },
     "charts": {

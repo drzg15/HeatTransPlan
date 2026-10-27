@@ -1,3 +1,4 @@
+import { BookOpen, ChartArea, ClipboardList, Moon, RotateCcw, Save, Sun } from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -22,8 +23,16 @@ const NAV_ITEMS = [
       />
     ),
   },
-  { path: '/data-collection', translationKey: 'appshell.nav.data_collection', icon: '📊' },
-  { path: '/potential-analysis', translationKey: 'appshell.nav.potential_analysis', icon: '📈' },
+  {
+    path: '/data-collection',
+    translationKey: 'appshell.nav.data_collection',
+    icon: <ClipboardList size={16} />,
+  },
+  {
+    path: '/potential-analysis',
+    translationKey: 'appshell.nav.potential_analysis',
+    icon: <ChartArea size={16} />,
+  },
 ];
 
 export default function AppShell({ children }: Props) {
@@ -105,7 +114,7 @@ export default function AppShell({ children }: Props) {
             style={{ marginRight: '8px', textDecoration: 'none' }}
             title={t('home.documentation')}
           >
-            📖 {t('home.documentation')}
+            <BookOpen size={14} /> {t('home.documentation')}
           </a>
           <button
             className="btn btn-sm"
@@ -113,7 +122,7 @@ export default function AppShell({ children }: Props) {
             title={t('action_bar.reset_modal_title')}
             style={{ marginRight: '8px' }}
           >
-            🔄 {t('home.reset_all')}
+            <RotateCcw size={14} /> {t('home.reset_all')}
           </button>
           <LanguagePicker />
           <button
@@ -121,7 +130,7 @@ export default function AppShell({ children }: Props) {
             onClick={toggleTheme}
             title={theme === 'dark' ? t('appshell.theme.light') : t('appshell.theme.dark')}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           <button
             className="theme-toggle nav-burger"
@@ -182,9 +191,7 @@ export default function AppShell({ children }: Props) {
             }}
           >
             <h3 style={{ margin: 0, color: '#d32f2f' }}>{t('action_bar.reset_modal_title')}</h3>
-            <p style={{ margin: 0, lineHeight: 1.5 }}>
-              {t('action_bar.reset_modal_desc')}
-            </p>
+            <p style={{ margin: 0, lineHeight: 1.5 }}>{t('action_bar.reset_modal_desc')}</p>
             <p style={{ margin: 0, fontSize: '0.9em', color: 'var(--text-muted)' }}>
               {t('action_bar.reset_modal_recommend')}
             </p>
@@ -196,7 +203,7 @@ export default function AppShell({ children }: Props) {
                 {t('cop_modal.cancel') || 'Cancel'}
               </button>
               <button className="btn btn-primary" onClick={handleSave}>
-                💾 {t('action_bar.download_project')}
+                <Save size={14} /> {t('action_bar.download_project')}
               </button>
               <button
                 className="btn"

@@ -25,7 +25,9 @@ export default function CompositeCurvesChart() {
   const diagram = showShifted
     ? pinchResult.shifted_composite_diagram
     : pinchResult.composite_diagram;
-  const titleText = showShifted ? t('analysis.charts.shifted_composite_curves') : t('analysis.charts.composite_curves');
+  const titleText = showShifted
+    ? t('analysis.charts.shifted_composite_curves')
+    : t('analysis.charts.composite_curves');
 
   const yRange = pairedTempRange(pinchResult, showShifted);
   const traces: any[] = [
@@ -73,8 +75,18 @@ export default function CompositeCurvesChart() {
       ? []
       : (
           [
-            [diagram.hot, showShifted ? hoverT : hoverT + half, '#DC2626', t('analysis.charts.cc_hot_at')],
-            [diagram.cold, showShifted ? hoverT : hoverT - half, '#2563EB', t('analysis.charts.cc_cold_at')],
+            [
+              diagram.hot,
+              showShifted ? hoverT : hoverT + half,
+              '#DC2626',
+              t('analysis.charts.cc_hot_at'),
+            ],
+            [
+              diagram.cold,
+              showShifted ? hoverT : hoverT - half,
+              '#2563EB',
+              t('analysis.charts.cc_cold_at'),
+            ],
           ] as const
         ).map(([curve, temp, color, label], k) => {
           const h = hAtT(curve.H, curve.T, temp);
@@ -183,7 +195,9 @@ export default function CompositeCurvesChart() {
         description={
           <>
             <p>
-              {t('optimization.desc_cc_chart_p1a')}<strong>{t('optimization.desc_cc_chart_p1b')}</strong>{t('optimization.desc_cc_chart_p1c')}
+              {t('optimization.desc_cc_chart_p1a')}
+              <strong>{t('optimization.desc_cc_chart_p1b')}</strong>
+              {t('optimization.desc_cc_chart_p1c')}
             </p>
             <p>{t('optimization.desc_cc_chart_p2')}</p>
             <p>{t('optimization.desc_cc_chart_p3')}</p>
