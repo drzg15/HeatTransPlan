@@ -153,8 +153,8 @@
     "controls": {
       "show_shifted": "Verschobene Verbundkurve anzeigen",
       "show_explanations": "Erklärungen anzeigen",
-      "reset_pinch_hint": "ΔTmin (10 K), verschobene Kurven und Erklärungen auf die Startwerte zurücksetzen",
-      "reset_hpi_hint": "Wärmerückgewinnung, COP-Modell, Filter und ausgewählte Wärmepumpe auf die Startwerte zurücksetzen"
+      "reset_pinch_hint": "ΔTmin (10 K), Wärmerückgewinnung, verschobene Kurven und Erklärungen auf die Startwerte zurücksetzen",
+      "reset_hpi_hint": "COP-Modell, Filter und ausgewählte Wärmepumpe auf die Startwerte zurücksetzen"
     },
     "sections": {
       "notes": "Notizen",
@@ -234,7 +234,9 @@
       "cc_cold_at": "kalt",
       "shifted_temp_short": "verschobene Temperaturen",
       "cc_to_gcc": "Restbedarf nach direkter Wärmerückgewinnung",
-      "cc_to_gcc_hint": "Bei jeder Temperatur ist die Großverbundkurve der waagerechte Abstand zwischen der heißen und der kalten Verbundkurve (auf verschobenen Temperaturen): die Wärme, die noch fehlt oder übrig bleibt, nachdem die Ströme direkt Wärme ausgetauscht haben. Wo der Abstand null wird, liegt der Pinch."
+      "cc_to_gcc_hint": "Bei jeder Temperatur ist die Großverbundkurve der waagerechte Abstand zwischen der heißen und der kalten Verbundkurve (auf verschobenen Temperaturen): die Wärme, die noch fehlt oder übrig bleibt, nachdem die Ströme direkt Wärme ausgetauscht haben. Wo der Abstand null wird, liegt der Pinch.",
+      "profiles_no_recovery": "Quelle und Senke der Wärmepumpe ohne Wärmerückgewinnung",
+      "profiles_axis": "Wärmestrom in kW (Quelle ← 0 → Senke)"
     },
     "recovery": {
       "title": "Wärmerückgewinnung vor der Integration",
@@ -813,7 +815,8 @@
       "status_quo": "Heute nutzt der Prozess {{h}} kW Heizung und {{c}} kW Kühlung; Wärmerückgewinnung könnte {{sh}} kW Heizung ({{shp}} %) und {{sc}} kW Kühlung ({{scp}} %) einsparen.",
       "rule": "Wärme nur oberhalb von {{T}} °C zuführen und nur unterhalb abführen; eine Wärmepumpe lohnt sich, wenn sie Abwärme über den Pinch hebt (nächster Teil).",
       "pockets": " Die grauen Taschen in der Großverbundkurve ({{kw}} kW) sind Rückgewinnung innerhalb eines Temperaturbereichs.",
-      "interact": "Mit der Maus über einem Band, Balken oder einer Karte leuchten die zugehörigen Stellen auf; ein Klick auf die Legende blendet einen Bereich in beiden Diagrammen aus."
+      "interact": "Mit der Maus über einem Band, Balken oder einer Karte leuchten die zugehörigen Stellen auf; ein Klick auf die Legende blendet einen Bereich in beiden Diagrammen aus.",
+      "no_recovery": "Die Wärmerückgewinnung ist ausgeschaltet: Dann kommen alle {{qh}} kW Heizung und {{qc}} kW Kühlung von außen (Karten oben, Bänder und Balken in den Diagrammen), und die Wärmepumpe in Teil 2 arbeitet mit allen heißen und kalten Strömen."
     },
     "hpi": {
       "search": "Die Optimierung hat {{n}} Kombinationen aus Quellen- und Senkentemperatur geprüft und {{m}} reale Wärmepumpen gefunden, die funktionieren: {{full}} decken den gesamten Bedarf oberhalb ihrer Senkentemperatur, {{src}} sind durch die verfügbare Abwärme begrenzt und {{dem}} durch den Bedarf.",

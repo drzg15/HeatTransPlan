@@ -16,6 +16,7 @@ const LINKED: Record<string, LinkRegion> = {
 export default function PinchMetrics() {
   const { t } = useTranslation();
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
+  const noRecovery = useAnalysisStore((s) => s.profileMode) === 'composite';
   const region = usePinchLink((s) => s.region);
   const setRegion = usePinchLink((s) => s.setRegion);
   if (!pinchResult) return null;
@@ -23,22 +24,29 @@ export default function PinchMetrics() {
   const totalHotDuty = pinchResult.streams_data
     .filter((s) => s.ts > s.tt)
     .reduce((sum, s) => sum + Math.abs(s.cp * (s.tt - s.ts)), 0);
+  const totalColdDuty = pinchResult.streams_data
+    .filter((s) => s.ts < s.tt)
+    .reduce((sum, s) => sum + Math.abs(s.cp * (s.tt - s.ts)), 0);
+  // Without heat recovery every cold stream is heated and every hot stream
+  // cooled from outside; with it, only what the pinch analysis leaves.
+  const heating = noRecovery ? totalColdDuty : pinchResult.hot_utility;
+  const cooling = noRecovery ? totalHotDuty : pinchResult.cold_utility;
   // What the hot streams give off, less what still has to be cooled away.
-  const heatRecovery = totalHotDuty - pinchResult.cold_utility;
+  const heatRecovery = totalHotDuty - cooling;
 
   const cards = [
     {
       key: 'heating',
       label: t('metrics.min_heating'),
       description: t('metrics.min_heating_desc'),
-      value: `${pinchResult.hot_utility.toFixed(2)} kW`,
+      value: `${heating.toFixed(2)} kW`,
       cls: 'hot',
     },
     {
       key: 'cooling',
       label: t('metrics.min_cooling'),
       description: t('metrics.min_cooling_desc'),
-      value: `${pinchResult.cold_utility.toFixed(2)} kW`,
+      value: `${cooling.toFixed(2)} kW`,
       cls: 'cold',
     },
     {
