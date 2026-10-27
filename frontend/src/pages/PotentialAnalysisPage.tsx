@@ -2,7 +2,15 @@
  *  1:1 port of the original Streamlit potential_analysis.py layout.
  */
 
-import { useCallback, useEffect, useMemo, useState, useRef, type ChangeEvent } from 'react';
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+  useRef,
+  type ChangeEvent,
+  type ReactNode,
+} from 'react';
 import { useProjectStore } from '../store/projectStore';
 import { useAnalysisStore } from '../store/analysisStore';
 import {
@@ -89,6 +97,7 @@ export default function PotentialAnalysisPage() {
   // them across every sink temperature. Kept behind a toggle rather than
   // removed, so it is one click away while it is still being compared against.
   const [showClassicHPI, setShowClassicHPI] = useState(false);
+  const [hpiReset, setHpiReset] = useState(0);
   const [reportLoading, setReportLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -690,250 +699,326 @@ export default function PotentialAnalysisPage() {
         </div>
       </div>
 
-      {/* Top row: Streams | Energy Demands | Map */}
-      <div className="pa-top-row">
-        <div className="pa-top-col pa-col-streams">
-          <StreamSelector />
+      <Part
+        n={1}
+        title={t('analysis.parts.integration')}
+        input={t('analysis.parts.integration_in')}
+      >
+        {/* Top row: Streams | Energy Demands | Map */}
+        <div className="pa-top-row">
+          <div className="pa-top-col pa-col-streams">
+            <StreamSelector />
+          </div>
+          <div className="pa-top-col pa-col-demands">
+            <EnergyDemands />
+          </div>
+          <div className="pa-top-col pa-col-map" style={{ position: 'relative' }}>
+            <AnalysisHelp isOpen={showHelp} onClose={() => setShowHelp(false)} />
+            <MapViewer
+              key="pa-mini-map"
+              height={isMobile ? 'clamp(260px, 45vh, 400px)' : '420px'}
+              center={
+                projectState.map_center?.length === 2
+                  ? (projectState.map_center as [number, number])
+                  : [51.707937580921694, 8.772205607882668]
+              }
+              zoom={Math.max(1, (projectState.map_zoom || 17) - 1.5)}
+              locked={true}
+              processes={projectState.processes}
+              groups={projectState.proc_groups || []}
+              groupNames={projectState.proc_group_names || []}
+              groupCoordinates={projectState.proc_group_coordinates || {}}
+              baseTile={projectState.current_base || 'OpenStreetMap'}
+              onClick={() => {}}
+              onMoveEnd={() => {}}
+              subprocessMapExpanded={{}}
+              childMapExpanded={{}}
+              // Selection API
+              selectionActive={selectionActive}
+              selectedStreams={selectedStreams}
+              onProcessesSelect={handleMapProcessesSelect}
+              onSelectionToggle={handleMapSelectionToggle}
+            />
+          </div>
         </div>
-        <div className="pa-top-col pa-col-demands">
-          <EnergyDemands />
-        </div>
-        <div className="pa-top-col pa-col-map" style={{ position: 'relative' }}>
-          <AnalysisHelp isOpen={showHelp} onClose={() => setShowHelp(false)} />
-          <MapViewer
-            key="pa-mini-map"
-            height={isMobile ? 'clamp(260px, 45vh, 400px)' : '420px'}
-            center={
-              projectState.map_center?.length === 2
-                ? (projectState.map_center as [number, number])
-                : [51.707937580921694, 8.772205607882668]
-            }
-            zoom={Math.max(1, (projectState.map_zoom || 17) - 1.5)}
-            locked={true}
-            processes={projectState.processes}
-            groups={projectState.proc_groups || []}
-            groupNames={projectState.proc_group_names || []}
-            groupCoordinates={projectState.proc_group_coordinates || {}}
-            baseTile={projectState.current_base || 'OpenStreetMap'}
-            onClick={() => {}}
-            onMoveEnd={() => {}}
-            subprocessMapExpanded={{}}
-            childMapExpanded={{}}
-            // Selection API
-            selectionActive={selectionActive}
-            selectedStreams={selectedStreams}
-            onProcessesSelect={handleMapProcessesSelect}
-            onSelectionToggle={handleMapSelectionToggle}
-          />
-        </div>
-      </div>
 
-      {/* Pinch Analysis Section */}
-      <hr className="pa-divider" />
+        {processes.length === 0 ? (
+          <div className="pa-info-box">{t('analysis.messages.no_processes')}</div>
+        ) : streamsData.length < 2 ? (
+          <div className="pa-info-box">
+            {t('analysis.messages.need_more_streams')}
+            {selectedCount > 0 && (
+              <div className="pa-data-status">
+                <strong>Data status for selected items:</strong>
+                {Object.entries(selectedStreams)
+                  .filter(([, v]) => v)
+                  .map(([key]) => {
+                    if (!key.startsWith('stream_')) return null;
+                    const parts = key.split('_');
+                    const pIdx = parseInt(parts[1], 10);
+                    const sIdx = parseInt(parts[2], 10);
+                    if (pIdx >= processes.length) return null;
+                    const proc = processes[pIdx];
+                    const streams = proc.streams ?? [];
+                    if (sIdx >= streams.length) return null;
+                    const stream = streams[sIdx];
+                    const info = getStreamInfo(stream);
+                    const procName = proc.name || `Subprocess ${pIdx + 1}`;
+                    const streamName = stream.name || `Stream ${sIdx + 1}`;
+                    const missing: string[] = [];
+                    if (info.tin === null) missing.push('Tin');
+                    if (info.tout === null) missing.push('Tout');
+                    if (info.CP === null) {
+                      if (info.mdot === null) missing.push('ṁ');
+                      if (info.cp === null) missing.push('cp');
+                      missing.push('(or CP)');
+                    }
+                    return (
+                      <div key={key} className={missing.length > 0 ? 'pa-missing' : 'pa-complete'}>
+                        {missing.length > 0
+                          ? `⚠️ ${procName} - ${streamName}: Missing ${missing.join(', ')}`
+                          : `✅ ${procName} - ${streamName}: Complete data`}
+                      </div>
+                    );
+                  })}
+              </div>
+            )}
+          </div>
+        ) : (
+          <>
+            {pinchLoading && <div className="pa-loading">{t('analysis.messages.running')}</div>}
+            {pinchError && (
+              <div className="pa-error">
+                {t('analysis.messages.error')} {pinchError}
+              </div>
+            )}
 
-      {processes.length === 0 ? (
-        <div className="pa-info-box">{t('analysis.messages.no_processes')}</div>
-      ) : streamsData.length < 2 ? (
-        <div className="pa-info-box">
-          {t('analysis.messages.need_more_streams')}
-          {selectedCount > 0 && (
-            <div className="pa-data-status">
-              <strong>Data status for selected items:</strong>
-              {Object.entries(selectedStreams)
-                .filter(([, v]) => v)
-                .map(([key]) => {
-                  if (!key.startsWith('stream_')) return null;
-                  const parts = key.split('_');
-                  const pIdx = parseInt(parts[1], 10);
-                  const sIdx = parseInt(parts[2], 10);
-                  if (pIdx >= processes.length) return null;
-                  const proc = processes[pIdx];
-                  const streams = proc.streams ?? [];
-                  if (sIdx >= streams.length) return null;
-                  const stream = streams[sIdx];
-                  const info = getStreamInfo(stream);
-                  const procName = proc.name || `Subprocess ${pIdx + 1}`;
-                  const streamName = stream.name || `Stream ${sIdx + 1}`;
-                  const missing: string[] = [];
-                  if (info.tin === null) missing.push('Tin');
-                  if (info.tout === null) missing.push('Tout');
-                  if (info.CP === null) {
-                    if (info.mdot === null) missing.push('ṁ');
-                    if (info.cp === null) missing.push('cp');
-                    missing.push('(or CP)');
-                  }
-                  return (
-                    <div key={key} className={missing.length > 0 ? 'pa-missing' : 'pa-complete'}>
-                      {missing.length > 0
-                        ? `⚠️ ${procName} - ${streamName}: Missing ${missing.join(', ')}`
-                        : `✅ ${procName} - ${streamName}: Complete data`}
-                    </div>
-                  );
-                })}
-            </div>
-          )}
-        </div>
-      ) : (
-        <>
-          {pinchLoading && <div className="pa-loading">{t('analysis.messages.running')}</div>}
-          {pinchError && (
-            <div className="pa-error">
-              {t('analysis.messages.error')} {pinchError}
-            </div>
-          )}
-
-          {pinchResult && (
-            <>
-              {/* Pinch analysis: status quo, controls, metrics, curves, summary */}
-              <Section title={<h3 className="pa-section-title">{t('analysis.sections.pinch')}</h3>}>
-                <StatusQuoComparison />
-
-                {/* Controls row: toggle + ΔTmin + metrics */}
-                <div className="pa-controls-row">
-                  <label className="pa-toggle-label">
-                    <input
-                      type="checkbox"
-                      checked={showShifted}
-                      onChange={(e) => setShowShifted(e.target.checked)}
-                    />
-                    {t('analysis.controls.show_shifted')}
-                  </label>
-                  <label className="pa-toggle-label">
-                    <input
-                      type="checkbox"
-                      checked={explain}
-                      onChange={(e) => setExplain(e.target.checked)}
-                    />
-                    {t('analysis.controls.show_explanations')}
-                  </label>
-
-                  <label className="pa-input-label pa-tmin-label">
-                    ΔTmin
-                    <input
-                      type="number"
-                      min={1}
-                      max={50}
-                      step={1}
-                      value={tMin}
-                      onChange={(e) => setTMin(parseFloat(e.target.value) || 10)}
-                      className="pa-number-input pa-tmin-input"
-                    />
-                  </label>
-                </div>
-
-                <PinchMetrics />
-
-                {/* Composite curves and GCC as one figure on one temperature axis */}
-                <PinchCurvesChart />
-                <PinchSummary />
-              </Section>
-
-              {/* Heat Pump Integration */}
-              <Section
-                title={
-                  <h3 className="pa-section-title">
-                    {t('analysis.charts.hpi_title')}
-                    <ChartHelpButton
-                      inline
-                      title={t('analysis.charts.hpi_title')}
-                      description={t('optimization.desc_hp_simulates')}
-                    />
-                  </h3>
-                }
-              >
-                <HeatRecoveryToggle />
-
-                <button
-                  type="button"
-                  onClick={() => setShowClassicHPI((v) => !v)}
-                  className="pa-classic-hpi-toggle"
-                  aria-expanded={showClassicHPI}
-                >
-                  {showClassicHPI
-                    ? t('analysis.charts.hide_classic_hpi')
-                    : t('analysis.charts.show_classic_hpi')}
-                </button>
-
-                {showClassicHPI && hpiLoading && (
-                  <div className="pa-loading">Running HPI analysis…</div>
-                )}
-                {showClassicHPI && hpiError && <div className="pa-warning">⚠️ {hpiError}</div>}
-
-                {showClassicHPI && hpiResult && (
-                  <div className="pa-hpi-layout">
-                    <div className="pa-hpi-table-col">
-                      <HeatPumpTable />
-                    </div>
-                    <div className="pa-hpi-chart-col">
-                      {availableHPNames.length > 0 && (
-                        <div className="pa-hp-select">
-                          <label>{t('analysis.charts.select_hp')}</label>
-                          <div className="pa-multi-select">
-                            {availableHPNames.map((name: any) => (
-                              <label key={name} className="pa-multi-option">
-                                <input
-                                  type="checkbox"
-                                  checked={selectedHPTypes.includes(name)}
-                                  onChange={() => {
-                                    setSelectedHPTypes(
-                                      selectedHPTypes.includes(name)
-                                        ? selectedHPTypes.filter((n) => n !== name)
-                                        : [...selectedHPTypes, name]
-                                    );
-                                  }}
-                                />
-                                {name}
-                              </label>
-                            ))}
-                          </div>
-                        </div>
-                      )}
-                      <HPIChart />
-                    </div>
-                  </div>
-                )}
-
-                {/* Heat Integration Analysis Optimization */}
-                <HPIOptimizationPanel />
-                <HPISummary />
-              </Section>
-
-              {/* Renders its own Section, since its heading carries the reset button. */}
-              <EconomicAnalysis />
-
-              <Section title={<h3 className="pa-section-title">{t('analysis.sections.notes')}</h3>}>
-                <textarea
-                  className="pa-notes-textarea"
-                  value={pinchNotes ?? ''}
-                  onChange={(e) => setPinchNotes(e.target.value)}
-                  placeholder={t('analysis.placeholders.notes')}
-                  rows={4}
-                />
-              </Section>
-
-              {/* More information */}
-              <details
-                className="pa-details pa-more-info"
-                open={moreInfoOpen}
-                onToggle={(e) => setMoreInfoOpen((e.target as HTMLDetailsElement).open)}
-              >
-                <summary>{t('analysis.more_info')}</summary>
-                <TemperatureIntervalDiagram />
-                <CopCoverageChart />
-              </details>
-
-              {/* Scenario Comparison View */}
-              {scenarios.length >= 2 && (
+            {pinchResult && (
+              <>
+                {/* Pinch analysis: status quo, controls, metrics, curves, summary */}
                 <Section
-                  title={<h3 className="pa-section-title">{t('analysis.sections.scenarios')}</h3>}
+                  title={
+                    <h3 className="pa-section-title" style={{ flex: 1 }}>
+                      {t('analysis.sections.pinch')}
+                      <ResetButton
+                        hint={t('analysis.controls.reset_pinch_hint')}
+                        onClick={() => {
+                          setTMin(10);
+                          setShowShifted(true);
+                          setExplain(true);
+                        }}
+                      />
+                    </h3>
+                  }
                 >
-                  <ScenarioComparison />
+                  <StatusQuoComparison />
+
+                  {/* Controls row: toggle + ΔTmin + metrics */}
+                  <div className="pa-controls-row">
+                    <label className="pa-toggle-label">
+                      <input
+                        type="checkbox"
+                        checked={showShifted}
+                        onChange={(e) => setShowShifted(e.target.checked)}
+                      />
+                      {t('analysis.controls.show_shifted')}
+                    </label>
+                    <label className="pa-toggle-label">
+                      <input
+                        type="checkbox"
+                        checked={explain}
+                        onChange={(e) => setExplain(e.target.checked)}
+                      />
+                      {t('analysis.controls.show_explanations')}
+                    </label>
+
+                    <label className="pa-input-label pa-tmin-label">
+                      ΔTmin
+                      <input
+                        type="number"
+                        min={1}
+                        max={50}
+                        step={1}
+                        value={tMin}
+                        onChange={(e) => setTMin(parseFloat(e.target.value) || 10)}
+                        className="pa-number-input pa-tmin-input"
+                      />
+                    </label>
+                  </div>
+
+                  <PinchMetrics />
+
+                  {/* Composite curves and GCC as one figure on one temperature axis */}
+                  <PinchCurvesChart />
+                  <PinchSummary />
                 </Section>
+              </>
+            )}
+          </>
+        )}
+      </Part>
+
+      {pinchResult && streamsData.length >= 2 && (
+        <>
+          <Part
+            n={2}
+            title={t('analysis.parts.heat_pump')}
+            input={t('analysis.parts.heat_pump_in')}
+          >
+            <Section
+              title={
+                <h3 className="pa-section-title" style={{ flex: 1 }}>
+                  {t('analysis.charts.hpi_title')}
+                  <ChartHelpButton
+                    inline
+                    title={t('analysis.charts.hpi_title')}
+                    description={t('optimization.desc_hp_simulates')}
+                  />
+                  <ResetButton
+                    hint={t('analysis.controls.reset_hpi_hint')}
+                    onClick={() => {
+                      const s = useAnalysisStore.getState();
+                      s.setProfileMode('net_load');
+                      s.setCopModel('2t');
+                      s.setCopFormula(null);
+                      s.setSelectedHPPoints([]);
+                      setShowClassicHPI(false);
+                      // Remounts the panel, so its filters and sorting start over.
+                      setHpiReset((n) => n + 1);
+                    }}
+                  />
+                </h3>
+              }
+            >
+              <HeatRecoveryToggle />
+
+              <button
+                type="button"
+                onClick={() => setShowClassicHPI((v) => !v)}
+                className="pa-classic-hpi-toggle"
+                aria-expanded={showClassicHPI}
+              >
+                {showClassicHPI
+                  ? t('analysis.charts.hide_classic_hpi')
+                  : t('analysis.charts.show_classic_hpi')}
+              </button>
+
+              {showClassicHPI && hpiLoading && (
+                <div className="pa-loading">Running HPI analysis…</div>
               )}
-            </>
+              {showClassicHPI && hpiError && <div className="pa-warning">⚠️ {hpiError}</div>}
+
+              {showClassicHPI && hpiResult && (
+                <div className="pa-hpi-layout">
+                  <div className="pa-hpi-table-col">
+                    <HeatPumpTable />
+                  </div>
+                  <div className="pa-hpi-chart-col">
+                    {availableHPNames.length > 0 && (
+                      <div className="pa-hp-select">
+                        <label>{t('analysis.charts.select_hp')}</label>
+                        <div className="pa-multi-select">
+                          {availableHPNames.map((name: any) => (
+                            <label key={name} className="pa-multi-option">
+                              <input
+                                type="checkbox"
+                                checked={selectedHPTypes.includes(name)}
+                                onChange={() => {
+                                  setSelectedHPTypes(
+                                    selectedHPTypes.includes(name)
+                                      ? selectedHPTypes.filter((n) => n !== name)
+                                      : [...selectedHPTypes, name]
+                                  );
+                                }}
+                              />
+                              {name}
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    <HPIChart />
+                  </div>
+                </div>
+              )}
+
+              {/* Heat Integration Analysis Optimization */}
+              <HPIOptimizationPanel key={hpiReset} />
+              <HPISummary />
+            </Section>
+          </Part>
+
+          <Part n={3} title={t('analysis.parts.costs')} input={t('analysis.parts.costs_in')}>
+            {/* Renders its own Section, since its heading carries the reset button. */}
+            <EconomicAnalysis />
+          </Part>
+
+          <Section title={<h3 className="pa-section-title">{t('analysis.sections.notes')}</h3>}>
+            <textarea
+              className="pa-notes-textarea"
+              value={pinchNotes ?? ''}
+              onChange={(e) => setPinchNotes(e.target.value)}
+              placeholder={t('analysis.placeholders.notes')}
+              rows={4}
+            />
+          </Section>
+
+          {/* More information */}
+          <details
+            className="pa-details pa-more-info"
+            open={moreInfoOpen}
+            onToggle={(e) => setMoreInfoOpen((e.target as HTMLDetailsElement).open)}
+          >
+            <summary>{t('analysis.more_info')}</summary>
+            <TemperatureIntervalDiagram />
+            <CopCoverageChart />
+          </details>
+
+          {/* Scenario Comparison View */}
+          {scenarios.length >= 2 && (
+            <Section
+              title={<h3 className="pa-section-title">{t('analysis.sections.scenarios')}</h3>}
+            >
+              <ScenarioComparison />
+            </Section>
           )}
         </>
       )}
     </div>
+  );
+}
+
+/** The ↺ button at the right of a section heading; a button, so it does not fold the section. */
+function ResetButton({ hint, onClick }: { hint: string; onClick: () => void }) {
+  const { t } = useTranslation();
+  return (
+    <button type="button" className="econ-reset" onClick={onClick} title={hint}>
+      ↺ {t('economics.reset')}
+    </button>
+  );
+}
+
+/** One of the page's three main parts, under a numbered banner naming what
+ *  goes into it. */
+function Part({
+  n,
+  title,
+  input,
+  children,
+}: {
+  n: number;
+  title: string;
+  input: string;
+  children: ReactNode;
+}) {
+  return (
+    <section className="pa-part">
+      <h2 className="pa-part-banner">
+        <span className="pa-part-num">{n}</span>
+        {title}
+        <span className="pa-part-input">{input}</span>
+      </h2>
+      <div className="pa-part-body">{children}</div>
+    </section>
   );
 }

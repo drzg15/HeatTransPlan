@@ -152,7 +152,9 @@
     },
     "controls": {
       "show_shifted": "Verschobene Verbundkurve anzeigen",
-      "show_explanations": "Erklärungen anzeigen"
+      "show_explanations": "Erklärungen anzeigen",
+      "reset_pinch_hint": "ΔTmin (10 K), verschobene Kurven und Erklärungen auf die Startwerte zurücksetzen",
+      "reset_hpi_hint": "Wärmerückgewinnung, COP-Modell, Filter und ausgewählte Wärmepumpe auf die Startwerte zurücksetzen"
     },
     "sections": {
       "notes": "Notizen",
@@ -242,6 +244,14 @@
       "no_desc": "Verbundkurve",
       "explanation_with": "Netto-Lastkurven – die bereinigte Großverbundkurve, aufgeteilt in ein Quellen- und ein Senkenprofil. Wärme wird zurückgewonnen, wo immer die Temperaturen es zulassen, sodass die Wärmepumpe nur den verbleibenden Energiebedarf abdeckt. Dies ist Standardpraxis in der Pinch-Analyse und die empfohlene Einstellung.",
       "explanation_no": "Verbundkurve – heiße und kalte Verbundkurven werden direkt als Quellen- und Senkenprofile verwendet. Interne Wärmerückgewinnung wird nicht angenommen, sodass die Wärmepumpe den gesamten Heiz- und Kühlbedarf dort deckt, wo es möglich ist."
+    },
+    "parts": {
+      "integration": "Ströme & Wärmeintegration",
+      "heat_pump": "Wärmepumpenintegration",
+      "costs": "Kostenanalyse",
+      "integration_in": "Eingang: Ströme der ausgewählten Prozesse",
+      "heat_pump_in": "Eingang: Großverbundkurve",
+      "costs_in": "Eingang: ausgewählte Wärmepumpe (Heizleistung, COP)"
     }
   },
   "stream_selector": {
@@ -797,13 +807,13 @@
   "summaries": {
     "title": "Zusammenfassung",
     "pinch": {
-      "pinch": "ΔTmin = {{dt}} K ist die kleinste zulässige Temperaturdifferenz, wo ein heißer Strom einen kalten erwärmt. Damit liegt der Pinch bei {{T}} °C (verschobene Temperatur: heiße Ströme bei {{th}} °C, kalte bei {{tc}} °C).",
-      "recovery": "Von den {{hot}} kW, die die heißen Ströme abgeben, lassen sich {{rec}} kW durch Wärmeaustausch zwischen den Prozessströmen selbst zurückgewinnen: das grüne Band in den Verbundkurven.",
-      "utilities": "Der Rest muss von außen kommen: mindestens {{qh}} kW Heizung oberhalb des Pinch (das rote Band und der rote Balken oben in der Großverbundkurve) und {{qc}} kW Kühlung unterhalb (das blaue Band und der blaue Balken unten). Die Menge ist jeweils die Breite des Bandes.",
-      "status_quo": "Heute nutzt der Prozess {{h}} kW Heizung und {{c}} kW Kühlung; vollständige Wärmerückgewinnung könnte also {{sh}} kW Heizung ({{shp}} %) und {{sc}} kW Kühlung ({{scp}} %) einsparen.",
-      "rule": "Pinch-Regel: Wärme nur oberhalb von {{T}} °C zuführen und nur unterhalb abführen. Eine Wärmepumpe lohnt sich, wenn sie Abwärme von unterhalb des Pinch nach oberhalb hebt; genau das sucht der nächste Abschnitt.",
-      "pockets": " Die grauen Taschen in der Großverbundkurve ({{kw}} kW) sind Wärme, die innerhalb von Temperaturbereichen ausgetauscht wird, in denen die Kurve zurückläuft – ein Teil der Rückgewinnung.",
-      "interact": "Fahren Sie mit der Maus über ein Band, einen Balken oder eine Karte darüber, leuchten die zugehörigen Stellen auf; die Mausposition zeigt dieselbe Temperatur in beiden Diagrammen, und ein Klick auf einen Legendeneintrag blendet einen Bereich in beiden aus. Alles ändert sich, sobald Sie ΔTmin, die Stromauswahl oder den Schalter für verschobene Temperaturen ändern."
+      "pinch": "ΔTmin = {{dt}} K, die kleinste zulässige Differenz zwischen heißem und kaltem Strom, legt den Pinch auf {{T}} °C (heiße Ströme {{th}} °C, kalte {{tc}} °C).",
+      "recovery": "Von den {{hot}} kW, die die heißen Ströme abgeben, werden {{rec}} kW zwischen den Strömen zurückgewonnen (grünes Band).",
+      "utilities": "Der Rest kommt von außen: mindestens {{qh}} kW Heizung oberhalb des Pinch (rot) und {{qc}} kW Kühlung unterhalb (blau), jeweils die Breite des Bandes bzw. Balkens.",
+      "status_quo": "Heute nutzt der Prozess {{h}} kW Heizung und {{c}} kW Kühlung; Wärmerückgewinnung könnte {{sh}} kW Heizung ({{shp}} %) und {{sc}} kW Kühlung ({{scp}} %) einsparen.",
+      "rule": "Wärme nur oberhalb von {{T}} °C zuführen und nur unterhalb abführen; eine Wärmepumpe lohnt sich, wenn sie Abwärme über den Pinch hebt (nächster Teil).",
+      "pockets": " Die grauen Taschen in der Großverbundkurve ({{kw}} kW) sind Rückgewinnung innerhalb eines Temperaturbereichs.",
+      "interact": "Mit der Maus über einem Band, Balken oder einer Karte leuchten die zugehörigen Stellen auf; ein Klick auf die Legende blendet einen Bereich in beiden Diagrammen aus."
     },
     "hpi": {
       "search": "Die Optimierung hat {{n}} Kombinationen aus Quellen- und Senkentemperatur geprüft und {{m}} reale Wärmepumpen gefunden, die funktionieren: {{full}} decken den gesamten Bedarf oberhalb ihrer Senkentemperatur, {{src}} sind durch die verfügbare Abwärme begrenzt und {{dem}} durch den Bedarf.",
