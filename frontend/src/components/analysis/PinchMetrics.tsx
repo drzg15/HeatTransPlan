@@ -3,10 +3,21 @@
 import { useAnalysisStore } from '../../store/analysisStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import { useTranslation } from 'react-i18next';
+import { usePinchLink, type LinkRegion } from '../../store/pinchLinkStore';
+
+// The chart area each card matches: hovering one lights up the others.
+const LINKED: Record<string, LinkRegion> = {
+  heating: 'deficit',
+  cooling: 'surplus',
+  recovery: 'recovery',
+  pinch: 'pinch',
+};
 
 export default function PinchMetrics() {
   const { t } = useTranslation();
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
+  const region = usePinchLink((s) => s.region);
+  const setRegion = usePinchLink((s) => s.setRegion);
   if (!pinchResult) return null;
 
   const totalHotDuty = pinchResult.streams_data
@@ -49,7 +60,12 @@ export default function PinchMetrics() {
   return (
     <div className="pa-metrics-row">
       {cards.map((c) => (
-        <div key={c.key} className={`pa-metric-card pa-metric-${c.cls}`}>
+        <div
+          key={c.key}
+          className={`pa-metric-card pa-metric-${c.cls}${LINKED[c.key] && LINKED[c.key] === region ? ' pa-metric-linked' : ''}`}
+          onMouseEnter={() => setRegion(LINKED[c.key] ?? null)}
+          onMouseLeave={() => setRegion(null)}
+        >
           <div
             className="pa-metric-label"
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}

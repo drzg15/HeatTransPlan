@@ -7,12 +7,18 @@ import { getStreamInfo } from '../../utils/streamUtils';
 import type { Stream } from '../../types/stream';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import { useTranslation } from 'react-i18next';
+import { shiftedRange, usePinchLink } from '../../store/pinchLinkStore';
 
 export default function StreamSelector() {
   const { t } = useTranslation();
   const processes = useProjectStore((s) => s.state.processes);
   const selectedStreams = useAnalysisStore((s) => s.selectedStreams);
   const setSelectedStream = useAnalysisStore((s) => s.setSelectedStream);
+  // Linked with the pinch charts: hovering a stream marks it on the curves,
+  // hovering a temperature on the curves marks the streams running through it.
+  const half = useAnalysisStore((s) => (s.pinchResult?.T_min ?? 0) / 2);
+  const hoverT = usePinchLink((s) => s.hoverT);
+  const setStream = usePinchLink((s) => s.setStream);
 
   // Initialize any streams that haven't been seen yet as "selected" by default
   useEffect(() => {
@@ -83,8 +89,31 @@ export default function StreamSelector() {
                 if (info.Q !== null) parts.push(`Q:${info.Q.toFixed(2)} kW`);
                 if (info.type) parts.push(info.type.includes('Hot') ? '🔴' : '🔵');
 
+                const hot = info.tin !== null && info.tout !== null && info.tin > info.tout;
+                const complete = checked && info.tin !== null && info.tout !== null;
+                const range = complete
+                  ? shiftedRange({ tin: info.tin!, tout: info.tout!, hot }, half)
+                  : null;
+                const active =
+                  hoverT !== null && range !== null && hoverT >= range[0] && hoverT <= range[1];
+
                 return (
-                  <label key={key} className="pa-stream-item" title={streamName}>
+                  <label
+                    key={key}
+                    className={`pa-stream-item ${hot ? 'pa-stream-hot' : 'pa-stream-cold'}${active ? (hot ? ' pa-stream-hot-active' : ' pa-stream-cold-active') : ''}`}
+                    title={streamName}
+                    onMouseEnter={() =>
+                      complete &&
+                      setStream({
+                        name: streamName,
+                        tin: info.tin!,
+                        tout: info.tout!,
+                        Q: info.Q ?? 0,
+                        hot,
+                      })
+                    }
+                    onMouseLeave={() => setStream(null)}
+                  >
                     <input type="checkbox" checked={checked} onChange={() => handleToggle(key)} />
                     <span className="pa-stream-name">{streamName}</span>
                     <span className="pa-stream-info">

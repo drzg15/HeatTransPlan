@@ -151,7 +151,8 @@
       "error": "Fehler:"
     },
     "controls": {
-      "show_shifted": "Verschobene Verbundkurve anzeigen"
+      "show_shifted": "Verschobene Verbundkurve anzeigen",
+      "show_explanations": "Erklärungen anzeigen"
     },
     "sections": {
       "notes": "Notizen",
@@ -189,8 +190,8 @@
       }
     },
     "charts": {
-      "heat_sinks": "Kalte Ströme (Wärmesenken)",
-      "heat_sources": "Heiße Ströme (Wärmequellen)",
+      "heat_sinks": "Kalte Ströme",
+      "heat_sources": "Heiße Ströme",
       "composite_curves": "Verbundkurve",
       "shifted_composite_curves": "Verschobene Verbundkurve",
       "gcc": "Großverbundkurve",
@@ -226,7 +227,12 @@
       "cc_recovery": "Wärmerückgewinnung",
       "cc_surplus": "Wärmeüberschuss",
       "cc_deficit": "Wärmedefizit",
-      "gcc_pocket": "Taschen"
+      "gcc_pocket": "Taschen",
+      "cc_hot_at": "heiß",
+      "cc_cold_at": "kalt",
+      "shifted_temp_short": "verschobene Temperaturen",
+      "cc_to_gcc": "Restbedarf nach direkter Wärmerückgewinnung",
+      "cc_to_gcc_hint": "Bei jeder Temperatur ist die Großverbundkurve der waagerechte Abstand zwischen der heißen und der kalten Verbundkurve (auf verschobenen Temperaturen): die Wärme, die noch fehlt oder übrig bleibt, nachdem die Ströme direkt Wärme ausgetauscht haben. Wo der Abstand null wird, liegt der Pinch."
     },
     "recovery": {
       "title": "Wärmerückgewinnung vor der Integration",
@@ -746,11 +752,13 @@
   "summaries": {
     "title": "Zusammenfassung",
     "pinch": {
-      "pinch": "Bei einer minimalen Temperaturdifferenz von ΔTmin = {{dt}} K zwischen heißen und kalten Strömen liegt der Pinch bei {{T}} °C (verschobene Temperatur).",
-      "recovery": "Von den {{hot}} kW, die die heißen Ströme abgeben, lassen sich {{rec}} kW durch Wärmeaustausch zwischen den Prozessströmen selbst zurückgewinnen.",
-      "utilities": "Der Rest muss von außen kommen: mindestens {{qh}} kW Heizung oberhalb des Pinch und {{qc}} kW Kühlung unterhalb.",
+      "pinch": "ΔTmin = {{dt}} K ist die kleinste zulässige Temperaturdifferenz, wo ein heißer Strom einen kalten erwärmt. Damit liegt der Pinch bei {{T}} °C (verschobene Temperatur: heiße Ströme bei {{th}} °C, kalte bei {{tc}} °C).",
+      "recovery": "Von den {{hot}} kW, die die heißen Ströme abgeben, lassen sich {{rec}} kW durch Wärmeaustausch zwischen den Prozessströmen selbst zurückgewinnen: das grüne Band in den Verbundkurven.",
+      "utilities": "Der Rest muss von außen kommen: mindestens {{qh}} kW Heizung oberhalb des Pinch (das rote Band und der rote Balken oben in der Großverbundkurve) und {{qc}} kW Kühlung unterhalb (das blaue Band und der blaue Balken unten). Die Menge ist jeweils die Breite des Bandes.",
       "status_quo": "Heute nutzt der Prozess {{h}} kW Heizung und {{c}} kW Kühlung; vollständige Wärmerückgewinnung könnte also {{sh}} kW Heizung ({{shp}} %) und {{sc}} kW Kühlung ({{scp}} %) einsparen.",
-      "rule": "Pinch-Regel: Wärme nur oberhalb von {{T}} °C zuführen und nur unterhalb abführen. Eine Wärmepumpe lohnt sich, wenn sie Abwärme von unterhalb des Pinch nach oberhalb hebt; genau das sucht der nächste Abschnitt."
+      "rule": "Pinch-Regel: Wärme nur oberhalb von {{T}} °C zuführen und nur unterhalb abführen. Eine Wärmepumpe lohnt sich, wenn sie Abwärme von unterhalb des Pinch nach oberhalb hebt; genau das sucht der nächste Abschnitt.",
+      "pockets": " Die grauen Taschen in der Großverbundkurve ({{kw}} kW) sind Wärme, die innerhalb von Temperaturbereichen ausgetauscht wird, in denen die Kurve zurückläuft – ein Teil der Rückgewinnung.",
+      "interact": "Fahren Sie mit der Maus über ein Band, einen Balken oder eine Karte darüber, leuchten die zugehörigen Stellen auf; die Mausposition zeigt dieselbe Temperatur in beiden Diagrammen, und ein Klick auf einen Legendeneintrag blendet einen Bereich in beiden aus. Alles ändert sich, sobald Sie ΔTmin, die Stromauswahl oder den Schalter für verschobene Temperaturen ändern."
     },
     "hpi": {
       "search": "Die Optimierung hat {{n}} Kombinationen aus Quellen- und Senkentemperatur geprüft und {{m}} reale Wärmepumpen gefunden, die funktionieren: {{full}} decken den gesamten Bedarf oberhalb ihrer Senkentemperatur, {{src}} sind durch die verfügbare Abwärme begrenzt und {{dem}} durch den Bedarf.",

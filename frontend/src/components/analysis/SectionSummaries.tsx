@@ -4,6 +4,7 @@
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { formatDe } from '../../utils/numberFormat';
+import { gccPockets } from './gccPockets';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 
 const sameKey = (p: OptimizedIntegrationPoint) => `${p.refrigerant}|${p.T_source}|${p.T_sink}`;
@@ -43,20 +44,31 @@ export function PinchSummary() {
     .reduce((sum, s) => sum + Math.abs(s.cp * (s.tt - s.ts)), 0);
   const recovery = hotDuty - pinch.cold_utility;
   const T = formatDe(pinch.pinch_temperature, 1);
+  const pockets = gccPockets(
+    pinch.grand_composite_curve.H,
+    pinch.grand_composite_curve.T,
+    pinch.pinch_temperature
+  ).heat;
 
   return (
     <SummaryBox
       title={t('summaries.title')}
       sentences={[
-        t('summaries.pinch.pinch', { dt: formatDe(pinch.T_min, 1), T }),
+        t('summaries.pinch.pinch', {
+          dt: formatDe(pinch.T_min, 1),
+          T,
+          th: formatDe(pinch.pinch_temperature + pinch.T_min / 2, 1),
+          tc: formatDe(pinch.pinch_temperature - pinch.T_min / 2, 1),
+        }),
         t('summaries.pinch.recovery', {
           hot: formatDe(hotDuty),
           rec: formatDe(Math.max(recovery, 0)),
         }),
+        // Each number with the place it shows in the charts above.
         t('summaries.pinch.utilities', {
           qh: formatDe(pinch.hot_utility),
           qc: formatDe(pinch.cold_utility),
-        }),
+        }) + (pockets > 0 ? t('summaries.pinch.pockets', { kw: formatDe(pockets) }) : ''),
         sq
           ? t('summaries.pinch.status_quo', {
               h: formatDe(sq.total_current_heating),
@@ -68,6 +80,7 @@ export function PinchSummary() {
             })
           : '',
         t('summaries.pinch.rule', { T }),
+        t('summaries.pinch.interact'),
       ]}
     />
   );

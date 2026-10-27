@@ -1,5 +1,6 @@
 /** CompositeCurvesChart — hot/cold composite curves via Plotly. */
 
+import { useRef } from 'react';
 import Plot from 'react-plotly.js';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
@@ -7,51 +8,8 @@ import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import { pairedTempRange } from './pairedTempRange';
 import { formatDe } from '../../utils/numberFormat';
-
-type Curve = { H: number[]; T: number[] };
-
-/** The three regions of the composite curves as full-height bands: where hot
- *  and cold overlap is internal heat recovery; where only the hot curve runs
- *  is heat surplus that needs cooling; where only the cold curve runs is heat
- *  deficit that needs heating. The amount is each band's width on the H axis
- *  (recovery and the minimum utilities), so all three read the same way. */
-function regionTraces(
-  hot: Curve,
-  cold: Curve,
-  yRange: [number, number],
-  names: { recovery: string; surplus: string; deficit: string }
-) {
-  if (hot.H.length < 2 || cold.H.length < 2) return [];
-  const span = (c: Curve) => [Math.min(...c.H), Math.max(...c.H)];
-  const [hotLo, hotHi] = span(hot);
-  const [coldLo, coldHi] = span(cold);
-  const lo = Math.max(hotLo, coldLo);
-  const hi = Math.min(hotHi, coldHi);
-  const RECOVERY = 'rgba(46,125,50,0.14)';
-  const SURPLUS = 'rgba(220,38,38,0.12)';
-  const DEFICIT = 'rgba(37,99,235,0.12)';
-
-  const band = (a: number, b: number, color: string, name: string) =>
-    b > a + 1e-9 && {
-      x: [a, a, b, b, a],
-      y: [yRange[0], yRange[1], yRange[1], yRange[0], yRange[0]],
-      fill: 'toself',
-      fillcolor: color,
-      line: { width: 0 },
-      mode: 'lines',
-      name: `${name}: ${formatDe(b - a, 1)} kW`,
-      hoveron: 'fills',
-      hoverinfo: 'name',
-    };
-  // Each end belongs to whichever curve runs on alone there.
-  const end = (hotAlone: boolean) =>
-    hotAlone ? ([SURPLUS, names.surplus] as const) : ([DEFICIT, names.deficit] as const);
-  return [
-    band(Math.min(hotLo, coldLo), lo, ...end(hotLo < coldLo)),
-    band(lo, hi, RECOVERY, names.recovery),
-    band(hi, Math.max(hotHi, coldHi), ...end(hotHi > coldHi)),
-  ].filter(Boolean);
-}
+import { hAtT, tempUnderMouse, usePinchLink } from '../../store/pinchLinkStore';
+import { regionTraces } from './pinchRegions';
 
 export default function CompositeCurvesChart() {
   const { t } = useTranslation();
@@ -59,6 +17,8 @@ export default function CompositeCurvesChart() {
   const showShifted = useAnalysisStore((s) => s.showShifted);
   const theme = useUIStore((s) => s.theme);
   const isDark = theme === 'dark';
+  const gd = useRef<any>(null);
+  const { hoverT, region, hidden, setHoverT, setRegion, toggle } = usePinchLink();
 
   if (!pinchResult) return null;
 
@@ -79,6 +39,7 @@ export default function CompositeCurvesChart() {
       y: diagram.hot.T,
       mode: 'lines+markers' as const,
       name: t('analysis.charts.heat_sources'),
+      meta: 'hot',
       legendrank: 1,
       line: { color: 'red', width: 2 },
       marker: { size: 6 },
@@ -88,11 +49,58 @@ export default function CompositeCurvesChart() {
       y: diagram.cold.T,
       mode: 'lines+markers' as const,
       name: t('analysis.charts.heat_sinks'),
+      meta: 'cold',
       legendrank: 2,
       line: { color: 'blue', width: 2 },
       marker: { size: 6 },
     },
-  ];
+  ].map((tr) => ({
+    ...tr,
+    // Legend entries switched off here or in the GCC beside it.
+    visible: hidden[tr.meta] ? 'legendonly' : true,
+    // The area hovered here, on the GCC or on a card stands out.
+    ...(tr.meta === region && tr.fillcolor
+      ? { fillcolor: tr.fillcolor.replace(/[\d.]+\)$/, '0.35)') }
+      : {}),
+  }));
+
+  // The temperature hovered in either chart. It is shared on the shifted
+  // scale; on real temperatures the hot curve sits ΔTmin/2 above it and the
+  // cold curve ΔTmin/2 below, so each gets its own line.
+  const half = pinchResult.T_min / 2;
+  const hoverLines =
+    hoverT === null
+      ? []
+      : (
+          [
+            [diagram.hot, showShifted ? hoverT : hoverT + half, '#DC2626', t('analysis.charts.cc_hot_at')],
+            [diagram.cold, showShifted ? hoverT : hoverT - half, '#2563EB', t('analysis.charts.cc_cold_at')],
+          ] as const
+        ).map(([curve, temp, color, label], k) => {
+          const h = hAtT(curve.H, curve.T, temp);
+          return {
+            shape: {
+              type: 'line',
+              xref: 'paper',
+              x0: 0,
+              x1: 1,
+              y0: temp,
+              y1: temp,
+              line: { color, width: 1.5, dash: 'dot' },
+            },
+            note: {
+              x: 0,
+              xref: 'paper',
+              xanchor: 'left',
+              y: temp,
+              yanchor: k === 0 ? 'bottom' : 'top',
+              showarrow: false,
+              text: `${formatDe(temp, 1)} °C · ${label}: ${h === null ? '–' : `${formatDe(h, 0)} kW`}`,
+              font: { size: 10, color },
+              bgcolor: isDark ? 'rgba(15,23,42,0.85)' : 'rgba(255,255,255,0.85)',
+            },
+          };
+        });
 
   const layout: any = {
     title: {
@@ -133,36 +141,43 @@ export default function CompositeCurvesChart() {
       y: -0.2,
       xanchor: 'center' as const,
       yanchor: 'top' as const,
-      font: { size: 11, color: isDark ? '#F8FAFC' : '#1A1C1E' },
+      font: { size: 10, color: isDark ? '#F8FAFC' : '#1A1C1E' },
       itemwidth: 30,
+      tracegroupgap: 0,
     },
     hovermode: 'closest' as const,
     shapes: [
+      // The pinch line runs on into the right margin, towards the GCC beside
+      // it, whose line starts in its left margin: one line across both charts,
+      // labelled once on the GCC.
       {
         type: 'line',
         x0: 0,
-        x1: 1,
+        x1: 1.2,
         xref: 'paper',
         y0: pinchResult.pinch_temperature,
         y1: pinchResult.pinch_temperature,
         line: { dash: 'dash', color: 'gray', width: 1 },
       },
+      ...hoverLines.map((l) => l.shape),
     ],
-    annotations: [
-      {
-        x: 1,
-        xref: 'paper',
-        xanchor: 'right',
-        y: pinchResult.pinch_temperature,
-        text: `${t('analysis.charts.pinch')}${pinchResult.pinch_temperature.toFixed(1)}°C`,
-        showarrow: false,
-        font: { size: 11, color: isDark ? '#60A5FA' : 'gray' },
-      },
-    ],
+    annotations: hoverLines.map((l) => l.note),
   };
 
   return (
-    <div className="pa-chart" style={{ position: 'relative' }}>
+    <div
+      className="pa-chart"
+      style={{ position: 'relative' }}
+      onMouseMove={(e) => {
+        const temp = tempUnderMouse(gd.current, e.clientY);
+        // On real temperatures the mouse is read as a hot-curve temperature.
+        setHoverT(temp === null ? null : showShifted ? temp : temp - half);
+      }}
+      onMouseLeave={() => {
+        setHoverT(null);
+        setRegion(null);
+      }}
+    >
       <ChartHelpButton
         title={titleText}
         description={
@@ -175,7 +190,24 @@ export default function CompositeCurvesChart() {
           </>
         }
       />
-      <Plot data={traces} layout={layout} config={{ responsive: true }} style={{ width: '100%' }} />
+      <Plot
+        data={traces}
+        layout={layout}
+        config={{ responsive: true }}
+        style={{ width: '100%' }}
+        onInitialized={(_, div) => (gd.current = div)}
+        onUpdate={(_, div) => (gd.current = div)}
+        onHover={(e: any) => {
+          const meta = e.points?.[0]?.data?.meta;
+          setRegion(['surplus', 'deficit', 'recovery'].includes(meta) ? meta : null);
+        }}
+        // One legend for both charts: a click switches the entry off in both.
+        onLegendClick={(e: any) => {
+          toggle(e.data[e.curveNumber].meta);
+          return false;
+        }}
+        onLegendDoubleClick={() => false}
+      />
     </div>
   );
 }
