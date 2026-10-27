@@ -16,7 +16,7 @@ const LINKED: Record<string, LinkRegion> = {
 export default function PinchMetrics() {
   const { t } = useTranslation();
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
-  const noRecovery = useAnalysisStore((s) => s.profileMode) === 'composite';
+  const recoveryPct = useAnalysisStore((s) => s.recoveryPct);
   const region = usePinchLink((s) => s.region);
   const setRegion = usePinchLink((s) => s.setRegion);
   if (!pinchResult) return null;
@@ -24,13 +24,11 @@ export default function PinchMetrics() {
   const totalHotDuty = pinchResult.streams_data
     .filter((s) => s.ts > s.tt)
     .reduce((sum, s) => sum + Math.abs(s.cp * (s.tt - s.ts)), 0);
-  const totalColdDuty = pinchResult.streams_data
-    .filter((s) => s.ts < s.tt)
-    .reduce((sum, s) => sum + Math.abs(s.cp * (s.tt - s.ts)), 0);
-  // Without heat recovery every cold stream is heated and every hot stream
-  // cooled from outside; with it, only what the pinch analysis leaves.
-  const heating = noRecovery ? totalColdDuty : pinchResult.hot_utility;
-  const cooling = noRecovery ? totalHotDuty : pinchResult.cold_utility;
+  // Heat not recovered at the chosen share: it has to be heated in and cooled
+  // away on top of the pinch minimums. At 0 % that is every stream's heat.
+  const d = (1 - recoveryPct / 100) * (totalHotDuty - pinchResult.cold_utility);
+  const heating = pinchResult.hot_utility + d;
+  const cooling = pinchResult.cold_utility + d;
   // What the hot streams give off, less what still has to be cooled away.
   const heatRecovery = totalHotDuty - cooling;
 

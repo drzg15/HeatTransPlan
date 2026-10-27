@@ -239,13 +239,14 @@
       "profiles_axis": "Heat flow in kW (source ← 0 → sink)"
     },
     "recovery": {
-      "title": "Heat recovery before integration",
-      "with": "With heat recovery",
+      "title": "Heat recovery already in place",
+      "with": "Complete (pinch target)",
       "with_desc": "Net load curves (GCC)",
-      "no": "No heat recovery",
+      "no": "None",
       "no_desc": "Composite curves",
       "explanation_with": "Net load curves — the pocket-free Grand Composite Curve split into a source and a sink profile. Heat is recovered wherever the temperatures allow it, so the heat pump only covers the utility demand that is left over. This is standard pinch practice and the recommended default.",
-      "explanation_no": "Composite curves — hot and cold composite curves used directly as source and sink profiles. Internal heat recovery is not assumed, so the heat pump meets the full heating and cooling demands where possible."
+      "explanation_no": "Composite curves — hot and cold composite curves used directly as source and sink profiles. Internal heat recovery is not assumed, so the heat pump meets the full heating and cooling demands where possible.",
+      "pct": "Share of the possible heat recovery"
     },
     "parts": {
       "integration": "Streams & heat integration",
@@ -816,7 +817,7 @@
       "rule": "Supply heat only above {{T}} °C and remove it only below; a heat pump pays off by lifting waste heat across the pinch (next part).",
       "pockets": " The grey pockets in the grand composite curve ({{kw}} kW) are recovery within a temperature range.",
       "interact": "Hover over a band, bar or card to highlight its counterparts; a legend click hides an area in both charts.",
-      "no_recovery": "Heat recovery is switched off: all {{qh}} kW of heating and {{qc}} kW of cooling then come from outside (cards above, bands and bars in the charts), and the heat pump in part 2 works on all hot and cold streams."
+      "partial": "With {{p}} % of the possible heat recovery already in place, {{rec}} kW are recovered and {{qh}} kW of heating and {{qc}} kW of cooling still come from outside (cards above, bands and bars in the charts). The heat pump in part 2 works with what is not yet recovered."
     },
     "hpi": {
       "search": "The optimisation tried {{n}} combinations of source and sink temperature and found {{m}} real heat pumps that work: {{full}} cover the whole demand above their sink temperature, {{src}} are limited by the waste heat available and {{dem}} by the demand.",

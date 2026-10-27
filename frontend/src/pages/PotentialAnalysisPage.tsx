@@ -80,6 +80,7 @@ export default function PotentialAnalysisPage() {
   const explain = usePinchLink((s) => s.explain);
   const setExplain = usePinchLink((s) => s.setExplain);
   const setProfileMode = useAnalysisStore((s) => s.setProfileMode);
+  const recoveryPct = useAnalysisStore((s) => s.recoveryPct);
   const setPinchResult = useAnalysisStore((s) => s.setPinchResult);
   const setHPIResult = useAnalysisStore((s) => s.setHPIResult);
   const setStatusQuoResult = useAnalysisStore((s) => s.setStatusQuoResult);
@@ -326,18 +327,18 @@ export default function PotentialAnalysisPage() {
       return;
     }
     if (!pinchResult) return;
+    // The optimisation re-runs below: every mode change also changes the share.
     runHPIAnalysis(pinchResult);
-    runHPIOptimizationAnalysis(pinchResult);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profileMode]);
 
-  // Applying, editing or removing a custom formula re-runs the optimisation so
-  // the new pump appears (or disappears) without touching anything else.
+  // Applying, editing or removing a custom formula, or moving the heat recovery
+  // share, re-runs the optimisation without touching anything else.
   useEffect(() => {
     if (!pinchResult) return;
     runHPIOptimizationAnalysis(pinchResult);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [copFormula, copModel]);
+  }, [copFormula, copModel, recoveryPct]);
 
   // Run HPI analysis
   const runHPIAnalysis = useCallback(
@@ -387,6 +388,7 @@ export default function PotentialAnalysisPage() {
           profile_mode: profileMode,
           cop_formula: copFormula,
           cop_model: copModel,
+          recovery_pct: recoveryPct,
         });
         setHPIOptimizationResult(result);
       } catch (err: unknown) {
@@ -397,7 +399,7 @@ export default function PotentialAnalysisPage() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [profileMode, copFormula, copModel]
+    [profileMode, copFormula, copModel, recoveryPct]
   );
 
   // Run status-quo analysis

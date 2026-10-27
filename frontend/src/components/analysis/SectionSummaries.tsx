@@ -36,7 +36,7 @@ export function PinchSummary() {
   const { t } = useTranslation();
   const pinch = useAnalysisStore((s) => s.pinchResult);
   const sq = useAnalysisStore((s) => s.statusQuoResult);
-  const noRecovery = useAnalysisStore((s) => s.profileMode) === 'composite';
+  const recoveryPct = useAnalysisStore((s) => s.recoveryPct);
   if (!pinch) return null;
 
   // Heat recovered between streams = hot-stream duty minus what is left to cooling.
@@ -80,16 +80,15 @@ export function PinchSummary() {
               scp: formatDe(sq.cooling_savings_pct, 0),
             })
           : '',
-        // Heat recovery switched off: what the cards and charts show instead.
-        noRecovery
-          ? t('summaries.pinch.no_recovery', {
-              qh: formatDe(
-                pinch.streams_data
-                  .filter((s) => s.ts < s.tt)
-                  .reduce((sum, s) => sum + Math.abs(s.cp * (s.tt - s.ts)), 0)
-              ),
-              qc: formatDe(hotDuty),
-            })
+        // Less than the full recovery chosen: what the cards and charts show then.
+        recoveryPct < 100
+          ? ((dd) =>
+              t('summaries.pinch.partial', {
+                p: recoveryPct,
+                rec: formatDe(Math.max(recovery - dd, 0)),
+                qh: formatDe(pinch.hot_utility + dd),
+                qc: formatDe(pinch.cold_utility + dd),
+              }))((1 - recoveryPct / 100) * Math.max(recovery, 0))
           : '',
         t('summaries.pinch.rule', { T }),
         t('summaries.pinch.interact'),

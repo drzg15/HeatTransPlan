@@ -239,13 +239,14 @@
       "profiles_axis": "Wärmestrom in kW (Quelle ← 0 → Senke)"
     },
     "recovery": {
-      "title": "Wärmerückgewinnung vor der Integration",
-      "with": "Mit Wärmerückgewinnung",
+      "title": "Bereits umgesetzte Wärmerückgewinnung",
+      "with": "Vollständig (Pinch-Ziel)",
       "with_desc": "Netto-Lastkurven (GCC)",
-      "no": "Keine Wärmerückgewinnung",
+      "no": "Keine",
       "no_desc": "Verbundkurve",
       "explanation_with": "Netto-Lastkurven – die bereinigte Großverbundkurve, aufgeteilt in ein Quellen- und ein Senkenprofil. Wärme wird zurückgewonnen, wo immer die Temperaturen es zulassen, sodass die Wärmepumpe nur den verbleibenden Energiebedarf abdeckt. Dies ist Standardpraxis in der Pinch-Analyse und die empfohlene Einstellung.",
-      "explanation_no": "Verbundkurve – heiße und kalte Verbundkurven werden direkt als Quellen- und Senkenprofile verwendet. Interne Wärmerückgewinnung wird nicht angenommen, sodass die Wärmepumpe den gesamten Heiz- und Kühlbedarf dort deckt, wo es möglich ist."
+      "explanation_no": "Verbundkurve – heiße und kalte Verbundkurven werden direkt als Quellen- und Senkenprofile verwendet. Interne Wärmerückgewinnung wird nicht angenommen, sodass die Wärmepumpe den gesamten Heiz- und Kühlbedarf dort deckt, wo es möglich ist.",
+      "pct": "Anteil der möglichen Wärmerückgewinnung"
     },
     "parts": {
       "integration": "Ströme & Wärmeintegration",
@@ -816,7 +817,7 @@
       "rule": "Wärme nur oberhalb von {{T}} °C zuführen und nur unterhalb abführen; eine Wärmepumpe lohnt sich, wenn sie Abwärme über den Pinch hebt (nächster Teil).",
       "pockets": " Die grauen Taschen in der Großverbundkurve ({{kw}} kW) sind Rückgewinnung innerhalb eines Temperaturbereichs.",
       "interact": "Mit der Maus über einem Band, Balken oder einer Karte leuchten die zugehörigen Stellen auf; ein Klick auf die Legende blendet einen Bereich in beiden Diagrammen aus.",
-      "no_recovery": "Die Wärmerückgewinnung ist ausgeschaltet: Dann kommen alle {{qh}} kW Heizung und {{qc}} kW Kühlung von außen (Karten oben, Bänder und Balken in den Diagrammen), und die Wärmepumpe in Teil 2 arbeitet mit allen heißen und kalten Strömen."
+      "partial": "Mit {{p}} % der möglichen Wärmerückgewinnung bereits umgesetzt werden {{rec}} kW zurückgewonnen, und {{qh}} kW Heizung und {{qc}} kW Kühlung kommen weiterhin von außen (Karten oben, Bänder und Balken in den Diagrammen). Die Wärmepumpe in Teil 2 arbeitet mit dem, was noch nicht zurückgewonnen wird."
     },
     "hpi": {
       "search": "Die Optimierung hat {{n}} Kombinationen aus Quellen- und Senkentemperatur geprüft und {{m}} reale Wärmepumpen gefunden, die funktionieren: {{full}} decken den gesamten Bedarf oberhalb ihrer Senkentemperatur, {{src}} sind durch die verfügbare Abwärme begrenzt und {{dem}} durch den Bedarf.",
