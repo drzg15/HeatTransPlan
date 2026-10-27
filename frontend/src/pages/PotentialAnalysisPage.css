@@ -376,6 +376,27 @@
 }
 .pa-part-banner {
   flex-wrap: wrap;
+  list-style: none;
+  cursor: pointer;
+}
+.pa-part-banner::-webkit-details-marker {
+  display: none;
+}
+/* Chevron: ▸ folded, ▾ open. */
+.pa-part-banner::before {
+  content: '▸';
+  transition: transform 0.15s;
+}
+.pa-part[open] > .pa-part-banner::before {
+  transform: rotate(90deg);
+}
+.pa-part:not([open]) > .pa-part-banner {
+  border-radius: 8px;
+}
+.pa-part-banner h2 {
+  margin: 0;
+  font-size: inherit;
+  color: inherit;
 }
 .pa-part-input {
   font-size: 0.85rem;

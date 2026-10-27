@@ -29,8 +29,6 @@ import MapViewer from '../components/map/MapViewer';
 import PinchMetrics from '../components/analysis/PinchMetrics';
 import PinchCurvesChart from '../components/analysis/PinchCurvesChart';
 import { usePinchLink } from '../store/pinchLinkStore';
-import HeatPumpTable from '../components/analysis/HeatPumpTable';
-import HPIChart from '../components/analysis/HPIChart';
 import StatusQuoComparison from '../components/analysis/StatusQuoComparison';
 import TemperatureIntervalDiagram from '../components/analysis/TemperatureIntervalDiagram';
 import ScenarioComparison from '../components/analysis/ScenarioComparison';
@@ -39,6 +37,7 @@ import { econReportData } from '../components/analysis/econModel';
 import EconomicAnalysis from '../components/analysis/EconomicAnalysis';
 import { HPISummary, PinchSummary } from '../components/analysis/SectionSummaries';
 import Section from '../components/ui/Section';
+import Part from '../components/ui/Part';
 import CopCoverageChart from '../components/analysis/CopCoverageChart';
 import HeatRecoveryToggle from '../components/analysis/HeatRecoveryToggle';
 import { useTranslation } from 'react-i18next';
@@ -75,7 +74,6 @@ export default function PotentialAnalysisPage() {
   const setHPIResult = useAnalysisStore((s) => s.setHPIResult);
   const setStatusQuoResult = useAnalysisStore((s) => s.setStatusQuoResult);
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
-  const hpiResult = useAnalysisStore((s) => s.hpiResult);
   const selectedHPTypes = useAnalysisStore((s) => s.selectedHPTypes);
   const setSelectedHPTypes = useAnalysisStore((s) => s.setSelectedHPTypes);
   const setPinchLoading = useAnalysisStore((s) => s.setPinchLoading);
@@ -84,19 +82,18 @@ export default function PotentialAnalysisPage() {
   const setHPIOptimizationResult = useAnalysisStore((s) => s.setHPIOptimizationResult);
   const hpiOptimizationResult = useAnalysisStore((s) => s.hpiOptimizationResult);
   const pinchLoading = useAnalysisStore((s) => s.pinchLoading);
-  const hpiLoading = useAnalysisStore((s) => s.hpiLoading);
+  const hpiResult = useAnalysisStore((s) => s.hpiResult);
   const energyDemands = useAnalysisStore((s) => s.energyDemands);
   const copFormula = useAnalysisStore((s) => s.copFormula);
   const copModel = useAnalysisStore((s) => s.copModel);
 
   const [pinchError, setPinchError] = useState<string | null>(null);
-  const [hpiError, setHPIError] = useState<string | null>(null);
+  const [, setHPIError] = useState<string | null>(null);
   const [moreInfoOpen, setMoreInfoOpen] = useState(false);
   // The classic HPI panel — the five technology archetypes at a single sink
   // temperature — is superseded by the optimisation panel below, which sweeps
   // them across every sink temperature. Kept behind a toggle rather than
   // removed, so it is one click away while it is still being compared against.
-  const [showClassicHPI, setShowClassicHPI] = useState(false);
   const [hpiReset, setHpiReset] = useState(0);
   const [reportLoading, setReportLoading] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -427,15 +424,6 @@ export default function PotentialAnalysisPage() {
     if (pinchResult) runStatusQuoAnalysis(pinchResult);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [energyDemands, pinchResult]);
-
-  // Available HP names for multi-select
-  const availableHPNames = useMemo(() => {
-    if (!hpiResult) return [];
-    return hpiResult.heat_pumps
-      .filter((hp: any) => hp.available)
-      .sort((a: any, b: any) => (b.cop ?? 0) - (a.cop ?? 0))
-      .map((hp: any) => hp.name);
-  }, [hpiResult]);
 
   // Helper to build payload for report and map preview
   const buildReportPayload = useCallback(() => {
@@ -864,94 +852,37 @@ export default function PotentialAnalysisPage() {
             n={2}
             title={t('analysis.parts.heat_pump')}
             input={t('analysis.parts.heat_pump_in')}
+            actions={
+              <>
+                <ChartHelpButton
+                  inline
+                  title={t('analysis.charts.hpi_title')}
+                  description={t('optimization.desc_hp_simulates')}
+                />
+                <ResetButton
+                  hint={t('analysis.controls.reset_hpi_hint')}
+                  onClick={() => {
+                    const s = useAnalysisStore.getState();
+                    s.setProfileMode('net_load');
+                    s.setCopModel('2t');
+                    s.setCopFormula(null);
+                    s.setSelectedHPPoints([]);
+                    // Remounts the panel, so its filters and sorting start over.
+                    setHpiReset((n) => n + 1);
+                  }}
+                />
+              </>
+            }
           >
-            <Section
-              title={
-                <h3 className="pa-section-title" style={{ flex: 1 }}>
-                  {t('analysis.charts.hpi_title')}
-                  <ChartHelpButton
-                    inline
-                    title={t('analysis.charts.hpi_title')}
-                    description={t('optimization.desc_hp_simulates')}
-                  />
-                  <ResetButton
-                    hint={t('analysis.controls.reset_hpi_hint')}
-                    onClick={() => {
-                      const s = useAnalysisStore.getState();
-                      s.setProfileMode('net_load');
-                      s.setCopModel('2t');
-                      s.setCopFormula(null);
-                      s.setSelectedHPPoints([]);
-                      setShowClassicHPI(false);
-                      // Remounts the panel, so its filters and sorting start over.
-                      setHpiReset((n) => n + 1);
-                    }}
-                  />
-                </h3>
-              }
-            >
-              <HeatRecoveryToggle />
+            <HeatRecoveryToggle />
 
-              <button
-                type="button"
-                onClick={() => setShowClassicHPI((v) => !v)}
-                className="pa-classic-hpi-toggle"
-                aria-expanded={showClassicHPI}
-              >
-                {showClassicHPI
-                  ? t('analysis.charts.hide_classic_hpi')
-                  : t('analysis.charts.show_classic_hpi')}
-              </button>
-
-              {showClassicHPI && hpiLoading && (
-                <div className="pa-loading">Running HPI analysis…</div>
-              )}
-              {showClassicHPI && hpiError && <div className="pa-warning">⚠️ {hpiError}</div>}
-
-              {showClassicHPI && hpiResult && (
-                <div className="pa-hpi-layout">
-                  <div className="pa-hpi-table-col">
-                    <HeatPumpTable />
-                  </div>
-                  <div className="pa-hpi-chart-col">
-                    {availableHPNames.length > 0 && (
-                      <div className="pa-hp-select">
-                        <label>{t('analysis.charts.select_hp')}</label>
-                        <div className="pa-multi-select">
-                          {availableHPNames.map((name: any) => (
-                            <label key={name} className="pa-multi-option">
-                              <input
-                                type="checkbox"
-                                checked={selectedHPTypes.includes(name)}
-                                onChange={() => {
-                                  setSelectedHPTypes(
-                                    selectedHPTypes.includes(name)
-                                      ? selectedHPTypes.filter((n) => n !== name)
-                                      : [...selectedHPTypes, name]
-                                  );
-                                }}
-                              />
-                              {name}
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                    <HPIChart />
-                  </div>
-                </div>
-              )}
-
-              {/* Heat Integration Analysis Optimization */}
-              <HPIOptimizationPanel key={hpiReset} />
-              <HPISummary />
-            </Section>
+            {/* Heat Integration Analysis Optimization */}
+            <HPIOptimizationPanel key={hpiReset} />
+            <HPISummary />
           </Part>
 
-          <Part n={3} title={t('analysis.parts.costs')} input={t('analysis.parts.costs_in')}>
-            {/* Renders its own Section, since its heading carries the reset button. */}
-            <EconomicAnalysis />
-          </Part>
+          {/* Renders its own Part, since its banner carries the reset button. */}
+          <EconomicAnalysis />
 
           <Section title={<h3 className="pa-section-title">{t('analysis.sections.notes')}</h3>}>
             <textarea
@@ -995,30 +926,5 @@ function ResetButton({ hint, onClick }: { hint: string; onClick: () => void }) {
     <button type="button" className="econ-reset" onClick={onClick} title={hint}>
       ↺ {t('economics.reset')}
     </button>
-  );
-}
-
-/** One of the page's three main parts, under a numbered banner naming what
- *  goes into it. */
-function Part({
-  n,
-  title,
-  input,
-  children,
-}: {
-  n: number;
-  title: string;
-  input: string;
-  children: ReactNode;
-}) {
-  return (
-    <section className="pa-part">
-      <h2 className="pa-part-banner">
-        <span className="pa-part-num">{n}</span>
-        {title}
-        <span className="pa-part-input">{input}</span>
-      </h2>
-      <div className="pa-part-body">{children}</div>
-    </section>
   );
 }
