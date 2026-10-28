@@ -517,9 +517,9 @@ export default function PotentialAnalysisPage() {
     }
   }, [buildReportPayload]);
 
-  // The AI gets the report as HTML instead of a download.
+  // The AI gets the report as HTML instead of a download; the report says an AI made it.
   useLiveCommand('generate_report', async () => {
-    const blob = await generateReport(await buildReportPayload());
+    const blob = await generateReport({ ...(await buildReportPayload()), created_by_ai: true });
     return { html: await blob.text() };
   });
   useLiveCommand('reset_heat_pumps', () => {

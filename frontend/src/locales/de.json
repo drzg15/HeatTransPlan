@@ -984,11 +984,17 @@
     "close": "Schließen",
     "setup_title": "KI-Agenten einrichten",
     "setup_intro": "Jeder KI-Agent, der MCP (Model Context Protocol) unterstützt, etwa Claude, kann mit HeatTransPlan arbeiten. Nichts zu installieren:",
-    "setup_add": "HeatTransPlan im Agenten als entfernten MCP-Server (auch Connector genannt) mit dieser Adresse eintragen:",
+    "setup_add": "HeatTransPlan im Agenten als MCP-Server mit dieser Adresse eintragen:",
     "setup_key": "Dieser Server braucht einen API-Schlüssel: dem Agenten als Header X-API-Key (oder Authorization: Bearer <Schlüssel>) mitgeben.",
     "setup_connect": "Auf „KI verbinden“ klicken und dem Agenten den Sitzungscode nennen, z. B. „Nutze die HeatTransPlan-Sitzung AB12CD“. Er sieht und steuert dann diese Seite, bis die Verbindung getrennt wird.",
     "setup_files": "Ohne Verbindung kann der Agent trotzdem Projekte anlegen, Daten eingeben, die Analyse rechnen und den Bericht schreiben; er gibt Download-Links, die hier geöffnet werden. Diese Seite sieht und ändert er nicht.",
     "setup_guided": "Dann den Agenten fragen, z. B.: „Führe mich durch eine HeatTransPlan-Studie.“ Er geht Seite für Seite vor, fragt nach, was er braucht, und liest angehängte Word-, PowerPoint- und Excel-Dateien oder eingefügte Zahlen.",
-    "setup_where": "In Claude: Einstellungen → Connectors → Benutzerdefinierten Connector hinzufügen. In anderen Agenten: einen MCP-Server per URL (HTTP) hinzufügen."
+    "setup_claude_connector": "Claude (Web, Desktop, Mobil): Einstellungen → Connectors → Benutzerdefinierten Connector hinzufügen und die Adresse einfügen.",
+    "setup_local": "Diese App läuft auf diesem Rechner (http), daher erreichen sie Agenten, die sich über das Internet verbinden, etwa Claudes Connectors, nicht. Einen Agenten verwenden, der auf diesem Rechner läuft.",
+    "setup_claude_code": "Claude Code: im Terminal ausführen:",
+    "setup_other": "Andere Agenten: einen entfernten MCP-Server vom Typ HTTP (auch „Streamable HTTP“) mit der Adresse oben hinzufügen.",
+    "setup_self": "Oder den Agenten sich selbst einrichten lassen: dies einfügen:",
+    "setup_self_text": "Füge den MCP-Server „heattransplan“ mit der Adresse {{url}} (Transport: HTTP, auch „Streamable HTTP“; kein Befehl auszuführen, nichts zu installieren) zu deinen MCP-Einstellungen hinzu. Rufe danach sein Werkzeug guide auf, um zu prüfen, dass er funktioniert.",
+    "setup_permissions": "Agenten fragen eventuell vor jedem Werkzeug nach. Alle HeatTransPlan-Werkzeuge auf einmal erlauben: in Claude Code mit /permissions und mcp__heattransplan erlauben; in anderen Agenten den Server heattransplan in den Werkzeug-Einstellungen erlauben."
   }
 }

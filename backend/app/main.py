@@ -3,19 +3,21 @@ import logging
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.config import CORS_ORIGINS
+from app.config import AI_ENABLED, CORS_ORIGINS
 from app.routers import projects, processes, streams, analysis, io_routes, assets, live
 from app.services import cop_training
 from app.dependencies import API_KEYS, verify_api_key
 
-# The MCP server online, when its package is installed (see app/mcp_http.py).
-try:
-    from app import mcp_http
-except ModuleNotFoundError as exc:
-    if (exc.name or "").split(".")[0] not in ("heattransplan_mcp", "mcp"):
-        raise
-    logging.getLogger(__name__).warning("Not serving MCP at /mcp: %s", exc)
-    mcp_http = None
+# The MCP server online, when AI access is on and its package is installed
+# (see app/mcp_http.py).
+mcp_http = None
+if AI_ENABLED:
+    try:
+        from app import mcp_http
+    except ModuleNotFoundError as exc:
+        if (exc.name or "").split(".")[0] not in ("heattransplan_mcp", "mcp"):
+            raise
+        logging.getLogger(__name__).warning("Not serving MCP at /mcp: %s", exc)
 
 app = FastAPI(
     lifespan=mcp_http.lifespan if mcp_http else None,
@@ -45,7 +47,8 @@ app.include_router(streams.router, prefix="/api", tags=["Streams"], dependencies
 app.include_router(analysis.router, prefix="/api/analysis", tags=["Analysis"], dependencies=api_dependencies)
 app.include_router(io_routes.router, prefix="/api/io", tags=["Import/Export"], dependencies=api_dependencies)
 app.include_router(assets.router, prefix="/api/assets", tags=["Assets"], dependencies=api_dependencies)
-app.include_router(live.router, prefix="/api/live", tags=["Live"], dependencies=api_dependencies)
+if AI_ENABLED:
+    app.include_router(live.router, prefix="/api/live", tags=["Live"], dependencies=api_dependencies)
 # Optional modules: mounted only while switched on.
 if cop_training.ENABLED:
     from app.routers import cop_training as cop_training_router
@@ -57,7 +60,8 @@ if cop_training.ENABLED:
 @app.get("/api/features")
 async def features():
     """Which optional modules this server runs, so the page shows only those."""
-    return {"cop_training": cop_training.ENABLED, "mcp": mcp_http is not None, "api_key": bool(API_KEYS)}
+    return {"cop_training": cop_training.ENABLED, "ai": AI_ENABLED, "mcp": mcp_http is not None,
+            "api_key": bool(API_KEYS)}
 
 
 if mcp_http:

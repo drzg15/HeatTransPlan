@@ -7,6 +7,9 @@ services:
       dockerfile: backend/Dockerfile
     container_name: heattransplan-backend
     restart: unless-stopped
+    environment:
+      # AI_ENABLED=0 in .env hides Connect AI and turns off the MCP server.
+      AI_ENABLED: ${AI_ENABLED:-1}
     logging:
       driver: "json-file"
       options:

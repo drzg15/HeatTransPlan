@@ -130,7 +130,14 @@ The analyses rerun by themselves after most changes; `wait_idle` returns the vie
 
 ### Setup
 
-Add a remote MCP server (a "connector") with the address `https://<the app>/mcp` (locally `http://localhost/mcp`). In Claude: Settings → Connectors → Add custom connector; in other agents: add an MCP server by URL. The app's **?** next to Connect AI shows the address. If the backend sets `API_KEYS`, the agent sends one as `X-API-Key` or `Authorization: Bearer <key>`.
+Add a remote MCP server of type HTTP ("streamable HTTP") with the address `<the app>/mcp`. Nothing to install, no command to run. The app's **?** next to Connect AI shows the address and these steps:
+
+- **Claude (web, desktop, mobile):** Settings → Connectors → Add custom connector. Claude connects from Anthropic's servers, so this needs the app at a public `https://` address.
+- **Claude Code:** `claude mcp add --transport http heattransplan <the app>/mcp`. Runs on your computer, so it also reaches an app at `http://localhost`.
+- **Other agents:** add a remote MCP server (HTTP) with the address. Or paste this into the agent and let it set itself up: *Add the MCP server "heattransplan" with the address `<the app>/mcp` (transport: HTTP, also called streamable HTTP; no command to run, nothing to install) to your MCP settings. Then call its tool guide to check that it works.*
+- **Permissions:** agents may ask before every tool. Claude Code allows them all with `/permissions` → allow `mcp__heattransplan`; other agents have a per-server setting.
+
+If the backend sets `API_KEYS`, the agent sends one as `X-API-Key` or `Authorization: Bearer <key>`. `AI_ENABLED=0` (in `.env`) switches all of this off and hides Connect AI; the rest of the app stays as it is. Reports made by an AI say so on their first page.
 
 Online the server never opens files on its own disk for a caller: files come in as their content (base64, or text for CSV and JSON), and what the tools write (report, project, CSV) comes back as a download link, valid for an hour. Sessions and projects are not listed: the session code and the project id are what give access to them.
 

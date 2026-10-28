@@ -73,7 +73,8 @@ def test_building_and_analysing_a_project(tmp_path):
 
         report = tmp_path / "report.html"
         await S.generate_report(pid, str(report), "de")
-        assert "Wärmeintegrationsbericht" in report.read_text(encoding="utf-8")
+        text = report.read_text(encoding="utf-8")
+        assert "Wärmeintegrationsbericht" in text and "KI-Assistenten" in text  # marked as AI-made
 
         saved = tmp_path / "project.json"
         await S.save_project_file(pid, str(saved))

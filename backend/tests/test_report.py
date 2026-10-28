@@ -138,3 +138,12 @@ def test_report_shows_the_picked_pump():
     fig = _optimization_figure(_opt(), 73.0, I18N["en"], [picked])
     box = [a.text for a in fig.layout.annotations if a.text and "COP" in a.text]
     assert box and "COP 3.40" in box[0]
+
+
+def test_a_report_made_by_an_ai_says_so():
+    plain = generate_html_report(_request())
+    assert I18N["en"]["ai_note"] not in plain and 'name="generator"' not in plain
+    req = _request("de")
+    req.created_by_ai = True
+    html = generate_html_report(req)
+    assert I18N["de"]["ai_note"] in html and "AI assistant via MCP" in html

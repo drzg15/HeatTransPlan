@@ -31,6 +31,9 @@ export default function LiveSetup({ onClose }: { onClose: () => void }) {
   const features = useFeatures();
   // Caddy (and Vite in development) route /mcp to the backend.
   const url = `${window.location.origin}/mcp`;
+  // Agents that connect from the internet (Claude's connectors) need a public
+  // https address; an app served over http runs on this computer only.
+  const online = window.location.protocol === 'https:';
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
@@ -60,7 +63,17 @@ export default function LiveSetup({ onClose }: { onClose: () => void }) {
             <li>
               {t('live.setup_add')}
               <Command text={url} />
-              <div className="cf-muted">{t('live.setup_where')}</div>
+              {online ? (
+                <div className="cf-muted">{t('live.setup_claude_connector')}</div>
+              ) : (
+                <div className="cf-muted">{t('live.setup_local')}</div>
+              )}
+              <div className="cf-muted">{t('live.setup_claude_code')}</div>
+              <Command text={`claude mcp add --transport http heattransplan ${url}`} />
+              <div className="cf-muted">{t('live.setup_other')}</div>
+              <div className="cf-muted">{t('live.setup_self')}</div>
+              <Command text={t('live.setup_self_text', { url })} />
+              <div className="cf-muted">{t('live.setup_permissions')}</div>
               {features.api_key && <div className="cf-muted">{t('live.setup_key')}</div>}
             </li>
             <li>{t('live.setup_connect')}</li>
