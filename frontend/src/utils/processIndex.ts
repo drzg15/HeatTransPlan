@@ -37,3 +37,22 @@ export function orphanProcesses(processes: ProcessNode[], groups: number[][]) {
   const grouped = new Set(groups.flat());
   return processes.map((_, i) => i).filter((i) => !grouped.has(i));
 }
+
+/** Deleting a stream moves the later streams of its subprocess up by one; the
+ *  selection keys `stream_<sub>_<stream>` have to move with them, or a
+ *  selection would silently point at the next stream. */
+export function removeStreamFromSelection(
+  selection: Record<string, boolean>,
+  sub: number,
+  index: number
+): Record<string, boolean> {
+  return Object.fromEntries(
+    Object.entries(selection).flatMap(([key, val]) => {
+      const m = /^stream_(\d+)_(\d+)$/.exec(key);
+      if (!m || Number(m[1]) !== sub) return [[key, val]];
+      const si = Number(m[2]);
+      if (si === index) return [];
+      return [[`stream_${sub}_${si > index ? si - 1 : si}`, val]];
+    })
+  );
+}

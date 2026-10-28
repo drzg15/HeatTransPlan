@@ -4,6 +4,8 @@ import type { ProcessNode } from '../../types/process';
 import type { Stream } from '../../types/stream';
 import StreamEditor from './StreamEditor';
 import { useUIStore } from '../../store/uiStore';
+import { useAnalysisStore } from '../../store/analysisStore';
+import { removeStreamFromSelection } from '../../utils/processIndex';
 import './SubprocessCard.css';
 
 interface Props {
@@ -69,6 +71,8 @@ export default function SubprocessCard({
   const deleteStream = (sIdx: number) => {
     const streams = (subprocess.streams || []).filter((_, i) => i !== sIdx);
     update({ streams });
+    const a = useAnalysisStore.getState();
+    a.setSelectedStreams(removeStreamFromSelection(a.selectedStreams, subIdx, sIdx));
   };
 
   // Build next options: all other process names

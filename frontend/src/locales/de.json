@@ -893,5 +893,13 @@
     "plan_place": "Plan wieder an die aktuelle Ansicht anpassen.",
     "plan_remove": "Plan entfernen",
     "plan_error": "Datei konnte nicht gelesen werden."
+  },
+  "live": {
+    "connect": "KI verbinden",
+    "connect_hint": "Einen KI-Assistenten (über den HeatTransPlan-MCP-Server) diese Seite sehen und steuern lassen. Solange die Verbindung besteht, wird Ihr Projekt auch auf dem Server gespeichert.",
+    "code": "Sitzungscode für die KI",
+    "copy": "Code kopieren",
+    "disconnect": "KI trennen",
+    "error": "KI-Verbindung fehlgeschlagen: {{msg}}"
   }
 }

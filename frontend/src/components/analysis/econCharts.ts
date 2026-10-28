@@ -1,41 +1,25 @@
 /** The economic analysis charts as Plotly specs (data + layout): investment,
  *  price paths, price sensitivity, economic pump size and net present value
- *  over time. Built from econCore's numbers by buildEconomics. */
+ *  over time. Drawn from the backend's numbers (EconNumbers) by buildEconomics. */
 
 import type { TFunction } from 'i18next';
-import {
-  breakEvenElPrice,
-  elPrice,
-  evaluate,
-  fuelPrice,
-  PAYBACK_HORIZON,
-} from '../../utils/economics';
 import { formatDe } from '../../utils/numberFormat';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
+import type { EconInputs, EconNumbers } from '../../types/economics';
 import { GREEN, RED, pointName, type Form } from './econConfig';
-import type { econCore } from './econModel';
 
 export type Fig = { data: any[]; layout: any };
 
-type Core = NonNullable<ReturnType<typeof econCore>>;
-
-/** What every chart is drawn from: the core numbers plus wording and theme. */
+/** What every chart is drawn from: the backend's numbers plus wording and theme. */
 export type ChartCtx = Pick<
-  Core,
-  | 'inp'
-  | 'refSys'
-  | 'ref'
-  | 'variants'
-  | 'results'
-  | 'breakEven'
-  | 'points'
-  | 'realFeasible'
-  | 'capexOf'
+  EconNumbers,
+  'refSys' | 'ref' | 'variants' | 'results' | 'breakEven' | 'points'
 > & {
+  n: EconNumbers;
+  inp: EconInputs;
   t: TFunction;
   form: Form;
   isDark: boolean;
-  sensBase: { fuel: number; el: number } | null;
   fuel: string;
   refName: string;
   istName: string;
@@ -123,15 +107,15 @@ export function priceChart(c: ChartCtx): Fig {
   const price: Fig = {
     data: (
       [
-        [t('economics.charts.fuel_incl_co2', { fuel }), fuelPrice, '#D97706'],
-        [t('economics.charts.el'), elPrice, '#2563EB'],
+        [t('economics.charts.fuel_incl_co2', { fuel }), c.n.prices.fuel, '#D97706'],
+        [t('economics.charts.el'), c.n.prices.el, '#2563EB'],
       ] as const
-    ).map(([name, priceAt, color]) => ({
+    ).map(([name, prices, color]) => ({
       type: 'scatter',
       mode: 'lines+markers',
       name,
       x: years,
-      y: years.map((_, k) => priceAt(inp, k) * 100),
+      y: years.map((_, k) => prices[k] * 100),
       line: { color, width: 3 },
     })),
     layout: layout(t('economics.charts.price_title'), { yaxis: { title: { text: 'ct/kWh' } } }),
@@ -141,30 +125,17 @@ export function priceChart(c: ChartCtx): Fig {
 
 /** Net present value over fuel × electricity price, with the break-even line. */
 export function sensitivityChart(c: ChartCtx): { sens: Fig; sensExplain: string } {
-  const { t, form, inp, refSys, variants, breakEven, isDark, sensBase, fuel, refName } = c;
+  const { t, form, breakEven, isDark, fuel, refName } = c;
   const { text, surface, layout } = chartTheme(isDark);
   // Sensitivity window: each price from 0 to twice today's (−100 % … +100 %),
   // so today's prices sit in the middle. The step is picked so each axis has at
   // most ~14 cells and every cell has room for its value.
   const idx = 0;
-  const range = (lo: number, hi: number) => Array.from({ length: hi - lo + 1 }, (_, k) => lo + k);
-  const axisCt = (today: number) => {
-    const hi = Math.max(2 * today, 1);
-    const step = [0.5, 1, 2, 5, 10, 20].find((st) => hi / st <= 14) ?? 50;
-    return { step, ct: range(0, Math.ceil(hi / step)).map((k) => Number((k * step).toFixed(2))) };
-  };
-  const { step: gasStep, ct: gasCt } = axisCt(sensBase?.fuel ?? form.pFuel);
-  const { step: elStep, ct: elCt } = axisCt(sensBase?.el ?? form.pEl);
-  const z = elCt.map((e) =>
-    gasCt.map((g) => evaluate({ ...inp, pFuel: g / 100, pEl: e / 100 }, refSys, variants[idx]).npv)
-  );
-  // Break-even line: the electricity price at which KW = 0, per gas price.
-  // On the cheaper-electricity side of it the heat pump beats the boiler.
-  const beX = [gasCt[0] - gasStep / 2, ...gasCt, gasCt[gasCt.length - 1] + gasStep / 2];
-  const beY = beX.map((g) => {
-    const p = breakEvenElPrice(inp, refSys, variants[idx], g / 100);
-    return p === null ? null : 100 * p;
-  });
+  // The backend lays out the window (sensBase or today's prices in the middle)
+  // and computes every cell and the break-even line: the electricity price at
+  // which KW = 0, per gas price. On its cheaper-electricity side the heat pump
+  // beats the boiler.
+  const { gasStep, gasCt, elStep, elCt, z, beX, beY } = c.n.sensitivity;
   const fuelAxis = t('economics.charts.fuel_price', { fuel });
   // The sentence above the heatmap, with today's numbers.
   const beNow = breakEven[idx];
@@ -281,30 +252,15 @@ export function sizeChart(c: ChartCtx): {
   sizeExplain: string;
   sizes: { p: OptimizedIntegrationPoint; npv: number }[];
 } {
-  const { t, inp, refSys, results, points, realFeasible, capexOf, isDark, refName } = c;
+  const { t, refSys, results, points, isDark, refName } = c;
   const { text, surface, layout } = chartTheme(isDark);
   // Economic heat pump size: every working pump on the optimisation curve,
   // costed with the same inputs. A smaller pump costs less but leaves more of
   // the demand on the old heater; the Kapitalwert weighs both. Per size (1 %
-  // of the demand) the best machine is kept, so the line is the best you can
-  // do at each size and its peak is the economic optimum.
-  const sizeBest = new Map<number, { p: OptimizedIntegrationPoint; npv: number }>();
-  for (const p of realFeasible) {
-    const npv = evaluate(inp, refSys, {
-      Q: p.Q_demand,
-      Qsrc: p.Q_source,
-      cop: p.COP,
-      capex: capexOf(p),
-    }).npv;
-    const bucket = Math.round((100 * p.Q_demand) / refSys.Q);
-    const cur = sizeBest.get(bucket);
-    if (!cur || npv > cur.npv) sizeBest.set(bucket, { p, npv });
-  }
-  const sizes = [...sizeBest.values()].sort((a, b) => a.p.Q_demand - b.p.Q_demand);
-  const optimum = sizes.reduce<(typeof sizes)[number] | null>(
-    (best, s) => (!best || s.npv > best.npv ? s : best),
-    null
-  );
+  // of the demand) the backend keeps the best machine, so the line is the best
+  // you can do at each size and its peak is the economic optimum.
+  const sizes = c.n.size.sizes.map((s) => ({ p: s.point, npv: s.npv }));
+  const optimum = c.n.size.optimum && { p: c.n.size.optimum.point, npv: c.n.size.optimum.npv };
   const analysed = points[0];
   const analysedNpv = results[0]?.npv;
   const sizeHover = (p: OptimizedIntegrationPoint) =>
@@ -392,7 +348,7 @@ export function sizeChart(c: ChartCtx): {
 
 /** Net present value year by year, with the year each pump pays off. */
 export function npvChart(c: ChartCtx): Fig {
-  const { t, form, inp, refSys, variants, results, points, fuel } = c;
+  const { t, form, inp, points, fuel } = c;
   const { text, layout } = chartTheme(c.isDark);
   // Kapitalwert over time for every pump at the selected prices (clicking the
   // heatmap changes them). Run past T up to the payback horizon, so the year a
@@ -400,22 +356,13 @@ export function npvChart(c: ChartCtx): Fig {
   // Up to T the curve is the period's own, so its last point is the Kapitalwert:
   // the longer run would buy a replacement at the end of the service life
   // (year T when T = life), which the period does not.
-  const runs = variants.map((v, k) =>
-    evaluate({ ...inp, T: PAYBACK_HORIZON }, refSys, v).npvCurve.map((y, j) =>
-      j <= inp.T ? results[k].npvCurve[j] : y
-    )
-  );
-  // Zero crossing, interpolated between the two years around it.
-  const crossings = runs.map((c) => {
-    const k = c.findIndex((y) => y >= 0);
-    return k === -1 ? null : k === 0 ? 0 : k - 1 + -c[k - 1] / (c[k] - c[k - 1]);
-  });
-  const lastCrossing = Math.max(0, ...crossings.map((c) => (c === null ? 0 : Math.ceil(c) + 3)));
-  const kMax = Math.min(PAYBACK_HORIZON, Math.max(inp.T, lastCrossing));
+  // Each run's zero crossing is interpolated between the two years around it.
+  const { runs, crossings, kMax } = c.n.npv;
+  const horizon = c.n.horizon;
   const tYears = Array.from({ length: kMax + 1 }, (_, j) => form.year + j);
   const crossingText = (c: number | null) =>
     c === null
-      ? t('economics.charts.never', { years: PAYBACK_HORIZON })
+      ? t('economics.charts.never', { years: horizon })
       : t('economics.charts.profitable_from', {
           year: formatDe(form.year + c, 1, false),
           years: formatDe(c, 1),

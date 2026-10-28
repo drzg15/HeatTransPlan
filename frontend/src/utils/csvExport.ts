@@ -8,7 +8,8 @@ import html2canvas from 'html2canvas';
 import { extractStreamInfo } from './streamInfo';
 import { haversineDistance, manhattanSphericalDistance } from './geoUtils';
 
-export function exportProjectToCsv(state: ProjectState) {
+/** The project's streams as CSV text (semicolon separated, quoted). */
+export function projectCsv(state: ProjectState): string {
   const rows: string[][] = [];
   const header = [
     'Name',
@@ -169,17 +170,28 @@ export function exportProjectToCsv(state: ProjectState) {
   const out = state.site_plan
     ? rows.map((r) => r.filter((_, i) => i !== latCol && i !== latCol + 1))
     : rows;
-  const csv = out.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
+  return out.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
+}
+
+function downloadCsv(csv: string, filename: string) {
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `heattransplan_export_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-export function exportDistanceMatrixToCsv(state: ProjectState, metric: 'manhattan' | 'euclidean') {
+export function exportProjectToCsv(state: ProjectState) {
+  downloadCsv(
+    projectCsv(state),
+    `heattransplan_export_${new Date().toISOString().slice(0, 10)}.csv`
+  );
+}
+
+/** Distances between the process groups as CSV text. */
+export function distanceCsv(state: ProjectState, metric: 'manhattan' | 'euclidean'): string {
   const nodes: { name: string; lat: number | null; lon: number | null }[] = [];
 
   (state.proc_groups || []).forEach((subIdxs, gIdx) => {
@@ -238,14 +250,14 @@ export function exportDistanceMatrixToCsv(state: ProjectState, metric: 'manhatta
     rows.push(rowData);
   });
 
-  const csv = rows.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `heattransplan_distances_${metric}_${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  return rows.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
+}
+
+export function exportDistanceMatrixToCsv(state: ProjectState, metric: 'manhattan' | 'euclidean') {
+  downloadCsv(
+    distanceCsv(state, metric),
+    `heattransplan_distances_${metric}_${new Date().toISOString().slice(0, 10)}.csv`
+  );
 }
 
 export async function exportLiveMapSnapshot() {

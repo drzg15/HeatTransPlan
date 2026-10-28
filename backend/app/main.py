@@ -2,7 +2,7 @@ from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import CORS_ORIGINS
-from app.routers import projects, processes, streams, analysis, io_routes, assets
+from app.routers import projects, processes, streams, analysis, io_routes, assets, live
 from app.dependencies import verify_api_key
 
 app = FastAPI(
@@ -32,6 +32,7 @@ app.include_router(streams.router, prefix="/api", tags=["Streams"], dependencies
 app.include_router(analysis.router, prefix="/api/analysis", tags=["Analysis"], dependencies=api_dependencies)
 app.include_router(io_routes.router, prefix="/api/io", tags=["Import/Export"], dependencies=api_dependencies)
 app.include_router(assets.router, prefix="/api/assets", tags=["Assets"], dependencies=api_dependencies)
+app.include_router(live.router, prefix="/api/live", tags=["Live"], dependencies=api_dependencies)
 
 
 @app.get("/api/health")

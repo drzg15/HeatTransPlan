@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import { ImagePlus, LoaderCircle, Scan, Trash2 } from 'lucide-react';
 import type { SitePlan } from '../../types/project';
 import { fileToPlanImage } from '../../utils/planImage';
+import { CommandError, useLiveCommand } from '../../live/commands';
 
 /** Where a plan of this aspect ratio sits in the current view: centred and
  *  filling the whole screen, without distortion, so in one direction it
@@ -43,6 +44,26 @@ export function PlanControls({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState(false);
   const onCanvas = canvasKey !== null && !!onCanvasPlansChange;
+
+  // The AI loads a plan the same way: a file (PNG, JPG or PDF, base64), for
+  // the site or, with `subprocess` ("g0" a process, "s3" a subprocess), as the
+  // background of that diagram.
+  useLiveCommand('load_site_plan', async (args) => {
+    const bytes = Uint8Array.from(atob(String(args.data ?? '')), (c) => c.charCodeAt(0));
+    const file = new File([bytes], String(args.filename ?? 'plan'), {
+      type: String(args.mime ?? ''),
+    });
+    const img = await fileToPlanImage(file);
+    const target = args.subprocess ? String(args.subprocess) : null;
+    if (target) {
+      if (!onCanvasPlansChange) throw new CommandError('Diagram backgrounds cannot be set here.');
+      onCanvasPlansChange({ ...canvasPlans, [target]: img.url });
+    } else {
+      if (!map) throw new CommandError('The map is not ready yet.');
+      onSitePlanChange({ url: img.url, bounds: planBoundsInView(map, img.width / img.height) });
+    }
+    return { target: target ?? 'site', width: img.width, height: img.height };
+  });
   const hasPlan = onCanvas ? !!canvasPlans[canvasKey!] : !!sitePlan;
 
   const load = async (file: File) => {

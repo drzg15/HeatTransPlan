@@ -1,18 +1,13 @@
 /** The economic analysis without the UI: inputs, the pump analysed, the result
  *  table, key results, summary text and chart specs. The panel renders it; the
  *  scenario comparison and the HTML report reuse it, so all three agree.
- *  Formulas live in utils/economics.ts. */
+ *  The numbers come from the backend (POST /analysis/economics); this file
+ *  only words, formats and draws them. */
 
 import type { TFunction } from 'i18next';
-import {
-  breakEvenElPrice,
-  evaluate,
-  referenceCost,
-  vdiSpecificCost,
-  PAYBACK_HORIZON,
-} from '../../utils/economics';
 import { formatDe } from '../../utils/numberFormat';
-import type { HPIOptimizationResult, OptimizedIntegrationPoint } from '../../types/analysis';
+import type { OptimizedIntegrationPoint } from '../../types/analysis';
+import type { EconNumbers } from '../../types/economics';
 import {
   BOOL_FIELDS,
   FIELDS,
@@ -25,7 +20,6 @@ import {
   RESULT_ROWS_MONEY,
   SIGNED_ROWS,
   pointName,
-  toInputs,
   type Form,
   type RefType,
 } from './econConfig';
@@ -38,83 +32,33 @@ import {
   type ChartCtx,
 } from './econCharts';
 
-/** The one pump analysed, so the analysis stays readable however many are
- *  picked: the best of the selection (real machines before archetypes, then
- *  largest heat output, then highest COP). Nothing picked: the default pump, as
- *  the optimization chart shows. */
-export const pickPump = (
-  selected: OptimizedIntegrationPoint[],
-  opt: HPIOptimizationResult | null | undefined
-): OptimizedIntegrationPoint | null =>
-  selected.length
-    ? [...selected].sort(
-        (a, b) =>
-          Number(a.theoretical) - Number(b.theoretical) || b.Q_demand - a.Q_demand || b.COP - a.COP
-      )[0]
-    : (opt?.max_q_point ?? null);
-
-/** The numbers alone, no text or charts: what the scenario comparison needs. */
-export function econCore(
+/** Everything the panel and the report show: tables, key results, summary and
+ *  chart specs (Plotly data + layout), from the backend's numbers. */
+export function buildEconomics(
+  t: TFunction,
   form: Form,
   refType: RefType,
-  selected: OptimizedIntegrationPoint[],
-  opt: HPIOptimizationResult | null | undefined
+  n: EconNumbers | null,
+  isDark = false
 ) {
-  const pump = pickPump(selected, opt);
-  if (!pump) return null;
-  const points = [pump];
-  const inp = toInputs(form, refType);
-  // The reference supplies the largest demand (and cools the largest source)
-  // among the variants, so every pump is compared against the same Ist-Situation.
-  const realFeasible = (opt?.feasible_points ?? []).filter((p) => !p.theoretical && p.COP > 0);
-  const refPool = [...points, ...(opt?.max_q_point ? [opt.max_q_point] : []), ...realFeasible];
-  const refSys = {
-    Q: Math.max(...refPool.map((p) => p.Q_demand_total ?? p.Q_demand)),
-    Qsrc: Math.max(...refPool.map((p) => p.Q_source)),
-  };
-  const ref = referenceCost(inp, refSys);
+  if (!n) return null;
+  const { points, refSys, ref, variants, results, breakEven } = n;
+  const inp = n.inputs;
+  const PAYBACK_HORIZON = n.horizon;
   // Investment and specific investment are one value seen two ways: I = c_spez · Q.
-  // Installed price per kW: the heat pump's own price × planning and
-  // installation × integration (VDI 4646 eq. 26 factors).
-  const specTotal = form.specCost * form.fPI * form.fPer;
-  const capexOf = (p: OptimizedIntegrationPoint) => Math.round(specTotal * p.Q_demand);
-  const variants = points.map((p) => ({
-    Q: p.Q_demand,
-    Qsrc: p.Q_source,
-    cop: p.COP,
-    capex: capexOf(p),
-  }));
-  const results = variants.map((v) => evaluate(inp, refSys, v));
-  const breakEven = variants.map((v) => breakEvenElPrice(inp, refSys, v, inp.pFuel));
-  return {
-    pump,
+  const capexOf = (p: OptimizedIntegrationPoint) => Math.round(n.specTotal * p.Q_demand);
+  const core = {
+    pump: n.pump,
     points,
     inp,
-    realFeasible,
     refSys,
     ref,
-    specTotal,
+    specTotal: n.specTotal,
     capexOf,
     variants,
     results,
     breakEven,
   };
-}
-
-/** Everything the panel and the report show: tables, key results, summary and
- *  chart specs (Plotly data + layout). `sensBase` anchors the heatmap window. */
-export function buildEconomics(
-  t: TFunction,
-  form: Form,
-  refType: RefType,
-  selected: OptimizedIntegrationPoint[],
-  opt: HPIOptimizationResult | null | undefined,
-  isDark = false,
-  sensBase: { fuel: number; el: number } | null = null
-) {
-  const core = econCore(form, refType, selected, opt);
-  if (!core) return null;
-  const { points, inp, realFeasible, refSys, ref, capexOf, variants, results, breakEven } = core;
   const fuel = t(`economics.fuel.${refType}`);
   const refName = t(`economics.ref.${refType}`);
 
@@ -242,7 +186,7 @@ export function buildEconomics(
       t('economics.rows.capex_vdi'),
       '€/kW',
       '–',
-      points.map((p) => formatDe(vdiSpecificCost(p.Q_demand))),
+      n.vdiSpecificCost.map((v) => formatDe(v)),
     ],
   ];
 
@@ -335,6 +279,7 @@ export function buildEconomics(
   // ---- charts ----
   const istName = t('economics.ist', { ref: refName });
   const ctx: ChartCtx = {
+    n,
     t,
     form,
     inp,
@@ -344,10 +289,7 @@ export function buildEconomics(
     results,
     breakEven,
     points,
-    realFeasible,
-    capexOf,
     isDark,
-    sensBase,
     fuel,
     refName,
     istName,
@@ -376,14 +318,8 @@ export function buildEconomics(
 
 /** The economic analysis of one scenario as plain data for the HTML report:
  *  translated labels, formatted values and the chart specs. */
-export function econReportData(
-  t: TFunction,
-  form: Form,
-  refType: RefType,
-  selected: OptimizedIntegrationPoint[],
-  opt: HPIOptimizationResult | null | undefined
-) {
-  const e = buildEconomics(t, form, refType, selected, opt);
+export function econReportData(t: TFunction, form: Form, refType: RefType, n: EconNumbers | null) {
+  const e = buildEconomics(t, form, refType, n);
   if (!e) return null;
   const fmtInput = (key: keyof Form) =>
     BOOL_FIELDS.includes(key)
