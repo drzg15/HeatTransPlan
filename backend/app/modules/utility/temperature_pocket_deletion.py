@@ -5,7 +5,9 @@ class TemperaturePocketDeletion:
         self.hot_utility = hot_utility
         self.heat_cascade = heat_cascade
         self._temperatures = _temperatures
-        self._options = {'draw': True}
+        # The pocket plot is a research aid; the app never shows it, and every
+        # figure left open stays in the server's memory.
+        self._options = {'draw': False}
 
     def delete_double_empty(self,u):
         if u < len(self.heatCascadedeltaH)-2:

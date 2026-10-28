@@ -12,9 +12,9 @@ import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import Part from '../ui/Part';
+import { buildEconomics } from './econModel';
 import {
   BOOL_FIELDS,
-  buildEconomics,
   DEFAULTS,
   FIELDS,
   GROUPS,
@@ -29,7 +29,7 @@ import {
   type Form,
   type Range,
   type RefType,
-} from './econModel';
+} from './econConfig';
 import { formatDe, parseDe } from '../../utils/numberFormat';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 

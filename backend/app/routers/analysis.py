@@ -16,14 +16,14 @@ from app.models.analysis import (
 )
 from app.models.report import ReportRequest
 from app.services.analysis_service import run_pinch, run_hpi, run_status_quo
-from app.services.optimization_service import run_hpi_optimization
+from app.services.optimization import run_hpi_optimization
 from app.utils.cop_formula import (
     ALLOWED_FUNCS,
     FORMULA_VARIABLES,
     FormulaError,
     cop_from_formula,
 )
-from app.services.report_service import generate_html_report
+from app.services.report import generate_html_report
 
 router = APIRouter()
 

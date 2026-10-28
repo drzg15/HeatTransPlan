@@ -44,7 +44,7 @@ taken over the analysed pump, the maximum-duty point and all real feasible point
 ```{literalinclude} ../frontend/src/components/analysis/econModel.ts
 :language: typescript
 :start-at: export const pickPump
-:end-before: type Fig =
+:end-before: /** Everything the panel and the report show
 ```
 
 </details>

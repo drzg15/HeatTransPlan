@@ -61,7 +61,7 @@ export default function CompositeCurvesChart() {
     // Legend entries switched off here or in the GCC beside it.
     visible: hidden[tr.meta] ? 'legendonly' : true,
     // The area hovered here, on the GCC or on a card stands out.
-    ...(tr.meta === region && tr.fillcolor
+    ...(tr.meta === region && 'fillcolor' in tr && tr.fillcolor
       ? { fillcolor: tr.fillcolor.replace(/[\d.]+\)$/, '0.35)') }
       : {}),
   }));

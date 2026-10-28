@@ -29,7 +29,7 @@ For the complete list of operating temperature ranges and COP bounds for all ref
 
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 36–90)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/optimization/alternatives.py</code> (<code>_load_model_and_data</code>)</summary>
 
 ```python
 def _load_model_and_data():
@@ -91,9 +91,9 @@ Archetype points carry `theoretical = true` in the output, which is what separat
 > The Carnot archetype is the formula $\frac{T_{sink} + 273.15}{\Delta T} \times 0.5$ evaluated at the point's own temperatures — **not** a regression. Because it is deliberately **half** the thermodynamic ceiling rather than the ceiling itself, a real refrigerant scoring above it is expected and is not a physics violation. The same COP cap of **15.0** used by the integration module applies here.
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_theoretical_alternatives</code>)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/optimization/alternatives.py</code> (<code>_theoretical_alternatives</code>)</summary>
 
-```{literalinclude} ../backend/app/services/optimization_service.py
+```{literalinclude} ../backend/app/services/optimization/alternatives.py
 :language: python
 :pyobject: _theoretical_alternatives
 ```
@@ -108,9 +108,9 @@ Every reported point records **how its COP was arrived at**, so a number can be 
 > The trained model is a regression over a heat pump manufacturer's **simulation** parameter study — not measurements of operating machines.
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (<code>_calculation_details</code>)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/optimization/alternatives.py</code> (<code>_calculation_details</code>)</summary>
 
-```{literalinclude} ../backend/app/services/optimization_service.py
+```{literalinclude} ../backend/app/services/optimization/alternatives.py
 :language: python
 :pyobject: _calculation_details
 ```
@@ -134,7 +134,7 @@ $$
 where $\Delta T_{evap}$ and $\Delta T_{cond}$ are the minimum approach temperature drops across the evaporator and condenser heat exchangers (typically 5 K each).
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 92–110)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/optimization/alternatives.py</code> (<code>_model_cop_fn</code>)</summary>
 
 ```python
 def _model_cop_fn(alt):
@@ -210,7 +210,7 @@ T_{source,exact} = T_{source,idx} + f_{fraction} \cdot (T_{source,idx+1} - T_{so
 $$
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 370–425)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/optimization/search.py</code> (<code>run_hpi_optimization</code>)</summary>
 
 ```python
 # Detect zero-crossings where available waste heat equals required waste heat
@@ -247,7 +247,7 @@ $$
 $$
 
 <details>
-<summary><b>Source code:</b> <code>backend/app/services/optimization_service.py</code> (lines 430–475)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/optimization/search.py</code> (<code>run_hpi_optimization</code>)</summary>
 
 ```python
 # Source-limited check: when waste heat is insufficient to fully satisfy Q_demand

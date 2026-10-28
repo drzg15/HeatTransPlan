@@ -81,7 +81,7 @@ def test_theoretical_alternatives_respect_operating_windows():
     being extrapolated into a regime its published regression never covered.
     """
     import numpy as np
-    from app.services.optimization_service import _theoretical_alternatives
+    from app.services.optimization.alternatives import _theoretical_alternatives
     from app.modules.heat_pump_integration.heat_pump_integration import (
         HP_OPERATING_WINDOWS,
     )
@@ -109,7 +109,7 @@ def test_theoretical_archetypes_match_the_hpi_correlation():
     if this drifts, the merged table would rank them against each other wrongly.
     """
     import numpy as np
-    from app.services.optimization_service import _theoretical_alternatives
+    from app.services.optimization.alternatives import _theoretical_alternatives
     from app.modules.heat_pump_integration.heat_pump_integration import (
         HP_COP_CORRELATIONS,
         in_operating_window,
@@ -132,7 +132,7 @@ def test_four_temperature_model_holds_the_other_two_at_the_pinch():
     """The 4t model gets Vorlauf Quelle / Rücklauf Senke from the pinch, not the grid."""
     import numpy as np
     from types import SimpleNamespace
-    from app.services import optimization_service as svc
+    from app.services.optimization import alternatives as svc
 
     pinch = SimpleNamespace(pinch_temperature=73.0, T_min=10.0)
     seen = {}
@@ -162,7 +162,7 @@ def test_pinned_carnot_uses_the_non_shifted_sink_and_the_pinch_source():
     """Pinch 73, dTmin 10, sink 113 on the curve: Carnot sees 108 and 68."""
     import numpy as np
     from types import SimpleNamespace
-    from app.services.optimization_service import _pin_carnot
+    from app.services.optimization.alternatives import _pin_carnot
 
     pinch = SimpleNamespace(pinch_temperature=73.0, T_min=10.0)
     alt = {"name": "Carnot", "cop_max": 15.0}
@@ -174,7 +174,7 @@ def test_pinned_carnot_uses_the_non_shifted_sink_and_the_pinch_source():
 def test_unrecovered_heat_scales_with_recovery_share():
     """d = (1 − p) · (hot duty − minimum cooling): 0 at 100 %, all of it at 0 %."""
     from types import SimpleNamespace
-    from app.services.optimization_service import _unrecovered_heat
+    from app.services.optimization.profiles import _unrecovered_heat
 
     pinch = SimpleNamespace(
         streams_data=[

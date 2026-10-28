@@ -2,7 +2,8 @@
 
 from app.models.analysis import HPIOptimizationResult, OptimizedIntegrationPoint, PinchResult
 from app.models.report import ReportRequest, ReportStream, ScenarioReportData
-from app.services.report_service import _optimization_figure, generate_html_report, I18N
+from app.services.report import generate_html_report, I18N
+from app.services.report.figures import _optimization_figure
 
 
 def _point(**kw):
@@ -80,7 +81,7 @@ def test_german_report_has_every_label():
 
 
 def test_table_lists_the_pumps_the_page_lists():
-    from app.services.report_service import _table_points
+    from app.services.report.points import _table_points
 
     rows = _table_points(_opt())
     names = [p.refrigerant for p in rows]
@@ -113,7 +114,7 @@ def test_report_lists_every_pump_row():
 
 
 def test_a_picked_pump_takes_the_box_and_the_top_row():
-    from app.services.report_service import _headline_point, _table_points
+    from app.services.report.points import _headline_point, _table_points
 
     opt = _opt()
     picked = _point(T_sink=100.0, Q_demand=600.0, COP=3.4)

@@ -3,6 +3,14 @@ import Plot from 'react-plotly.js';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
+import HPIOptimizationChartHelp from './HPIOptimizationChartHelp';
+import { heatPumpSchematic } from './hpSchematic';
+import {
+  activePointsOf,
+  boxPointsOf,
+  stackedHoverText,
+  thinnedPoints,
+} from './optimizationChartPoints';
 
 interface Props {
   originalGCC: { H: number[]; T: number[] };
@@ -60,145 +68,12 @@ export default function HPIOptimizationChart({
   const mirrored = profileMode !== 'net_load';
   const srcSign = mirrored ? -1 : 1;
 
-  // Filter feasible points: For each T_sink temperature level and each refrigerant type, keep only the single point with the highest COP
-  const bestPointsMap = new Map<string, OptimizedIntegrationPoint>();
-  for (const pt of feasiblePoints) {
-    if (pt.theoretical) continue;
-    // Group by T_sink and refrigerant_type (Natural/Synthetic)
-    const key = `${pt.T_sink.toFixed(2)}_${pt.refrigerant_type}`;
-    const existing = bestPointsMap.get(key);
-    if (!existing || pt.COP > existing.COP) {
-      bestPointsMap.set(key, pt);
-    }
-  }
-  // On a steep stretch of the sink profile, tens of degrees of lift cost only
-  // a few kW, so dozens of points stack into a near-vertical line at
-  // effectively the same power. They are not distinct options — the extra
-  // temperature buys no extra duty — and they crowd out the points that do
-  // differ. Thin them by duty, keeping the coolest sink temperature in each
-  // step: the cheapest lift that delivers that power.
-  //
-  // The step is in DUTY, so it only bites where duty is barely changing. A
-  // shallow stretch spreads its points across many steps and keeps them all.
-  const collapseVerticals = (points: OptimizedIntegrationPoint[]) => {
-    const qs = points.map((p) => p.Q_demand);
-    const span = qs.length ? Math.max(...qs) - Math.min(...qs) : 0;
-    if (span <= 0) return points;
-    const step = span * 0.02;
-
-    const perBucket = new Map<string, OptimizedIntegrationPoint>();
-    for (const pt of points) {
-      const key = `${Math.round(pt.Q_demand / step)}_${pt.refrigerant}`;
-      const existing = perBucket.get(key);
-      // Lowest sink temperature wins; COP breaks an exact tie.
-      if (
-        !existing ||
-        pt.T_sink < existing.T_sink ||
-        (pt.T_sink === existing.T_sink && pt.COP > existing.COP)
-      ) {
-        perBucket.set(key, pt);
-      }
-    }
-    return Array.from(perBucket.values());
-  };
-
-  // Active points are drawn as their own markers regardless of thinning, so if
-  // thinning drops one it is left standing alone off the line. Keep whatever is
-  // active in the cloud it belongs to.
-  const activeKeys = new Set(
-    (selectedPoints.length > 0 ? selectedPoints : maxQPoint ? [maxQPoint] : []).map(
-      (p) => `${p.refrigerant}_${p.T_sink.toFixed(2)}`
-    )
+  const { filteredPoints, theoreticalPoints } = thinnedPoints(
+    feasiblePoints,
+    selectedPoints,
+    maxQPoint
   );
-  const keepActive = (
-    points: OptimizedIntegrationPoint[],
-    thinned: OptimizedIntegrationPoint[]
-  ) => {
-    const have = new Set(thinned.map((p) => `${p.refrigerant}_${p.T_sink.toFixed(2)}`));
-    const extra = points.filter((p) => {
-      const k = `${p.refrigerant}_${p.T_sink.toFixed(2)}`;
-      return activeKeys.has(k) && !have.has(k);
-    });
-    return extra.length ? [...thinned, ...extra] : thinned;
-  };
-
-  const bestPointsList = Array.from(bestPointsMap.values());
-  const filteredPoints = keepActive(bestPointsList, collapseVerticals(bestPointsList));
-
-  // The technology archetypes are grouped per technology instead, so each keeps
-  // its own curve rather than competing with the refrigerants for a T_sink slot.
-  const theoreticalBest = new Map<string, OptimizedIntegrationPoint>();
-  for (const pt of feasiblePoints) {
-    if (!pt.theoretical) continue;
-    const key = `${pt.T_sink.toFixed(2)}_${pt.refrigerant}`;
-    const existing = theoreticalBest.get(key);
-    if (!existing || pt.COP > existing.COP) {
-      theoreticalBest.set(key, pt);
-    }
-  }
-  // Archetypes stack on a steep profile exactly as the refrigerants do, so they
-  // get the same thinning — otherwise the diamonds keep the vertical alive
-  // after the dots have been thinned out of it.
-  const theoreticalList = Array.from(theoreticalBest.values());
-  const theoreticalPoints = keepActive(theoreticalList, collapseVerticals(theoreticalList));
-
-  // Every candidate at one sink temperature carries the same duty, so they all
-  // land on the same pixel. Plotly's 'closest' hovermode breaks that tie by
-  // draw order, which meant the archetype diamonds — pushed last, and drawn
-  // larger — captured the tooltip whatever their COP. Rank the stack by COP
-  // instead and let every point at that temperature report the same winner.
-  const stackAtTemp = new Map<string, OptimizedIntegrationPoint[]>();
-  for (const p of [...filteredPoints, ...theoreticalPoints]) {
-    const key = p.T_sink.toFixed(2);
-    const at = stackAtTemp.get(key);
-    if (at) at.push(p);
-    else stackAtTemp.set(key, [p]);
-  }
-  for (const group of stackAtTemp.values()) {
-    group.sort((a, b) => b.COP - a.COP);
-  }
-
-  const RUNNERS_UP = 3;
-
-  /** The hover text for a point: whichever machine at this sink temperature has
-   *  the best COP, then the next few, so the Carnot ceiling can be read against
-   *  what a real machine actually reaches. `side` picks which half of the
-   *  balance the headline numbers describe. */
-  const stackedHover = (p: OptimizedIntegrationPoint, side: 'sink' | 'source') => {
-    const group = stackAtTemp.get(p.T_sink.toFixed(2)) ?? [p];
-    const [best, ...rest] = group;
-    const kind = best.theoretical ? t('optimization.theoretical') : t('optimization.real');
-    const qSource = (x: OptimizedIntegrationPoint) => (x.Q_demand * (x.COP - 1)) / x.COP;
-
-    const head =
-      side === 'sink'
-        ? `<b>${best.refrigerant} — ${kind}</b><br>` +
-          `T_sink: ${best.T_sink.toFixed(1)}°C<br>` +
-          `Q_sink: ${best.Q_demand.toFixed(1)} kW` +
-          `${best.source_limited && best.Q_demand_total ? ` of ${best.Q_demand_total.toFixed(1)} kW (source-limited)` : ''}<br>` +
-          `COP: ${best.COP.toFixed(2)}`
-        : `<b>${best.refrigerant} — ${kind}</b><br>` +
-          `T_source: ${best.T_source.toFixed(1)}°C<br>` +
-          `Q_source: ${qSource(best).toFixed(1)} kW<br>` +
-          `COP: ${best.COP.toFixed(2)}` +
-          `${best.demand_limited ? `<br>${t('optimization.hover_demand_limited')}` : ''}`;
-
-    if (rest.length === 0) return head;
-
-    // Runners-up are named with their COP only: the point of the list is to
-    // compare efficiency at a fixed duty, and repeating the duty on each row
-    // would say the same number several times.
-    const others = rest
-      .slice(0, RUNNERS_UP)
-      .map((o) => `  ${o.refrigerant}: ${o.COP.toFixed(2)}`)
-      .join('<br>');
-    const more =
-      rest.length > RUNNERS_UP
-        ? `<br>  +${rest.length - RUNNERS_UP} ${t('optimization.hover_more')}`
-        : '';
-
-    return `${head}<br>${t('optimization.hover_also_here')}:<br>${others}${more}`;
-  };
+  const stackedHover = stackedHoverText([...filteredPoints, ...theoreticalPoints], t);
 
   const traces: any[] = [];
 
@@ -353,22 +228,7 @@ export default function HPIOptimizationChart({
   });
 
   // Trace 3: Selected Points (if any, otherwise maxQ point)
-  // The max-Q point is highlighted before anything is clicked. It used to be
-  // REPLACED by the first click, so that marker silently shrank back into the
-  // cloud — it now stays highlighted alongside the clicked ones.
-  const activePoints = (() => {
-    const out = maxQPoint ? [maxQPoint] : [];
-    for (const sp of selectedPoints) {
-      const dup = out.some(
-        (p) =>
-          p.refrigerant === sp.refrigerant &&
-          Math.abs(p.T_sink - sp.T_sink) < 0.01 &&
-          Math.abs(p.T_source - sp.T_source) < 0.01
-      );
-      if (!dup) out.push(sp);
-    }
-    return out;
-  })();
+  const activePoints = activePointsOf(maxQPoint, selectedPoints);
 
   for (const activePoint of activePoints) {
     // Highlight Active Sink
@@ -412,215 +272,15 @@ export default function HPIOptimizationChart({
       hoverinfo: 'text',
     });
   }
-
   // --- Heat pump schematic --------------------------------------------------
-  // Source and sink can sit 3 kW apart or 1500 kW apart depending on profile
-  // mode, so the box is sized in PIXELS and anchored to a data-space point.
-  // That keeps it legible at any zoom without ever outgrowing the gap.
   const hpBoxShapes: typeof traces = [];
   const hpBoxAnnotations: typeof traces = [];
-
-  // Only the most recently clicked pump gets a box. A click appends every
-  // machine at that sink temperature to the end of the selection, so the last
-  // entry's temperature is the one just clicked; the earlier selections stay
-  // on the chart as enlarged markers and in the table.
-  const lastTemp = activePoints.length ? activePoints[activePoints.length - 1].T_sink : null;
-  const boxPoints =
-    lastTemp === null
-      ? []
-      : (() => {
-          const atTemp = activePoints.filter((p) => Math.abs(p.T_sink - lastTemp) < 0.01);
-          // The best machine there represents the temperature.
-          const best = atTemp.reduce<OptimizedIntegrationPoint | null>(
-            (b, p) =>
-              !b || p.Q_demand > b.Q_demand || (p.Q_demand === b.Q_demand && p.COP > b.COP) ? p : b,
-            null
-          );
-          return best ? [best] : [];
-        })();
-
-  for (const boxPoint of boxPoints) {
-    const srcX = srcSign * ((boxPoint.Q_demand * (boxPoint.COP - 1)) / boxPoint.COP);
-    const srcY = boxPoint.T_source;
-    const snkX = boxPoint.Q_demand;
-    const snkY = boxPoint.T_sink;
-
-    // The box sits on the sink's x, halfway up the lift: the route is then a
-    // clean rise-then-across, with no diagonal anywhere.
-    const boxX = snkX;
-    const boxY = (srcY + snkY) / 2;
-
-    // The box holds two lines (HP + COP), so it needs the extra height.
-    const halfW = 30;
-    const halfH = 22;
-
-    hpBoxShapes.push({
-      type: 'rect',
-      xref: 'x',
-      yref: 'y',
-      xsizemode: 'pixel',
-      ysizemode: 'pixel',
-      xanchor: boxX,
-      yanchor: boxY,
-      x0: -halfW,
-      x1: halfW,
-      y0: -halfH,
-      y1: halfH,
-      line: { color: HP_STROKE, width: 2 },
-      fillcolor: HP_FILL,
-      layer: 'above',
-    });
-
-    hpBoxAnnotations.push({
-      x: boxX,
-      y: boxY,
-      xref: 'x',
-      yref: 'y',
-      // The primary box carries its COP, so the headline number is readable
-      // without going to the table or hovering.
-      text: `<b>HP</b><br>COP ${boxPoint.COP.toFixed(2)}`,
-      showarrow: false,
-      align: 'center' as const,
-      font: { size: 10, color: HP_STROKE },
-    });
-
-    // Help marker beside the box. A DOM help button cannot be positioned at a
-    // data coordinate, so this is an annotation carrying the explanation on
-    // hover. It is an annotation rather than a trace because only annotations
-    // support the pixel shift that keeps it clear of the box.
-    hpBoxAnnotations.push({
-      x: boxX,
-      y: boxY,
-      xref: 'x',
-      yref: 'y',
-      xshift: halfW + 12,
-      yshift: halfH + 4,
-      text: '💡',
-      showarrow: false,
-      font: { size: 13 },
-      captureevents: true,
-      hovertext: [
-        `<b>${t('optimization.hp_box_title')}</b>`,
-        '',
-        t('optimization.hp_box_what'),
-        '',
-        `<b>${Math.abs(srcX).toFixed(1)} kW · ${srcY.toFixed(1)} °C</b> — ${t('optimization.hp_box_source')}`,
-        `<b>P<sub>el</sub> ${(snkX - srcX).toFixed(1)} kW</b> — ${t('optimization.hp_box_el')}`,
-        `<b>${snkX.toFixed(1)} kW · ${snkY.toFixed(1)} °C</b> — ${t('optimization.hp_box_sink')}`,
-        `<b>COP ${boxPoint.COP.toFixed(2)}</b> — ${t('optimization.hp_box_cop')}`,
-        '',
-        t('optimization.hp_box_balance'),
-      ].join('<br>'),
-      hoverlabel: { align: 'left' as const, bgcolor: isDark ? '#1E293B' : '#FFF' },
-    });
-
-    // Endpoint readouts — duty and temperature at the source and the sink,
-    // placed clear of the legs that meet there.
-    hpBoxAnnotations.push({
-      x: srcX,
-      y: srcY,
-      xref: 'x',
-      yref: 'y',
-      text: `${Math.abs(srcX).toFixed(1)} kW<br>${srcY.toFixed(1)} °C`,
-      showarrow: false,
-      xanchor: 'right' as const,
-      yanchor: 'top' as const,
-      align: 'right' as const,
-      xshift: -8,
-      yshift: -2,
-      font: { size: 10, color: SOURCE_SOFT },
-    });
-    hpBoxAnnotations.push({
-      x: snkX,
-      y: snkY,
-      xref: 'x',
-      yref: 'y',
-      text: `${snkX.toFixed(1)} kW<br>${snkY.toFixed(1)} °C`,
-      showarrow: false,
-      xanchor: 'left' as const,
-      yanchor: 'bottom' as const,
-      align: 'left' as const,
-      xshift: 8,
-      yshift: 2,
-      font: { size: 10, color: SINK_SOFT },
-    });
-
-    // Source leg: across at the source temperature, then up into the box.
-    traces.push({
-      x: [srcX, boxX, boxX],
-      y: [srcY, srcY, boxY],
-      mode: 'lines' as const,
-      line: { color: SOURCE_SOFT, width: 2 },
-      showlegend: false,
-      hoverinfo: 'skip' as const,
-    });
-
-    // Sink leg: straight up from the box to the sink point.
-    traces.push({
-      x: [boxX, snkX],
-      y: [boxY, snkY],
-      mode: 'lines' as const,
-      line: { color: SINK_SOFT, width: 2 },
-      showlegend: false,
-      hoverinfo: 'skip' as const,
-    });
-
-    hpBoxAnnotations.push({
-      x: boxX,
-      y: snkY,
-      ax: boxX,
-      ay: snkY - (snkY - boxY) * 0.25,
-      xref: 'x',
-      yref: 'y',
-      axref: 'x',
-      ayref: 'y',
-      showarrow: true,
-      arrowhead: 3,
-      arrowsize: 1.4,
-      arrowwidth: 2,
-      arrowcolor: SINK_SOFT,
-      standoff: 8,
-      text: '',
-    });
-    hpBoxAnnotations.push({
-      x: boxX,
-      y: boxY,
-      ax: boxX,
-      ay: boxY - (boxY - srcY) * 0.25,
-      xref: 'x',
-      yref: 'y',
-      axref: 'x',
-      ayref: 'y',
-      showarrow: true,
-      arrowhead: 3,
-      arrowsize: 1.4,
-      arrowwidth: 2,
-      arrowcolor: SOURCE_SOFT,
-      standoff: halfH + 1,
-      text: '',
-    });
-
-    // Electrical input enters from the right, clear of the source leg. Only the
-    // primary box is labelled — repeating it on every mini box is noise.
-    hpBoxAnnotations.push({
-      x: boxX,
-      y: boxY,
-      ax: 52,
-      ay: 0,
-      xref: 'x',
-      yref: 'y',
-      axref: 'pixel',
-      ayref: 'pixel',
-      showarrow: true,
-      arrowhead: 3,
-      arrowsize: 1.4,
-      arrowwidth: 2,
-      arrowcolor: EL_SOFT,
-      standoff: halfW + 2,
-      text: `<b>P<sub>el</sub> ${(snkX - srcX).toFixed(1)} kW</b>`,
-      xanchor: 'left',
-      font: { size: 10, color: EL_SOFT },
-    });
+  const colors = { SOURCE_SOFT, SINK_SOFT, EL_SOFT, HP_STROKE, HP_FILL };
+  for (const boxPoint of boxPointsOf(activePoints)) {
+    const s = heatPumpSchematic(boxPoint, srcSign, colors, isDark, t);
+    hpBoxShapes.push(...s.shapes);
+    hpBoxAnnotations.push(...s.annotations);
+    traces.push(...s.traces);
   }
 
   const layout: any = {
@@ -715,46 +375,7 @@ export default function HPIOptimizationChart({
       <ChartHelpButton
         title={t('ui.opt_solutions')}
         size="large"
-        description={
-          <>
-            <p>{t('optimization.desc_opt_chart_p1')}</p>
-            <p>{t('optimization.desc_opt_chart_p2')}</p>
-            <p>{t('optimization.desc_opt_chart_p3')}</p>
-            <hr style={{ margin: '8px 0', borderColor: 'var(--border)' }} />
-            <p style={{ fontWeight: 600, marginBottom: '4px' }}>
-              {t('optimization.desc_opt_chart_how')}
-            </p>
-            <p style={{ fontSize: '0.8rem' }}>
-              {t('optimization.desc_opt_chart_blue_1')}
-              <b>{t('optimization.desc_opt_chart_blue_2')}</b>
-              {t('optimization.desc_opt_chart_blue_3')}
-              <br />
-              <br />
-              {t('optimization.desc_opt_chart_red_1')}
-              <b>{t('optimization.desc_opt_chart_red_2')}</b>
-              {t('optimization.desc_opt_chart_red_3')}
-              <br />
-              <br />
-              {t('optimization.desc_opt_chart_aims_1')}
-              <b>{t('optimization.desc_opt_chart_aims_2')}</b>
-              {t('optimization.desc_opt_chart_aims_3')}
-            </p>
-            <hr style={{ margin: '8px 0', borderColor: 'var(--border)' }} />
-            <p style={{ fontWeight: 600, marginBottom: '4px' }}>
-              {t('optimization.desc_opt_chart_why')}
-            </p>
-            <p style={{ fontSize: '0.8rem' }}>
-              {t('optimization.desc_opt_chart_off_1')}
-              <b>{t('optimization.desc_opt_chart_off_2')}</b>
-              {t('optimization.desc_opt_chart_off_3')}
-              <i>{t('optimization.desc_opt_chart_off_4')}</i>
-              {t('optimization.desc_opt_chart_off_5')}
-              <br />
-              <br />
-              {t('optimization.desc_opt_chart_rest')}
-            </p>
-          </>
-        }
+        description={<HPIOptimizationChartHelp />}
       />
       <Plot
         data={traces}
