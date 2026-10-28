@@ -1,5 +1,7 @@
 /** Analysis types — mirrors backend analysis models. */
 
+import type { CustomCopModelSpec } from './copTraining';
+
 // ---------------------------------------------------------------------------
 // Pinch Analysis
 // ---------------------------------------------------------------------------
@@ -211,6 +213,7 @@ export interface HPIOptimizationRequest {
   pinch_result: PinchResult;
   profile_mode?: ProfileMode;
   cop_formula?: CopFormulaSpec | null;
+  custom_cop_model?: CustomCopModelSpec | null;
   cop_model?: CopModel;
   /** Share of the maximum heat recovery credited, % (net_load only). */
   recovery_pct?: number;

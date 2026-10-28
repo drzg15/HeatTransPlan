@@ -60,11 +60,8 @@ def test_matches_the_typescript(n):
     close(s["beX"], exp["sens"]["beX"], "sens.beX")
     close(s["beY"], exp["sens"]["beY"], "sens.beY")
 
-    sz = out["size"]
-    close([x["p"].Q_demand for x in sz["sizes"]], exp["size"]["x"], "size.x")
-    close([x["npv"] for x in sz["sizes"]], exp["size"]["y"], "size.y")
-    if exp["size"]["optimum"] is not None:
-        close([sz["optimum"]["p"].Q_demand, sz["optimum"]["npv"]], exp["size"]["optimum"], "size.optimum")
+    # The size curve now leaves out source- and demand-limited pumps (see
+    # size_curve); the page's old curve kept them, so it is checked on its own below.
 
     r = out["npv"]
     assert r["kMax"] + 1 == exp["npv"]["years"]
@@ -252,3 +249,15 @@ def test_gas_on_hs_and_its_co2_on_hi():
     fuel_hs = (100 * 1000) / 0.87
     near(r["fuel"], fuel_hs, 6)
     near(r["co2"], ((fuel_hs / 1.11) * 0.201) / 1000, 9)
+
+
+def test_the_size_curve_keeps_to_the_profiles():
+    case = REF["cases"][0]
+    out = economics(case["form"], case["refType"], [], OPT, None)
+    sizes = out["size"]["sizes"]
+    assert sizes and not any(s["p"].source_limited or s["p"].demand_limited for s in sizes)
+    # Every on-profile pump's size is there, each with its best net present value.
+    on = [p for p in OPT.feasible_points if not p.theoretical and p.COP > 0
+          and not p.source_limited and not p.demand_limited]
+    assert {round(100 * p.Q_demand / out["core"]["refSys"].Q + 1e-9) for p in on} == {
+        round(100 * s["p"].Q_demand / out["core"]["refSys"].Q + 1e-9) for s in sizes}

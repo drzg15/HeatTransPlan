@@ -63,12 +63,13 @@ Projects: `list_examples`, `create_project`, `list_projects`, `get_project`,
 `set_notes`, `set_map`, `set_site_plan`, `export_csv`, `import_csv`.
 
 Analysis: `analyse_project`, `list_heat_pumps`, `economics_defaults`,
-`economic_analysis`, `validate_cop_formula`, `generate_report`.
+`economic_analysis`, `validate_cop_formula`, `train_cop_model` (when the
+server runs the COP training module), `generate_report`.
 
 Live: `live_sessions`, `live_view`, `live_results`, `live_command` (every
 page command; `list_commands` lists them), `live_navigate`, `live_wait`,
 `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`,
-`live_set_economics`, `live_save_scenario`, `live_generate_report`,
+`live_set_economics`, `live_use_cop_model`, `live_save_scenario`, `live_generate_report`,
 `live_load_site_plan`.
 
 Edits follow the page's own rules: a new process comes with one subprocess,

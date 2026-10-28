@@ -36,6 +36,9 @@ The backend is a FastAPI application. Its interactive reference, with every endp
 | POST | `/api/analysis/hpi` | Heat pump integration (the prototypical technologies) |
 | POST | `/api/analysis/hpi-optimization` | Heat pump optimization: every refrigerant over the source/sink grid |
 | POST | `/api/analysis/cop-formula/validate` | Check a custom COP formula |
+| POST | `/api/analysis/cop-model/inspect` | COP training module: columns, rows and a column guess of an uploaded table |
+| POST | `/api/analysis/cop-model/train` | COP training module: train a COP network on mapped columns |
+| GET | `/api/features` | Which optional modules the server runs |
 | POST | `/api/analysis/project` | The Potential Analysis page's whole chain on a project: selected streams → pinch → integration → optimization → economics |
 | GET | `/api/analysis/economics/defaults` | Economic inputs with their defaults, and the reference-heater presets |
 | POST | `/api/analysis/economics` | Economic analysis of a heat pump (see [Economic analysis](economic_analysis.md)) |
@@ -110,7 +113,7 @@ sequenceDiagram
 | Page | `navigate`, `set_language`, `set_theme`, `get_view`, `get_results`, `wait_idle` |
 | Project | `get_project`, `set_project`, `set_project_notes`, `set_pinch_notes`, `set_map_view`, `load_site_plan`¹, `set_site_plan_bounds`, `remove_site_plan`, `remove_subprocess_plan`, `export_csv`, `export_distances_csv` |
 | Analysis | `select_streams`, `set_t_min`, `set_show_shifted`, `set_recovery_pct`, `set_profile_mode`, `set_energy_demands`, `reset_pinch` |
-| Heat pumps | `set_cop_model`, `set_cop_formula`, `set_hp_types`, `select_heat_pumps`, `reset_heat_pumps`² |
+| Heat pumps | `set_cop_model`, `set_cop_formula`, `set_custom_cop_model`, `set_hp_types`, `select_heat_pumps`, `reset_heat_pumps`² |
 | Economics | `set_economics`, `reset_economics` |
 | Scenarios | `save_scenario`, `load_scenario`, `rename_scenario`, `delete_scenario` |
 | Report | `generate_report`² |
@@ -169,8 +172,8 @@ Both can be mixed, e.g. build a project from files, open it, connect, and have t
 |---|---|
 | Projects | `list_examples`, `create_project`, `list_projects`, `get_project`, `save_project_file`, `replace_project`, `delete_project` |
 | Processes & streams | `add_process`, `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`, `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`, `set_notes`, `set_map`, `set_site_plan`, `export_csv`, `import_csv` |
-| Analysis | `analyse_project`, `list_heat_pumps`, `economics_defaults`, `economic_analysis`, `validate_cop_formula`, `generate_report` |
-| Live | `live_sessions`, `live_view`, `live_results`, `live_command`, `live_navigate`, `live_wait`, `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`, `live_set_economics`, `live_save_scenario`, `live_generate_report`, `live_load_site_plan` |
+| Analysis | `analyse_project`, `list_heat_pumps`, `economics_defaults`, `economic_analysis`, `validate_cop_formula`, `train_cop_model`, `generate_report` |
+| Live | `live_sessions`, `live_view`, `live_results`, `live_command`, `live_navigate`, `live_wait`, `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`, `live_set_economics`, `live_use_cop_model`, `live_save_scenario`, `live_generate_report`, `live_load_site_plan` |
 
 Edits follow the page's rules: a new process comes with one subprocess, deleting renumbers later indices and the stream selection, and streams are stored the way the stream editor stores them. The report written from a project file covers data collection, pinch and heat pumps; the report from a connected page (`live_generate_report`) also carries the economic charts.
 

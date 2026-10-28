@@ -6,6 +6,8 @@ from __future__ import annotations
 from typing import Any, Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
+from app.models.cop_training import CustomCopModelSpec
+
 
 # How much internal heat recovery is credited before the heat pump is placed.
 #   net_load    pocket-free GCC split into source/sink (full recovery, default)
@@ -274,6 +276,9 @@ class HPIOptimizationRequest(BaseModel):
     recovery_pct: float = Field(100.0, ge=0, le=100)
     # Language of the diagnostic messages ("en" or "de").
     lang: str = "en"
+    # A network the user trained on their own data (COP training module);
+    # offered next to the shipped model like cop_formula.
+    custom_cop_model: Optional[CustomCopModelSpec] = None
 
 
 class HPIOptimizationResult(BaseModel):

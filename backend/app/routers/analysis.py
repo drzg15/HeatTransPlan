@@ -88,7 +88,7 @@ async def project_analysis(request: ProjectAnalysisRequest):
     try:
         return analyse_project(
             request.state, request.selected_streams, request.t_min, request.profile_mode,
-            request.recovery_pct, request.cop_model, request.cop_formula,
+            request.recovery_pct, request.cop_model, request.cop_formula, request.custom_cop_model,
             request.economics_form, request.ref_type, request.selected_points, request.lang,
         )
     except FormulaError as exc:

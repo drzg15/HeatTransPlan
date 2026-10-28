@@ -35,6 +35,8 @@ api = Api()
 
 # Last analysis per project, so follow-up tools need not resend large results.
 _analysis: Dict[str, Dict[str, Any]] = {}
+# COP models trained with train_cop_model, by name.
+_models: Dict[str, Dict[str, Any]] = {}
 
 
 def set_api(new: Api) -> None:
@@ -42,6 +44,7 @@ def set_api(new: Api) -> None:
     global api
     api = new
     _analysis.clear()
+    _models.clear()
 
 
 async def _load(project_id: str) -> Dict[str, Any]:
@@ -364,7 +367,8 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
                           heat_recovery_pct: float = 100, cop_model: Literal["2t", "4t"] = "4t",
                           cop_formula: Optional[Dict[str, Any]] = None,
                           economics_inputs: Optional[Dict[str, float]] = None,
-                          reference_heater: Literal["gas", "oil", "eboiler"] = "gas") -> Dict[str, Any]:
+                          reference_heater: Literal["gas", "oil", "eboiler"] = "gas",
+                          custom_model: Optional[str] = None) -> Dict[str, Any]:
     """Run the Potential Analysis on a project: pinch, heat pump integration,
     heat pump optimization and the economic analysis of the best pump.
 
@@ -373,7 +377,9 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
     heat_recovery_pct: share of the possible heat recovery already in place
     (0–100, net_load only). cop_model "4t" (standard) scores pumps with all
     four temperatures, "2t" with source return and sink supply only. cop_formula: {"name", "expression", ...} adds a custom COP
-    correlation (check it first with validate_cop_formula). economics_inputs:
+    correlation (check it first with validate_cop_formula). custom_model: the
+    name of a model from train_cop_model, offered next to the shipped one.
+    economics_inputs:
     see economics_defaults. Results are kept for list_heat_pumps,
     economic_analysis and generate_report."""
     state = await _load(project_id)
@@ -381,11 +387,55 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
     out = await api.post("/api/analysis/project", json={
         "state": state, "selected_streams": sel, "t_min": t_min, "profile_mode": profile_mode,
         "recovery_pct": heat_recovery_pct, "cop_model": cop_model, "cop_formula": cop_formula,
+        "custom_cop_model": _model(custom_model) if custom_model else None,
         "economics_form": economics_inputs or {}, "ref_type": reference_heater,
     })
     _analysis[project_id] = {**out, "economics_inputs": economics_inputs or {}, "reference_heater": reference_heater,
                              "selected_points": []}
     return _summary(out)
+
+
+def _model(name: str) -> Dict[str, Any]:
+    if name not in _models:
+        raise ApiError(f"No trained model '{name}'; train one with train_cop_model ({', '.join(_models) or 'none yet'}).")
+    return _models[name]
+
+
+@mcp.tool()
+async def train_cop_model(file_path: str, mapping: Dict[str, str], name: str = "My COP model",
+                          model_type: Literal["nn", "poly", "linear"] = "nn",
+                          degree: Literal[2, 3] = 2, sheet: Optional[str] = None,
+                          valid_range: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
+    """Train a COP model on heat pump data, as the page's "Train from my
+    data": a neural network ("nn", most accurate), a polynomial ("poly",
+    degree 2 or 3) or a linear regression ("linear"); the regressions return
+    their formula. file_path: CSV, Excel (sheet: which one; default the
+    first with a COP column) or Parquet, one operating point per row. mapping: role → column name. Required: T_source_out
+    (source outlet / return), T_sink_out (sink outlet / supply), COP.
+    Optional: T_source_in and T_sink_in (both or neither: four-temperature
+    model), medium, refrigerant, stages (number of compressors). Up to 10,000
+    rows are used; 20 % are held back for the test metrics. The model is
+    offered over the data's range with the sink capped at 180 °C; valid_range
+    ({"T_source_min", "T_source_max", "T_sink_min", "T_sink_max"}) sets it. Use the model by
+    name in analyse_project(custom_model=...) or live_use_cop_model.
+    Only available when the server runs the COP training module."""
+    path = Path(file_path).expanduser()
+    out = await api.request("POST", "/api/analysis/cop-model/train",
+                            files={"file": (path.name, path.read_bytes())},
+                            data={"mapping": json.dumps(mapping), "name": name,
+                                  "model_type": model_type, "degree": str(degree),
+                                  **({"sheet": sheet} if sheet else {})})
+    spec = out["spec"]
+    if valid_range:
+        spec["envelope"] = {**spec["envelope"], **valid_range}
+    _models[spec["name"]] = spec
+    return {
+        "name": spec["name"], "type": spec["kind"], "formula": spec.get("formula") or None,
+        "test_metrics": spec["metrics"], "rows_used": out["rows_used"],
+        "rows_dropped": out["rows_dropped"], "sampled_from": out["sampled_from"],
+        "inputs": spec["temps"] + spec["cats"], "heat_pumps_added": len(spec["combos"]),
+        "valid_range": spec["envelope"],
+    }
 
 
 def _cached(project_id: str) -> Dict[str, Any]:
@@ -525,7 +575,8 @@ async def live_command(session_id: str, command: str, args: Optional[Dict[str, A
     {theme}, select_streams {all|none|keys[]|process, value}, set_t_min
     {value}, set_show_shifted {value}, set_recovery_pct {value},
     set_profile_mode {mode}, set_energy_demands {demands}, reset_pinch,
-    set_cop_model {model}, set_cop_formula {formula}, set_hp_types {types},
+    set_cop_model {model}, set_cop_formula {formula}, set_custom_cop_model
+    {model, enabled}, set_hp_types {types},
     select_heat_pumps {points: [{refrigerant, T_sink}], add, clear},
     reset_heat_pumps, set_economics {form, ref_type}, reset_economics,
     save_scenario {name}, load_scenario {index}, rename_scenario {index, name},
@@ -603,6 +654,19 @@ async def live_set_economics(session_id: str, inputs: Optional[Dict[str, float]]
     if reference_heater:
         args["ref_type"] = reference_heater
     return await _live(session_id, "set_economics", args)
+
+
+@mcp.tool()
+async def live_use_cop_model(session_id: str, name: Optional[str] = None, enabled: Optional[bool] = None) -> Any:
+    """Put a model from train_cop_model into the page's optimization (name),
+    switch the page's trained model off or on (enabled), or remove it
+    (name="" ). The optimization reruns by itself."""
+    args: Dict[str, Any] = {}
+    if name is not None:
+        args["model"] = _model(name) if name else None
+    if enabled is not None:
+        args["enabled"] = enabled
+    return await _live(session_id, "set_custom_cop_model", args)
 
 
 @mcp.tool()

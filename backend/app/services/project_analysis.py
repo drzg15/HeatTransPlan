@@ -163,6 +163,7 @@ def analyse_project(
     recovery_pct: float = 100.0,
     cop_model: str = "4t",
     cop_formula: Any = None,
+    custom_cop_model: Any = None,
     economics_form: Optional[Dict[str, float]] = None,
     ref_type: str = "gas",
     selected_points: Optional[List[Any]] = None,
@@ -184,7 +185,7 @@ def analyse_project(
     out["hpi"] = run_hpi(HPIRequest(pinch_result=pinch, profile_mode=profile_mode))
     opt = run_hpi_optimization(HPIOptimizationRequest(
         pinch_result=pinch, profile_mode=profile_mode, recovery_pct=recovery_pct,
-        cop_model=cop_model, cop_formula=cop_formula, lang=lang,
+        cop_model=cop_model, cop_formula=cop_formula, custom_cop_model=custom_cop_model, lang=lang,
     ))
     out["optimization"] = opt
     if economics_form is not None:

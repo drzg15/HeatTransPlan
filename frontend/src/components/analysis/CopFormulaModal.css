@@ -302,3 +302,71 @@
   padding-top: 12px;
   border-top: 1px solid var(--border);
 }
+
+/* Formula and trained model side by side, sharing the width. */
+.cf-trigger-row {
+  display: flex;
+  gap: 6px;
+}
+.cf-trigger-row .cf-trigger {
+  flex: 1;
+  min-width: 0;
+}
+.cf-trigger-toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+/* Training dialog: what the data needs, as three short rows. */
+.cm-needs {
+  display: grid;
+  grid-template-columns: max-content 1fr;
+  gap: 4px 12px;
+  margin: 0 0 12px;
+  font-size: 0.82rem;
+}
+.cm-needs dt {
+  font-weight: 600;
+}
+.cm-needs dd {
+  margin: 0;
+  color: var(--text-muted);
+}
+.cm-formula {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: var(--surface-hover);
+  font-family: ui-monospace, monospace;
+  font-size: 0.78rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* The first rows of the uploaded file, so the columns can be told apart. */
+.cm-preview {
+  max-width: 100%;
+  overflow-x: auto;
+  margin: 6px 0 10px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+.cm-preview table {
+  border-collapse: collapse;
+  font-size: 0.72rem;
+  white-space: nowrap;
+}
+.cm-preview th,
+.cm-preview td {
+  padding: 3px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.cm-preview th {
+  background: var(--surface-hover);
+  font-weight: 600;
+}

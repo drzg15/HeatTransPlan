@@ -173,3 +173,22 @@ def test_driving_a_connected_page(tmp_path):
         task.cancel()
 
     run(body)
+
+
+def test_training_a_cop_model_and_using_it(tmp_path):
+    from tests.test_cop_training import MAP4, german_csv, synthetic
+
+    data = tmp_path / "plant.csv"
+    data.write_bytes(german_csv(synthetic()))
+
+    async def body():
+        trained = await S.train_cop_model(str(data), MAP4, name="Plant")
+        assert trained["test_metrics"]["r2"] > 0.95 and trained["heat_pumps_added"] == 4
+        pid = (await S.create_project(example=(await S.list_examples())[0]))["project_id"]
+        await S.analyse_project(pid, custom_model="Plant")
+        pumps = await S.list_heat_pumps(pid, refrigerant="Plant", limit=50)
+        assert pumps and all(p["type"] == "Custom model" for p in pumps)
+        with pytest.raises(ApiError, match="No trained model"):
+            await S.analyse_project(pid, custom_model="Nope")
+
+    run(body)

@@ -60,6 +60,11 @@ export function buildView() {
       energy_demands: a.energyDemands,
       cop_model: a.copModel,
       cop_formula: a.copFormula,
+      custom_cop_model: a.customCopModel && {
+        name: a.customCopModel.name,
+        enabled: a.customCopModel.enabled,
+        metrics: a.customCopModel.metrics,
+      },
       hp_types: a.selectedHPTypes,
       running: a.pinchLoading || a.hpiLoading || a.hpiOptimizationLoading,
     },

@@ -314,7 +314,7 @@ The ROI shown in earlier versions has been replaced by the internal rate of retu
 | **Energy prices over time** | $p_{fuel}(t)$ incl. CO₂ and $p_{el}(t)$ over the period. |
 | **NPV over time** | $NPV(k)$ year by year, past $T$ until payback; red markers before payback, green after; a dotted line marks the end of the period. |
 | **Sensitivity map** | NPV for every pair of fuel and electricity prices, each from 0 to twice the entered price. Cells are red where the reference is cheaper and green where the heat pump pays off; the dashed line is $p_{el}^*$ per fuel price; the dot is the entered prices. Clicking a cell adopts its prices everywhere. The step is chosen so each axis has at most about 14 cells. |
-| **Economic heat pump size** | NPV against heat output for every real feasible pump of the optimization, keeping the best machine per 1 % of the demand. A smaller pump costs less but leaves more on the old heater; the peak (gold diamond) is the economic optimum. Clicking a point analyses that pump. |
+| **Economic heat pump size** | NPV against heat output for every real pump on the profiles, keeping the best machine per 1 % of the demand. Source- and demand-limited pumps are left out, as on the optimization chart: on-profile pumps come in duty steps wider than 1 %, so a source-limited pump (partial coverage at a high sink temperature, poor COP) landing in an empty step would otherwise pull the curve down to a loss. A smaller pump costs less but leaves more on the old heater; the peak (gold diamond) is the economic optimum. Clicking a point analyses that pump. |
 
 A plain-language **summary** closes the section: coverage, energy and CO₂ saved, cost saving, investment, payback, NPV and break-even price of the pump analysed.
 

@@ -217,10 +217,17 @@ def size_curve(core: Dict[str, Any]) -> Dict[str, Any]:
     """Economic heat pump size: every working pump on the optimisation curve,
     costed with the same inputs. Per size (1 % of the demand) the best machine
     is kept, so the line is the best you can do at each size and its peak is
-    the economic optimum."""
+    the economic optimum.
+
+    Only pumps on the profiles count, as on the optimization chart. A source-
+    limited pump covers only part of the demand above a high sink temperature
+    at a poor COP; on-profile pumps come in duty steps wider than 1 %, so one
+    landing in an empty step would be "the best of that size" and pull the
+    line down to a loss that no sensible choice of pump makes."""
     inp, ref_sys, capex_of = core["inp"], core["refSys"], core["capexOf"]
     size_best: Dict[int, Dict[str, Any]] = {}
-    for p in core["realFeasible"]:
+    on_profile = [p for p in core["realFeasible"] if not p.source_limited and not p.demand_limited]
+    for p in on_profile or core["realFeasible"]:
         npv = evaluate(
             inp, ref_sys, EconVariant(Q=p.Q_demand, Qsrc=p.Q_source, cop=p.COP, capex=capex_of(p)), with_irr=False
         )["npv"]
