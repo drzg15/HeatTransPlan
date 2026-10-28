@@ -17,12 +17,9 @@ export default defineConfig({
   server: {
     host: true,
     port: 5173,
-    allowedHosts: [
-      'hefter',
-      'hefter.uni-paderborn.de',
-      'heattransplan.uni-paderborn.de',
-      '131.234.170.120',
-    ],
+    // Hostnames other than localhost that may open the dev server, per machine:
+    // ALLOWED_HOSTS=name1,name2 npm run dev
+    allowedHosts: process.env.ALLOWED_HOSTS?.split(',').filter(Boolean) ?? [],
     proxy: apiProxy,
   },
   // `vite preview` serves the production bundle; giving it the same proxy makes

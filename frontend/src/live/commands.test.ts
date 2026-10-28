@@ -5,10 +5,17 @@ import { useAnalysisStore } from '../store/analysisStore';
 import { useProjectStore } from '../store/projectStore';
 import type { HPIOptimizationResult } from '../types/analysis';
 import type { ProjectState } from '../types/project';
-import example from '../../../backend/app/data/examples/heat_integration_example_1.json';
 import fixture from '../test/fixtures/optimization.json';
 import { runCommand } from './commands';
 
+// The backend's example project. A glob, not an import: the frontend image is
+// built from frontend/ alone, where the type check cannot see backend/.
+const example = Object.values(
+  import.meta.glob('../../../backend/app/data/examples/heat_integration_example_1.json', {
+    eager: true,
+    import: 'default',
+  })
+)[0];
 const opt = fixture.optimization as unknown as HPIOptimizationResult;
 
 beforeEach(() => {

@@ -1,7 +1,7 @@
 # Static file server for the built frontend, inside the frontend container.
 #
 # This is NOT the public-facing Caddy — that one lives at the repo root, holds
-# the TLS certificate for heattransplan.uni-paderborn.de, and reverse-proxies
+# the TLS certificate for the public address, and reverse-proxies
 # /api/* to the backend and everything else to this server on port 5173.
 :5173 {
 	root * /srv

@@ -79,13 +79,14 @@ Open `http://localhost:5173` in your browser.
 The Docker Compose stack runs the backend, frontend, and a Caddy reverse proxy together.
 
 ```bash
-docker compose up --build
+docker compose up -d --build
 ```
 
-The app will be served on port `80` (HTTP) and `443` (HTTPS) via Caddy.
-
-> **Note:** The Caddyfile is pre-configured for `heattransplan.uni-paderborn.de`.  
-> Update it with your own domain before deploying.
+Without settings it serves `http://localhost` (with the MCP server for AI
+agents at `http://localhost/mcp`), so the whole stack can be tested on your
+own computer. On a server, copy `.env.example` to `.env` and set
+`SITE_ADDRESS` to its domain; Caddy then gets the TLS certificate and serves
+ports `80` and `443`. `.env` stays out of git.
 
 ---
 

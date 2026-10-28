@@ -130,7 +130,7 @@ The analyses rerun by themselves after most changes; `wait_idle` returns the vie
 
 ### Setup
 
-Add a remote MCP server (a "connector") with the address `https://<the app>/mcp`, e.g. `https://heattransplan.uni-paderborn.de/mcp`. In Claude: Settings → Connectors → Add custom connector; in other agents: add an MCP server by URL. The app's **?** next to Connect AI shows the address. If the backend sets `API_KEYS`, the agent sends one as `X-API-Key` or `Authorization: Bearer <key>`.
+Add a remote MCP server (a "connector") with the address `https://<the app>/mcp` (locally `http://localhost/mcp`). In Claude: Settings → Connectors → Add custom connector; in other agents: add an MCP server by URL. The app's **?** next to Connect AI shows the address. If the backend sets `API_KEYS`, the agent sends one as `X-API-Key` or `Authorization: Bearer <key>`.
 
 Online the server never opens files on its own disk for a caller: files come in as their content (base64, or text for CSV and JSON), and what the tools write (report, project, CSV) comes back as a download link, valid for an hour. Sessions and projects are not listed: the session code and the project id are what give access to them.
 
