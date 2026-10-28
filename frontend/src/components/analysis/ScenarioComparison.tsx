@@ -4,7 +4,8 @@ import Plot from 'react-plotly.js';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useProjectStore } from '../../store/projectStore';
 import MapViewer from '../map/MapViewer';
-import { econCore, GREEN, RED } from './econModel';
+import { econCore } from './econModel';
+import { GREEN, RED } from './econConfig';
 import { formatDe } from '../../utils/numberFormat';
 import './ScenarioComparison.css';
 

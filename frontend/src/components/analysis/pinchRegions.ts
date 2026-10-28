@@ -40,13 +40,11 @@ export function regionTraces(
       hoverinfo: 'name',
     };
   // Each end belongs to whichever curve runs on alone there.
-  const end = (hotAlone: boolean) =>
-    hotAlone
-      ? ([SURPLUS, names.surplus, 'surplus'] as const)
-      : ([DEFICIT, names.deficit, 'deficit'] as const);
+  const end = (hotAlone: boolean): [string, string, LinkRegion] =>
+    hotAlone ? [SURPLUS, names.surplus, 'surplus'] : [DEFICIT, names.deficit, 'deficit'];
   return [
     band(Math.min(hotLo, coldLo), lo, ...end(hotLo < coldLo)),
     band(lo, hi, RECOVERY, names.recovery, 'recovery'),
     band(hi, Math.max(hotHi, coldHi), ...end(hotHi > coldHi)),
-  ].filter(Boolean);
+  ].filter((b) => b !== false);
 }

@@ -17,7 +17,7 @@ import {
   DEFAULTS as ECON_DEFAULTS,
   type Form as EconForm,
   type RefType,
-} from '../components/analysis/econModel';
+} from '../components/analysis/econConfig';
 
 interface AnalysisStore {
   // Stream selection: "stream_{procIdx}_{streamIdx}" → boolean

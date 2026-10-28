@@ -1,0 +1,1218 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`HPIOptimizationChart > draws German the same 1`] = `
+"{
+ "data": "[41 items 87b144aa]",
+ "layout": {
+  "title": {
+   "text": "Optimierung - Realisierbare Wärmepumpenlösungen",
+   "font": {
+    "size": 14,
+    "color": "#1A1C1E"
+   }
+  },
+  "xaxis": {
+   "title": {
+    "text": "Netto-Enthalpiestrom in kW"
+   },
+   "automargin": true,
+   "gridcolor": "#E2E8F0",
+   "tickfont": {
+    "color": "#5F6368"
+   },
+   "titlefont": {
+    "color": "#1A1C1E"
+   }
+  },
+  "yaxis": {
+   "title": {
+    "text": "Verschobene Temperatur in °C"
+   },
+   "automargin": true,
+   "rangemode": "tozero",
+   "gridcolor": "#E2E8F0",
+   "tickfont": {
+    "color": "#5F6368"
+   },
+   "titlefont": {
+    "color": "#1A1C1E"
+   }
+  },
+  "height": 700,
+  "paper_bgcolor": "rgba(0,0,0,0)",
+  "plot_bgcolor": "rgba(0,0,0,0)",
+  "margin": {
+   "l": 80,
+   "r": 20,
+   "t": 40,
+   "b": 80
+  },
+  "hovermode": "closest",
+  "showlegend": true,
+  "legend": {
+   "orientation": "h",
+   "x": 1,
+   "y": 1.02,
+   "xanchor": "right",
+   "yanchor": "bottom",
+   "font": {
+    "color": "#1A1C1E"
+   }
+  },
+  "shapes": [
+   {
+    "type": "line",
+    "x0": 0,
+    "x1": 1,
+    "xref": "paper",
+    "y0": 73,
+    "y1": 73,
+    "line": {
+     "dash": "dash",
+     "color": "gray",
+     "width": 1
+    }
+   },
+   {
+    "type": "line",
+    "x0": 0,
+    "x1": 0,
+    "y0": 0,
+    "y1": 1,
+    "yref": "paper",
+    "line": {
+     "color": "black",
+     "width": 1
+    },
+    "opacity": 0.3
+   },
+   {
+    "type": "rect",
+    "xref": "x",
+    "yref": "y",
+    "xsizemode": "pixel",
+    "ysizemode": "pixel",
+    "xanchor": 375,
+    "yanchor": 85.59272924045652,
+    "x0": -30,
+    "x1": 30,
+    "y0": -22,
+    "y1": 22,
+    "line": {
+     "color": "#7C3AED",
+     "width": 2
+    },
+    "fillcolor": "rgba(237,233,254,0.95)",
+    "layer": "above"
+   }
+  ],
+  "annotations": [
+   {
+    "x": 1,
+    "xref": "paper",
+    "xanchor": "right",
+    "y": 73,
+    "text": "Pinch: 73.0°C",
+    "showarrow": false,
+    "font": {
+     "size": 11,
+     "color": "gray"
+    }
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "xref": "x",
+    "yref": "y",
+    "text": "<b>HP</b><br>COP 4.76",
+    "showarrow": false,
+    "align": "center",
+    "font": {
+     "size": 10,
+     "color": "#7C3AED"
+    }
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "xref": "x",
+    "yref": "y",
+    "xshift": 42,
+    "yshift": 26,
+    "text": "💡",
+    "showarrow": false,
+    "font": {
+     "size": 13
+    },
+    "captureevents": true,
+    "hovertext": "<b>Betriebspunkt der Wärmepumpe</b><br><br>Die Wärmepumpe hebt Abwärme vom Quellenprofil auf das Senkenprofil.<br><br><b>296.3 kW · 58.2 °C</b> — Abwärme, die dem Prozess bei dieser Temperatur entnommen wird<br><b>P<sub>el</sub> 78.7 kW</b> — elektrische Leistung, die der Verdichter aufnimmt<br><b>375.0 kW · 113.0 °C</b> — Wärme, die dem Prozess bei dieser Temperatur zugeführt wird<br><b>COP 4.76</b> — gelieferte Wärme je Einheit Strom<br><br>Quelle + elektrische Leistung = gelieferte Wärme.",
+    "hoverlabel": {
+     "align": "left",
+     "bgcolor": "#FFF"
+    }
+   },
+   {
+    "x": 296.29083038173945,
+    "y": 58.18545848091303,
+    "xref": "x",
+    "yref": "y",
+    "text": "296.3 kW<br>58.2 °C",
+    "showarrow": false,
+    "xanchor": "right",
+    "yanchor": "top",
+    "align": "right",
+    "xshift": -8,
+    "yshift": -2,
+    "font": {
+     "size": 10,
+     "color": "red"
+    }
+   },
+   {
+    "x": 375,
+    "y": 113,
+    "xref": "x",
+    "yref": "y",
+    "text": "375.0 kW<br>113.0 °C",
+    "showarrow": false,
+    "xanchor": "left",
+    "yanchor": "bottom",
+    "align": "left",
+    "xshift": 8,
+    "yshift": 2,
+    "font": {
+     "size": 10,
+     "color": "blue"
+    }
+   },
+   {
+    "x": 375,
+    "y": 113,
+    "ax": 375,
+    "ay": 106.14818231011412,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "blue",
+    "standoff": 8,
+    "text": ""
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "ax": 375,
+    "ay": 78.74091155057064,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "red",
+    "standoff": 23,
+    "text": ""
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "ax": 52,
+    "ay": 0,
+    "xref": "x",
+    "yref": "y",
+    "axref": "pixel",
+    "ayref": "pixel",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "#059669",
+    "standoff": 32,
+    "text": "<b>P<sub>el</sub> 78.7 kW</b>",
+    "xanchor": "left",
+    "font": {
+     "size": 10,
+     "color": "#059669"
+    }
+   }
+  ]
+ }
+}"
+`;
+
+exports[`HPIOptimizationChart > draws a selection the same 1`] = `
+"{
+ "data": "[47 items a7619089]",
+ "layout": {
+  "title": {
+   "text": "Optimization - Feasible Heat Pump Solutions",
+   "font": {
+    "size": 14,
+    "color": "#1A1C1E"
+   }
+  },
+  "xaxis": {
+   "title": {
+    "text": "Net Enthalpy flow in kW"
+   },
+   "automargin": true,
+   "gridcolor": "#E2E8F0",
+   "tickfont": {
+    "color": "#5F6368"
+   },
+   "titlefont": {
+    "color": "#1A1C1E"
+   }
+  },
+  "yaxis": {
+   "title": {
+    "text": "Shifted Temperature in °C"
+   },
+   "automargin": true,
+   "rangemode": "tozero",
+   "gridcolor": "#E2E8F0",
+   "tickfont": {
+    "color": "#5F6368"
+   },
+   "titlefont": {
+    "color": "#1A1C1E"
+   }
+  },
+  "height": 700,
+  "paper_bgcolor": "rgba(0,0,0,0)",
+  "plot_bgcolor": "rgba(0,0,0,0)",
+  "margin": {
+   "l": 80,
+   "r": 20,
+   "t": 40,
+   "b": 80
+  },
+  "hovermode": "closest",
+  "showlegend": true,
+  "legend": {
+   "orientation": "h",
+   "x": 1,
+   "y": 1.02,
+   "xanchor": "right",
+   "yanchor": "bottom",
+   "font": {
+    "color": "#1A1C1E"
+   }
+  },
+  "shapes": [
+   {
+    "type": "line",
+    "x0": 0,
+    "x1": 1,
+    "xref": "paper",
+    "y0": 73,
+    "y1": 73,
+    "line": {
+     "dash": "dash",
+     "color": "gray",
+     "width": 1
+    }
+   },
+   {
+    "type": "line",
+    "x0": 0,
+    "x1": 0,
+    "y0": 0,
+    "y1": 1,
+    "yref": "paper",
+    "line": {
+     "color": "black",
+     "width": 1
+    },
+    "opacity": 0.3
+   },
+   {
+    "type": "rect",
+    "xref": "x",
+    "yref": "y",
+    "xsizemode": "pixel",
+    "ysizemode": "pixel",
+    "xanchor": 70,
+    "yanchor": 70,
+    "x0": -30,
+    "x1": 30,
+    "y0": -22,
+    "y1": 22,
+    "line": {
+     "color": "#7C3AED",
+     "width": 2
+    },
+    "fillcolor": "rgba(237,233,254,0.95)",
+    "layer": "above"
+   }
+  ],
+  "annotations": [
+   {
+    "x": 1,
+    "xref": "paper",
+    "xanchor": "right",
+    "y": 73,
+    "text": "Pinch: 73.0°C",
+    "showarrow": false,
+    "font": {
+     "size": 11,
+     "color": "gray"
+    }
+   },
+   {
+    "x": 70,
+    "y": 70,
+    "xref": "x",
+    "yref": "y",
+    "text": "<b>HP</b><br>COP 6.61",
+    "showarrow": false,
+    "align": "center",
+    "font": {
+     "size": 10,
+     "color": "#7C3AED"
+    }
+   },
+   {
+    "x": 70,
+    "y": 70,
+    "xref": "x",
+    "yref": "y",
+    "xshift": 42,
+    "yshift": 26,
+    "text": "💡",
+    "showarrow": false,
+    "font": {
+     "size": 13
+    },
+    "captureevents": true,
+    "hovertext": "<b>Heat pump operating point</b><br><br>The pump lifts waste heat from the source profile up to the sink profile.<br><br><b>59.4 kW · 60.0 °C</b> — waste heat drawn from the process at that temperature<br><b>P<sub>el</sub> 10.6 kW</b> — electrical power the compressor draws<br><b>70.0 kW · 80.0 °C</b> — heat delivered to the process at that temperature<br><b>COP 6.61</b> — heat delivered per unit of electricity<br><br>Source + electrical input = delivered heat.",
+    "hoverlabel": {
+     "align": "left",
+     "bgcolor": "#FFF"
+    }
+   },
+   {
+    "x": 59.410752063413064,
+    "y": 60,
+    "xref": "x",
+    "yref": "y",
+    "text": "59.4 kW<br>60.0 °C",
+    "showarrow": false,
+    "xanchor": "right",
+    "yanchor": "top",
+    "align": "right",
+    "xshift": -8,
+    "yshift": -2,
+    "font": {
+     "size": 10,
+     "color": "red"
+    }
+   },
+   {
+    "x": 70,
+    "y": 80,
+    "xref": "x",
+    "yref": "y",
+    "text": "70.0 kW<br>80.0 °C",
+    "showarrow": false,
+    "xanchor": "left",
+    "yanchor": "bottom",
+    "align": "left",
+    "xshift": 8,
+    "yshift": 2,
+    "font": {
+     "size": 10,
+     "color": "blue"
+    }
+   },
+   {
+    "x": 70,
+    "y": 80,
+    "ax": 70,
+    "ay": 77.5,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "blue",
+    "standoff": 8,
+    "text": ""
+   },
+   {
+    "x": 70,
+    "y": 70,
+    "ax": 70,
+    "ay": 67.5,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "red",
+    "standoff": 23,
+    "text": ""
+   },
+   {
+    "x": 70,
+    "y": 70,
+    "ax": 52,
+    "ay": 0,
+    "xref": "x",
+    "yref": "y",
+    "axref": "pixel",
+    "ayref": "pixel",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "#059669",
+    "standoff": 32,
+    "text": "<b>P<sub>el</sub> 10.6 kW</b>",
+    "xanchor": "left",
+    "font": {
+     "size": 10,
+     "color": "#059669"
+    }
+   }
+  ]
+ }
+}"
+`;
+
+exports[`HPIOptimizationChart > draws dark the same 1`] = `
+"{
+ "data": "[43 items 3a77c92]",
+ "layout": {
+  "title": {
+   "text": "Optimization - Feasible Heat Pump Solutions",
+   "font": {
+    "size": 14,
+    "color": "#F8FAFC"
+   }
+  },
+  "xaxis": {
+   "title": {
+    "text": "Net Enthalpy flow in kW"
+   },
+   "automargin": true,
+   "gridcolor": "#334155",
+   "tickfont": {
+    "color": "#94A3B8"
+   },
+   "titlefont": {
+    "color": "#F8FAFC"
+   }
+  },
+  "yaxis": {
+   "title": {
+    "text": "Shifted Temperature in °C"
+   },
+   "automargin": true,
+   "rangemode": "tozero",
+   "gridcolor": "#334155",
+   "tickfont": {
+    "color": "#94A3B8"
+   },
+   "titlefont": {
+    "color": "#F8FAFC"
+   }
+  },
+  "height": 700,
+  "paper_bgcolor": "rgba(0,0,0,0)",
+  "plot_bgcolor": "rgba(0,0,0,0)",
+  "margin": {
+   "l": 80,
+   "r": 20,
+   "t": 40,
+   "b": 80
+  },
+  "hovermode": "closest",
+  "showlegend": true,
+  "legend": {
+   "orientation": "h",
+   "x": 1,
+   "y": 1.02,
+   "xanchor": "right",
+   "yanchor": "bottom",
+   "font": {
+    "color": "#F8FAFC"
+   }
+  },
+  "shapes": [
+   {
+    "type": "line",
+    "x0": 0,
+    "x1": 1,
+    "xref": "paper",
+    "y0": 73,
+    "y1": 73,
+    "line": {
+     "dash": "dash",
+     "color": "gray",
+     "width": 1
+    }
+   },
+   {
+    "type": "line",
+    "x0": 0,
+    "x1": 0,
+    "y0": 0,
+    "y1": 1,
+    "yref": "paper",
+    "line": {
+     "color": "#94A3B8",
+     "width": 1
+    },
+    "opacity": 0.3
+   },
+   {
+    "type": "rect",
+    "xref": "x",
+    "yref": "y",
+    "xsizemode": "pixel",
+    "ysizemode": "pixel",
+    "xanchor": 150,
+    "yanchor": 78.04935524579506,
+    "x0": -30,
+    "x1": 30,
+    "y0": -22,
+    "y1": 22,
+    "line": {
+     "color": "#A78BFA",
+     "width": 2
+    },
+    "fillcolor": "rgba(49,46,129,0.75)",
+    "layer": "above"
+   }
+  ],
+  "annotations": [
+   {
+    "x": 1,
+    "xref": "paper",
+    "xanchor": "right",
+    "y": 73,
+    "text": "Pinch: 73.0°C",
+    "showarrow": false,
+    "font": {
+     "size": 11,
+     "color": "#60A5FA"
+    }
+   },
+   {
+    "x": 150,
+    "y": 78.04935524579506,
+    "xref": "x",
+    "yref": "y",
+    "text": "<b>HP</b><br>COP 6.83",
+    "showarrow": false,
+    "align": "center",
+    "font": {
+     "size": 10,
+     "color": "#A78BFA"
+    }
+   },
+   {
+    "x": 150,
+    "y": 78.04935524579506,
+    "xref": "x",
+    "yref": "y",
+    "xshift": 42,
+    "yshift": 26,
+    "text": "💡",
+    "showarrow": false,
+    "font": {
+     "size": 13
+    },
+    "captureevents": true,
+    "hovertext": "<b>Heat pump operating point</b><br><br>The pump lifts waste heat from the source profile up to the sink profile.<br><br><b>128.0 kW · 66.6 °C</b> — waste heat drawn from the process at that temperature<br><b>P<sub>el</sub> 22.0 kW</b> — electrical power the compressor draws<br><b>150.0 kW · 89.5 °C</b> — heat delivered to the process at that temperature<br><b>COP 6.83</b> — heat delivered per unit of electricity<br><br>Source + electrical input = delivered heat.",
+    "hoverlabel": {
+     "align": "left",
+     "bgcolor": "#1E293B"
+    }
+   },
+   {
+    "x": 128.02587657246934,
+    "y": 66.59871049159011,
+    "xref": "x",
+    "yref": "y",
+    "text": "128.0 kW<br>66.6 °C",
+    "showarrow": false,
+    "xanchor": "right",
+    "yanchor": "top",
+    "align": "right",
+    "xshift": -8,
+    "yshift": -2,
+    "font": {
+     "size": 10,
+     "color": "red"
+    }
+   },
+   {
+    "x": 150,
+    "y": 89.5,
+    "xref": "x",
+    "yref": "y",
+    "text": "150.0 kW<br>89.5 °C",
+    "showarrow": false,
+    "xanchor": "left",
+    "yanchor": "bottom",
+    "align": "left",
+    "xshift": 8,
+    "yshift": 2,
+    "font": {
+     "size": 10,
+     "color": "blue"
+    }
+   },
+   {
+    "x": 150,
+    "y": 89.5,
+    "ax": 150,
+    "ay": 86.63733881144876,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "blue",
+    "standoff": 8,
+    "text": ""
+   },
+   {
+    "x": 150,
+    "y": 78.04935524579506,
+    "ax": 150,
+    "ay": 75.18669405724381,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "red",
+    "standoff": 23,
+    "text": ""
+   },
+   {
+    "x": 150,
+    "y": 78.04935524579506,
+    "ax": 52,
+    "ay": 0,
+    "xref": "x",
+    "yref": "y",
+    "axref": "pixel",
+    "ayref": "pixel",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "#10B981",
+    "standoff": 32,
+    "text": "<b>P<sub>el</sub> 22.0 kW</b>",
+    "xanchor": "left",
+    "font": {
+     "size": 10,
+     "color": "#10B981"
+    }
+   }
+  ]
+ }
+}"
+`;
+
+exports[`HPIOptimizationChart > draws the composite mode the same 1`] = `
+"{
+ "data": "[41 items 37d2211b]",
+ "layout": {
+  "title": {
+   "text": "Optimization - Feasible Heat Pump Solutions",
+   "font": {
+    "size": 14,
+    "color": "#1A1C1E"
+   }
+  },
+  "xaxis": {
+   "title": {
+    "text": "Q̇  ← source | sink →  (kW)"
+   },
+   "automargin": true,
+   "gridcolor": "#E2E8F0",
+   "tickfont": {
+    "color": "#5F6368"
+   },
+   "titlefont": {
+    "color": "#1A1C1E"
+   }
+  },
+  "yaxis": {
+   "title": {
+    "text": "Shifted Temperature in °C"
+   },
+   "automargin": true,
+   "rangemode": "tozero",
+   "gridcolor": "#E2E8F0",
+   "tickfont": {
+    "color": "#5F6368"
+   },
+   "titlefont": {
+    "color": "#1A1C1E"
+   }
+  },
+  "height": 700,
+  "paper_bgcolor": "rgba(0,0,0,0)",
+  "plot_bgcolor": "rgba(0,0,0,0)",
+  "margin": {
+   "l": 80,
+   "r": 20,
+   "t": 40,
+   "b": 80
+  },
+  "hovermode": "closest",
+  "showlegend": true,
+  "legend": {
+   "orientation": "h",
+   "x": 1,
+   "y": 1.02,
+   "xanchor": "right",
+   "yanchor": "bottom",
+   "font": {
+    "color": "#1A1C1E"
+   }
+  },
+  "shapes": [
+   {
+    "type": "line",
+    "x0": 0,
+    "x1": 0,
+    "y0": 0,
+    "y1": 1,
+    "yref": "paper",
+    "line": {
+     "color": "black",
+     "width": 1
+    },
+    "opacity": 0.3
+   },
+   {
+    "type": "rect",
+    "xref": "x",
+    "yref": "y",
+    "xsizemode": "pixel",
+    "ysizemode": "pixel",
+    "xanchor": 375,
+    "yanchor": 85.59272924045652,
+    "x0": -30,
+    "x1": 30,
+    "y0": -22,
+    "y1": 22,
+    "line": {
+     "color": "#7C3AED",
+     "width": 2
+    },
+    "fillcolor": "rgba(237,233,254,0.95)",
+    "layer": "above"
+   }
+  ],
+  "annotations": [
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "xref": "x",
+    "yref": "y",
+    "text": "<b>HP</b><br>COP 4.76",
+    "showarrow": false,
+    "align": "center",
+    "font": {
+     "size": 10,
+     "color": "#7C3AED"
+    }
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "xref": "x",
+    "yref": "y",
+    "xshift": 42,
+    "yshift": 26,
+    "text": "💡",
+    "showarrow": false,
+    "font": {
+     "size": 13
+    },
+    "captureevents": true,
+    "hovertext": "<b>Heat pump operating point</b><br><br>The pump lifts waste heat from the source profile up to the sink profile.<br><br><b>296.3 kW · 58.2 °C</b> — waste heat drawn from the process at that temperature<br><b>P<sub>el</sub> 671.3 kW</b> — electrical power the compressor draws<br><b>375.0 kW · 113.0 °C</b> — heat delivered to the process at that temperature<br><b>COP 4.76</b> — heat delivered per unit of electricity<br><br>Source + electrical input = delivered heat.",
+    "hoverlabel": {
+     "align": "left",
+     "bgcolor": "#FFF"
+    }
+   },
+   {
+    "x": -296.29083038173945,
+    "y": 58.18545848091303,
+    "xref": "x",
+    "yref": "y",
+    "text": "296.3 kW<br>58.2 °C",
+    "showarrow": false,
+    "xanchor": "right",
+    "yanchor": "top",
+    "align": "right",
+    "xshift": -8,
+    "yshift": -2,
+    "font": {
+     "size": 10,
+     "color": "red"
+    }
+   },
+   {
+    "x": 375,
+    "y": 113,
+    "xref": "x",
+    "yref": "y",
+    "text": "375.0 kW<br>113.0 °C",
+    "showarrow": false,
+    "xanchor": "left",
+    "yanchor": "bottom",
+    "align": "left",
+    "xshift": 8,
+    "yshift": 2,
+    "font": {
+     "size": 10,
+     "color": "blue"
+    }
+   },
+   {
+    "x": 375,
+    "y": 113,
+    "ax": 375,
+    "ay": 106.14818231011412,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "blue",
+    "standoff": 8,
+    "text": ""
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "ax": 375,
+    "ay": 78.74091155057064,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "red",
+    "standoff": 23,
+    "text": ""
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "ax": 52,
+    "ay": 0,
+    "xref": "x",
+    "yref": "y",
+    "axref": "pixel",
+    "ayref": "pixel",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "#059669",
+    "standoff": 32,
+    "text": "<b>P<sub>el</sub> 671.3 kW</b>",
+    "xanchor": "left",
+    "font": {
+     "size": 10,
+     "color": "#059669"
+    }
+   }
+  ]
+ }
+}"
+`;
+
+exports[`HPIOptimizationChart > draws the same 1`] = `
+"{
+ "data": "[41 items 73072a6f]",
+ "layout": {
+  "title": {
+   "text": "Optimization - Feasible Heat Pump Solutions",
+   "font": {
+    "size": 14,
+    "color": "#1A1C1E"
+   }
+  },
+  "xaxis": {
+   "title": {
+    "text": "Net Enthalpy flow in kW"
+   },
+   "automargin": true,
+   "gridcolor": "#E2E8F0",
+   "tickfont": {
+    "color": "#5F6368"
+   },
+   "titlefont": {
+    "color": "#1A1C1E"
+   }
+  },
+  "yaxis": {
+   "title": {
+    "text": "Shifted Temperature in °C"
+   },
+   "automargin": true,
+   "rangemode": "tozero",
+   "gridcolor": "#E2E8F0",
+   "tickfont": {
+    "color": "#5F6368"
+   },
+   "titlefont": {
+    "color": "#1A1C1E"
+   }
+  },
+  "height": 700,
+  "paper_bgcolor": "rgba(0,0,0,0)",
+  "plot_bgcolor": "rgba(0,0,0,0)",
+  "margin": {
+   "l": 80,
+   "r": 20,
+   "t": 40,
+   "b": 80
+  },
+  "hovermode": "closest",
+  "showlegend": true,
+  "legend": {
+   "orientation": "h",
+   "x": 1,
+   "y": 1.02,
+   "xanchor": "right",
+   "yanchor": "bottom",
+   "font": {
+    "color": "#1A1C1E"
+   }
+  },
+  "shapes": [
+   {
+    "type": "line",
+    "x0": 0,
+    "x1": 1,
+    "xref": "paper",
+    "y0": 73,
+    "y1": 73,
+    "line": {
+     "dash": "dash",
+     "color": "gray",
+     "width": 1
+    }
+   },
+   {
+    "type": "line",
+    "x0": 0,
+    "x1": 0,
+    "y0": 0,
+    "y1": 1,
+    "yref": "paper",
+    "line": {
+     "color": "black",
+     "width": 1
+    },
+    "opacity": 0.3
+   },
+   {
+    "type": "rect",
+    "xref": "x",
+    "yref": "y",
+    "xsizemode": "pixel",
+    "ysizemode": "pixel",
+    "xanchor": 375,
+    "yanchor": 85.59272924045652,
+    "x0": -30,
+    "x1": 30,
+    "y0": -22,
+    "y1": 22,
+    "line": {
+     "color": "#7C3AED",
+     "width": 2
+    },
+    "fillcolor": "rgba(237,233,254,0.95)",
+    "layer": "above"
+   }
+  ],
+  "annotations": [
+   {
+    "x": 1,
+    "xref": "paper",
+    "xanchor": "right",
+    "y": 73,
+    "text": "Pinch: 73.0°C",
+    "showarrow": false,
+    "font": {
+     "size": 11,
+     "color": "gray"
+    }
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "xref": "x",
+    "yref": "y",
+    "text": "<b>HP</b><br>COP 4.76",
+    "showarrow": false,
+    "align": "center",
+    "font": {
+     "size": 10,
+     "color": "#7C3AED"
+    }
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "xref": "x",
+    "yref": "y",
+    "xshift": 42,
+    "yshift": 26,
+    "text": "💡",
+    "showarrow": false,
+    "font": {
+     "size": 13
+    },
+    "captureevents": true,
+    "hovertext": "<b>Heat pump operating point</b><br><br>The pump lifts waste heat from the source profile up to the sink profile.<br><br><b>296.3 kW · 58.2 °C</b> — waste heat drawn from the process at that temperature<br><b>P<sub>el</sub> 78.7 kW</b> — electrical power the compressor draws<br><b>375.0 kW · 113.0 °C</b> — heat delivered to the process at that temperature<br><b>COP 4.76</b> — heat delivered per unit of electricity<br><br>Source + electrical input = delivered heat.",
+    "hoverlabel": {
+     "align": "left",
+     "bgcolor": "#FFF"
+    }
+   },
+   {
+    "x": 296.29083038173945,
+    "y": 58.18545848091303,
+    "xref": "x",
+    "yref": "y",
+    "text": "296.3 kW<br>58.2 °C",
+    "showarrow": false,
+    "xanchor": "right",
+    "yanchor": "top",
+    "align": "right",
+    "xshift": -8,
+    "yshift": -2,
+    "font": {
+     "size": 10,
+     "color": "red"
+    }
+   },
+   {
+    "x": 375,
+    "y": 113,
+    "xref": "x",
+    "yref": "y",
+    "text": "375.0 kW<br>113.0 °C",
+    "showarrow": false,
+    "xanchor": "left",
+    "yanchor": "bottom",
+    "align": "left",
+    "xshift": 8,
+    "yshift": 2,
+    "font": {
+     "size": 10,
+     "color": "blue"
+    }
+   },
+   {
+    "x": 375,
+    "y": 113,
+    "ax": 375,
+    "ay": 106.14818231011412,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "blue",
+    "standoff": 8,
+    "text": ""
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "ax": 375,
+    "ay": 78.74091155057064,
+    "xref": "x",
+    "yref": "y",
+    "axref": "x",
+    "ayref": "y",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "red",
+    "standoff": 23,
+    "text": ""
+   },
+   {
+    "x": 375,
+    "y": 85.59272924045652,
+    "ax": 52,
+    "ay": 0,
+    "xref": "x",
+    "yref": "y",
+    "axref": "pixel",
+    "ayref": "pixel",
+    "showarrow": true,
+    "arrowhead": 3,
+    "arrowsize": 1.4,
+    "arrowwidth": 2,
+    "arrowcolor": "#059669",
+    "standoff": 32,
+    "text": "<b>P<sub>el</sub> 78.7 kW</b>",
+    "xanchor": "left",
+    "font": {
+     "size": 10,
+     "color": "#059669"
+    }
+   }
+  ]
+ }
+}"
+`;
+
+exports[`HPIOptimizationChart > selects the same on a click 1`] = `
+{
+  "add": [
+    "Butane_3@105",
+    "R1224yd_3@105",
+    "Test@105",
+    "Carnot@105",
+  ],
+  "remove": 0,
+}
+`;

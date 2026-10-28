@@ -3,9 +3,7 @@ Pinch analysis service — wraps the existing modules/pinch/ code.
 """
 
 from __future__ import annotations
-import csv
 import os
-import tempfile
 from typing import Any, Dict, List
 
 from app.models.analysis import (
@@ -19,6 +17,7 @@ from app.models.analysis import (
     StatusQuoResult,
     EnergyDemand,
 )
+from app.modules.pinch.streams import write_streams_csv
 
 
 def run_pinch(request: PinchRequest) -> PinchResult:
@@ -26,20 +25,12 @@ def run_pinch(request: PinchRequest) -> PinchResult:
     Execute pinch analysis by writing a temp CSV in the format
     expected by Streams, then calling Pinch.
     """
-    # Write CSV in the format: Row0 = "Tmin, <value>", Row1 = "CP, TSUPPLY, TTARGET", Row2+ = data
-    tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, newline="")
+    csv_path = write_streams_csv(request.T_min, ((s.CP, s.T_supply, s.T_target) for s in request.streams))
     try:
-        writer = csv.writer(tmp)
-        writer.writerow(["Tmin", str(request.T_min)])
-        writer.writerow(["CP", "TSUPPLY", "TTARGET"])
-        for s in request.streams:
-            writer.writerow([str(s.CP), str(s.T_supply), str(s.T_target)])
-        tmp.close()
-
         # Import here to avoid circular imports at module level
         from app.modules.pinch.pinch import Pinch
 
-        pinch = Pinch(tmp.name, options={})
+        pinch = Pinch(csv_path, options={})
         pinch.shift_temperatures()
         pinch.construct_temperature_interval()
         pinch.construct_problem_table()
@@ -81,7 +72,7 @@ def run_pinch(request: PinchRequest) -> PinchResult:
             streams_data=streams_data,
         )
     finally:
-        os.unlink(tmp.name)
+        os.unlink(csv_path)
 
 
 def _exclusion_reason(hp_type: str, t_sink: float | None, delta_t: float | None = None, exc: Exception | None = None) -> str:
@@ -156,17 +147,10 @@ def run_hpi(request: HPIRequest) -> HPIResult:
     sink_profile: Dict[str, List[float]] = {"H": [], "T": []}
 
     # Reconstruct pinch_obj for HPI
-    tmp = tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, newline="")
+    csv_path = write_streams_csv(pinch.T_min, ((sd["cp"], sd["ts"], sd["tt"]) for sd in pinch.streams_data))
     try:
-        writer = csv.writer(tmp)
-        writer.writerow(["Tmin", str(pinch.T_min)])
-        writer.writerow(["CP", "TSUPPLY", "TTARGET"])
-        for sd in pinch.streams_data:
-            writer.writerow([str(sd["cp"]), str(sd["ts"]), str(sd["tt"])])
-        tmp.close()
-
         from app.modules.pinch_main import PinchMain
-        pm = PinchMain(tmp.name, options={})
+        pm = PinchMain(csv_path, options={})
         pm.solve_pinch_for_hpi("EN")
 
         for hp_type in request.hp_types:
@@ -174,7 +158,7 @@ def run_hpi(request: HPIRequest) -> HPIResult:
                 # Correct instantiation: HeatPumpIntegration(CSV_path, t_sink_out, pyPinch)
                 # t_sink_out = None triggers iterative mode
                 # pyPinch expects a PinchMain instance which has the .pinch_analyse attribute
-                hpi = HeatPumpIntegration(tmp.name, None, pm)
+                hpi = HeatPumpIntegration(csv_path, None, pm)
                 # Set required attributes for find_integration
                 hpi.gcc_draw = pm.pinch_analyse.grand_composite_curve
 
@@ -273,7 +257,7 @@ def run_hpi(request: HPIRequest) -> HPIResult:
             sink_profile=sink_profile,
         )
     finally:
-        os.unlink(tmp.name)
+        os.unlink(csv_path)
 
 
 def run_status_quo(request: StatusQuoRequest) -> StatusQuoResult:
