@@ -508,6 +508,8 @@ export default function DataCollectionPage() {
                   setMapZoom(zoom);
                 }
               }}
+              bearing={state.map_bearing}
+              onRotateEnd={(b) => useProjectStore.getState().setMapBearing(b)}
               subprocessMapExpanded={subprocessMapExpanded}
               childMapExpanded={{}}
               onProcessesChange={setProcesses}

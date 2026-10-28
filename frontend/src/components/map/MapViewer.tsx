@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { MapContainer, TileLayer, ImageOverlay, Marker, Pane } from 'react-leaflet';
 import L from 'leaflet';
+// After leaflet: patches the global L so the map can rotate.
+import 'leaflet-rotate';
 import 'leaflet/dist/leaflet.css';
 import type { ProcessNode } from '../../types/process';
 import type { SitePlan } from '../../types/project';
@@ -18,9 +20,10 @@ import {
   MapFullscreenResizer,
   MapMountFitter,
   MapMoveHandler,
+  MapRotation,
+  RotateControls,
   SubprocessCanvasOverlay,
   SubprocessMapFreeze,
-  ZoomSlider,
 } from './MapControls';
 import { PlanControls } from './SitePlanControls';
 import { StreamArrowsOverlay } from './StreamArrowsOverlay';
@@ -47,6 +50,9 @@ interface Props {
   baseTile: string;
   onClick: (lat: number, lon: number) => void;
   onMoveEnd: (center: [number, number], zoom: number) => void;
+  /** Degrees clockwise from north; without the handler a turn is not saved. */
+  bearing?: number;
+  onRotateEnd?: (bearing: number) => void;
   subprocessMapExpanded: Record<number, boolean>;
   childMapExpanded: Record<number, boolean>;
   onProcessesChange?: (processes: ProcessNode[]) => void;
@@ -81,6 +87,8 @@ export default function MapViewer({
   baseTile,
   onClick: _onClick,
   onMoveEnd,
+  bearing = 0,
+  onRotateEnd,
   subprocessMapExpanded,
   childMapExpanded,
   onProcessesChange,
@@ -348,6 +356,12 @@ export default function MapViewer({
         keyboard={!locked}
         zoomSnap={0.25}
         zoomDelta={0.25}
+        // Turned by RotateControls, Shift + mouse wheel or two fingers.
+        rotate
+        bearing={bearing}
+        rotateControl={false}
+        shiftKeyRotate
+        touchRotate
       >
         {/* A site plan replaces the map: on white, nothing behind it.
             Google has sharper satellite tiles one level further than OSM. */}
@@ -359,9 +373,10 @@ export default function MapViewer({
             maxZoom={24}
           />
         )}
-        <ZoomSlider hidden={isCanvasActive} />
+        <RotateControls hidden={isCanvasActive} />
         {sitePlan && (
-          <Pane name="sitePlanPane" style={{ zIndex: 300 }}>
+          // In the rotating pane, so the plan turns with the map.
+          <Pane name="sitePlanPane" pane="rotatePane" style={{ zIndex: 300 }}>
             <ImageOverlay
               key={sitePlan.url.length + sitePlan.bounds.flat().join()}
               url={sitePlan.url}
@@ -375,6 +390,7 @@ export default function MapViewer({
         <MapMountFitter center={center} zoom={zoom} />
         {/* Holds the map still so the diagram cannot be panned off its canvas. */}
         <SubprocessMapFreeze active={isCanvasActive} locked={locked} />
+        <MapRotation bearing={bearing} frozen={isCanvasActive} onRotateEnd={onRotateEnd} />
 
         {/* 1. Base Site Bubbles — Hidden by canvas if active */}
         <Pane name="streamBubblesPane" style={{ zIndex: 450 }}>
@@ -575,7 +591,7 @@ export default function MapViewer({
         <BoxSelector
           active={locked} // Always active when map is locked
           locked={locked}
-          onSelect={(bounds) => {
+          onSelect={(inBox) => {
             lastSelectionTime.current = Date.now();
             const idxsInBox: number[] = [];
             const newSelected = new Set<string>();
@@ -586,7 +602,7 @@ export default function MapViewer({
               if (gc && gc.lat && gc.lon) {
                 const lat = parseFloat(String(gc.lat));
                 const lon = parseFloat(String(gc.lon));
-                if (bounds.contains([lat, lon])) {
+                if (inBox([lat, lon])) {
                   idxsInBox.push(...subIdxs);
                   if (allowMultiMove) newSelected.add(`group-${gIdx}`);
                 }
@@ -598,7 +614,7 @@ export default function MapViewer({
               if (p.lat && p.lon) {
                 const lat = parseFloat(String(p.lat));
                 const lon = parseFloat(String(p.lon));
-                if (bounds.contains([lat, lon])) {
+                if (inBox([lat, lon])) {
                   idxsInBox.push(pi);
                   if (allowMultiMove) newSelected.add(`sub-${pi}`);
                 }

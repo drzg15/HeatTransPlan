@@ -224,13 +224,16 @@ async def set_notes(project_id: str, project_notes: Optional[str] = None,
 @mcp.tool()
 async def set_map(project_id: str, center: Optional[List[float]] = None, zoom: Optional[float] = None,
                   base: Optional[Literal["OpenStreetMap", "Satellite"]] = None,
-                  locked: Optional[bool] = None) -> Dict[str, Any]:
-    """Set the map's centre [lat, lon], zoom, base layer or lock."""
+                  locked: Optional[bool] = None, bearing: Optional[float] = None) -> Dict[str, Any]:
+    """Set the map's centre [lat, lon], zoom, base layer, lock or bearing
+    (degrees clockwise from north; 0 faces north)."""
     def change(s):
         if center is not None:
             s["map_center"] = center
         if zoom is not None:
             s["map_zoom"] = zoom
+        if bearing is not None:
+            s["map_bearing"] = bearing % 360
         if base is not None:
             s["current_base"] = base
         if locked is not None:
@@ -581,7 +584,7 @@ async def live_command(session_id: str, command: str, args: Optional[Dict[str, A
     reset_heat_pumps, set_economics {form, ref_type}, reset_economics,
     save_scenario {name}, load_scenario {index}, rename_scenario {index, name},
     delete_scenario {index}, set_project_notes {notes}, set_pinch_notes
-    {notes}, set_map_view {center, zoom, base, locked}, set_site_plan_bounds
+    {notes}, set_map_view {center, zoom, bearing, base, locked}, set_site_plan_bounds
     {bounds}, remove_site_plan, remove_subprocess_plan {key}, export_csv,
     export_distances_csv {metric}, get_project, set_project {state},
     generate_report, load_site_plan {data, filename, mime, subprocess},

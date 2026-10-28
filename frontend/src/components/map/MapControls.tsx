@@ -1,7 +1,7 @@
 /** Invisible helpers that drive the Leaflet map (lock, fit, sync, freeze), the
- *  subprocess canvas behind diagrams, and the zoom slider. */
+ *  subprocess canvas behind diagrams, and the rotate buttons. */
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { Marker, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
@@ -222,35 +222,117 @@ export function SubprocessCanvasOverlay({
   );
 }
 
-/** Smooth zoom: a slider under the +/− buttons, in the same quarter steps. */
-export function ZoomSlider({ hidden }: { hidden: boolean }) {
+/**
+ * Turns the map to the saved bearing and reports a turn once it settles.
+ * While a diagram is open the map faces north and cannot turn: the diagram is
+ * laid out on the screen, so it must look the same whatever the map's bearing.
+ */
+export function MapRotation({
+  bearing,
+  frozen,
+  onRotateEnd,
+}: {
+  bearing: number;
+  frozen: boolean;
+  onRotateEnd?: (bearing: number) => void;
+}) {
+  const map = useMap();
+  const holding = useRef(false);
+  const timer = useRef<ReturnType<typeof setTimeout>>(undefined);
+  // The latest handler, so a parent re-render mid-turn does not drop the save.
+  const report = useRef(onRotateEnd);
+  useEffect(() => {
+    report.current = onRotateEnd;
+  });
+
+  useEffect(() => {
+    if (!frozen && Math.abs(L.Util.wrapNum(bearing, [0, 360]) - map.getBearing()) > 0.01)
+      map.setBearing(bearing);
+  }, [bearing, frozen, map]);
+
+  useEffect(() => {
+    if (!frozen) return;
+    const before = map.getBearing();
+    holding.current = true;
+    map.setBearing(0);
+    map.shiftKeyRotate.disable();
+    map.touchRotate.disable();
+    return () => {
+      map.shiftKeyRotate.enable();
+      map.touchRotate.enable();
+      map.setBearing(before);
+      holding.current = false;
+    };
+  }, [frozen, map]);
+
+  useEffect(() => {
+    const rotated = () => {
+      if (holding.current || !report.current) return;
+      clearTimeout(timer.current);
+      // Shift + wheel turns in 5° steps: save once the turning stops.
+      timer.current = setTimeout(
+        () => report.current?.(Math.round(map.getBearing() * 10) / 10),
+        300
+      );
+    };
+    map.on('rotate', rotated);
+    return () => {
+      map.off('rotate', rotated);
+      clearTimeout(timer.current);
+    };
+  }, [map]);
+  return null;
+}
+
+/** Under the zoom buttons: turn left, face north (the compass needle shows
+ *  where north is), turn right. */
+export function RotateControls({ hidden }: { hidden: boolean }) {
   const map = useMap();
   const { t } = useTranslation();
-  const [z, setZ] = useState(map.getZoom());
+  const [bearing, setBearing] = useState(map.getBearing());
   const ref = useRef<HTMLDivElement>(null);
-  useMapEvents({ zoomend: () => setZ(map.getZoom()) });
   useEffect(() => {
-    // Dragging the slider must not pan or zoom the map underneath.
+    const sync = () => setBearing(map.getBearing());
+    map.on('rotate', sync);
+    return () => {
+      map.off('rotate', sync);
+    };
+  }, [map]);
+  useEffect(() => {
     if (!ref.current) return;
     L.DomEvent.disableClickPropagation(ref.current);
     L.DomEvent.disableScrollPropagation(ref.current);
   }, []);
+  const button = (label: string, onClick: () => void, body: ReactNode) => (
+    <a
+      href="#"
+      role="button"
+      title={label}
+      aria-label={label}
+      onClick={(e) => {
+        e.preventDefault();
+        onClick();
+      }}
+    >
+      {body}
+    </a>
+  );
   return createPortal(
-    <div ref={ref} className="map-zoom-slider" style={{ display: hidden ? 'none' : undefined }}>
-      <input
-        type="range"
-        min={3}
-        max={map.getMaxZoom()}
-        step={0.25}
-        value={z}
-        onChange={(e) => {
-          const v = Number(e.target.value);
-          setZ(v);
-          map.setZoom(v, { animate: false });
-        }}
-        aria-label={t('map.zoom')}
-        title={t('map.zoom')}
-      />
+    <div
+      ref={ref}
+      className="leaflet-bar map-rotate-controls"
+      style={{ display: hidden ? 'none' : undefined }}
+    >
+      {button(t('map.rotate_left'), () => map.setBearing(map.getBearing() - 15), '⟲')}
+      {button(
+        t('map.rotate'),
+        () => map.setBearing(0),
+        <svg width="16" height="16" viewBox="0 0 16 16" style={{ transform: `rotate(${bearing}deg)` }}>
+          <path d="M8 1 L11 8 H5 Z" fill="#dc2626" />
+          <path d="M8 15 L11 8 H5 Z" fill="currentColor" opacity="0.45" />
+        </svg>
+      )}
+      {button(t('map.rotate_right'), () => map.setBearing(map.getBearing() + 15), '⟳')}
     </div>,
     map.getContainer()
   );
