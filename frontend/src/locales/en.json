@@ -975,7 +975,7 @@
   },
   "live": {
     "connect": "Connect AI",
-    "connect_hint": "Let an AI assistant (through the HeatTransPlan MCP server) see and control this page. While connected, your project is also stored on the server.",
+    "connect_hint": "Let an AI agent (through the HeatTransPlan MCP server) see and control this page. While connected, your project is also stored on the server.",
     "code": "Session code for the AI",
     "copy": "Copy code",
     "disconnect": "Disconnect AI",
@@ -983,15 +983,12 @@
     "copy_command": "Copy command",
     "close": "Close",
     "setup_title": "Set up an AI agent",
-    "setup_intro": "Any AI agent that supports MCP (Model Context Protocol) can work with HeatTransPlan through its MCP server. Set it up once on your computer:",
-    "setup_install": "Install the MCP server, from the HeatTransPlan folder (needs uv; or: pip install -e mcp_server):",
-    "setup_add": "Add it to your agent as an MCP server (usually in the agent's settings under MCP, or in its MCP config file), pointed at this app:",
-    "setup_key": "If this server asks for an API key, also set HEATTRANSPLAN_API_KEY.",
+    "setup_intro": "Any AI agent that supports MCP (Model Context Protocol), such as Claude, can work with HeatTransPlan. Nothing to install:",
+    "setup_add": "Add HeatTransPlan to your agent as a remote MCP server (also called a connector) with this address:",
+    "setup_key": "This server needs an API key: give it to the agent as the header X-API-Key (or Authorization: Bearer <key>).",
     "setup_connect": "Click Connect AI and tell the agent the session code, e.g. \"Use HeatTransPlan session AB12CD\". It then sees and controls this page until you disconnect.",
-    "setup_files": "Without connecting, the agent can still create projects, enter data, run the analysis and write the report as files you open here; it cannot see or change this page.",
-    "setup_command": "Command:",
-    "setup_env": "Environment variable:",
-    "setup_json": "Or, for agents with a JSON config file, add this and restart the agent (some agents name the top key \"servers\"):",
-    "setup_guided": "Then ask the agent, for example: \"Guide me through a HeatTransPlan study.\" It goes page by page, asks for what it needs, and can read your Word, PowerPoint and Excel files or numbers you paste."
+    "setup_files": "Without connecting, the agent can still create projects, enter data, run the analysis and write the report; it gives you download links to open here. It cannot see or change this page.",
+    "setup_guided": "Then ask the agent, for example: \"Guide me through a HeatTransPlan study.\" It goes page by page, asks for what it needs, and reads the Word, PowerPoint and Excel files you attach or numbers you paste.",
+    "setup_where": "In Claude: Settings → Connectors → Add custom connector. In other agents: add an MCP server by URL (HTTP)."
   }
 }

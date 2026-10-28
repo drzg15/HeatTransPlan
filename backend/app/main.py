@@ -1,12 +1,24 @@
+import logging
+
 from fastapi import FastAPI, Depends
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import CORS_ORIGINS
 from app.routers import projects, processes, streams, analysis, io_routes, assets, live
 from app.services import cop_training
-from app.dependencies import verify_api_key
+from app.dependencies import API_KEYS, verify_api_key
+
+# The MCP server online, when its package is installed (see app/mcp_http.py).
+try:
+    from app import mcp_http
+except ModuleNotFoundError as exc:
+    if (exc.name or "").split(".")[0] not in ("heattransplan_mcp", "mcp"):
+        raise
+    logging.getLogger(__name__).warning("Not serving MCP at /mcp: %s", exc)
+    mcp_http = None
 
 app = FastAPI(
+    lifespan=mcp_http.lifespan if mcp_http else None,
     title="HeatTransPlan API",
     version="1.0.0",
     description="Backend API for HeatTransPlan heat integration analysis",
@@ -45,7 +57,13 @@ if cop_training.ENABLED:
 @app.get("/api/features")
 async def features():
     """Which optional modules this server runs, so the page shows only those."""
-    return {"cop_training": cop_training.ENABLED}
+    return {"cop_training": cop_training.ENABLED, "mcp": mcp_http is not None, "api_key": bool(API_KEYS)}
+
+
+if mcp_http:
+    # Its own key check (Bearer too, as agents send it); before the page's catch-all below.
+    app.add_route("/mcp", mcp_http.endpoint, methods=["GET", "POST", "DELETE"])
+    app.include_router(mcp_http.router, prefix="/api/mcp", tags=["MCP"])
 
 
 @app.get("/api/health")

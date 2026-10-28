@@ -1,10 +1,11 @@
-/** How to give an AI assistant access: install the MCP server once, add it to
- *  the assistant, then connect the page. Commands carry this app's address. */
+/** How to give an AI agent access: add this app's MCP address to the agent,
+ *  then connect the page. Nothing to install: the backend serves MCP at /mcp. */
 
 import { useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { Copy, X } from 'lucide-react';
+import { useFeatures } from '../hooks/useFeatures';
 import '../components/analysis/CopFormulaModal.css';
 
 function Command({ text }: { text: string }) {
@@ -27,24 +28,15 @@ function Command({ text }: { text: string }) {
 
 export default function LiveSetup({ onClose }: { onClose: () => void }) {
   const { t } = useTranslation();
-  // The backend answers under the page's own address (Vite and Caddy proxy /api).
-  const url = window.location.origin;
+  const features = useFeatures();
+  // Caddy (and Vite in development) route /mcp to the backend.
+  const url = `${window.location.origin}/mcp`;
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
-
-  const config = JSON.stringify(
-    {
-      mcpServers: {
-        heattransplan: { command: 'heattransplan-mcp', env: { HEATTRANSPLAN_URL: url } },
-      },
-    },
-    null,
-    2
-  );
 
   // Portal: the header's stacking context would put the dialog under the map controls.
   return createPortal(
@@ -66,18 +58,10 @@ export default function LiveSetup({ onClose }: { onClose: () => void }) {
           <p>{t('live.setup_intro')}</p>
           <ol>
             <li>
-              {t('live.setup_install')}
-              <Command text="uv tool install --editable ./mcp_server" />
-            </li>
-            <li>
               {t('live.setup_add')}
-              <div className="cf-muted">{t('live.setup_command')}</div>
-              <Command text="heattransplan-mcp" />
-              <div className="cf-muted">{t('live.setup_env')}</div>
-              <Command text={`HEATTRANSPLAN_URL=${url}`} />
-              <div className="cf-muted">{t('live.setup_json')}</div>
-              <Command text={config} />
-              <div className="cf-muted">{t('live.setup_key')}</div>
+              <Command text={url} />
+              <div className="cf-muted">{t('live.setup_where')}</div>
+              {features.api_key && <div className="cf-muted">{t('live.setup_key')}</div>}
             </li>
             <li>{t('live.setup_connect')}</li>
           </ol>

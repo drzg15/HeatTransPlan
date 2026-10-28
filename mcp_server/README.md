@@ -24,38 +24,32 @@ also stored on the server.
 
 ## Setup
 
+**Online (nothing to install).** The backend serves this server at `/mcp`
+(Streamable HTTP; `backend/app/mcp_http.py`). Add `https://<the app>/mcp` to
+the agent as a remote MCP server ("connector"; in Claude: Settings →
+Connectors → Add custom connector). With `API_KEYS` set on the backend the
+agent sends one as `X-API-Key` or `Authorization: Bearer <key>`. Online the
+tools take files as content and hand out download links; they never touch
+the server's disk for a caller.
+
+**Locally (stdio)**, to read and write files on your computer by path:
+
 ```bash
 pip install -e mcp_server        # or: uv tool install --editable ./mcp_server
-# editable, so the server finds the docs/ folder for explain()
+heattransplan-mcp
 ```
-
-Environment:
 
 | Variable | Default | |
 |---|---|---|
 | `HEATTRANSPLAN_URL` | `http://localhost:8000` | the backend |
 | `HEATTRANSPLAN_API_KEY` | – | only if the backend sets `API_KEYS` |
 
-In the agent's MCP settings, add a stdio server with the command
-`heattransplan-mcp` and the variables above. Agents configured by a JSON
-file take this (some name the top key `servers`):
-
-```json
-{
-  "mcpServers": {
-    "heattransplan": {
-      "command": "heattransplan-mcp",
-      "env": { "HEATTRANSPLAN_URL": "http://localhost:8000" }
-    }
-  }
-}
-```
-
-The app's **?** next to Connect AI shows the same, with its own address.
+`explain()` reads the repository's docs/ folder (`HEATTRANSPLAN_DOCS`), or
+the published docs on GitHub.
 
 ## Tools
 
-Projects: `list_examples`, `create_project`, `list_projects`, `get_project`,
+Projects: `list_examples`, `create_project`, `get_project`,
 `save_project_file`, `replace_project`, `delete_project`, `add_process`,
 `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`,
 `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`,
@@ -73,7 +67,7 @@ Analysis: `analyse_project`, `list_heat_pumps`, `economics_defaults`,
 `economic_analysis`, `validate_cop_formula`, `inspect_cop_data`, `train_cop_model` (when the
 server runs the COP training module), `generate_report`.
 
-Live: `live_sessions`, `live_view`, `live_results`, `live_command` (every
+Live: `live_view`, `live_results`, `live_command` (every
 page command; `list_commands` lists them), `live_navigate`, `live_wait`,
 `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`,
 `live_filter_heat_pumps`,

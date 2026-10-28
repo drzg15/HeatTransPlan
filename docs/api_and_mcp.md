@@ -126,35 +126,24 @@ The analyses rerun by themselves after most changes; `wait_idle` returns the vie
 
 ## The MCP server
 
-`mcp_server/` turns all of the above into tools an AI assistant can call. It talks to the backend over HTTP, so it works with a local app and with the deployed one.
+`mcp_server/` turns all of the above into tools an AI assistant can call. The backend serves it at **`/mcp`** (Streamable HTTP), so any agent that supports remote MCP servers, Claude among them, connects with the app's address alone: nothing to install.
 
 ### Setup
 
-```bash
-pip install -e mcp_server
-```
+Add a remote MCP server (a "connector") with the address `https://<the app>/mcp`, e.g. `https://heattransplan.uni-paderborn.de/mcp`. In Claude: Settings → Connectors → Add custom connector; in other agents: add an MCP server by URL. The app's **?** next to Connect AI shows the address. If the backend sets `API_KEYS`, the agent sends one as `X-API-Key` or `Authorization: Bearer <key>`.
+
+Online the server never opens files on its own disk for a caller: files come in as their content (base64, or text for CSV and JSON), and what the tools write (report, project, CSV) comes back as a download link, valid for an hour. Sessions and projects are not listed: the session code and the project id are what give access to them.
+
+**Locally (stdio)**, for an agent on your own computer that should read and write your files by path: `pip install -e mcp_server`, then run `heattransplan-mcp` with these variables:
 
 | Variable | Default | |
 |---|---|---|
 | `HEATTRANSPLAN_URL` | `http://localhost:8000` | the backend |
 | `HEATTRANSPLAN_API_KEY` | – | only if the backend sets `API_KEYS` |
 
-Any agent that supports MCP works. Add a stdio MCP server in the agent's MCP settings with the command `heattransplan-mcp` and the variables above. Agents configured by a JSON file take this (some name the top key `servers`):
-
-```json
-{
-  "mcpServers": {
-    "heattransplan": {
-      "command": "heattransplan-mcp",
-      "env": { "HEATTRANSPLAN_URL": "http://localhost:8000" }
-    }
-  }
-}
-```
-
 ### Two ways of working
 
-**Project files.** The assistant creates a project (empty, from an example or from a saved file), adds processes, subprocesses and streams, runs the analysis, compares heat pumps, runs the economic analysis with its own inputs, writes the report and saves the project file — which you then open in the app. No browser needed.
+**Project files.** The assistant creates a project (empty, from an example or from a saved file), adds processes, subprocesses and streams, runs the analysis, compares heat pumps, runs the economic analysis with its own inputs, writes the report and saves the project file (online: download links), which you then open in the app. No page needs to be open.
 
 **On the open page.** Click **Connect AI** and give the assistant the code. It sees what you see and works the page with you; the session's project id works with every project tool, so its edits show up on your screen.
 
@@ -166,10 +155,10 @@ Both can be mixed, e.g. build a project from files, open it, connect, and have t
 |---|---|
 | The method | `explain` (overview, pinch, heat pump integration, optimization, economics, refrigerants, api: these pages, without the code) |
 | Guided study | `guide` (the questions to ask at each step: start, data, analysis, economics, report), `read_document` (text and tables of Word, PowerPoint, Excel and CSV files), the prompt `guided_study` |
-| Projects | `list_examples`, `create_project`, `list_projects`, `get_project`, `save_project_file`, `replace_project`, `delete_project` |
+| Projects | `list_examples`, `create_project`, `get_project`, `save_project_file`, `replace_project`, `delete_project` |
 | Processes & streams | `add_process`, `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`, `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`, `set_notes`, `set_map`, `search_address`, `set_site_plan`, `export_csv`, `import_csv` |
 | Analysis | `analyse_project` (with today's energy demands: status quo), `list_heat_pumps`, `economics_defaults`, `economic_analysis`, `validate_cop_formula`, `inspect_cop_data`, `train_cop_model`, `generate_report` |
-| Live | `live_sessions`, `live_view`, `live_results`, `live_command`, `live_navigate`, `live_wait`, `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`, `live_filter_heat_pumps`, `live_set_economics`, `live_use_cop_model`, `live_save_scenario`, `live_generate_report`, `live_load_site_plan` |
+| Live | `live_view`, `live_results`, `live_command`, `live_navigate`, `live_wait`, `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`, `live_filter_heat_pumps`, `live_set_economics`, `live_use_cop_model`, `live_save_scenario`, `live_generate_report`, `live_load_site_plan` |
 
 When it connects, the assistant is told what the app is for, the physics in short, how to read the results and the steps of an analysis; `explain` gives it the full method.
 

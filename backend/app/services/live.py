@@ -76,11 +76,6 @@ def get(session_id: str) -> Optional[Session]:
     return _sessions.get(session_id)
 
 
-def list_sessions() -> List[Dict[str, Any]]:
-    _prune()
-    return [s.summary() for s in sorted(_sessions.values(), key=lambda s: -s.last_seen)]
-
-
 def remove(session_id: str) -> bool:
     return _sessions.pop(session_id, None) is not None
 

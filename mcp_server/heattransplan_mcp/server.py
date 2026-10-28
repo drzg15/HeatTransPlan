@@ -4,15 +4,20 @@ INSTRUCTIONS below is what the model is told when it connects."""
 from __future__ import annotations
 
 import base64
+import binascii
 import json
 import logging
 import mimetypes
 import os
 import re
+import secrets
+import time
 import zipfile
+from contextvars import ContextVar
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
 
+import httpx
 from mcp.server.mcpserver import MCPServer
 
 from heattransplan_mcp import documents, project_edit as edit
@@ -84,16 +89,19 @@ Without a page (project files):
 4. list_heat_pumps; economic_analysis to price another pump or change
    inputs (economics_defaults lists them).
 5. generate_report; save_project_file (the user opens it in the app).
-With the open page (live): live_sessions gives the session the user
-connected ("Connect AI"); live_view shows what the page shows. Navigate,
+   Keep the project_id: projects are not listed.
+With the open page (live): the user clicks "Connect AI" and tells you the
+code shown there, the session_id (sessions are not listed, the code is the
+user's key to their page); live_view shows what the page shows. Navigate,
 then select streams, set the analysis, pick pumps, set economics, save
 scenarios, make the report: the live_* tools and live_command. The
 session's project_id works with every project tool and edits appear on the
 page at once. Prefer live when the user has the page open: they see it.
 
 WORKING WITH THE USER
-- Documents (Word, PowerPoint, Excel, CSV): read_document gives their text
-  and tables. Loose numbers in the chat work too. Pull out the streams, show
+- Documents (Word, PowerPoint, Excel, CSV): read them yourself when they
+  are attached to the chat; otherwise read_document gives their text and
+  tables. Loose numbers in the chat work too. Pull out the streams, show
   them back as a table (name, hot/cold, t_in, t_out, flow and cp or CP or
   duty, hours) with what you assumed, and enter them once confirmed.
 - Guided study: go page by page, as the app does: guide("start"), then
@@ -102,6 +110,15 @@ WORKING WITH THE USER
   offer the default when the user does not know, and sum up before moving
   on. Never invent a value: an assumption is said as one.
 
+FILES
+- Tools that take a file accept file_path (a file on the computer this
+  server runs on: a local install) or content (the file itself, base64, or
+  plain text for CSV/JSON; file_path then only names it, e.g. plan.png).
+- Online (the server at the app's /mcp address) it cannot open the user's
+  files: pass content, or ask the user to load the file on the page (site
+  plan, project, COP data). Tools that write a file (report, project,
+  CSV) return a download link instead: give it to the user.
+
 CONVENTIONS
 - process: index of a process; subprocess: index into the project's
   subprocess list (get_project shows both); stream key
@@ -109,9 +126,6 @@ CONVENTIONS
 - Units: °C, kW, kW/K, kg/s, kJ/(kg·K); add_stream takes other units
   per value. Economics: prices in ct/kWh, rates and shares in %.
 - Errors say what is wrong and how to fix it; read them.
-
-Set HEATTRANSPLAN_URL (default http://localhost:8000) and, if the server
-requires one, HEATTRANSPLAN_API_KEY.
 """
 
 mcp = MCPServer(name="heattransplan", instructions=INSTRUCTIONS, version="3.0.0")
@@ -151,10 +165,73 @@ async def _edit(project_id: str, change) -> Dict[str, Any]:
     return {"result": result, "project": edit.overview(saved)}
 
 
+# ── Files ───────────────────────────────────────────────────────────────────
+# Run locally (stdio) the tools read and write files on the user's computer.
+# Served online (the backend's /mcp, see backend/app/mcp_http.py) the server
+# must never touch its own disk for a caller: files come in as content and go
+# out as download links.
+
+HOSTED = False
+# Public address of the app, for download links; set per request when hosted.
+BASE_URL: ContextVar[str] = ContextVar("BASE_URL", default=os.getenv("PUBLIC_URL", ""))
+DOWNLOAD_SECONDS = 3600
+# token → (file name, bytes, media type, expiry). ponytail: in memory, one process (as live sessions).
+_downloads: Dict[str, tuple] = {}
+
+
+def _read_input(file_path: Optional[str], content: Any) -> tuple[str, bytes]:
+    """(name, bytes) of a file the user gives: by content, or by a local path."""
+    name = Path(file_path).name if file_path else "upload"
+    if isinstance(content, (dict, list)):
+        # JSON given as text arrives parsed.
+        return name, json.dumps(content).encode("utf-8")
+    if content is not None:
+        try:
+            return name, base64.b64decode(content, validate=True)
+        except (binascii.Error, ValueError):
+            return name, content.encode("utf-8")
+    if HOSTED:
+        raise ApiError("This HeatTransPlan server runs online and cannot open files on the user's "
+                       "computer. Pass the file as content (base64, or text for CSV/JSON), or ask "
+                       "the user to load it on the page.")
+    if not file_path:
+        raise ApiError("Give file_path or content.")
+    path = Path(file_path).expanduser()
+    try:
+        return path.name, path.read_bytes()
+    except OSError as exc:
+        raise ApiError(f"Cannot open {path}: {exc.strerror}") from exc
+
+
+def _deliver(file_path: Optional[str], default_name: str, data: bytes, media_type: str) -> str:
+    """Write a result to the user's computer, or online hand out a download link."""
+    if not HOSTED:
+        if not file_path:
+            raise ApiError("file_path is needed: where to save it.")
+        path = Path(file_path).expanduser()
+        path.write_bytes(data)
+        return f"Saved to {path}"
+    now = time.time()
+    for token in [t for t, f in _downloads.items() if f[3] < now]:
+        del _downloads[token]
+    token = secrets.token_urlsafe(16)
+    name = re.sub(r"[^\w.-]", "_", Path(file_path).name) if file_path else default_name
+    _downloads[token] = (name, data, media_type, now + DOWNLOAD_SECONDS)
+    return (f"Download link for the user (valid for an hour): "
+            f"{BASE_URL.get().rstrip('/')}/api/mcp/files/{token}/{name}")
+
+
+def download(token: str) -> Optional[tuple]:
+    """A file handed out by _deliver, while its link is valid."""
+    found = _downloads.get(token)
+    return found if found and found[3] >= time.time() else None
+
+
 # ── The method ──────────────────────────────────────────────────────────────
 
 # The app's own documentation, read where the repository has it.
 DOCS = Path(os.getenv("HEATTRANSPLAN_DOCS") or Path(__file__).resolve().parents[2] / "docs")
+DOCS_URL = "https://raw.githubusercontent.com/drzg15/HeatTransPlan/main/docs"
 TOPICS = {
     "overview": "index.md",
     "pinch": "pinch_analysis.md",
@@ -178,9 +255,16 @@ async def explain(topic: Literal["overview", "pinch", "heat_pump_integration", "
     (operating limits), api (REST API and these tools). Read it before
     explaining a result to the user or when a result surprises you."""
     path = DOCS / TOPICS[topic]
-    if not path.exists():
-        raise ApiError(f"The documentation is not at {DOCS}; set HEATTRANSPLAN_DOCS to the repository's docs folder.")
-    text = path.read_text(encoding="utf-8")
+    if path.exists():
+        text = path.read_text(encoding="utf-8")
+    else:
+        # Installed from GitHub (uvx), not from a checkout: read the published docs.
+        async with httpx.AsyncClient(timeout=20) as client:
+            resp = await client.get(f"{DOCS_URL}/{TOPICS[topic]}")
+        if resp.status_code != 200:
+            raise ApiError(f"The documentation is neither at {DOCS} nor at {DOCS_URL}; "
+                           "set HEATTRANSPLAN_DOCS to the repository's docs folder.")
+        text = resp.text
     # The source-code toggles are for engineers auditing the code, not for this.
     text = re.sub(r"<details>.*?</details>", "", text, flags=re.S)
     text = re.sub(r"```\{(literalinclude|toctree)\}.*?```", "", text, flags=re.S)
@@ -194,8 +278,8 @@ Before any data:
   replace a boiler, use a waste heat source)? Where is it (address for
   search_address and the map)?
 - Which documents or measurements exist? Ask for them (read_document).
-- Is the app open? Then ask for the session code of "Connect AI" and work
-  live (live_sessions); otherwise work on a project file.
+- Is the app open? Then ask the user to click "Connect AI" and tell you
+  the code, and work live; otherwise work on a project.
 Next: guide("data").""",
     "data": """\
 Data Collection page: processes (plant areas) -> subprocesses (machines or
@@ -267,15 +351,18 @@ def guided_study() -> str:
 
 
 @mcp.tool()
-async def read_document(file_path: str) -> Dict[str, Any]:
+async def read_document(file_path: Optional[str] = None, content: Optional[str] = None) -> Dict[str, Any]:
     """Text and tables of a document the user gives: Word (.docx, paragraphs
     and tables in order), PowerPoint (.pptx, per slide), Excel (.xlsx, rows
     per sheet, first 500 rows) or text/CSV. Use it to find streams,
-    temperatures, flows, hours and prices."""
+    temperatures, flows, hours and prices. If you can read the document
+    yourself (it is attached to the chat), you need not call this.
+    file_path on this computer, or content (see "Files" in the instructions)."""
+    name, data = _read_input(file_path, content)
     try:
-        return documents.read(file_path)
+        return documents.read(name, data)
     except (ValueError, KeyError, zipfile.BadZipFile) as exc:
-        raise ApiError(str(exc) if isinstance(exc, ValueError) else f"Could not read {file_path}: {exc}") from exc
+        raise ApiError(str(exc) if isinstance(exc, ValueError) else f"Could not read {name}: {exc}") from exc
 
 
 # ── Projects ────────────────────────────────────────────────────────────────
@@ -288,25 +375,22 @@ async def list_examples() -> List[str]:
 
 
 @mcp.tool()
-async def create_project(example: Optional[str] = None, file_path: Optional[str] = None) -> Dict[str, Any]:
+async def create_project(example: Optional[str] = None, file_path: Optional[str] = None,
+                         content: Optional[str | Dict[str, Any]] = None) -> Dict[str, Any]:
     """Create a project on the backend: empty, from an example (see
-    list_examples) or from a saved project JSON file. Returns its project_id
-    and an overview."""
-    if example and file_path:
-        raise ApiError("Give either example or file_path, not both.")
+    list_examples) or from a saved project JSON file (file_path, or its
+    content). Returns its project_id and an overview. Keep the project_id:
+    projects are not listed, it is the only way back to one."""
+    from_file = file_path is not None or content is not None
+    if example and from_file:
+        raise ApiError("Give either example or a file, not both.")
     state = None
     if example:
         state = await api.get(f"/api/assets/examples/{example}")
-    elif file_path:
-        state = json.loads(Path(file_path).expanduser().read_text(encoding="utf-8"))
+    elif from_file:
+        state = json.loads(_read_input(file_path, content)[1].decode("utf-8"))
     created = await api.post("/api/projects", json=state)
     return {"project_id": created["project_id"], "project": edit.overview(created["state"])}
-
-
-@mcp.tool()
-async def list_projects() -> Dict[str, str]:
-    """Projects on the backend: project_id → last change."""
-    return await api.get("/api/projects")
 
 
 @mcp.tool()
@@ -318,12 +402,12 @@ async def get_project(project_id: str, full: bool = False) -> Dict[str, Any]:
 
 
 @mcp.tool()
-async def save_project_file(project_id: str, file_path: str) -> str:
-    """Save a project as JSON, the same file the page's Save button writes."""
+async def save_project_file(project_id: str, file_path: Optional[str] = None) -> str:
+    """Save a project as JSON, the same file the page's Save button writes
+    (the user opens it in the app). Online: a download link for the user."""
     state = await _load(project_id)
-    path = Path(file_path).expanduser()
-    path.write_text(json.dumps(state, ensure_ascii=False, indent=2), encoding="utf-8")
-    return f"Saved to {path}"
+    data = json.dumps(state, ensure_ascii=False, indent=2).encode("utf-8")
+    return _deliver(file_path, "heattransplan_project.json", data, "application/json")
 
 
 @mcp.tool()
@@ -482,12 +566,15 @@ async def search_address(query: str) -> Any:
 @mcp.tool()
 async def set_site_plan(project_id: str, image_path: Optional[str] = None,
                         bounds: Optional[List[List[float]]] = None, subprocess_key: Optional[str] = None,
-                        remove: bool = False) -> Dict[str, Any]:
-    """Put the user's own site plan (PNG or JPG) on the map in place of the
-    map tiles, with bounds [[south, west], [north, east]] in map coordinates;
+                        remove: bool = False, content: Optional[str] = None) -> Dict[str, Any]:
+    """Put the user's own site plan (PNG or JPG: image_path, or base64
+    content with image_path naming it) on the map in place of the map tiles,
+    with bounds [[south, west], [north, east]] in map coordinates;
     or, with subprocess_key ("g<process>" or "s<subprocess>"), as the
     background of that diagram. remove=True takes it away. PDFs and placing
     the plan in the current view need the open page: live_load_site_plan."""
+    image = None if remove or (image_path is None and content is None) else _read_input(image_path, content)
+
     def change(s):
         if remove:
             if subprocess_key:
@@ -495,13 +582,12 @@ async def set_site_plan(project_id: str, image_path: Optional[str] = None,
             else:
                 s["site_plan"] = None
             return
-        if not image_path:
-            raise edit.EditError("image_path is needed")
-        path = Path(image_path).expanduser()
-        mime = mimetypes.guess_type(path.name)[0] or ""
+        if image is None:
+            raise edit.EditError("image_path (or content) is needed")
+        mime = mimetypes.guess_type(image[0])[0] or ""
         if mime not in ("image/png", "image/jpeg"):
             raise edit.EditError("Only PNG and JPG here; for PDF use live_load_site_plan.")
-        url = f"data:{mime};base64,{base64.b64encode(path.read_bytes()).decode()}"
+        url = f"data:{mime};base64,{base64.b64encode(image[1]).decode()}"
         if subprocess_key:
             s["canvas_plans"] = {**(s.get("canvas_plans") or {}), subprocess_key: url}
         else:
@@ -512,20 +598,21 @@ async def set_site_plan(project_id: str, image_path: Optional[str] = None,
 
 
 @mcp.tool()
-async def export_csv(project_id: str, file_path: str) -> str:
-    """Write the project's streams as CSV (the backend's export)."""
+async def export_csv(project_id: str, file_path: Optional[str] = None) -> str:
+    """Write the project's streams as CSV (the backend's export). Online: a
+    download link for the user."""
     text = await api.get(f"/api/io/export-csv/{project_id}")
-    path = Path(file_path).expanduser()
-    path.write_text(text, encoding="utf-8")
-    return f"Saved to {path}"
+    return _deliver(file_path, "streams.csv", text.encode("utf-8"), "text/csv")
 
 
 @mcp.tool()
-async def import_csv(project_id: str, file_path: str) -> Dict[str, Any]:
-    """Load streams from a CSV file into the project (the backend's import)."""
-    path = Path(file_path).expanduser()
+async def import_csv(project_id: str, file_path: Optional[str] = None,
+                     content: Optional[str] = None) -> Dict[str, Any]:
+    """Load streams from a CSV file (file_path, or its text as content) into
+    the project (the backend's import)."""
+    name, data = _read_input(file_path, content)
     await api.request("POST", f"/api/io/import-csv/{project_id}",
-                      files={"file": (path.name, path.read_bytes(), "text/csv")})
+                      files={"file": (name, data, "text/csv")})
     _analysis.pop(project_id, None)
     return edit.overview(await _load(project_id))
 
@@ -669,14 +756,15 @@ def _model(name: str) -> Dict[str, Any]:
 
 
 @mcp.tool()
-async def inspect_cop_data(file_path: str, sheet: Optional[str] = None) -> Dict[str, Any]:
+async def inspect_cop_data(file_path: Optional[str] = None, sheet: Optional[str] = None,
+                           content: Optional[str] = None) -> Dict[str, Any]:
     """Read a heat pump data file before train_cop_model, as the page's
     dialog does: its sheets (Excel), columns, numeric columns, row count,
     the first rows, and a guess of which column is which (the mapping to
-    check and pass on)."""
-    path = Path(file_path).expanduser()
+    check and pass on). file_path, or content with file_path naming it."""
+    name, data = _read_input(file_path, content)
     return await api.request("POST", "/api/analysis/cop-model/inspect",
-                             files={"file": (path.name, path.read_bytes())},
+                             files={"file": (name, data)},
                              data={"sheet": sheet} if sheet else {})
 
 
@@ -684,23 +772,28 @@ async def inspect_cop_data(file_path: str, sheet: Optional[str] = None) -> Dict[
 async def train_cop_model(file_path: str, mapping: Dict[str, str], name: str = "My COP model",
                           model_type: Literal["nn", "poly", "linear"] = "nn",
                           degree: Literal[2, 3] = 2, sheet: Optional[str] = None,
-                          valid_range: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
+                          valid_range: Optional[Dict[str, float]] = None,
+                          content: Optional[str] = None) -> Dict[str, Any]:
     """Train a COP model on heat pump data, as the page's "Train from my
     data": a neural network ("nn", most accurate), a polynomial ("poly",
     degree 2 or 3) or a linear regression ("linear"); the regressions return
     their formula. file_path: CSV, Excel (sheet: which one; default the
-    first with a COP column) or Parquet, one operating point per row. mapping: role → column name. Required: T_source_out
+    first with a COP column) or Parquet, one operating point per row; with
+    content (the file, base64) file_path only names it. mapping: role → column name. Required: T_source_out
     (source outlet / return), T_sink_out (sink outlet / supply), COP.
     Optional: T_source_in and T_sink_in (both or neither: four-temperature
     model), medium, refrigerant, stages (number of compressors). Up to 10,000
     rows are used; 20 % are held back for the test metrics. The model is
     offered over the data's range with the sink capped at 180 °C; valid_range
     ({"T_source_min", "T_source_max", "T_sink_min", "T_sink_max"}) sets it. Use the model by
-    name in analyse_project(custom_model=...) or live_use_cop_model.
+    name in analyse_project(custom_model=...) or live_use_cop_model; online
+    the name gets a short suffix so users do not overwrite each other's.
     Only available when the server runs the COP training module."""
-    path = Path(file_path).expanduser()
+    file_name, data = _read_input(file_path, content)
+    if HOSTED:
+        name = f"{name} {secrets.token_hex(2)}"
     out = await api.request("POST", "/api/analysis/cop-model/train",
-                            files={"file": (path.name, path.read_bytes())},
+                            files={"file": (file_name, data)},
                             data={"mapping": json.dumps(mapping), "name": name,
                                   "model_type": model_type, "degree": str(degree),
                                   **({"sheet": sheet} if sheet else {})})
@@ -788,10 +881,12 @@ async def validate_cop_formula(expression: str, T_source: float = 60, T_sink: fl
 
 
 @mcp.tool()
-async def generate_report(project_id: str, file_path: str, language: Literal["en", "de"] = "en") -> str:
+async def generate_report(project_id: str, file_path: Optional[str] = None,
+                          language: Literal["en", "de"] = "en") -> str:
     """Write the HTML report of the last analysis (data collection, maps,
-    pinch, heat pumps). The page's report also carries the economic charts:
-    for that, use live_generate_report on a connected page."""
+    pinch, heat pumps); online, a download link for the user. The page's
+    report also carries the economic charts: for that, use
+    live_generate_report on a connected page."""
     cache = _cached(project_id)
     state = await _load(project_id)
     streams = [{k: s[k] for k in ("name", "Tin", "Tout", "CP", "Q", "type")} for s in cache["streams"]]
@@ -812,9 +907,7 @@ async def generate_report(project_id: str, file_path: str, language: Literal["en
         "hpi_optimization_result": cache["optimization"], "energy_demands": [], "t_min": cache["t_min"],
         "scenarios": [scenario],
     })
-    path = Path(file_path).expanduser()
-    path.write_text(html, encoding="utf-8")
-    return f"Saved to {path}"
+    return _deliver(file_path, "heattransplan_report.html", html.encode("utf-8"), "text/html")
 
 
 # ── Live: the open page ─────────────────────────────────────────────────────
@@ -824,13 +917,6 @@ async def _live(session_id: str, name: str, args: Optional[Dict[str, Any]] = Non
     out = await api.post(f"/api/live/sessions/{session_id}/commands",
                          json={"name": name, "args": args or {}, "timeout": timeout})
     return out["result"]
-
-
-@mcp.tool()
-async def live_sessions() -> List[Dict[str, Any]]:
-    """Pages connected for AI control (the user clicks "Connect AI"; the code
-    shown there is the session_id). Each has a project_id for the project tools."""
-    return await api.get("/api/live/sessions")
 
 
 @mcp.tool()
@@ -987,25 +1073,27 @@ async def live_save_scenario(session_id: str, name: Optional[str] = None) -> Any
 
 
 @mcp.tool()
-async def live_generate_report(session_id: str, file_path: str) -> str:
-    """The page's full HTML report, economics included, written to a file.
-    The page has to be on potential-analysis."""
+async def live_generate_report(session_id: str, file_path: Optional[str] = None) -> str:
+    """The page's full HTML report, economics included, written to a file;
+    online, a download link for the user. The page has to be on
+    potential-analysis."""
     out = await _live(session_id, "generate_report", timeout=180)
-    path = Path(file_path).expanduser()
-    path.write_text(out["html"], encoding="utf-8")
-    return f"Saved to {path}"
+    return _deliver(file_path, "heattransplan_report.html", out["html"].encode("utf-8"), "text/html")
 
 
 @mcp.tool()
-async def live_load_site_plan(session_id: str, file_path: str, subprocess_key: Optional[str] = None) -> Any:
+async def live_load_site_plan(session_id: str, file_path: str, subprocess_key: Optional[str] = None,
+                              content: Optional[str] = None) -> Any:
     """Load a site plan (PNG, JPG or PDF) onto the page's map, placed to fill
     the view, or with subprocess_key ("g<process>" / "s<subprocess>") as that
-    diagram's background. The page has to be on data-collection."""
-    path = Path(file_path).expanduser()
+    diagram's background. The page has to be on data-collection. With
+    content (the file, base64) file_path only names it. The user can also
+    load it on the page themselves."""
+    name, data = _read_input(file_path, content)
     args: Dict[str, Any] = {
-        "data": base64.b64encode(path.read_bytes()).decode(),
-        "filename": path.name,
-        "mime": mimetypes.guess_type(path.name)[0] or "",
+        "data": base64.b64encode(data).decode(),
+        "filename": name,
+        "mime": mimetypes.guess_type(name)[0] or "",
     }
     if subprocess_key:
         args["subprocess"] = subprocess_key

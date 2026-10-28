@@ -1,0 +1,11 @@
+# Build contexts start at the repository root (Dockerfile, backend/Dockerfile).
+.git
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+frontend/dist
+docs/_build
+economic_calculation
+graphify-out
+scratch
