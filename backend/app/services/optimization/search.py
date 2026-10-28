@@ -34,7 +34,7 @@ from app.services.optimization.profiles import (
 def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOptimizationResult:
     # Accept a bare PinchResult as well, so older callers keep working.
     cop_formula = None
-    cop_model = "2t"
+    cop_model = "4t"
     recovery_pct = 100.0
     lang = "en"
     if isinstance(request, HPIOptimizationRequest):

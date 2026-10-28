@@ -19,7 +19,7 @@ class ProjectAnalysisRequest(BaseModel):
     t_min: Optional[float] = Field(None, gt=0)
     profile_mode: Literal["net_load", "composite"] = "net_load"
     recovery_pct: float = Field(100.0, ge=0, le=100)
-    cop_model: Literal["2t", "4t"] = "2t"
+    cop_model: Literal["2t", "4t"] = "4t"
     cop_formula: Optional[CopFormulaSpec] = None
     # Given: the economic analysis runs too, with these inputs.
     economics_form: Optional[Dict[str, float]] = None

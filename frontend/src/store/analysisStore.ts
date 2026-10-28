@@ -161,7 +161,8 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   profileMode: 'net_load',
   recoveryPct: 100,
   copFormula: null,
-  copModel: '2t',
+  // The 4-temperature model is the standard: about four times as accurate.
+  copModel: '4t',
   pinchResult: null,
   hpiResult: null,
   hpiOptimizationResult: null,
