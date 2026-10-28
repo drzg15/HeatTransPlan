@@ -361,7 +361,7 @@ def _econ_summary(e: Dict[str, Any]) -> Dict[str, Any]:
 async def analyse_project(project_id: str, selected_streams: Optional[List[str]] = None,
                           t_min: Optional[float] = None,
                           profile_mode: Literal["net_load", "composite"] = "net_load",
-                          heat_recovery_pct: float = 100, cop_model: Literal["2t", "4t"] = "2t",
+                          heat_recovery_pct: float = 100, cop_model: Literal["2t", "4t"] = "4t",
                           cop_formula: Optional[Dict[str, Any]] = None,
                           economics_inputs: Optional[Dict[str, float]] = None,
                           reference_heater: Literal["gas", "oil", "eboiler"] = "gas") -> Dict[str, Any]:
@@ -371,8 +371,8 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
     selected_streams: stream keys (stream_<subprocess>_<stream>, see
     get_project); default the project's selection, or all streams.
     heat_recovery_pct: share of the possible heat recovery already in place
-    (0–100, net_load only). cop_model "4t" scores pumps with all four
-    temperatures. cop_formula: {"name", "expression", ...} adds a custom COP
+    (0–100, net_load only). cop_model "4t" (standard) scores pumps with all
+    four temperatures, "2t" with source return and sink supply only. cop_formula: {"name", "expression", ...} adds a custom COP
     correlation (check it first with validate_cop_formula). economics_inputs:
     see economics_defaults. Results are kept for list_heat_pumps,
     economic_analysis and generate_report."""

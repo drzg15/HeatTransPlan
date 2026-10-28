@@ -23,6 +23,33 @@ Each alternative defines its operational envelope:
 | Sink medium | `medium_sink` | — | Water, steam, or air loop |
 
 
+### The two COP models
+
+Both models are neural networks (scikit-learn `MLPRegressor`, two hidden layers of 128 and 64 neurons) trained on 3,468 simulated operating points from a manufacturer's parameter study: 24 combinations of refrigerant and compressor stages, with water or steam on the sink side. Temperatures are standardised, sink medium and refrigerant one-hot encoded. From these the model predicts the COP of a real machine.
+
+| Model | Temperatures it sees | MAE (COP) | $R^2$ |
+|---|---|---|---|
+| **4 temperatures (standard)** | source supply and return, sink return and supply | 0.06 | 0.990 |
+| 2 temperatures | source return, sink supply | 0.22 | 0.945 |
+
+MAE and $R^2$ are measured on the 20 % of the points held back from training (mean COP there 4.61), so the 4-temperature model misses by about 1.3 % on average, the 2-temperature model by about 5 %.
+
+The grid search varies only source return and sink supply. For the 4-temperature model the other two are taken from the pinch, the same for every point:
+
+$$T_{Vorlauf,Quelle} = T_{pinch} - \frac{\Delta T_{min}}{2} \qquad T_{R\ddot{u}cklauf,Senke} = T_{pinch} + \frac{\Delta T_{min}}{2}$$
+
+The 2-temperature model cannot see how far the source is cooled down or how much the sink is heated up, which is where most of its error comes from. It stays selectable on the page for comparison. Training: `cop_analysis/train_cop_4t.py`; the models are `models/cop/best_model_4t.joblib` and `models/cop/best_model.joblib`.
+
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/optimization/alternatives.py</code> (<code>_four_temperature_alternatives</code>)</summary>
+
+```{literalinclude} ../backend/app/services/optimization/alternatives.py
+:language: python
+:pyobject: _four_temperature_alternatives
+```
+
+</details>
+
 ## Refrigerant Operating Limits
 
 For the complete list of operating temperature ranges and COP bounds for all refrigerant alternatives, see [Refrigerant Operating Limits](refrigerant_limits.md).

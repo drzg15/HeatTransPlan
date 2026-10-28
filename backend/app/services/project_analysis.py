@@ -161,7 +161,7 @@ def analyse_project(
     t_min: Optional[float] = None,
     profile_mode: str = "net_load",
     recovery_pct: float = 100.0,
-    cop_model: str = "2t",
+    cop_model: str = "4t",
     cop_formula: Any = None,
     economics_form: Optional[Dict[str, float]] = None,
     ref_type: str = "gas",
