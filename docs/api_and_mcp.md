@@ -1,6 +1,6 @@
 # API and AI Assistants (MCP)
 
-Everything the pages do runs through the backend's HTTP API, so other programs can use HeatTransPlan too. On top of it sits an **MCP server** (Model Context Protocol), which lets an AI assistant such as Claude build projects, run the analysis, and watch and drive the page you have open.
+Everything the pages do runs through the backend's HTTP API, so other programs can use HeatTransPlan too. On top of it sits an **MCP server** (Model Context Protocol), which lets any AI assistant that supports MCP build projects, run the analysis, and watch and drive the page you have open.
 
 ---
 
@@ -139,13 +139,7 @@ pip install -e mcp_server
 | `HEATTRANSPLAN_URL` | `http://localhost:8000` | the backend |
 | `HEATTRANSPLAN_API_KEY` | – | only if the backend sets `API_KEYS` |
 
-Claude Code:
-
-```bash
-claude mcp add heattransplan --env HEATTRANSPLAN_URL=http://localhost:8000 -- heattransplan-mcp
-```
-
-Claude Desktop (`claude_desktop_config.json`):
+Any agent that supports MCP works. Add a stdio MCP server in the agent's MCP settings with the command `heattransplan-mcp` and the variables above. Agents configured by a JSON file take this (some name the top key `servers`):
 
 ```json
 {
@@ -170,10 +164,16 @@ Both can be mixed, e.g. build a project from files, open it, connect, and have t
 
 | Area | Tools |
 |---|---|
+| The method | `explain` (overview, pinch, heat pump integration, optimization, economics, refrigerants, api: these pages, without the code) |
+| Guided study | `guide` (the questions to ask at each step: start, data, analysis, economics, report), `read_document` (text and tables of Word, PowerPoint, Excel and CSV files), the prompt `guided_study` |
 | Projects | `list_examples`, `create_project`, `list_projects`, `get_project`, `save_project_file`, `replace_project`, `delete_project` |
-| Processes & streams | `add_process`, `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`, `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`, `set_notes`, `set_map`, `set_site_plan`, `export_csv`, `import_csv` |
-| Analysis | `analyse_project`, `list_heat_pumps`, `economics_defaults`, `economic_analysis`, `validate_cop_formula`, `train_cop_model`, `generate_report` |
-| Live | `live_sessions`, `live_view`, `live_results`, `live_command`, `live_navigate`, `live_wait`, `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`, `live_set_economics`, `live_use_cop_model`, `live_save_scenario`, `live_generate_report`, `live_load_site_plan` |
+| Processes & streams | `add_process`, `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`, `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`, `set_notes`, `set_map`, `search_address`, `set_site_plan`, `export_csv`, `import_csv` |
+| Analysis | `analyse_project` (with today's energy demands: status quo), `list_heat_pumps`, `economics_defaults`, `economic_analysis`, `validate_cop_formula`, `inspect_cop_data`, `train_cop_model`, `generate_report` |
+| Live | `live_sessions`, `live_view`, `live_results`, `live_command`, `live_navigate`, `live_wait`, `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`, `live_filter_heat_pumps`, `live_set_economics`, `live_use_cop_model`, `live_save_scenario`, `live_generate_report`, `live_load_site_plan` |
+
+When it connects, the assistant is told what the app is for, the physics in short, how to read the results and the steps of an analysis; `explain` gives it the full method.
+
+**Guided study.** Ask the assistant to guide you through a study (or use the `guided_study` prompt where the agent offers prompts). It goes page by page, Data Collection, Potential Analysis, Economics, Report, and asks a few questions at a time, only what your documents do not answer. Hand it Word, PowerPoint or Excel files, or paste the stream numbers. It shows the streams back as a table before entering them, and it says which values are assumptions.
 
 Edits follow the page's rules: a new process comes with one subprocess, deleting renumbers later indices and the stream selection, and streams are stored the way the stream editor stores them. The report written from a project file covers data collection, pinch and heat pumps; the report from a connected page (`live_generate_report`) also carries the economic charts.
 

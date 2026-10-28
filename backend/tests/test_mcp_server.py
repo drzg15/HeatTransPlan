@@ -192,3 +192,92 @@ def test_training_a_cop_model_and_using_it(tmp_path):
             await S.analyse_project(pid, custom_model="Nope")
 
     run(body)
+
+
+def test_page_parity_edits_and_inputs(tmp_path):
+    """What the page does beyond the basics: moving a process carries its
+    subprocesses, the stream editor's extra fields, a heater's presets, the
+    status quo, reading a data file before training, the method docs."""
+    from tests.test_cop_training import german_csv, synthetic
+
+    async def body():
+        pid = (await S.create_project())["project_id"]
+        await S.add_process(pid, name="Dryer", lat=51.0, lon=8.0)
+        await S.update_subprocess(pid, 0, lat=51.001, lon=8.002, box_scale=2, density="1.2 kg/m³")
+        await S.update_process(pid, 0, lat=51.5)
+        node = (await S.get_project(pid, full=True))["processes"][0]
+        assert (float(node["lat"]), float(node["lon"])) == pytest.approx((51.501, 8.002))
+        assert node["box_scale"] == 2 and node["extra_info"]["density"] == "1.2 kg/m³"
+
+        await S.add_stream(pid, 0, "Exhaust", t_in=70, t_out=30, CP=10, stream_type="air",
+                           extra={"Water Content In": 12}, units={"Water Content In": "g/kg"})
+        await S.update_stream(pid, 0, 0, mass_flow=10, cp=1.0, clear=["CP"])
+        s = (await S.get_project(pid, full=True))["processes"][0]["streams"][0]
+        assert s["stream_values"]["CP"] == "" and s["stream_values"]["Water Content In"] == "12"
+        assert "Water Content In" in s["display_vars"]
+        await S.update_stream(pid, 0, 0, stream_type="steam")
+        s = (await S.get_project(pid, full=True))["processes"][0]["streams"][0]
+        assert s["display_vars"] == ["Tin", "ṁ"]
+        with pytest.raises(ApiError, match="Unknown stream variable"):
+            await S.update_stream(pid, 0, 0, show=["Colour"])
+
+        ex = (await S.create_project(example=(await S.list_examples())[0]))["project_id"]
+        demands = [{"heat_demand": 900, "cooling_demand": 400,
+                    "selected_heat_streams": [], "selected_cooling_streams": []}]
+        out = await S.analyse_project(ex, t_min=12, energy_demands=demands, reference_heater="oil")
+        assert out["status_quo"]["total_current_heating"] == 900
+        saved = await S.get_project(ex, full=True)
+        assert saved["t_min"] == 12 and saved["energy_demands"] == demands
+        assert S._analysis[ex]["economics_inputs"]["pFuel"] == 8  # the oil preset
+        await S.economic_analysis(ex, reference_heater="eboiler")
+        assert S._analysis[ex]["economics_inputs"]["eta"] == 99
+
+        data = tmp_path / "plant.csv"
+        data.write_bytes(german_csv(synthetic()))
+        seen = await S.inspect_cop_data(str(data))
+        assert "COP" in seen["guess"] and seen["rows"] > 0
+
+        assert "Pinch" in await S.explain("pinch")
+
+    run(body)
+
+
+def test_reading_documents_and_the_guide(tmp_path):
+    import zipfile
+
+    def office(name, parts):
+        path = tmp_path / name
+        with zipfile.ZipFile(path, "w") as z:
+            for part, xml in parts.items():
+                z.writestr(part, xml)
+        return str(path)
+
+    W = 'xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"'
+    docx = office("site.docx", {"word/document.xml": (
+        f'<w:document {W}><w:body><w:p><w:r><w:t>Dairy, </w:t></w:r><w:r><w:t>Bremen</w:t></w:r></w:p>'
+        '<w:tbl><w:tr><w:tc><w:p><w:r><w:t>Stream</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>Tin</w:t></w:r></w:p></w:tc></w:tr>'
+        '<w:tr><w:tc><w:p><w:r><w:t>Whey</w:t></w:r></w:p></w:tc><w:tc><w:p><w:r><w:t>72</w:t></w:r></w:p></w:tc></w:tr></w:tbl>'
+        '</w:body></w:document>')})
+    A = 'xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"'
+    slide = lambda text: f'<p:sld {A}><p:cSld><p:spTree><p:sp><p:txBody><a:p><a:r><a:t>{text}</a:t></a:r></a:p></p:txBody></p:sp></p:spTree></p:cSld></p:sld>'
+    pptx = office("talk.pptx", {"ppt/slides/slide10.xml": slide("ten"), "ppt/slides/slide2.xml": slide("two")})
+    M = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"'
+    R = 'xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"'
+    xlsx = office("streams.xlsx", {
+        "xl/workbook.xml": f'<workbook {M} {R}><sheets><sheet name="Streams" sheetId="1" r:id="rId1"/></sheets></workbook>',
+        "xl/_rels/workbook.xml.rels": '<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Target="worksheets/sheet1.xml"/></Relationships>',
+        "xl/sharedStrings.xml": f'<sst {M}><si><t>Condenser</t></si></sst>',
+        "xl/worksheets/sheet1.xml": f'<worksheet {M}><sheetData><row r="1"><c r="A1" t="s"><v>0</v></c><c r="C1"><v>35.5</v></c><c r="D1"><v>2</v></c></row></sheetData></worksheet>',
+    })
+
+    async def body():
+        assert (await S.read_document(docx))["content"] == ["Dairy, Bremen", {"table": [["Stream", "Tin"], ["Whey", "72"]]}]
+        assert [s["content"] for s in (await S.read_document(pptx))["slides"]] == [["two"], ["ten"]]
+        sheet = (await S.read_document(xlsx))["sheets"][0]
+        assert sheet["sheet"] == "Streams" and sheet["rows"] == [["Condenser", None, 35.5, 2]]
+        with pytest.raises(ApiError, match="Cannot read .pdf"):
+            await S.read_document(str(tmp_path / "x.pdf"))
+        for step in ("start", "data", "analysis", "economics", "report"):
+            assert "?" in await S.guide(step)
+
+    run(body)

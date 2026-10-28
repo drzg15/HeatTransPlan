@@ -2,12 +2,13 @@
  *  needs, disconnect. Also bridges the router, so the AI can navigate and the
  *  view knows the page. */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Bot, Copy, LoaderCircle, X } from 'lucide-react';
+import { Bot, CircleHelp, Copy, LoaderCircle, X } from 'lucide-react';
 import { CommandError, useLiveCommand } from './commands';
 import { setCurrentPage } from './view';
+import LiveSetup from './LiveSetup';
 import {
   connectLive,
   disconnectLive,
@@ -29,6 +30,7 @@ export default function LiveButton() {
   const error = useLiveStore((s) => s.error);
   const navigate = useNavigate();
   const { pathname } = useLocation();
+  const [setupOpen, setSetupOpen] = useState(false);
 
   useEffect(() => {
     setCurrentPage(pathname);
@@ -44,8 +46,26 @@ export default function LiveButton() {
     return { page: path };
   });
 
+  // How to set the assistant up: next to the button, connected or not.
+  const help = (
+    <>
+      <button
+        type="button"
+        className="live-icon"
+        style={{ marginRight: '8px' }}
+        onClick={() => setSetupOpen(true)}
+        title={t('live.setup_title')}
+        aria-label={t('live.setup_title')}
+      >
+        <CircleHelp size={15} />
+      </button>
+      {setupOpen && <LiveSetup onClose={() => setSetupOpen(false)} />}
+    </>
+  );
+
   if (status === 'on' || status === 'connecting') {
     return (
+      <>
       <span className="live-badge" title={t('live.code')}>
         {status === 'connecting' ? (
           <LoaderCircle size={14} className="pa-spin" />
@@ -75,10 +95,13 @@ export default function LiveButton() {
           <X size={13} />
         </button>
       </span>
+      {help}
+      </>
     );
   }
 
   return (
+    <>
     <button
       type="button"
       className="btn btn-sm"
@@ -88,5 +111,7 @@ export default function LiveButton() {
     >
       <Bot size={14} /> {t('live.connect')}
     </button>
+    {help}
+    </>
   );
 }

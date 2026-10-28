@@ -91,6 +91,14 @@ export function PlanControls({
     return Math.abs(p2.x - p1.x) / Math.abs(p2.y - p1.y);
   };
 
+  // The Scan button: the site plan fitted to the current view again.
+  useLiveCommand('fit_site_plan_to_view', () => {
+    if (!map || !sitePlan) throw new CommandError('There is no site plan on the map.');
+    const bounds = planBoundsInView(map, aspect());
+    onSitePlanChange({ ...sitePlan, bounds });
+    return { bounds };
+  });
+
   return (
     <div className="map-plan-controls">
       <button

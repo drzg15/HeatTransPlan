@@ -1,18 +1,5 @@
 """HeatTransPlan as MCP tools: everything the app's pages do, for an AI.
-
-Two ways of working, freely mixed:
-
-- Projects (files): create or load a project on the backend, edit it, run the
-  analysis, save it to a file. Nothing has to be open in a browser.
-- Live: the user clicks "Connect AI" on the page and gives you the session
-  code. You then see what the page shows and drive it: navigate, select
-  streams, move sliders, pick heat pumps, set economics inputs, save
-  scenarios, make the report, load a site plan. The session's project_id
-  works with every project tool too, and edits appear on the page at once.
-
-Set HEATTRANSPLAN_URL (default http://localhost:8000) and, if the server
-requires one, HEATTRANSPLAN_API_KEY.
-"""
+INSTRUCTIONS below is what the model is told when it connects."""
 
 from __future__ import annotations
 
@@ -20,15 +7,112 @@ import base64
 import json
 import logging
 import mimetypes
+import os
+import re
+import zipfile
 from pathlib import Path
 from typing import Any, Dict, List, Literal, Optional
 
 from mcp.server.mcpserver import MCPServer
 
-from heattransplan_mcp import project_edit as edit
+from heattransplan_mcp import documents, project_edit as edit
 from heattransplan_mcp.api import Api, ApiError
 
-INSTRUCTIONS = __doc__
+INSTRUCTIONS = """\
+HeatTransPlan screens an industrial site for heat recovery and heat pumps.
+Where the site cools something hot and heats something else, it buys that
+heat twice. The app finds the least heating and cooling the site must buy
+(pinch analysis), which heat pump could lift the remaining waste heat to
+where it is needed (heat pump integration and optimization), and whether
+that pays (economic analysis). The results are a potential for a detailed
+study, not a design: piping, timing (do two streams run at the same time?)
+and equipment sizing are not checked. Say so when you report.
+
+THE PHYSICS IN SHORT (explain(topic) has the full method)
+- A stream is a flow to be cooled or heated. Hot stream: t_in > t_out, it
+  gives heat (a source). Cold stream: t_in < t_out, it needs heat (a demand).
+  CP = mass_flow * cp [kW/K]; its duty Q = CP * |t_in - t_out| [kW].
+- Pinch analysis: a hot stream can heat a cold one if it is at least ΔTmin
+  warmer (t_min, default 10 K). Hot temperatures are shifted down by ΔTmin/2,
+  cold ones up by ΔTmin/2, and heat is cascaded through the temperature
+  intervals. Results: the minimum heating and cooling still needed after all
+  possible internal recovery, and the pinch temperature. Above the pinch the
+  site needs heat, below it has heat to spare.
+- A heat pump pays off across the pinch: its evaporator takes waste heat
+  below the pinch (source), its condenser delivers it above (sink).
+  Q_sink = Q_source + P_el, COP = Q_sink / P_el. The COP falls as the lift
+  (T_sink - T_source) grows. The grand composite curve (GCC) shows the
+  surplus below and the demand above by temperature.
+- profile_mode "net_load" (default): the pump sees what is left after
+  internal heat recovery (heat_recovery_pct: how much of it is in place).
+  "composite": no recovery, the pump sees the raw streams.
+- Heat pump optimization: for each real refrigerant machine (COP from a
+  neural network trained on manufacturer data; the 4-temperature model is
+  the standard) and each theoretical archetype (Stirling, VHTHP, SHP/HTHP,
+  R717, 50 % Carnot), a grid over source and sink temperature finds where the
+  waste heat available matches what the pump needs. Each point has COP,
+  T_source, T_sink, Q_sink, Q_source. "source_limited": too little waste heat
+  to cover the demand; "demand_limited": less demand than the pump could
+  serve. Both lie off the profiles and are hidden by default.
+- Economics (VDI 4646 / VDI 2067): the heat pump plus the old heater for the
+  rest, against the reference heater (gas, oil or electric boiler), over the
+  years: investment, energy costs, NPV, dynamic payback, IRR, cost of heat,
+  CO2 saving, and the electricity price up to which the pump wins.
+
+READING RESULTS
+- No minimum heating (min_heating_kW 0) or no heat below the pinch means
+  nothing for a heat pump to do: say so rather than force one.
+- Recommend real machines; theoretical archetypes are yardsticks. The best
+  point is the largest duty, not always the best COP or NPV: compare a few
+  (list_heat_pumps, economic_analysis with pumps=[...]); the economics
+  answer also names the economic optimum by size.
+- Sinks above about 180 °C: no machine on the market. A lift above about
+  100 K means a low COP.
+- Results depend on ΔTmin, the stream selection and profile_mode: say which
+  you used.
+
+STEPS
+Without a page (project files):
+1. create_project (empty, an example from list_examples, or a JSON file).
+2. Data: add_process (a plant area: a box on the map, lat/lon) ->
+   add_subprocess (a machine or step; streams live here) -> add_stream
+   (t_in, t_out and mass_flow + cp, or CP). update_* sets positions,
+   operating hours and the process flow (next). get_project shows indices
+   and stream keys.
+3. analyse_project: pinch, heat pump integration, optimization and the
+   economics of the best pump, for the streams chosen (selected_streams).
+4. list_heat_pumps; economic_analysis to price another pump or change
+   inputs (economics_defaults lists them).
+5. generate_report; save_project_file (the user opens it in the app).
+With the open page (live): live_sessions gives the session the user
+connected ("Connect AI"); live_view shows what the page shows. Navigate,
+then select streams, set the analysis, pick pumps, set economics, save
+scenarios, make the report: the live_* tools and live_command. The
+session's project_id works with every project tool and edits appear on the
+page at once. Prefer live when the user has the page open: they see it.
+
+WORKING WITH THE USER
+- Documents (Word, PowerPoint, Excel, CSV): read_document gives their text
+  and tables. Loose numbers in the chat work too. Pull out the streams, show
+  them back as a table (name, hot/cold, t_in, t_out, flow and cp or CP or
+  duty, hours) with what you assumed, and enter them once confirmed.
+- Guided study: go page by page, as the app does: guide("start"), then
+  "data", "analysis", "economics", "report". Each gives the questions for
+  that step. Ask a few at a time, only what the documents do not answer,
+  offer the default when the user does not know, and sum up before moving
+  on. Never invent a value: an assumption is said as one.
+
+CONVENTIONS
+- process: index of a process; subprocess: index into the project's
+  subprocess list (get_project shows both); stream key
+  stream_<subprocess>_<stream>. All 0-based.
+- Units: °C, kW, kW/K, kg/s, kJ/(kg·K); add_stream takes other units
+  per value. Economics: prices in ct/kWh, rates and shares in %.
+- Errors say what is wrong and how to fix it; read them.
+
+Set HEATTRANSPLAN_URL (default http://localhost:8000) and, if the server
+requires one, HEATTRANSPLAN_API_KEY.
+"""
 
 mcp = MCPServer(name="heattransplan", instructions=INSTRUCTIONS, version="3.0.0")
 api = Api()
@@ -65,6 +149,133 @@ async def _edit(project_id: str, change) -> Dict[str, Any]:
         raise ApiError(str(exc)) from exc
     saved = await _save(project_id, state)
     return {"result": result, "project": edit.overview(saved)}
+
+
+# ── The method ──────────────────────────────────────────────────────────────
+
+# The app's own documentation, read where the repository has it.
+DOCS = Path(os.getenv("HEATTRANSPLAN_DOCS") or Path(__file__).resolve().parents[2] / "docs")
+TOPICS = {
+    "overview": "index.md",
+    "pinch": "pinch_analysis.md",
+    "heat_pump_integration": "heat_pump_integration.md",
+    "optimization": "heat_pump_optimization.md",
+    "economics": "economic_analysis.md",
+    "refrigerants": "refrigerant_limits.md",
+    "api": "api_and_mcp.md",
+}
+
+
+@mcp.tool()
+async def explain(topic: Literal["overview", "pinch", "heat_pump_integration", "optimization",
+                                 "economics", "refrigerants", "api"]) -> str:
+    """How HeatTransPlan computes things, with the equations: overview (what
+    the app does, the workflow), pinch (ΔTmin shift, problem table, cascade,
+    composite curves, GCC), heat_pump_integration (technology windows, COP
+    regressions, the integration walk), optimization (COP models, archetypes,
+    grid search, source/demand-limited points, trained models), economics
+    (inputs, NPV, payback, break-even price, VDI 4646), refrigerants
+    (operating limits), api (REST API and these tools). Read it before
+    explaining a result to the user or when a result surprises you."""
+    path = DOCS / TOPICS[topic]
+    if not path.exists():
+        raise ApiError(f"The documentation is not at {DOCS}; set HEATTRANSPLAN_DOCS to the repository's docs folder.")
+    text = path.read_text(encoding="utf-8")
+    # The source-code toggles are for engineers auditing the code, not for this.
+    text = re.sub(r"<details>.*?</details>", "", text, flags=re.S)
+    text = re.sub(r"```\{(literalinclude|toctree)\}.*?```", "", text, flags=re.S)
+    return re.sub(r"\n{3,}", "\n\n", text)
+
+
+GUIDE = {
+    "start": """\
+Before any data:
+- What is the site and what should the study answer (cut gas use, CO2,
+  replace a boiler, use a waste heat source)? Where is it (address for
+  search_address and the map)?
+- Which documents or measurements exist? Ask for them (read_document).
+- Is the app open? Then ask for the session code of "Connect AI" and work
+  live (live_sessions); otherwise work on a project file.
+Next: guide("data").""",
+    "data": """\
+Data Collection page: processes (plant areas) -> subprocesses (machines or
+steps) -> streams. Per plant area: its name and where it is on the site.
+Per machine or step: name, operating hours (e.g. "2 shifts, Mon-Fri" or
+h/a), and what follows it in the process. Per stream:
+- What flows (water, air, steam, product)? Is it cooled (hot stream, a heat
+  source) or heated (cold stream, a demand)?
+- Inlet and outlet temperature [°C].
+- Mass flow [kg/s, t/h] and specific heat [kJ/(kg·K)], or CP [kW/K]. With
+  only the duty Q [kW] known: CP = Q / |t_in - t_out|. Typical cp: water
+  4.19, air 1.0. Volume flows need the density.
+- Do streams run at the same time? The analysis assumes they do; note the
+  ones that do not.
+Often missed sources: compressor and chiller condensers, exhaust air and
+flue gas, waste water, cooling towers. Sinks: process and cleaning water
+(CIP), drying, boiler feed water, space heating.
+Show the stream table back before entering it. Next: guide("analysis").""",
+    "analysis": """\
+Potential Analysis page:
+- Which streams belong in the study (all, or one area)?
+- ΔTmin: the smallest temperature difference a heat exchanger can work
+  with. Default 10 K; about 5 K liquid-liquid, 20 K or more with gases.
+- How much of the possible heat recovery exists already (heat_recovery_pct;
+  0 if the site has no heat exchangers between these streams)?
+- Limits on the heat pump: the sink medium (water, steam), the highest
+  supply temperature, refrigerants allowed or excluded (R717 is toxic,
+  hydrocarbons flammable, synthetic ones may face phase-out)?
+Then analyse_project and report: minimum heating and cooling, the pinch,
+whether a heat pump has anything to do, then a few real machines with COP,
+duty and temperatures. Ask which to price. Next: guide("economics").""",
+    "economics": """\
+Economic Analysis: compare economics_defaults with what the user knows.
+- What heats today: gas, oil or electric boiler (reference_heater), and its
+  efficiency?
+- Prices now: fuel and electricity [ct/kWh], CO2 price [€/t], and expected
+  yearly increases [%].
+- Full-load hours per year, interest rate [%], lifetime [years].
+- Investment: specific cost [€/kW] if a quote exists, otherwise the
+  default; funding or subsidies [%]; maintenance.
+- Today's heat and cooling demand [kW] for the status quo (energy_demands).
+Report NPV, payback, cost of heat, CO2 saving and the break-even
+electricity price, with the inputs used. Next: guide("report").""",
+    "report": """\
+- Which language (en, de), and where should the report go? Then
+  generate_report or live_generate_report. Save the project too (save_project_file) so the user
+  can open it in the app.
+- Sum up in plain words: what was found, which pump and why, what it costs
+  and saves, what was assumed, and what a detailed study must check
+  (timing of the streams, piping distances, space, the real machine).""",
+}
+
+
+@mcp.tool()
+async def guide(step: Literal["start", "data", "analysis", "economics", "report"] = "start") -> str:
+    """The questions to ask the user at each step of a guided study, page by
+    page as the app goes: start, data (Data Collection), analysis (Potential
+    Analysis), economics, report. Ask only what the user's documents do not
+    already answer."""
+    return GUIDE[step]
+
+
+@mcp.prompt()
+def guided_study() -> str:
+    """Make a heat pump study with HeatTransPlan step by step, asking questions."""
+    return ("Guide me through a HeatTransPlan study page by page. Start with guide('start'), "
+            "ask me a few questions at a time, read any documents I give you with "
+            "read_document, and sum up before each next step.")
+
+
+@mcp.tool()
+async def read_document(file_path: str) -> Dict[str, Any]:
+    """Text and tables of a document the user gives: Word (.docx, paragraphs
+    and tables in order), PowerPoint (.pptx, per slide), Excel (.xlsx, rows
+    per sheet, first 500 rows) or text/CSV. Use it to find streams,
+    temperatures, flows, hours and prices."""
+    try:
+        return documents.read(file_path)
+    except (ValueError, KeyError, zipfile.BadZipFile) as exc:
+        raise ApiError(str(exc) if isinstance(exc, ValueError) else f"Could not read {file_path}: {exc}") from exc
 
 
 # ── Projects ────────────────────────────────────────────────────────────────
@@ -163,11 +374,18 @@ async def add_subprocess(project_id: str, process: int, name: Optional[str] = No
 async def update_subprocess(project_id: str, subprocess: int, name: Optional[str] = None,
                             lat: Optional[float] = None, lon: Optional[float] = None,
                             hours: Optional[str] = None, next: Optional[str] = None,
-                            notes: Optional[str] = None) -> Dict[str, Any]:
+                            box_scale: Optional[float] = None, notes: Optional[str] = None,
+                            density: Optional[str] = None, pressure: Optional[str] = None,
+                            water_content_in: Optional[str] = None,
+                            water_content_out: Optional[str] = None) -> Dict[str, Any]:
     """Set a subprocess's name, position, operating hours, following
-    subprocess(es) (comma separated names) or notes."""
+    subprocess(es) (comma separated names), box size on the map, or its
+    "Parameters & notes" (notes, density, pressure, water content in/out:
+    free text, as typed on the page)."""
     return await _edit(project_id, lambda s: edit.update_subprocess(
-        s, subprocess, name=name, lat=lat, lon=lon, hours=hours, next=next, notes=notes))
+        s, subprocess, name=name, lat=lat, lon=lon, hours=hours, next=next, box_scale=box_scale,
+        notes=notes, density=density, pressure=pressure, water_content_in=water_content_in,
+        water_content_out=water_content_out))
 
 
 @mcp.tool()
@@ -181,13 +399,17 @@ async def add_stream(project_id: str, subprocess: int, name: str,
                      t_in: Optional[float] = None, t_out: Optional[float] = None,
                      mass_flow: Optional[float] = None, cp: Optional[float] = None,
                      CP: Optional[float] = None, units: Optional[Dict[str, str]] = None,
-                     stream_type: Literal["product", "steam", "air", "water"] = "product") -> Dict[str, Any]:
+                     stream_type: Literal["product", "steam", "air", "water"] = "product",
+                     extra: Optional[Dict[str, float]] = None) -> Dict[str, Any]:
     """Add a stream to a subprocess: inlet and outlet temperature plus either
     mass flow and specific heat (cp) or the heat capacity rate CP directly.
     Defaults: °C, kg/s, kJ/(kg·K), kW/K. Other units by variable, e.g.
     {"Tin": "K", "Tout": "K", "ṁ": "t/h", "cp": "J/(kg·K)", "CP": "W/K"}.
-    A stream is hot (a heat source) when t_in > t_out."""
-    values = {"Tin": t_in, "Tout": t_out, "ṁ": mass_flow, "cp": cp, "CP": CP}
+    extra: further values the stream editor offers: "Density" (kg/m³ or
+    g/cm³), "Water Content In" / "Water Content Out" (%, g/kg, kg/kg),
+    "Pressure" (bar, Pa, atm); they are recorded, the analysis does not use
+    them. A stream is hot (a heat source) when t_in > t_out."""
+    values = {"Tin": t_in, "Tout": t_out, "ṁ": mass_flow, "cp": cp, "CP": CP, **(extra or {})}
     return await _edit(project_id, lambda s: {
         "stream": edit.add_stream(s, subprocess, edit.make_stream(name, values, units, stream_type))})
 
@@ -197,10 +419,19 @@ async def update_stream(project_id: str, subprocess: int, stream: int, name: Opt
                         t_in: Optional[float] = None, t_out: Optional[float] = None,
                         mass_flow: Optional[float] = None, cp: Optional[float] = None,
                         CP: Optional[float] = None, units: Optional[Dict[str, str]] = None,
-                        stream_type: Optional[Literal["product", "steam", "air", "water"]] = None) -> Dict[str, Any]:
-    """Change a stream; only the values given change."""
-    values = {k: v for k, v in {"Tin": t_in, "Tout": t_out, "ṁ": mass_flow, "cp": cp, "CP": CP}.items() if v is not None}
-    return await _edit(project_id, lambda s: edit.update_stream(s, subprocess, stream, name, values, units, stream_type))
+                        stream_type: Optional[Literal["product", "steam", "air", "water"]] = None,
+                        extra: Optional[Dict[str, float]] = None, clear: Optional[List[str]] = None,
+                        show: Optional[List[str]] = None) -> Dict[str, Any]:
+    """Change a stream; only the values given change. extra: as add_stream.
+    clear: variables to empty, e.g. ["CP"] so ṁ·cp counts again. A new
+    stream_type shows that type's fields, as on the page; show sets the
+    fields shown (Tin, Tout, ṁ, cp, CP, Density, Water Content In, Water
+    Content Out, Pressure)."""
+    values = {k: v for k, v in {"Tin": t_in, "Tout": t_out, "ṁ": mass_flow, "cp": cp, "CP": CP,
+                                **(extra or {})}.items() if v is not None}
+    values.update({k: "" for k in clear or []})
+    return await _edit(project_id, lambda s: edit.update_stream(
+        s, subprocess, stream, name, values, units, stream_type, show))
 
 
 @mcp.tool()
@@ -239,6 +470,13 @@ async def set_map(project_id: str, center: Optional[List[float]] = None, zoom: O
         if locked is not None:
             s["map_locked"] = locked
     return await _edit(project_id, change)
+
+
+@mcp.tool()
+async def search_address(query: str) -> Any:
+    """Find a place by address (OpenStreetMap), as the map's search box:
+    candidates with lat/lon, for set_map(center=...) and placing processes."""
+    return (await api.post("/api/geo/search", json={"query": query}))["results"]
 
 
 @mcp.tool()
@@ -371,7 +609,8 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
                           cop_formula: Optional[Dict[str, Any]] = None,
                           economics_inputs: Optional[Dict[str, float]] = None,
                           reference_heater: Literal["gas", "oil", "eboiler"] = "gas",
-                          custom_model: Optional[str] = None) -> Dict[str, Any]:
+                          custom_model: Optional[str] = None,
+                          energy_demands: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
     """Run the Potential Analysis on a project: pinch, heat pump integration,
     heat pump optimization and the economic analysis of the best pump.
 
@@ -382,26 +621,63 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
     four temperatures, "2t" with source return and sink supply only. cop_formula: {"name", "expression", ...} adds a custom COP
     correlation (check it first with validate_cop_formula). custom_model: the
     name of a model from train_cop_model, offered next to the shipped one.
-    economics_inputs:
-    see economics_defaults. Results are kept for list_heat_pumps,
+    economics_inputs: see economics_defaults; the reference heater's own
+    values (efficiency, fuel price, CO2) are filled in as on the page unless
+    given. energy_demands: what the site uses today, for the status quo
+    comparison: [{"heat_demand": kW, "cooling_demand": kW,
+    "selected_heat_streams": [names], "selected_cooling_streams": [names]}]
+    (default the project's). The streams, ΔTmin and demands given are saved
+    to the project, as the page does. Results are kept for list_heat_pumps,
     economic_analysis and generate_report."""
     state = await _load(project_id)
     sel = {k: True for k in selected_streams} if selected_streams is not None else None
+    changed = {k: v for k, v in {"selected_streams": sel, "t_min": t_min,
+                                  "energy_demands": energy_demands}.items() if v is not None}
+    if changed:
+        state = await _save(project_id, {**state, **changed})
+    economics_inputs = {**await _preset(reference_heater), **(economics_inputs or {})}
     out = await api.post("/api/analysis/project", json={
         "state": state, "selected_streams": sel, "t_min": t_min, "profile_mode": profile_mode,
         "recovery_pct": heat_recovery_pct, "cop_model": cop_model, "cop_formula": cop_formula,
         "custom_cop_model": _model(custom_model) if custom_model else None,
-        "economics_form": economics_inputs or {}, "ref_type": reference_heater,
+        "economics_form": economics_inputs, "ref_type": reference_heater,
     })
-    _analysis[project_id] = {**out, "economics_inputs": economics_inputs or {}, "reference_heater": reference_heater,
+    _analysis[project_id] = {**out, "economics_inputs": economics_inputs, "reference_heater": reference_heater,
                              "selected_points": []}
-    return _summary(out)
+    summary = _summary(out)
+    demands = state.get("energy_demands") or []
+    if "pinch" in out and any(d.get("heat_demand") or d.get("cooling_demand") for d in demands):
+        # As the page: today's demands against the pinch minimum.
+        summary["status_quo"] = await api.post("/api/analysis/status-quo", json={
+            "current_demands": [{"stream_name": "", "heating_kW": d.get("heat_demand") or 0,
+                                 "cooling_kW": d.get("cooling_demand") or 0} for d in demands],
+            "pinch_hot_utility": out["pinch"]["hot_utility"],
+            "pinch_cold_utility": out["pinch"]["cold_utility"],
+        })
+    return summary
+
+
+async def _preset(reference_heater: str) -> Dict[str, float]:
+    """The reference heater's own inputs, which picking it on the page sets."""
+    return (await api.get("/api/analysis/economics/defaults"))["presets"][reference_heater]
 
 
 def _model(name: str) -> Dict[str, Any]:
     if name not in _models:
         raise ApiError(f"No trained model '{name}'; train one with train_cop_model ({', '.join(_models) or 'none yet'}).")
     return _models[name]
+
+
+@mcp.tool()
+async def inspect_cop_data(file_path: str, sheet: Optional[str] = None) -> Dict[str, Any]:
+    """Read a heat pump data file before train_cop_model, as the page's
+    dialog does: its sheets (Excel), columns, numeric columns, row count,
+    the first rows, and a guess of which column is which (the mapping to
+    check and pass on)."""
+    path = Path(file_path).expanduser()
+    return await api.request("POST", "/api/analysis/cop-model/inspect",
+                             files={"file": (path.name, path.read_bytes())},
+                             data={"sheet": sheet} if sheet else {})
 
 
 @mcp.tool()
@@ -477,13 +753,15 @@ async def economic_analysis(project_id: str, inputs: Optional[Dict[str, float]] 
     """Economic analysis (VDI 4646 / VDI 2067) of a pump from the last
     analysis against the reference heater. pumps: [{"refrigerant", "T_sink"}]
     to pick (the best of them is analysed); default the optimization's best.
-    Inputs not given keep their last value."""
+    Inputs not given keep their last value; a new reference_heater brings its
+    own efficiency, fuel price and CO2 factor, as on the page."""
     cache = _cached(project_id)
     opt = cache["optimization"]
+    if reference_heater and reference_heater != cache["reference_heater"]:
+        cache["economics_inputs"] = {**cache["economics_inputs"], **await _preset(reference_heater)}
+        cache["reference_heater"] = reference_heater
     if inputs:
         cache["economics_inputs"] = {**cache["economics_inputs"], **inputs}
-    if reference_heater:
-        cache["reference_heater"] = reference_heater
     if pumps is not None:
         chosen = []
         for spec in pumps:
@@ -581,11 +859,14 @@ async def live_command(session_id: str, command: str, args: Optional[Dict[str, A
     set_cop_model {model}, set_cop_formula {formula}, set_custom_cop_model
     {model, enabled}, set_hp_types {types},
     select_heat_pumps {points: [{refrigerant, T_sink}], add, clear},
+    set_heat_pump_filters {medium_sink, refrigerant_type, refrigerants,
+    stages, show_theoretical, show_source_limited, show_demand_limited},
+    select_filtered_heat_pumps,
     reset_heat_pumps, set_economics {form, ref_type}, reset_economics,
     save_scenario {name}, load_scenario {index}, rename_scenario {index, name},
     delete_scenario {index}, set_project_notes {notes}, set_pinch_notes
     {notes}, set_map_view {center, zoom, bearing, base, locked}, set_site_plan_bounds
-    {bounds}, remove_site_plan, remove_subprocess_plan {key}, export_csv,
+    {bounds}, fit_site_plan_to_view, remove_site_plan, remove_subprocess_plan {key}, export_csv,
     export_distances_csv {metric}, get_project, set_project {state},
     generate_report, load_site_plan {data, filename, mime, subprocess},
     wait_idle {timeout}, get_view, get_results."""
@@ -644,15 +925,42 @@ async def live_set_analysis(session_id: str, t_min: Optional[float] = None,
 async def live_select_heat_pumps(session_id: str, pumps: Optional[List[Dict[str, Any]]] = None,
                                  add: bool = False, clear: bool = False) -> Any:
     """Pick heat pumps on the optimization chart: [{"refrigerant": ..., "T_sink": ...}]
-    (T_sink left out picks every point of that refrigerant). add keeps the
-    current picks; clear removes all."""
+    (T_sink left out: every point of that refrigerant; refrigerant left out:
+    everything at that sink temperature, as a click on the chart). add keeps
+    the current picks; clear removes all."""
     return await _live(session_id, "select_heat_pumps", {"points": pumps or [], "add": add, "clear": clear})
+
+
+@mcp.tool()
+async def live_filter_heat_pumps(session_id: str, medium_sink: Optional[str] = None,
+                                 refrigerant_type: Optional[str] = None,
+                                 refrigerants: Optional[List[str]] = None, stages: Optional[List[str]] = None,
+                                 show_theoretical: Optional[bool] = None,
+                                 show_source_limited: Optional[bool] = None,
+                                 show_demand_limited: Optional[bool] = None,
+                                 select_all: bool = False) -> Any:
+    """Set the optimization panel's filters, as its controls: sink medium and
+    refrigerant type ("All" or one value), refrigerants and stages (lists;
+    [] is all), and whether theoretical archetypes and source- or
+    demand-limited points are shown. The answer lists the values each filter
+    offers. select_all then picks every pump the filters leave, as "Select all"."""
+    args = {k: v for k, v in {
+        "medium_sink": medium_sink, "refrigerant_type": refrigerant_type, "refrigerants": refrigerants,
+        "stages": stages, "show_theoretical": show_theoretical,
+        "show_source_limited": show_source_limited, "show_demand_limited": show_demand_limited,
+    }.items() if v is not None}
+    out = await _live(session_id, "set_heat_pump_filters", args)
+    if select_all:
+        out["selected"] = (await _live(session_id, "select_filtered_heat_pumps"))["selected"]
+    return out
 
 
 @mcp.tool()
 async def live_set_economics(session_id: str, inputs: Optional[Dict[str, float]] = None,
                              reference_heater: Optional[Literal["gas", "oil", "eboiler"]] = None) -> Any:
-    """Change the economic analysis inputs on the page (see economics_defaults)."""
+    """Change the economic analysis inputs on the page (see economics_defaults).
+    A new reference_heater brings its own efficiency, fuel price and CO2
+    factor, as picking it on the page does; inputs given win."""
     args: Dict[str, Any] = {"form": inputs or {}}
     if reference_heater:
         args["ref_type"] = reference_heater

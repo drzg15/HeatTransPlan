@@ -59,15 +59,44 @@ def add_process(state: State, name: Optional[str] = None, lat: Any = None, lon: 
     return gi
 
 
+def _num(v: Any) -> Optional[float]:
+    try:
+        return float(v)
+    except (TypeError, ValueError):
+        return None
+
+
 def update_process(state: State, process: int, name: Optional[str] = None, **coords: Any) -> None:
-    """Rename a process or set its map fields (lat, lon, hours, box_scale)."""
+    """Rename a process or set its map fields (lat, lon, hours, box_scale).
+    Moving it takes its subprocesses along, each keeping its offset, as
+    dragging the box does (MapViewer.tsx handleDragEnd)."""
     _check_process(state, process)
     if name is not None:
         state["proc_group_names"][process] = name
     fields = {k: v for k, v in coords.items() if v is not None}
-    if fields:
-        all_coords = state.setdefault("proc_group_coordinates", {})
-        all_coords[str(process)] = {**all_coords.get(str(process), {}), **fields}
+    if not fields:
+        return
+    all_coords = state.setdefault("proc_group_coordinates", {})
+    before = all_coords.get(str(process), {})
+    old_lat, old_lon = _num(before.get("lat")), _num(before.get("lon"))
+    all_coords[str(process)] = {**before, **fields}
+    new = all_coords[str(process)]
+    if old_lat is None or old_lon is None or "lat" not in fields and "lon" not in fields:
+        return
+    new_lat, new_lon = _num(new.get("lat")), _num(new.get("lon"))
+    d_lat = 0.0 if new_lat is None else new_lat - old_lat
+    d_lon = 0.0 if new_lon is None else new_lon - old_lon
+
+    def shift(node: Dict[str, Any]) -> None:
+        lat, lon = _num(node.get("lat")), _num(node.get("lon"))
+        if lat is not None and lon is not None:
+            node["lat"], node["lon"] = str(lat + d_lat), str(lon + d_lon)
+        for child in node.get("children") or []:
+            shift(child)
+
+    for si in state["proc_groups"][process]:
+        if si < len(state["processes"]):
+            shift(state["processes"][si])
 
 
 def _shift_key(key: str, drop: set, shift) -> Optional[str]:
@@ -139,14 +168,15 @@ def add_subprocess(state: State, process: int, name: Optional[str] = None) -> in
 
 
 def update_subprocess(state: State, sub: int, **fields: Any) -> None:
-    """Set a subprocess's fields (name, lat, lon, hours, next, notes, ...)."""
+    """Set a subprocess's fields (name, lat, lon, hours, next, box_scale) and
+    its parameters (notes, density, pressure, water_content_in/out)."""
     _check_subprocess(state, sub)
     node = state["processes"][sub]
     for k, v in fields.items():
         if v is None:
             continue
-        if k == "notes":
-            node.setdefault("extra_info", {})["notes"] = v
+        if k in EXTRA_INFO:
+            node.setdefault("extra_info", {})[k] = v
         else:
             node[k] = v
 
@@ -162,21 +192,36 @@ def delete_subprocess(state: State, sub: int) -> None:
     _remove_subprocesses(state, [sub], groups_after)
 
 
-# Units the page offers per variable; the first is the default.
+# The subprocess's "Parameters & notes" tab (SubprocessCard.tsx).
+EXTRA_INFO = ("notes", "density", "pressure", "water_content_in", "water_content_out")
+
+# Units the page offers per variable; the first is the default (StreamEditor.tsx).
 UNITS = {
     "Tin": ["°C", "°F", "K"],
     "Tout": ["°C", "°F", "K"],
     "ṁ": ["kg/s", "kg/min", "kg/h", "t/min", "t/h", "t/d"],
     "cp": ["kJ/(kg·K)", "J/(kg·K)"],
     "CP": ["kW/K", "W/K"],
+    "Density": ["kg/m³", "g/cm³"],
+    "Water Content In": ["%", "g/kg", "kg/kg"],
+    "Water Content Out": ["%", "g/kg", "kg/kg"],
+    "Pressure": ["bar", "Pa", "atm"],
 }
 STREAM_TYPES = ["product", "steam", "air", "water"]
+# The variables a stream type shows when it is picked.
+DEFAULT_VARS = {
+    "product": ["Tin", "Tout", "ṁ", "cp"],
+    "steam": ["Tin", "ṁ"],
+    "water": ["Tin", "Tout", "ṁ", "cp"],
+    "air": ["Tin", "ṁ", "Water Content In", "Water Content Out"],
+}
 
 
 def make_stream(name: str, values: Dict[str, Any], units: Optional[Dict[str, str]] = None,
                 stream_type: str = "product") -> Dict[str, Any]:
     """A stream as the stream editor stores it: values as text by variable
-    (Tin, Tout, ṁ, cp, CP), units only where they differ from the default."""
+    (see UNITS), units only where they differ from the default. An empty
+    string is a cleared field, as on the page."""
     if stream_type not in STREAM_TYPES:
         raise EditError(f"type must be one of {', '.join(STREAM_TYPES)}")
     sv = {}
@@ -191,6 +236,7 @@ def make_stream(name: str, values: Dict[str, Any], units: Optional[Dict[str, str
             raise EditError(f"Unit {u} for {k} is not offered; use {', '.join(UNITS.get(k, []))}")
         su[k] = u
     display = [k for k in ("Tin", "Tout", "ṁ", "cp") if k in sv or "CP" not in sv] + (["CP"] if "CP" in sv else [])
+    display += [k for k in UNITS if k not in display and sv.get(k, "") != ""]
     return {"name": name, "type": stream_type, "display_vars": display, "stream_values": sv,
             **({"stream_units": su} if su else {})}
 
@@ -204,7 +250,9 @@ def add_stream(state: State, sub: int, stream: Dict[str, Any]) -> int:
 
 def update_stream(state: State, sub: int, index: int, name: Optional[str] = None,
                   values: Optional[Dict[str, Any]] = None, units: Optional[Dict[str, str]] = None,
-                  stream_type: Optional[str] = None) -> None:
+                  stream_type: Optional[str] = None, show: Optional[List[str]] = None) -> None:
+    """Change a stream. A new type shows that type's variables, as picking it
+    on the page does; show sets the shown variables (the pills) directly."""
     _check_subprocess(state, sub)
     streams = state["processes"][sub].get("streams", [])
     if not 0 <= index < len(streams):
@@ -216,9 +264,18 @@ def update_stream(state: State, sub: int, index: int, name: Optional[str] = None
         {**(s.get("stream_units") or {}), **(units or {})},
         stream_type or s.get("type", "product"),
     )
+    type_changed = stream_type is not None and stream_type != s.get("type", "product")
     s.update({k: v for k, v in merged.items() if k != "display_vars"})
-    shown = set(s.get("display_vars") or []) | set(merged["display_vars"])
-    s["display_vars"] = [k for k in ("Tin", "Tout", "ṁ", "cp", "CP") if k in shown]
+    if show is not None:
+        unknown = [k for k in show if k not in UNITS]
+        if unknown:
+            raise EditError(f"Unknown stream variable {', '.join(unknown)}; use {', '.join(UNITS)}")
+        s["display_vars"] = list(show)
+    elif type_changed:
+        s["display_vars"] = list(DEFAULT_VARS[s["type"]])
+    else:
+        shown = set(s.get("display_vars") or []) | set(merged["display_vars"])
+        s["display_vars"] = [k for k in UNITS if k in shown]
 
 
 def delete_stream(state: State, sub: int, index: int) -> None:
