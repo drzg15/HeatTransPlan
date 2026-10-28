@@ -1,4 +1,6 @@
-heattransplan.uni-paderborn.de {
+# The public address comes from SITE_ADDRESS (see .env.example): a domain
+# gets its TLS certificate automatically. Unset: http://localhost.
+{$SITE_ADDRESS:http://localhost} {
     reverse_proxy /api/* backend:8000
     # The MCP server for AI agents (backend/app/mcp_http.py).
     reverse_proxy /mcp backend:8000
