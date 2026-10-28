@@ -963,7 +963,9 @@
     "active": "(aktiv)"
   },
   "map": {
-    "zoom": "Zoomstufe",
+    "rotate": "Nach Norden ausrichten. Umschalt + Mausrad dreht die Karte (auf dem Touchscreen mit zwei Fingern).",
+    "rotate_left": "Karte nach links drehen",
+    "rotate_right": "Karte nach rechts drehen",
     "plan": "Lageplan",
     "plan_upload": "Lageplan des Werks einfügen (PNG, JPG oder PDF). Er ersetzt die Karte, auf weißem Hintergrund, und füllt die aktuelle Ansicht; er bleibt auf diesem Rechner und wird mit dem Projekt gespeichert.",
     "plan_canvas": "Hintergrund für dieses Prozessdiagramm einfügen (PNG, JPG oder PDF), z. B. einen Hallenplan.",

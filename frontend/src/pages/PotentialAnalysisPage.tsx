@@ -746,6 +746,7 @@ export default function PotentialAnalysisPage() {
               sitePlan={projectState.site_plan}
               onClick={() => {}}
               onMoveEnd={() => {}}
+              bearing={projectState.map_bearing}
               subprocessMapExpanded={{}}
               childMapExpanded={{}}
               // Selection API

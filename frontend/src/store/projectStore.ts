@@ -15,6 +15,7 @@ interface ProjectStore {
   updateProcess: (idx: number, node: ProcessNode) => void;
   setMapCenter: (center: number[]) => void;
   setMapZoom: (zoom: number) => void;
+  setMapBearing: (bearing: number) => void;
   setMapLocked: (locked: boolean) => void;
   setCurrentBase: (base: string) => void;
   setProjectNotes: (notes: string) => void;
@@ -70,6 +71,7 @@ export const useProjectStore = create<ProjectStore>()(
         }),
       setMapCenter: (center) => set((s) => ({ state: { ...s.state, map_center: center } })),
       setMapZoom: (zoom) => set((s) => ({ state: { ...s.state, map_zoom: zoom } })),
+      setMapBearing: (bearing) => set((s) => ({ state: { ...s.state, map_bearing: bearing } })),
       setMapLocked: (locked) => set((s) => ({ state: { ...s.state, map_locked: locked } })),
       setCurrentBase: (base) => set((s) => ({ state: { ...s.state, current_base: base } })),
       setProjectNotes: (notes) => set((s) => ({ state: { ...s.state, project_notes: notes } })),

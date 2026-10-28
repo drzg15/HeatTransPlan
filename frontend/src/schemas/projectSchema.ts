@@ -99,6 +99,7 @@ export const projectStateSchema = z.object({
   map_locked: z.boolean().optional(),
   map_center: z.array(z.number()).optional(),
   map_zoom: z.number().optional(),
+  map_bearing: z.number().optional(),
   current_base: z.string().optional(),
   processes: z.array(processNodeSchema),
   proc_groups: z.array(z.array(z.number())),

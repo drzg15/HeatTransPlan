@@ -123,10 +123,17 @@ const BUILT_IN: Record<string, Handler> = {
   set_map_view: (args) => {
     if (args.center) project().setMapCenter(args.center as number[]);
     if (args.zoom !== undefined) project().setMapZoom(num(args, 'zoom'));
+    if (args.bearing !== undefined) project().setMapBearing(num(args, 'bearing'));
     if (args.base) project().setCurrentBase(String(args.base));
     if (args.locked !== undefined) project().setMapLocked(Boolean(args.locked));
     const s = project().state;
-    return { center: s.map_center, zoom: s.map_zoom, base: s.current_base, locked: s.map_locked };
+    return {
+      center: s.map_center,
+      zoom: s.map_zoom,
+      bearing: s.map_bearing ?? 0,
+      base: s.current_base,
+      locked: s.map_locked,
+    };
   },
   set_site_plan_bounds: (args) => {
     const plan = project().state.site_plan;

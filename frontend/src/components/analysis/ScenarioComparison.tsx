@@ -131,6 +131,7 @@ const ScenarioComparison: React.FC = () => {
                   baseTile={projectState.current_base || 'OpenStreetMap'}
                   onClick={() => {}}
                   onMoveEnd={() => {}}
+                  bearing={projectState.map_bearing}
                   subprocessMapExpanded={{}}
                   childMapExpanded={{}}
                   selectionActive={false}

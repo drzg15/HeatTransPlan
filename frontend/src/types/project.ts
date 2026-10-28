@@ -20,6 +20,8 @@ export interface ProjectState {
   map_locked?: boolean;
   map_center?: number[];
   map_zoom?: number;
+  /** Degrees clockwise from north. */
+  map_bearing?: number;
   current_base?: string;
   processes: ProcessNode[];
   proc_groups: number[][];
