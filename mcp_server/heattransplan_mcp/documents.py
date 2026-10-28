@@ -4,6 +4,7 @@ files themselves. Office files are zipped XML: the standard library does."""
 
 from __future__ import annotations
 
+import io
 import re
 import zipfile
 import xml.etree.ElementTree as ET
@@ -102,14 +103,13 @@ def _xlsx(z: zipfile.ZipFile) -> Dict[str, Any]:
 READERS = {".docx": _docx, ".pptx": _pptx, ".xlsx": _xlsx, ".xlsm": _xlsx}
 
 
-def read(file_path: str) -> Dict[str, Any]:
-    path = Path(file_path).expanduser()
-    suffix = path.suffix.lower()
+def read(name: str, data: bytes) -> Dict[str, Any]:
+    suffix = Path(name).suffix.lower()
     if suffix in (".csv", ".txt", ".md", ".tsv", ".json"):
-        return {"file": path.name, "text": path.read_text(encoding="utf-8", errors="replace")}
+        return {"file": name, "text": data.decode("utf-8", errors="replace")}
     if suffix not in READERS:
         raise ValueError(f"Cannot read {suffix or 'this'} files; Word (.docx), PowerPoint (.pptx), "
                          "Excel (.xlsx) and text/CSV work. Save older .doc/.ppt/.xls in the new "
                          "format; read PDFs and images yourself if you can.")
-    with zipfile.ZipFile(path) as z:
-        return {"file": path.name, **READERS[suffix](z)}
+    with zipfile.ZipFile(io.BytesIO(data)) as z:
+        return {"file": name, **READERS[suffix](z)}

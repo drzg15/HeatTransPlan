@@ -26,7 +26,10 @@ ENV PATH="/uv/bin:$PATH"
 # Editable install: one copy of the code, at /app/backend/app. The previous
 # COPY+install twice left a second copy in site-packages that could go stale.
 COPY backend/ ./backend/
-RUN cd backend && uv pip install --system -e . --no-cache-dir
+# The MCP server, served at /mcp; explain() finds docs/ next to it (editable).
+COPY mcp_server/ ./mcp_server/
+COPY docs/ ./docs/
+RUN cd backend && uv pip install --system -e . -e ../mcp_server --no-cache-dir
 
 # Copy built frontend from the frontend-builder stage
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist

@@ -150,8 +150,6 @@ def test_driving_a_connected_page(tmp_path):
         task = asyncio.create_task(page())
         await asyncio.sleep(0)
 
-        sessions = await S.live_sessions()
-        assert sessions[0]["session_id"] == session.id and sessions[0]["connected"]
         assert (await S.live_view(session.id)) == {"ran": "get_view", "args": {}}
         r = await S.live_select_streams(session.id, keys=["stream_0_0"], value=False)
         assert r["args"] == {"value": False, "all": False, "none": False, "keys": ["stream_0_0"]}
@@ -276,8 +274,48 @@ def test_reading_documents_and_the_guide(tmp_path):
         sheet = (await S.read_document(xlsx))["sheets"][0]
         assert sheet["sheet"] == "Streams" and sheet["rows"] == [["Condenser", None, 35.5, 2]]
         with pytest.raises(ApiError, match="Cannot read .pdf"):
-            await S.read_document(str(tmp_path / "x.pdf"))
+            await S.read_document("x.pdf", content="JVBERi0=")
+        with pytest.raises(ApiError, match="Cannot open"):
+            await S.read_document(str(tmp_path / "missing.docx"))
         for step in ("start", "data", "analysis", "economics", "report"):
             assert "?" in await S.guide(step)
 
     run(body)
+
+
+def test_served_online_at_mcp(monkeypatch):
+    """The backend's /mcp: an agent connects with the URL alone. Files come in
+    as content and go out as links; the server's own disk stays out of reach."""
+    from fastapi.testclient import TestClient
+    from app import dependencies, mcp_http
+
+    monkeypatch.setattr(dependencies, "API_KEYS", ["k1"])
+    monkeypatch.setattr(mcp_http, "API_KEYS", ["k1"])
+    headers = {"Accept": "application/json, text/event-stream", "Authorization": "Bearer k1"}
+
+    def call(c, name, args):
+        r = c.post("/mcp", headers=headers, json={"jsonrpc": "2.0", "id": 1, "method": "tools/call",
+                                                 "params": {"name": name, "arguments": args}})
+        out = r.json()["result"]
+        return out.get("isError"), out["content"][0]["text"]
+
+    with TestClient(app) as c:
+        assert c.post("/mcp", json={}).status_code == 401  # no key
+        r = c.post("/mcp", headers=headers, json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"})
+        names = {t["name"] for t in r.json()["result"]["tools"]}
+        assert "analyse_project" in names and not names & {"live_sessions", "list_projects"}
+
+        _, text = call(c, "create_project", {"content": json.dumps({"project_notes": "from a file"})})
+        pid = json.loads(text)["project_id"]
+        _, text = call(c, "save_project_file", {"project_id": pid, "file_path": "/etc/evil.json"})
+        url = text.split(": ", 1)[1]
+        assert url.startswith("http://testserver/api/mcp/files/") and url.endswith("/evil.json")
+        got = c.get(url.split("testserver", 1)[1])
+        assert got.json()["project_notes"] == "from a file"
+        assert c.get(url.split("testserver", 1)[1].replace("evil", "other")).status_code == 404
+
+        err, text = call(c, "read_document", {"file_path": "/etc/hosts"})
+        assert err and "cannot open files" in text
+        err, text = call(c, "read_document", {"file_path": "s.csv", "content": "a,b\n1,2"})
+        assert not err and json.loads(text)["text"] == "a,b\n1,2"
+    assert S.HOSTED is False  # the local tools are themselves again

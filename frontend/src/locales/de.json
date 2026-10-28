@@ -975,7 +975,7 @@
   },
   "live": {
     "connect": "KI verbinden",
-    "connect_hint": "Einen KI-Assistenten (über den HeatTransPlan-MCP-Server) diese Seite sehen und steuern lassen. Solange die Verbindung besteht, wird Ihr Projekt auch auf dem Server gespeichert.",
+    "connect_hint": "Einen KI-Agenten (über den HeatTransPlan-MCP-Server) diese Seite sehen und steuern lassen. Während der Verbindung liegt das Projekt auch auf dem Server.",
     "code": "Sitzungscode für die KI",
     "copy": "Code kopieren",
     "disconnect": "KI trennen",
@@ -983,15 +983,12 @@
     "copy_command": "Befehl kopieren",
     "close": "Schließen",
     "setup_title": "KI-Agenten einrichten",
-    "setup_intro": "Jeder KI-Agent, der MCP (Model Context Protocol) unterstützt, kann über den MCP-Server mit HeatTransPlan arbeiten. Einmal auf dem eigenen Rechner einrichten:",
-    "setup_install": "MCP-Server installieren, im HeatTransPlan-Ordner (braucht uv; oder: pip install -e mcp_server):",
-    "setup_add": "Im Agenten als MCP-Server eintragen (meist in den Einstellungen unter MCP oder in seiner MCP-Konfigurationsdatei), mit der Adresse dieser App:",
-    "setup_key": "Verlangt dieser Server einen API-Schlüssel, zusätzlich HEATTRANSPLAN_API_KEY setzen.",
+    "setup_intro": "Jeder KI-Agent, der MCP (Model Context Protocol) unterstützt, etwa Claude, kann mit HeatTransPlan arbeiten. Nichts zu installieren:",
+    "setup_add": "HeatTransPlan im Agenten als entfernten MCP-Server (auch Connector genannt) mit dieser Adresse eintragen:",
+    "setup_key": "Dieser Server braucht einen API-Schlüssel: dem Agenten als Header X-API-Key (oder Authorization: Bearer <Schlüssel>) mitgeben.",
     "setup_connect": "Auf „KI verbinden“ klicken und dem Agenten den Sitzungscode nennen, z. B. „Nutze die HeatTransPlan-Sitzung AB12CD“. Er sieht und steuert dann diese Seite, bis die Verbindung getrennt wird.",
-    "setup_files": "Ohne Verbindung kann der Agent trotzdem Projekte anlegen, Daten eingeben, die Analyse rechnen und den Bericht schreiben, als Dateien, die hier geöffnet werden; diese Seite sieht und ändert er nicht.",
-    "setup_command": "Befehl:",
-    "setup_env": "Umgebungsvariable:",
-    "setup_json": "Oder, bei Agenten mit JSON-Konfigurationsdatei, dies eintragen und den Agenten neu starten (manche nennen den obersten Schlüssel „servers“):",
-    "setup_guided": "Dann den Agenten fragen, z. B.: „Führe mich durch eine HeatTransPlan-Studie.“ Er geht Seite für Seite vor, fragt nach, was er braucht, und kann Word-, PowerPoint- und Excel-Dateien oder eingefügte Zahlen lesen."
+    "setup_files": "Ohne Verbindung kann der Agent trotzdem Projekte anlegen, Daten eingeben, die Analyse rechnen und den Bericht schreiben; er gibt Download-Links, die hier geöffnet werden. Diese Seite sieht und ändert er nicht.",
+    "setup_guided": "Dann den Agenten fragen, z. B.: „Führe mich durch eine HeatTransPlan-Studie.“ Er geht Seite für Seite vor, fragt nach, was er braucht, und liest angehängte Word-, PowerPoint- und Excel-Dateien oder eingefügte Zahlen.",
+    "setup_where": "In Claude: Einstellungen → Connectors → Benutzerdefinierten Connector hinzufügen. In anderen Agenten: einen MCP-Server per URL (HTTP) hinzufügen."
   }
 }

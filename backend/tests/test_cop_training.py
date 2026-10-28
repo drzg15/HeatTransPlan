@@ -127,7 +127,7 @@ def test_a_malformed_model_is_rejected(client):
 
 
 def test_features_says_whether_the_module_runs(client):
-    assert client.get("/api/features").json() == {"cop_training": True}
+    assert client.get("/api/features").json()["cop_training"] is True
 
 
 def test_switched_off_the_endpoints_are_gone():

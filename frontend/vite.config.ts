@@ -5,11 +5,11 @@ import react from '@vitejs/plugin-react';
 // Inside docker compose the backend is reachable under its service name;
 // running `npm run dev` on the host it is not, so default to localhost and
 // let compose override it (VITE_PROXY_TARGET=http://backend:8000).
+const target = process.env.VITE_PROXY_TARGET || 'http://127.0.0.1:8000';
 const apiProxy = {
-  '/api': {
-    target: process.env.VITE_PROXY_TARGET || 'http://127.0.0.1:8000',
-    changeOrigin: true,
-  },
+  '/api': { target, changeOrigin: true },
+  // The MCP server for AI agents; xfwd so its download links name this address.
+  '/mcp': { target, changeOrigin: true, xfwd: true },
 };
 
 export default defineConfig({

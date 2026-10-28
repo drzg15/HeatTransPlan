@@ -2,8 +2,9 @@
 services:
   backend:
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      # The repository root: the image also carries mcp_server/ and docs/.
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: heattransplan-backend
     restart: unless-stopped
     logging:

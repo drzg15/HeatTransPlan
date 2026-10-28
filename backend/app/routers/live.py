@@ -55,12 +55,6 @@ async def create_session(body: SessionCreate):
     return session.summary()
 
 
-@router.get("/sessions")
-async def list_sessions():
-    """Every session, most recently active first."""
-    return live.list_sessions()
-
-
 @router.get("/sessions/{session_id}")
 async def get_session(session_id: str):
     """The session and what its page shows right now."""
