@@ -120,7 +120,6 @@
   background: #242424 !important;
 }
 
-/* Smooth zoom slider, vertical, under Leaflet's +/− buttons. */
 /* Under the zoom buttons: turn left, north, turn right. */
 .map-rotate-controls {
   position: absolute;
