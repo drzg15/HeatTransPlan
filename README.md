@@ -137,6 +137,13 @@ HeatTransPlan/
 
 ---
 
+## AI assistants (MCP)
+
+`mcp_server/` is an MCP server that lets an AI assistant do what the pages
+do: build and edit projects, run the potential analysis and the economic
+analysis, write reports, and — after **Connect AI** in the header — watch
+and drive the open page. Setup and tools: [mcp_server/README.md](mcp_server/README.md).
+
 ## Running Tests
 
 ```bash

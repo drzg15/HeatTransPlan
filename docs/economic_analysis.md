@@ -39,12 +39,16 @@ $$
 taken over the analysed pump, the maximum-duty point and all real feasible points of the optimization.
 
 <details>
-<summary><b>Source code:</b> <code>frontend/src/components/analysis/econModel.ts</code> (<code>pickPump</code>, <code>econCore</code>)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/economics/model.py</code> (<code>pick_pump</code>, <code>econ_core</code>)</summary>
 
-```{literalinclude} ../frontend/src/components/analysis/econModel.ts
-:language: typescript
-:start-at: export const pickPump
-:end-before: /** Everything the panel and the report show
+```{literalinclude} ../backend/app/services/economics/model.py
+:language: python
+:pyobject: pick_pump
+```
+
+```{literalinclude} ../backend/app/services/economics/model.py
+:language: python
+:pyobject: econ_core
 ```
 
 </details>
@@ -162,12 +166,16 @@ $$
 The bracket only when CO₂ cost on electricity is switched on. This is [4646] eq. (23) and (29), p. 57 and 61. [4646] assumes constant prices (all $r = 0$, p. 57). The app's default is +3 %/year for fuel and electricity (CO₂ and investment 0 %): a deliberate deviation, allowed by [2067] §6.9 (p. 12), which permits change rates per cost type. The same rate on both sides keeps the electricity-to-gas price ratio constant. Set both to 0 for the VDI 4646 case. Today's price $p_0$ grown by one year equals the "first-year cost" $A_{V1}$ of [2067] eq. (6), so the two conventions agree.
 
 <details>
-<summary><b>Source code:</b> <code>frontend/src/utils/economics.ts</code> (<code>fuelPrice</code>, <code>elPrice</code>)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>fuel_price</code>, <code>el_price</code>)</summary>
 
-```{literalinclude} ../frontend/src/utils/economics.ts
-:language: typescript
-:start-at: /** Fuel price incl. CO₂ cost
-:end-before: /** Energy flows and fixed costs
+```{literalinclude} ../backend/app/services/economics/formulas.py
+:language: python
+:pyobject: fuel_price
+```
+
+```{literalinclude} ../backend/app/services/economics/formulas.py
+:language: python
+:pyobject: el_price
 ```
 
 </details>
@@ -189,12 +197,11 @@ $$
 Maintenance, operation, capacity charge and operating funding apply to the heat pump only. The **cost saving in year 1** is $S(1) = K_{ref}(1) - K_{HP}(1)$.
 
 <details>
-<summary><b>Source code:</b> <code>frontend/src/utils/economics.ts</code> (<code>flows</code>)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>_flows</code>)</summary>
 
-```{literalinclude} ../frontend/src/utils/economics.ts
-:language: typescript
-:start-at: function flows(
-:end-before: export function referenceCost
+```{literalinclude} ../backend/app/services/economics/formulas.py
+:language: python
+:pyobject: _flows
 ```
 
 </details>
@@ -238,12 +245,11 @@ $$
 The search runs past $T$ up to **40 years**, so a pump that pays back after the period still gets a year. The residual value is left out here: it is not cash in hand before the end of the period. The NPV-over-time chart interpolates between the two years around the crossing for the exact point.
 
 <details>
-<summary><b>Source code:</b> <code>frontend/src/utils/economics.ts</code> (<code>evaluate</code>)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>evaluate</code>)</summary>
 
-```{literalinclude} ../frontend/src/utils/economics.ts
-:language: typescript
-:start-at: export function evaluate
-:end-before: /** Electricity price
+```{literalinclude} ../backend/app/services/economics/formulas.py
+:language: python
+:pyobject: evaluate
 ```
 
 </details>
@@ -257,12 +263,11 @@ p_{el}^* = -\frac{NPV(p_{el} = 0)}{NPV(p_{el} = 1) - NPV(p_{el} = 0)}
 $$
 
 <details>
-<summary><b>Source code:</b> <code>frontend/src/utils/economics.ts</code> (<code>breakEvenElPrice</code>)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>break_even_el_price</code>)</summary>
 
-```{literalinclude} ../frontend/src/utils/economics.ts
-:language: typescript
-:start-at: export function breakEvenElPrice
-:end-before: /** VDI 4646 cost function
+```{literalinclude} ../backend/app/services/economics/formulas.py
+:language: python
+:pyobject: break_even_el_price
 ```
 
 </details>
@@ -285,17 +290,16 @@ Shown under *Detailed results*:
 The ROI shown in earlier versions has been replaced by the internal rate of return: the ROI's definition was an assumption, the IRR is the norm's.
 
 <details>
-<summary><b>Source code:</b> <code>frontend/src/utils/economics.ts</code> (<code>allocationFactor</code>, <code>vdiSpecificCost</code>)</summary>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>allocation_factor</code>, <code>vdi_specific_cost</code>)</summary>
 
-```{literalinclude} ../frontend/src/utils/economics.ts
-:language: typescript
-:start-at: /** Finnish allocation factor
-:end-before: export function evaluate
+```{literalinclude} ../backend/app/services/economics/formulas.py
+:language: python
+:pyobject: allocation_factor
 ```
 
-```{literalinclude} ../frontend/src/utils/economics.ts
-:language: typescript
-:start-at: /** VDI 4646 cost function
+```{literalinclude} ../backend/app/services/economics/formulas.py
+:language: python
+:pyobject: vdi_specific_cost
 ```
 
 </details>
@@ -366,7 +370,7 @@ The study compares a gas boiler (current situation, 7 ct/kWh incl. CO₂) with t
 > [!IMPORTANT]
 > The study's NPV for Max. WRG (−4.025.615 €) cannot be reproduced and contradicts the study itself: the variant has a positive yearly saving and lower cumulative costs than the reference, yet its NPV curve falls every year. The same formulas that give exactly −3.222.575 € for Status Quo give −1.801.069 € for Max. WRG. HeatTransPlan uses the consistent formula.
 
-These checks run as unit tests in `frontend/src/utils/economics.test.ts`.
+These checks run as unit tests in `backend/tests/test_economics.py`.
 
 > [!NOTE]
 > Like the rest of the tool, the economic analysis is a screening estimate. It assumes constant duty and COP over the year, prices that change at fixed rates, and an investment from a specific cost per kW. It shows whether a detailed offer is worth requesting, not what the offer will say.

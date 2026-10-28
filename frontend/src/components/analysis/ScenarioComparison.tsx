@@ -4,7 +4,7 @@ import Plot from 'react-plotly.js';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useProjectStore } from '../../store/projectStore';
 import MapViewer from '../map/MapViewer';
-import { econCore } from './econModel';
+import { useEconomicsList } from '../../hooks/useEconomics';
 import { GREEN, RED } from './econConfig';
 import { formatDe } from '../../utils/numberFormat';
 import './ScenarioComparison.css';
@@ -21,13 +21,15 @@ const ScenarioComparison: React.FC = () => {
 
   // Economics of each scenario's pump, all under the same inputs (prices,
   // investment per kW, …) from the Economic analysis section.
-  const econ = useMemo(
+  const jobs = useMemo(
     () =>
-      scenarios.map((sc) =>
-        econCore(econForm, econRefType, sc.selectedHPPoints ?? [], sc.hpiOptimizationResult)
-      ),
-    [scenarios, econForm, econRefType]
+      scenarios.map((sc) => ({
+        selected: sc.selectedHPPoints ?? [],
+        opt: sc.hpiOptimizationResult,
+      })),
+    [scenarios]
   );
+  const econ = useEconomicsList(jobs, econForm, econRefType).numbers;
 
   // Group data for comparison charts
   const chartData = useMemo(() => {

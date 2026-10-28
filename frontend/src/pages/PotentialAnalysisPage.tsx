@@ -12,20 +12,14 @@ import {
   Save,
   TriangleAlert,
 } from 'lucide-react';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-  useRef,
-  type ChangeEvent,
-} from 'react';
+import { useCallback, useEffect, useMemo, useState, useRef, type ChangeEvent } from 'react';
 import { useProjectStore } from '../store/projectStore';
 import { useAnalysisStore } from '../store/analysisStore';
 import {
   runPinch,
   runHPI,
   runStatusQuo,
+  runEconomics,
   generateReport,
   runHPIOptimization,
 } from '../api/analysis';
@@ -42,6 +36,7 @@ import StatusQuoComparison from '../components/analysis/StatusQuoComparison';
 import TemperatureIntervalDiagram from '../components/analysis/TemperatureIntervalDiagram';
 import ScenarioComparison from '../components/analysis/ScenarioComparison';
 import HPIOptimizationPanel from '../components/analysis/HPIOptimizationPanel';
+import { useLiveCommand } from '../live/commands';
 import { econReportData } from '../components/analysis/econModel';
 import EconomicAnalysis from '../components/analysis/EconomicAnalysis';
 import { HPISummary, PinchSummary } from '../components/analysis/SectionSummaries';
@@ -438,7 +433,14 @@ export default function PotentialAnalysisPage() {
   }, [energyDemands, pinchResult]);
 
   // Helper to build payload for report and map preview
-  const buildReportPayload = useCallback(() => {
+  const buildReportPayload = useCallback(async () => {
+    const { econForm, econRefType, scenarios } = useAnalysisStore.getState();
+    // The economics of each scenario's pump, computed by the backend.
+    const econNumbers = await Promise.all(
+      (scenarios || []).map((sc) =>
+        runEconomics(econForm, econRefType, sc.selectedHPPoints || [], sc.hpiOptimizationResult)
+      )
+    );
     return {
       language: i18n.language || 'en',
       project_notes: projectState.project_notes || '',
@@ -461,7 +463,7 @@ export default function PotentialAnalysisPage() {
       energy_demands: energyDemands,
       t_min: tMin,
       // Include all saved scenarios in the report for comparison
-      scenarios: (useAnalysisStore.getState().scenarios || []).map((sc) => ({
+      scenarios: (scenarios || []).map((sc, k) => ({
         name: sc.name,
         selected_streams: getStreamsFromSelection(sc.selectedStreams),
         pinch_result: sc.pinchResult,
@@ -478,13 +480,7 @@ export default function PotentialAnalysisPage() {
         t_min: sc.tMin,
         // The economic analysis of this scenario's pump, with the inputs from
         // the Economic analysis section, translated and formatted here.
-        economics: econReportData(
-          t,
-          useAnalysisStore.getState().econForm,
-          useAnalysisStore.getState().econRefType,
-          sc.selectedHPPoints || [],
-          sc.hpiOptimizationResult
-        ),
+        economics: econReportData(t, econForm, econRefType, econNumbers[k]),
       })),
     };
   }, [
@@ -503,7 +499,7 @@ export default function PotentialAnalysisPage() {
   const handleGenerateReport = useCallback(async () => {
     setReportLoading(true);
     try {
-      const payload = buildReportPayload();
+      const payload = await buildReportPayload();
       const blob = await generateReport(payload);
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -518,6 +514,20 @@ export default function PotentialAnalysisPage() {
       setReportLoading(false);
     }
   }, [buildReportPayload]);
+
+  // The AI gets the report as HTML instead of a download.
+  useLiveCommand('generate_report', async () => {
+    const blob = await generateReport(await buildReportPayload());
+    return { html: await blob.text() };
+  });
+  useLiveCommand('reset_heat_pumps', () => {
+    const s = useAnalysisStore.getState();
+    s.setCopModel('2t');
+    s.setCopFormula(null);
+    s.setSelectedHPPoints([]);
+    setHpiReset((n) => n + 1);
+    return { ok: true };
+  });
 
   const scenarios = useAnalysisStore((s) => s.scenarios);
   const activeScenarioId = useAnalysisStore((s) => s.activeScenarioId);

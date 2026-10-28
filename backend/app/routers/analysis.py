@@ -14,7 +14,10 @@ from app.models.analysis import (
     HPIOptimizationRequest, HPIOptimizationResult,
     CopFormulaValidateRequest, CopFormulaValidateResult,
 )
+from app.models.economics import EconomicsRequest, ProjectAnalysisRequest
+from app.services.project_analysis import analyse_project
 from app.models.report import ReportRequest
+from app.services.economics import DEFAULTS as ECON_DEFAULTS, PRESETS as ECON_PRESETS, economics, economics_payload
 from app.services.analysis_service import run_pinch, run_hpi, run_status_quo
 from app.services.optimization import run_hpi_optimization
 from app.utils.cop_formula import (
@@ -75,6 +78,38 @@ async def validate_cop_formula(request: CopFormulaValidateRequest):
             **common,
         )
     return CopFormulaValidateResult(valid=True, cop=value, **common)
+
+
+@router.post("/project")
+async def project_analysis(request: ProjectAnalysisRequest):
+    """The Potential Analysis page's whole chain on a project: selected
+    streams, pinch, heat pump integration, optimization and (with
+    economics_form) the economic analysis."""
+    try:
+        return analyse_project(
+            request.state, request.selected_streams, request.t_min, request.profile_mode,
+            request.recovery_pct, request.cop_model, request.cop_formula,
+            request.economics_form, request.ref_type, request.selected_points, request.lang,
+        )
+    except FormulaError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/economics/defaults")
+async def economics_defaults():
+    """Default inputs of the economic analysis and the reference-heater presets."""
+    return {"form": ECON_DEFAULTS, "presets": ECON_PRESETS}
+
+
+@router.post("/economics")
+async def economic_analysis(request: EconomicsRequest):
+    """Economic analysis of the analysed heat pump against the reference
+    heater: results, price sensitivity, economic size, NPV over time.
+    null when there is no pump to analyse."""
+    form = {**ECON_DEFAULTS, **request.form}
+    return economics_payload(
+        economics(form, request.ref_type, request.selected_points, request.optimization, request.sens_base)
+    )
 
 
 @router.post("/status-quo", response_model=StatusQuoResult)

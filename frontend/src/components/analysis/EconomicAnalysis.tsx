@@ -2,9 +2,9 @@
  *  pump against the heater (and cooling) it replaces. Layout follows the Hipp
  *  presentation (Randbedingungen table, cost bars, Barwertverlauf, Strom-/
  *  Gaspreis sensitivity); the numbers and charts come from econModel.ts, the
- *  formulas from utils/economics.ts. */
+ *  formulas in backend/app/services/economics/formulas.py. */
 
-import { RotateCcw } from 'lucide-react';
+import { LoaderCircle, RotateCcw } from 'lucide-react';
 import { useState } from 'react';
 import Plot from 'react-plotly.js';
 import { useTranslation } from 'react-i18next';
@@ -13,6 +13,7 @@ import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import Part from '../ui/Part';
 import { buildEconomics } from './econModel';
+import { useEconomics } from '../../hooks/useEconomics';
 import {
   BOOL_FIELDS,
   DEFAULTS,
@@ -66,7 +67,7 @@ const formulaStyle = {
   margin: '0.25rem 0 0.5rem',
 };
 
-// Per-row formulas as computed in utils/economics.ts, and the symbols each one
+// Per-row formulas as computed in backend/app/services/economics, and the symbols each one
 // uses. Symbols are language-neutral; their explanations come from the locale.
 const FORMULAS: Record<string, { f: string[]; terms: string[] }> = {
   capex: {
@@ -329,7 +330,11 @@ export default function EconomicAnalysis() {
     </>
   );
 
-  const e = buildEconomics(t, form, refType, selected, opt, isDark, sensBase);
+  // The numbers come from the backend; until the first answer arrives there
+  // is a pump to analyse but nothing to show yet.
+  const { numbers } = useEconomics(form, refType, selected, opt, sensBase);
+  const hasPump = selected.length > 0 || Boolean(opt?.max_q_point);
+  const e = buildEconomics(t, form, refType, hasPump ? numbers : null, isDark);
   if (!e) {
     return (
       <Part
@@ -338,7 +343,11 @@ export default function EconomicAnalysis() {
         input={t('analysis.parts.costs_in')}
         actions={header}
       >
-        <p style={{ fontSize: '0.85rem' }}>{t('economics.empty')}</p>
+        {hasPump ? (
+          <LoaderCircle size={18} className="pa-spin" />
+        ) : (
+          <p style={{ fontSize: '0.85rem' }}>{t('economics.empty')}</p>
+        )}
       </Part>
     );
   }

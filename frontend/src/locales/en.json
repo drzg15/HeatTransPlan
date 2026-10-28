@@ -893,5 +893,13 @@
     "plan_place": "Fit the plan to the current view again.",
     "plan_remove": "Remove plan",
     "plan_error": "Could not read the file."
+  },
+  "live": {
+    "connect": "Connect AI",
+    "connect_hint": "Let an AI assistant (through the HeatTransPlan MCP server) see and control this page. While connected, your project is also stored on the server.",
+    "code": "Session code for the AI",
+    "copy": "Copy code",
+    "disconnect": "Disconnect AI",
+    "error": "AI link failed: {{msg}}"
   }
 }

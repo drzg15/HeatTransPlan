@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import { useUIStore } from '../../store/uiStore';
 import { useProjectStore } from '../../store/projectStore';
 import LanguagePicker from './LanguagePicker';
+import LiveButton from '../../live/LiveButton';
 import './AppShell.css';
 
 interface Props {
@@ -124,6 +125,7 @@ export default function AppShell({ children }: Props) {
           >
             <RotateCcw size={14} /> {t('home.reset_all')}
           </button>
+          <LiveButton />
           <LanguagePicker />
           <button
             className="theme-toggle"

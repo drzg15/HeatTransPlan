@@ -104,6 +104,12 @@ def test_analysis_chain(client, example):
     formula = {"name": "Test", "expression": "0.5 * T_sink / (T_sink - T_source)", "T_source_min": 0, "T_source_max": 200, "T_sink_min": 0, "T_sink_max": 250}
     _check(f"{stem}_opt_formula", _post(client, "/api/analysis/hpi-optimization", {"pinch_result": pinch, "cop_formula": formula}))
 
+    for ref in ("gas", "oil", "eboiler"):
+        _check(f"{stem}_economics_{ref}", _post(client, "/api/analysis/economics", {
+            "ref_type": ref, "optimization": optimizations[("net_load", "2t", 100.0)],
+            "selected_points": optimizations[("net_load", "2t", 100.0)]["feasible_points"][3:5] if ref == "oil" else [],
+        }))
+
     demands = [{"stream_name": s["name"], "heating_kW": 100.0 * i, "cooling_kW": 50.0 * i} for i, s in enumerate(streams)]
     _check(f"{stem}_status_quo", _post(client, "/api/analysis/status-quo", {
         "current_demands": demands, "pinch_hot_utility": pinch["hot_utility"], "pinch_cold_utility": pinch["cold_utility"],

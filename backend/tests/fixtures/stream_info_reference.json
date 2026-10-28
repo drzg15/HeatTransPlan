@@ -1,0 +1,495 @@
+[
+ {
+  "stream": {
+   "name": "Wärmequelle 1",
+   "type": "steam",
+   "properties": {
+    "prop1": "Tin",
+    "prop2": "Tout",
+    "prop3": "ṁ",
+    "prop4": "cp"
+   },
+   "values": {
+    "val1": "103",
+    "val2": "43",
+    "val3": "20",
+    "val4": "2"
+   },
+   "mdot": "20",
+   "temp_in": "103",
+   "temp_out": "43",
+   "cp": "2"
+  },
+  "info": {
+   "tin": 103,
+   "tout": 43,
+   "mdot": 20,
+   "cp": 2,
+   "CP": 40,
+   "Q": 2400,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "Wärmequelle 2",
+   "type": "product",
+   "properties": {
+    "prop1": "Tin",
+    "prop2": "Tout",
+    "prop3": "ṁ",
+    "prop4": "cp"
+   },
+   "values": {
+    "val1": "43",
+    "val2": "23",
+    "val3": "5",
+    "val4": "3"
+   },
+   "mdot": "5",
+   "temp_in": "43",
+   "temp_out": "23",
+   "cp": "3"
+  },
+  "info": {
+   "tin": 43,
+   "tout": 23,
+   "mdot": 5,
+   "cp": 3,
+   "CP": 15,
+   "Q": 300,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "Wärmequelle 3",
+   "type": "product",
+   "properties": {
+    "prop1": "Tin",
+    "prop2": "Tout",
+    "prop3": "ṁ",
+    "prop4": "cp"
+   },
+   "values": {
+    "val1": "128",
+    "val2": "103",
+    "val3": "5",
+    "val4": "3"
+   },
+   "mdot": "5",
+   "temp_in": "128",
+   "temp_out": "103",
+   "cp": "3"
+  },
+  "info": {
+   "tin": 128,
+   "tout": 103,
+   "mdot": 5,
+   "cp": 3,
+   "CP": 15,
+   "Q": 375,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "Wärmesenke 1",
+   "type": "steam",
+   "properties": {
+    "prop1": "Tin",
+    "prop2": "Tout",
+    "prop3": "ṁ",
+    "prop4": "cp"
+   },
+   "values": {
+    "val1": "88",
+    "val2": "113",
+    "val3": "10",
+    "val4": "3"
+   },
+   "mdot": "10",
+   "temp_in": "88",
+   "temp_out": "113",
+   "cp": "3"
+  },
+  "info": {
+   "tin": 88,
+   "tout": 113,
+   "mdot": 10,
+   "cp": 3,
+   "CP": 30,
+   "Q": 750,
+   "type": "Cold stream (Heat sink)"
+  }
+ },
+ {
+  "stream": {
+   "name": "Wärmesenke 2",
+   "type": "product",
+   "properties": {
+    "prop1": "Tin",
+    "prop2": "Tout",
+    "prop3": "ṁ",
+    "prop4": "cp"
+   },
+   "values": {
+    "val1": "68",
+    "val2": "88",
+    "val3": "10",
+    "val4": "5"
+   },
+   "mdot": "10",
+   "temp_in": "68",
+   "temp_out": "88",
+   "cp": "5"
+  },
+  "info": {
+   "tin": 68,
+   "tout": 88,
+   "mdot": 10,
+   "cp": 5,
+   "CP": 50,
+   "Q": 1000,
+   "type": "Cold stream (Heat sink)"
+  }
+ },
+ {
+  "stream": {
+   "name": "Wärmesenke 3",
+   "type": "product",
+   "properties": {
+    "prop1": "Tin",
+    "prop2": "Tout",
+    "prop3": "ṁ",
+    "prop4": "cp"
+   },
+   "values": {
+    "val1": "8",
+    "val2": "68",
+    "val3": "10",
+    "val4": "2"
+   },
+   "mdot": "10",
+   "temp_in": "8",
+   "temp_out": "68",
+   "cp": "2"
+  },
+  "info": {
+   "tin": 8,
+   "tout": 68,
+   "mdot": 10,
+   "cp": 2,
+   "CP": 20,
+   "Q": 1200,
+   "type": "Cold stream (Heat sink)"
+  }
+ },
+ {
+  "stream": {
+   "name": "sv",
+   "stream_values": {
+    "Tin": "120",
+    "Tout": 60,
+    "ṁ": "2",
+    "cp": "4.18"
+   }
+  },
+  "info": {
+   "tin": 120,
+   "tout": 60,
+   "mdot": 2,
+   "cp": 4.18,
+   "CP": 8.36,
+   "Q": 501.59999999999997,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "sv CP",
+   "stream_values": {
+    "Tin": 20,
+    "Tout": 80,
+    "CP": "7.5"
+   }
+  },
+  "info": {
+   "tin": 20,
+   "tout": 80,
+   "mdot": null,
+   "cp": null,
+   "CP": 7.5,
+   "Q": 450,
+   "type": "Cold stream (Heat sink)"
+  }
+ },
+ {
+  "stream": {
+   "name": "units",
+   "stream_values": {
+    "Tin": 212,
+    "Tout": 122,
+    "ṁ": 3600,
+    "cp": 4180
+   },
+   "stream_units": {
+    "Tin": "°F",
+    "Tout": "°F",
+    "ṁ": "kg/h",
+    "cp": "J/(kg·K)"
+   }
+  },
+  "info": {
+   "tin": 100,
+   "tout": 50,
+   "mdot": 1,
+   "cp": 4.18,
+   "CP": 4.18,
+   "Q": 209,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "kelvin W/K",
+   "stream_values": {
+    "Tin": 400,
+    "Tout": 300,
+    "CP": 2500
+   },
+   "stream_units": {
+    "Tin": "K",
+    "Tout": "K",
+    "CP": "W/K"
+   }
+  },
+  "info": {
+   "tin": 126.85000000000002,
+   "tout": 26.850000000000023,
+   "mdot": null,
+   "cp": null,
+   "CP": 2.5,
+   "Q": 250,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "props",
+   "properties": {
+    "prop1": "Tin",
+    "prop2": "Tout",
+    "prop3": "CP"
+   },
+   "values": {
+    "val1": "90",
+    "val2": "30",
+    "val3": "5"
+   }
+  },
+  "info": {
+   "tin": 90,
+   "tout": 30,
+   "mdot": null,
+   "cp": null,
+   "CP": 5,
+   "Q": 300,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "props t/h",
+   "properties": {
+    "prop1": "Tin",
+    "prop2": "Tout",
+    "prop3": "ṁ",
+    "prop4": "cp"
+   },
+   "values": {
+    "val1": "10",
+    "val2": "70",
+    "val3": "3.6",
+    "val4": "4"
+   },
+   "stream_units": {
+    "ṁ": "t/h"
+   }
+  },
+  "info": {
+   "tin": 10,
+   "tout": 70,
+   "mdot": 1,
+   "cp": 4,
+   "CP": 4,
+   "Q": 240,
+   "type": "Cold stream (Heat sink)"
+  }
+ },
+ {
+  "stream": {
+   "name": "legacy",
+   "temp_in": "150",
+   "temp_out": "40",
+   "mdot": "1.5",
+   "cp": "2"
+  },
+  "info": {
+   "tin": 150,
+   "tout": 40,
+   "mdot": 1.5,
+   "cp": 2,
+   "CP": 3,
+   "Q": 330,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "legacy zero",
+   "temp_in": "0",
+   "temp_out": "40",
+   "mdot": "1",
+   "cp": "4"
+  },
+  "info": {
+   "tin": 0,
+   "tout": 40,
+   "mdot": 1,
+   "cp": 4,
+   "CP": 4,
+   "Q": 160,
+   "type": "Cold stream (Heat sink)"
+  }
+ },
+ {
+  "stream": {
+   "name": "mixed",
+   "stream_values": {
+    "Tin": ""
+   },
+   "properties": {
+    "prop1": "Tin"
+   },
+   "values": {
+    "val1": ""
+   },
+   "temp_in": "75",
+   "temp_out": "25",
+   "mdot": "abc",
+   "cp": "4"
+  },
+  "info": {
+   "tin": 75,
+   "tout": 25,
+   "mdot": null,
+   "cp": 4,
+   "CP": null,
+   "Q": null,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "empty"
+  },
+  "info": {
+   "tin": null,
+   "tout": null,
+   "mdot": null,
+   "cp": null,
+   "CP": null,
+   "Q": null,
+   "type": null
+  }
+ },
+ {
+  "stream": {
+   "name": "spaces",
+   "stream_values": {
+    "Tin": " 55 ",
+    "Tout": "15",
+    "CP": "1e1"
+   }
+  },
+  "info": {
+   "tin": 55,
+   "tout": 15,
+   "mdot": null,
+   "cp": null,
+   "CP": 10,
+   "Q": 400,
+   "type": "Hot stream (Heat Source)"
+  }
+ },
+ {
+  "stream": {
+   "name": "t/d t/min kg/min",
+   "stream_values": {
+    "Tin": 10,
+    "Tout": 20,
+    "ṁ": 86.4,
+    "cp": 1
+   },
+   "stream_units": {
+    "ṁ": "t/d"
+   }
+  },
+  "info": {
+   "tin": 10,
+   "tout": 20,
+   "mdot": 1,
+   "cp": 1,
+   "CP": 1,
+   "Q": 10,
+   "type": "Cold stream (Heat sink)"
+  }
+ },
+ {
+  "stream": {
+   "name": "tmin",
+   "stream_values": {
+    "Tin": 10,
+    "Tout": 20,
+    "ṁ": 0.06,
+    "cp": 1
+   },
+   "stream_units": {
+    "ṁ": "t/min"
+   }
+  },
+  "info": {
+   "tin": 10,
+   "tout": 20,
+   "mdot": 1,
+   "cp": 1,
+   "CP": 1,
+   "Q": 10,
+   "type": "Cold stream (Heat sink)"
+  }
+ },
+ {
+  "stream": {
+   "name": "kgmin",
+   "stream_values": {
+    "Tin": 10,
+    "Tout": 20,
+    "ṁ": 60,
+    "cp": 1
+   },
+   "stream_units": {
+    "ṁ": "kg/min"
+   }
+  },
+  "info": {
+   "tin": 10,
+   "tout": 20,
+   "mdot": 1,
+   "cp": 1,
+   "CP": 1,
+   "Q": 10,
+   "type": "Cold stream (Heat sink)"
+  }
+ }
+]

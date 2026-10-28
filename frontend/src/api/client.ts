@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-const API_BASE = import.meta.env.VITE_API_BASE || '';
-const API_KEY = import.meta.env.VITE_API_KEY || '';
+export const API_BASE = import.meta.env.VITE_API_BASE || '';
+export const API_KEY = import.meta.env.VITE_API_KEY || '';
 
 const client = axios.create({
   baseURL: API_BASE,

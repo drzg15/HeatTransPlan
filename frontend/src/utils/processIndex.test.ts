@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { orphanProcesses, removeProcesses } from './processIndex';
+import { orphanProcesses, removeProcesses, removeStreamFromSelection } from './processIndex';
 import type { ProcessNode } from '../types/process';
 
 const procs = ['a', 'b', 'c', 'd'].map((name) => ({ name }) as ProcessNode);
@@ -32,5 +32,17 @@ describe('orphanProcesses', () => {
   it('finds processes no group claims', () => {
     expect(orphanProcesses(procs, [[0, 2]])).toEqual([1, 3]);
     expect(orphanProcesses(procs, [[0, 1], [2, 3]])).toEqual([]);
+  });
+});
+
+describe('removeStreamFromSelection', () => {
+  it('drops the stream and moves the later ones of its subprocess up', () => {
+    const sel = { stream_1_0: true, stream_1_1: false, stream_1_2: true, stream_0_2: true, stream_1_0_3: true };
+    expect(removeStreamFromSelection(sel, 1, 1)).toEqual({
+      stream_1_0: true,
+      stream_1_1: true,
+      stream_0_2: true,
+      stream_1_0_3: true,
+    });
   });
 });

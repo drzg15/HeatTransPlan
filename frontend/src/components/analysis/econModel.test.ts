@@ -5,19 +5,16 @@
 
 import { describe, it, expect, beforeEach } from 'vitest';
 import i18n from '../../i18n';
-import type { HPIOptimizationResult, OptimizedIntegrationPoint } from '../../types/analysis';
-import fixture from '../../test/fixtures/optimization.json';
-import { buildEconomics, econCore, econReportData, pickPump } from './econModel';
+import type { EconNumbers } from '../../types/economics';
+import numbers from '../../test/fixtures/economics_numbers.json';
+import { buildEconomics, econReportData } from './econModel';
 import { DEFAULTS, type RefType } from './econConfig';
 import { dump } from '../../test/dump';
 
-const opt = fixture.optimization as unknown as HPIOptimizationResult;
-const real = opt.feasible_points.filter((p) => !p.theoretical);
-const picks: Record<string, OptimizedIntegrationPoint[]> = {
-  none: [],
-  one: [real[5]],
-  several: [real[2], real[9], opt.feasible_points.find((p) => p.theoretical)!],
-};
+// What the backend returns for each case (tests/test_economics.py proves
+// those numbers equal the ones the page used to compute itself).
+const N = numbers as unknown as Record<string, EconNumbers | null>;
+const picks = ['none', 'one', 'several'];
 const REFS: RefType[] = ['gas', 'oil', 'eboiler'];
 
 beforeEach(async () => {
@@ -26,33 +23,29 @@ beforeEach(async () => {
 
 describe('economic model', () => {
   for (const ref of REFS) {
-    for (const [name, sel] of Object.entries(picks)) {
+    for (const name of picks) {
       it(`buildEconomics ${ref} ${name}`, () => {
-        expect(dump(buildEconomics(i18n.t, DEFAULTS, ref, sel, opt))).toMatchSnapshot();
+        expect(dump(buildEconomics(i18n.t, DEFAULTS, ref, N[`${ref}_${name}`]))).toMatchSnapshot();
       });
     }
   }
 
   it('dark theme and a fixed sensitivity window', () => {
-    expect(
-      dump(buildEconomics(i18n.t, DEFAULTS, 'gas', picks.one, opt, true, { fuel: 6, el: 20 }))
-    ).toMatchSnapshot();
+    expect(dump(buildEconomics(i18n.t, DEFAULTS, 'gas', N.dark_sens, true))).toMatchSnapshot();
   });
 
   it('changed inputs', () => {
     const form = { ...DEFAULTS, specCost: 1500, funding: 40, co2ElPriced: 1, T: 15 };
-    expect(dump(buildEconomics(i18n.t, form, 'oil', picks.several, opt))).toMatchSnapshot();
+    expect(dump(buildEconomics(i18n.t, form, 'oil', N.changed))).toMatchSnapshot();
   });
 
   it('German report data', async () => {
     await i18n.changeLanguage('de');
-    expect(dump(econReportData(i18n.t, DEFAULTS, 'gas', picks.several, opt))).toMatchSnapshot();
+    expect(dump(econReportData(i18n.t, DEFAULTS, 'gas', N.gas_several))).toMatchSnapshot();
   });
 
   it('report data, core and pump choice', () => {
-    expect(dump(econReportData(i18n.t, DEFAULTS, 'eboiler', picks.one, opt))).toMatchSnapshot();
-    expect(dump(econCore(DEFAULTS, 'gas', [], opt))).toMatchSnapshot();
-    expect(dump(Object.values(picks).map((s) => pickPump(s, opt)))).toMatchSnapshot();
-    expect(buildEconomics(i18n.t, DEFAULTS, 'gas', [], null)).toBeNull();
+    expect(dump(econReportData(i18n.t, DEFAULTS, 'eboiler', N.eboiler_one))).toMatchSnapshot();
+    expect(buildEconomics(i18n.t, DEFAULTS, 'gas', N.none)).toBeNull();
   });
 });

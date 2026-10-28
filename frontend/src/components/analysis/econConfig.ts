@@ -1,7 +1,6 @@
 /** Inputs of the economic analysis: defaults, presets, the input form's
  *  fields, and which results go where. */
 
-import type { EconInputs } from '../../utils/economics';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 
 // Display units: prices in ct/kWh, rates and shares in %.
@@ -125,40 +124,6 @@ export const FIELDS: Array<[keyof Form, string, Group, Range]> = [
   ['boilerInvest', '€/kW', 'replace', { step: 10, min: 0, max: 500, open: true }],
   ['fMaintRef', '%/a', 'replace', { step: 0.5, min: 0, max: 10, open: true }],
 ];
-
-export const toInputs = (f: Form, refType: RefType): EconInputs => ({
-  hours: f.hours,
-  eta: f.eta / 100,
-  hsHi: f.hsHi || 1,
-  pFuel: f.pFuel / 100,
-  rFuel: f.rFuel / 100,
-  co2Fuel: f.co2Fuel,
-  // The electric boiler's CO₂ cost follows the electricity setting.
-  co2Priced: refType !== 'eboiler' || Boolean(f.co2ElPriced),
-  co2Price: f.co2Price,
-  rCo2: f.rCo2 / 100,
-  pEl: f.pEl / 100,
-  rEl: f.rEl / 100,
-  co2El: f.co2El,
-  co2ElPriced: Boolean(f.co2ElPriced),
-  i: f.i / 100,
-  T: Math.max(1, Math.round(f.T)),
-  fMaint: f.fMaint / 100,
-  opHours: f.opHours,
-  wage: f.wage,
-  funding: f.funding / 100,
-  pDemand: f.pDemand,
-  coolShare: f.coolShare / 100,
-  eer: f.eer,
-  reinvestShare: f.reinvestShare / 100,
-  reinvestYear: Math.round(f.reinvestYear),
-  life: Math.round(f.life),
-  rInv: f.rInv / 100,
-  boilerInvest: f.boilerInvest,
-  fMaintRef: f.fMaintRef / 100,
-  opFunding: f.opFunding / 1000,
-  opFundingYears: Math.round(f.opFundingYears),
-});
 
 export const pointKey = (p: OptimizedIntegrationPoint) =>
   `${p.refrigerant}|${p.T_source}|${p.T_sink}`;

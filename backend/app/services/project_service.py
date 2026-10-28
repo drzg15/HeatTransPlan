@@ -22,6 +22,7 @@ from pathlib import Path
 from typing import Dict, Optional
 
 from app.models.project import ProjectState
+from app.services import live
 
 
 STATE_DIR = Path(
@@ -82,8 +83,9 @@ def get_project(project_id: str) -> Optional[ProjectState]:
         return None
 
 
-def update_project(project_id: str, state: ProjectState) -> Optional[ProjectState]:
-    """Replace the full project state."""
+def update_project(project_id: str, state: ProjectState, origin: Optional[str] = None) -> Optional[ProjectState]:
+    """Replace the full project state. Pages showing the project live are told,
+    except `origin`, the live session the change came from."""
     try:
         if not _path_for(project_id).exists():
             return None
@@ -91,6 +93,7 @@ def update_project(project_id: str, state: ProjectState) -> Optional[ProjectStat
         return None
     state.timestamp = datetime.now().isoformat()
     _write(project_id, state)
+    live.notify_project(project_id, state, origin)
     return state
 
 

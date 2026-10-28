@@ -1553,41 +1553,41 @@ exports[`economic model > German report data 1`] = `
 exports[`economic model > buildEconomics eboiler none 1`] = `
 "{
  "pump": {
-  "COP": 4.764374999999999,
-  "Q_demand": 375,
-  "Q_demand_total": 375,
-  "Q_source": 296.29083038173945,
-  "T_ruecklauf_senke": null,
-  "T_sink": 113,
   "T_source": 58.18545848091303,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
-  "demand_limited": false,
-  "hp_level": "—",
-  "medium_sink": "—",
+  "T_sink": 113,
+  "Q_source": 296.29083038173945,
+  "Q_demand": 375,
+  "COP": 4.764374999999999,
   "refrigerant": "Carnot",
+  "medium_sink": "—",
   "refrigerant_type": "Theoretical",
+  "hp_level": "—",
+  "Q_demand_total": 375,
   "source_limited": false,
-  "theoretical": true
+  "demand_limited": false,
+  "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
+  "theoretical": true,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 4.764374999999999,
-   "Q_demand": 375,
-   "Q_demand_total": 375,
-   "Q_source": 296.29083038173945,
-   "T_ruecklauf_senke": null,
-   "T_sink": 113,
    "T_source": 58.18545848091303,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
-   "demand_limited": false,
-   "hp_level": "—",
-   "medium_sink": "—",
+   "T_sink": 113,
+   "Q_source": 296.29083038173945,
+   "Q_demand": 375,
+   "COP": 4.764374999999999,
    "refrigerant": "Carnot",
+   "medium_sink": "—",
    "refrigerant_type": "Theoretical",
+   "hp_level": "—",
+   "Q_demand_total": 375,
    "source_limited": false,
-   "theoretical": true
+   "demand_limited": false,
+   "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
+   "theoretical": true,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -1622,7 +1622,6 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -1949,7 +1948,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
  ],
  "sensExplain": "At a Electricity (boiler) price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 16,94 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 156.681 €. The rest stays on the Electric boiler.",
- "sizes": "[62 items 74fa5679]",
+ "sizes": "[62 items 2ac1319]",
  "figures": {
   "bar": {
    "data": [
@@ -3002,41 +3001,41 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
 exports[`economic model > buildEconomics eboiler one 1`] = `
 "{
  "pump": {
-  "COP": 5.669453874688936,
-  "Q_demand": 202.5,
-  "Q_demand_total": 202.5,
-  "Q_source": 166.78165274984227,
-  "T_ruecklauf_senke": null,
-  "T_sink": 101.5,
   "T_source": 64.66091736250789,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
-  "demand_limited": false,
-  "hp_level": "1",
-  "medium_sink": "Water",
+  "T_sink": 101.5,
+  "Q_source": 166.78165274984227,
+  "Q_demand": 202.5,
+  "COP": 5.669453874688936,
   "refrigerant": "Butane_1",
+  "medium_sink": "Water",
   "refrigerant_type": "Natural",
+  "hp_level": "1",
+  "Q_demand_total": 202.5,
   "source_limited": false,
-  "theoretical": false
+  "demand_limited": false,
+  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
+  "theoretical": false,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 5.669453874688936,
-   "Q_demand": 202.5,
-   "Q_demand_total": 202.5,
-   "Q_source": 166.78165274984227,
-   "T_ruecklauf_senke": null,
-   "T_sink": 101.5,
    "T_source": 64.66091736250789,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
-   "demand_limited": false,
-   "hp_level": "1",
-   "medium_sink": "Water",
+   "T_sink": 101.5,
+   "Q_source": 166.78165274984227,
+   "Q_demand": 202.5,
+   "COP": 5.669453874688936,
    "refrigerant": "Butane_1",
+   "medium_sink": "Water",
    "refrigerant_type": "Natural",
+   "hp_level": "1",
+   "Q_demand_total": 202.5,
    "source_limited": false,
-   "theoretical": false
+   "demand_limited": false,
+   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
+   "theoretical": false,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -3071,7 +3070,6 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -3398,7 +3396,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
  ],
  "sensExplain": "At a Electricity (boiler) price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 20,08 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 156.681 €. The rest stays on the Electric boiler.",
- "sizes": "[62 items 74fa5679]",
+ "sizes": "[62 items 2ac1319]",
  "figures": {
   "bar": {
    "data": [
@@ -4451,41 +4449,41 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
 exports[`economic model > buildEconomics eboiler several 1`] = `
 "{
  "pump": {
-  "COP": 7.476014713170662,
-  "Q_demand": 105,
-  "Q_demand_total": 105,
-  "Q_source": 90.95508017361743,
-  "T_ruecklauf_senke": null,
-  "T_sink": 83.5,
   "T_source": 68.45224599131913,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
-  "demand_limited": false,
-  "hp_level": "2",
-  "medium_sink": "Water",
+  "T_sink": 83.5,
+  "Q_source": 90.95508017361743,
+  "Q_demand": 105,
+  "COP": 7.476014713170662,
   "refrigerant": "Butane_2",
+  "medium_sink": "Water",
   "refrigerant_type": "Natural",
+  "hp_level": "2",
+  "Q_demand_total": 105,
   "source_limited": false,
-  "theoretical": false
+  "demand_limited": false,
+  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
+  "theoretical": false,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 7.476014713170662,
-   "Q_demand": 105,
-   "Q_demand_total": 105,
-   "Q_source": 90.95508017361743,
-   "T_ruecklauf_senke": null,
-   "T_sink": 83.5,
    "T_source": 68.45224599131913,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
-   "demand_limited": false,
-   "hp_level": "2",
-   "medium_sink": "Water",
+   "T_sink": 83.5,
+   "Q_source": 90.95508017361743,
+   "Q_demand": 105,
+   "COP": 7.476014713170662,
    "refrigerant": "Butane_2",
+   "medium_sink": "Water",
    "refrigerant_type": "Natural",
+   "hp_level": "2",
+   "Q_demand_total": 105,
    "source_limited": false,
-   "theoretical": false
+   "demand_limited": false,
+   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
+   "theoretical": false,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -4520,7 +4518,6 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -4847,7 +4844,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
  ],
  "sensExplain": "At a Electricity (boiler) price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 26,24 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 156.681 €. The rest stays on the Electric boiler.",
- "sizes": "[62 items 74fa5679]",
+ "sizes": "[62 items 2ac1319]",
  "figures": {
   "bar": {
    "data": [
@@ -5900,41 +5897,41 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
 exports[`economic model > buildEconomics gas none 1`] = `
 "{
  "pump": {
-  "COP": 4.764374999999999,
-  "Q_demand": 375,
-  "Q_demand_total": 375,
-  "Q_source": 296.29083038173945,
-  "T_ruecklauf_senke": null,
-  "T_sink": 113,
   "T_source": 58.18545848091303,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
-  "demand_limited": false,
-  "hp_level": "—",
-  "medium_sink": "—",
+  "T_sink": 113,
+  "Q_source": 296.29083038173945,
+  "Q_demand": 375,
+  "COP": 4.764374999999999,
   "refrigerant": "Carnot",
+  "medium_sink": "—",
   "refrigerant_type": "Theoretical",
+  "hp_level": "—",
+  "Q_demand_total": 375,
   "source_limited": false,
-  "theoretical": true
+  "demand_limited": false,
+  "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
+  "theoretical": true,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 4.764374999999999,
-   "Q_demand": 375,
-   "Q_demand_total": 375,
-   "Q_source": 296.29083038173945,
-   "T_ruecklauf_senke": null,
-   "T_sink": 113,
    "T_source": 58.18545848091303,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
-   "demand_limited": false,
-   "hp_level": "—",
-   "medium_sink": "—",
+   "T_sink": 113,
+   "Q_source": 296.29083038173945,
+   "Q_demand": 375,
+   "COP": 4.764374999999999,
    "refrigerant": "Carnot",
+   "medium_sink": "—",
    "refrigerant_type": "Theoretical",
+   "hp_level": "—",
+   "Q_demand_total": 375,
    "source_limited": false,
-   "theoretical": true
+   "demand_limited": false,
+   "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
+   "theoretical": true,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -5969,7 +5966,6 @@ exports[`economic model > buildEconomics gas none 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -6296,7 +6292,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 21,32 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 306.747 €. The rest stays on the Gas boiler.",
- "sizes": "[62 items af3d9cb1]",
+ "sizes": "[62 items 75b0d9d1]",
  "figures": {
   "bar": {
    "data": [
@@ -7349,41 +7345,41 @@ exports[`economic model > buildEconomics gas none 1`] = `
 exports[`economic model > buildEconomics gas one 1`] = `
 "{
  "pump": {
-  "COP": 5.669453874688936,
-  "Q_demand": 202.5,
-  "Q_demand_total": 202.5,
-  "Q_source": 166.78165274984227,
-  "T_ruecklauf_senke": null,
-  "T_sink": 101.5,
   "T_source": 64.66091736250789,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
-  "demand_limited": false,
-  "hp_level": "1",
-  "medium_sink": "Water",
+  "T_sink": 101.5,
+  "Q_source": 166.78165274984227,
+  "Q_demand": 202.5,
+  "COP": 5.669453874688936,
   "refrigerant": "Butane_1",
+  "medium_sink": "Water",
   "refrigerant_type": "Natural",
+  "hp_level": "1",
+  "Q_demand_total": 202.5,
   "source_limited": false,
-  "theoretical": false
+  "demand_limited": false,
+  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
+  "theoretical": false,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 5.669453874688936,
-   "Q_demand": 202.5,
-   "Q_demand_total": 202.5,
-   "Q_source": 166.78165274984227,
-   "T_ruecklauf_senke": null,
-   "T_sink": 101.5,
    "T_source": 64.66091736250789,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
-   "demand_limited": false,
-   "hp_level": "1",
-   "medium_sink": "Water",
+   "T_sink": 101.5,
+   "Q_source": 166.78165274984227,
+   "Q_demand": 202.5,
+   "COP": 5.669453874688936,
    "refrigerant": "Butane_1",
+   "medium_sink": "Water",
    "refrigerant_type": "Natural",
+   "hp_level": "1",
+   "Q_demand_total": 202.5,
    "source_limited": false,
-   "theoretical": false
+   "demand_limited": false,
+   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
+   "theoretical": false,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -7418,7 +7414,6 @@ exports[`economic model > buildEconomics gas one 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -7745,7 +7740,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 25,29 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 306.747 €. The rest stays on the Gas boiler.",
- "sizes": "[62 items af3d9cb1]",
+ "sizes": "[62 items 75b0d9d1]",
  "figures": {
   "bar": {
    "data": [
@@ -8798,41 +8793,41 @@ exports[`economic model > buildEconomics gas one 1`] = `
 exports[`economic model > buildEconomics gas several 1`] = `
 "{
  "pump": {
-  "COP": 7.476014713170662,
-  "Q_demand": 105,
-  "Q_demand_total": 105,
-  "Q_source": 90.95508017361743,
-  "T_ruecklauf_senke": null,
-  "T_sink": 83.5,
   "T_source": 68.45224599131913,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
-  "demand_limited": false,
-  "hp_level": "2",
-  "medium_sink": "Water",
+  "T_sink": 83.5,
+  "Q_source": 90.95508017361743,
+  "Q_demand": 105,
+  "COP": 7.476014713170662,
   "refrigerant": "Butane_2",
+  "medium_sink": "Water",
   "refrigerant_type": "Natural",
+  "hp_level": "2",
+  "Q_demand_total": 105,
   "source_limited": false,
-  "theoretical": false
+  "demand_limited": false,
+  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
+  "theoretical": false,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 7.476014713170662,
-   "Q_demand": 105,
-   "Q_demand_total": 105,
-   "Q_source": 90.95508017361743,
-   "T_ruecklauf_senke": null,
-   "T_sink": 83.5,
    "T_source": 68.45224599131913,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
-   "demand_limited": false,
-   "hp_level": "2",
-   "medium_sink": "Water",
+   "T_sink": 83.5,
+   "Q_source": 90.95508017361743,
+   "Q_demand": 105,
+   "COP": 7.476014713170662,
    "refrigerant": "Butane_2",
+   "medium_sink": "Water",
    "refrigerant_type": "Natural",
+   "hp_level": "2",
+   "Q_demand_total": 105,
    "source_limited": false,
-   "theoretical": false
+   "demand_limited": false,
+   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
+   "theoretical": false,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -8867,7 +8862,6 @@ exports[`economic model > buildEconomics gas several 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -9194,7 +9188,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 33,12 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 306.747 €. The rest stays on the Gas boiler.",
- "sizes": "[62 items af3d9cb1]",
+ "sizes": "[62 items 75b0d9d1]",
  "figures": {
   "bar": {
    "data": [
@@ -10247,41 +10241,41 @@ exports[`economic model > buildEconomics gas several 1`] = `
 exports[`economic model > buildEconomics oil none 1`] = `
 "{
  "pump": {
-  "COP": 4.764374999999999,
-  "Q_demand": 375,
-  "Q_demand_total": 375,
-  "Q_source": 296.29083038173945,
-  "T_ruecklauf_senke": null,
-  "T_sink": 113,
   "T_source": 58.18545848091303,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
-  "demand_limited": false,
-  "hp_level": "—",
-  "medium_sink": "—",
+  "T_sink": 113,
+  "Q_source": 296.29083038173945,
+  "Q_demand": 375,
+  "COP": 4.764374999999999,
   "refrigerant": "Carnot",
+  "medium_sink": "—",
   "refrigerant_type": "Theoretical",
+  "hp_level": "—",
+  "Q_demand_total": 375,
   "source_limited": false,
-  "theoretical": true
+  "demand_limited": false,
+  "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
+  "theoretical": true,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 4.764374999999999,
-   "Q_demand": 375,
-   "Q_demand_total": 375,
-   "Q_source": 296.29083038173945,
-   "T_ruecklauf_senke": null,
-   "T_sink": 113,
    "T_source": 58.18545848091303,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
-   "demand_limited": false,
-   "hp_level": "—",
-   "medium_sink": "—",
+   "T_sink": 113,
+   "Q_source": 296.29083038173945,
+   "Q_demand": 375,
+   "COP": 4.764374999999999,
    "refrigerant": "Carnot",
+   "medium_sink": "—",
    "refrigerant_type": "Theoretical",
+   "hp_level": "—",
+   "Q_demand_total": 375,
    "source_limited": false,
-   "theoretical": true
+   "demand_limited": false,
+   "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
+   "theoretical": true,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -10316,7 +10310,6 @@ exports[`economic model > buildEconomics oil none 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -10643,7 +10636,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 21,32 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 306.747 €. The rest stays on the Oil boiler.",
- "sizes": "[62 items af3d9cb1]",
+ "sizes": "[62 items 75b0d9d1]",
  "figures": {
   "bar": {
    "data": [
@@ -11696,41 +11689,41 @@ exports[`economic model > buildEconomics oil none 1`] = `
 exports[`economic model > buildEconomics oil one 1`] = `
 "{
  "pump": {
-  "COP": 5.669453874688936,
-  "Q_demand": 202.5,
-  "Q_demand_total": 202.5,
-  "Q_source": 166.78165274984227,
-  "T_ruecklauf_senke": null,
-  "T_sink": 101.5,
   "T_source": 64.66091736250789,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
-  "demand_limited": false,
-  "hp_level": "1",
-  "medium_sink": "Water",
+  "T_sink": 101.5,
+  "Q_source": 166.78165274984227,
+  "Q_demand": 202.5,
+  "COP": 5.669453874688936,
   "refrigerant": "Butane_1",
+  "medium_sink": "Water",
   "refrigerant_type": "Natural",
+  "hp_level": "1",
+  "Q_demand_total": 202.5,
   "source_limited": false,
-  "theoretical": false
+  "demand_limited": false,
+  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
+  "theoretical": false,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 5.669453874688936,
-   "Q_demand": 202.5,
-   "Q_demand_total": 202.5,
-   "Q_source": 166.78165274984227,
-   "T_ruecklauf_senke": null,
-   "T_sink": 101.5,
    "T_source": 64.66091736250789,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
-   "demand_limited": false,
-   "hp_level": "1",
-   "medium_sink": "Water",
+   "T_sink": 101.5,
+   "Q_source": 166.78165274984227,
+   "Q_demand": 202.5,
+   "COP": 5.669453874688936,
    "refrigerant": "Butane_1",
+   "medium_sink": "Water",
    "refrigerant_type": "Natural",
+   "hp_level": "1",
+   "Q_demand_total": 202.5,
    "source_limited": false,
-   "theoretical": false
+   "demand_limited": false,
+   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
+   "theoretical": false,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -11765,7 +11758,6 @@ exports[`economic model > buildEconomics oil one 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -12092,7 +12084,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 25,29 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 306.747 €. The rest stays on the Oil boiler.",
- "sizes": "[62 items af3d9cb1]",
+ "sizes": "[62 items 75b0d9d1]",
  "figures": {
   "bar": {
    "data": [
@@ -13145,41 +13137,41 @@ exports[`economic model > buildEconomics oil one 1`] = `
 exports[`economic model > buildEconomics oil several 1`] = `
 "{
  "pump": {
-  "COP": 7.476014713170662,
-  "Q_demand": 105,
-  "Q_demand_total": 105,
-  "Q_source": 90.95508017361743,
-  "T_ruecklauf_senke": null,
-  "T_sink": 83.5,
   "T_source": 68.45224599131913,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
-  "demand_limited": false,
-  "hp_level": "2",
-  "medium_sink": "Water",
+  "T_sink": 83.5,
+  "Q_source": 90.95508017361743,
+  "Q_demand": 105,
+  "COP": 7.476014713170662,
   "refrigerant": "Butane_2",
+  "medium_sink": "Water",
   "refrigerant_type": "Natural",
+  "hp_level": "2",
+  "Q_demand_total": 105,
   "source_limited": false,
-  "theoretical": false
+  "demand_limited": false,
+  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
+  "theoretical": false,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 7.476014713170662,
-   "Q_demand": 105,
-   "Q_demand_total": 105,
-   "Q_source": 90.95508017361743,
-   "T_ruecklauf_senke": null,
-   "T_sink": 83.5,
    "T_source": 68.45224599131913,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
-   "demand_limited": false,
-   "hp_level": "2",
-   "medium_sink": "Water",
+   "T_sink": 83.5,
+   "Q_source": 90.95508017361743,
+   "Q_demand": 105,
+   "COP": 7.476014713170662,
    "refrigerant": "Butane_2",
+   "medium_sink": "Water",
    "refrigerant_type": "Natural",
+   "hp_level": "2",
+   "Q_demand_total": 105,
    "source_limited": false,
-   "theoretical": false
+   "demand_limited": false,
+   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
+   "theoretical": false,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -13214,7 +13206,6 @@ exports[`economic model > buildEconomics oil several 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -13541,7 +13532,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 33,12 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 306.747 €. The rest stays on the Oil boiler.",
- "sizes": "[62 items af3d9cb1]",
+ "sizes": "[62 items 75b0d9d1]",
  "figures": {
   "bar": {
    "data": [
@@ -14594,41 +14585,41 @@ exports[`economic model > buildEconomics oil several 1`] = `
 exports[`economic model > changed inputs 1`] = `
 "{
  "pump": {
-  "COP": 7.476014713170662,
-  "Q_demand": 105,
-  "Q_demand_total": 105,
-  "Q_source": 90.95508017361743,
-  "T_ruecklauf_senke": null,
-  "T_sink": 83.5,
   "T_source": 68.45224599131913,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
-  "demand_limited": false,
-  "hp_level": "2",
-  "medium_sink": "Water",
+  "T_sink": 83.5,
+  "Q_source": 90.95508017361743,
+  "Q_demand": 105,
+  "COP": 7.476014713170662,
   "refrigerant": "Butane_2",
+  "medium_sink": "Water",
   "refrigerant_type": "Natural",
+  "hp_level": "2",
+  "Q_demand_total": 105,
   "source_limited": false,
-  "theoretical": false
+  "demand_limited": false,
+  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
+  "theoretical": false,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 7.476014713170662,
-   "Q_demand": 105,
-   "Q_demand_total": 105,
-   "Q_source": 90.95508017361743,
-   "T_ruecklauf_senke": null,
-   "T_sink": 83.5,
    "T_source": 68.45224599131913,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
-   "demand_limited": false,
-   "hp_level": "2",
-   "medium_sink": "Water",
+   "T_sink": 83.5,
+   "Q_source": 90.95508017361743,
+   "Q_demand": 105,
+   "COP": 7.476014713170662,
    "refrigerant": "Butane_2",
+   "medium_sink": "Water",
    "refrigerant_type": "Natural",
+   "hp_level": "2",
+   "Q_demand_total": 105,
    "source_limited": false,
-   "theoretical": false
+   "demand_limited": false,
+   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
+   "theoretical": false,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -14663,7 +14654,6 @@ exports[`economic model > changed inputs 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -14985,7 +14975,7 @@ exports[`economic model > changed inputs 1`] = `
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 30,73 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 209.124 €. The rest stays on the Oil boiler.",
- "sizes": "[62 items 2d59a15b]",
+ "sizes": "[62 items 306c8bfb]",
  "figures": {
   "bar": {
    "data": [
@@ -16003,41 +15993,41 @@ exports[`economic model > changed inputs 1`] = `
 exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
 "{
  "pump": {
-  "COP": 5.669453874688936,
-  "Q_demand": 202.5,
-  "Q_demand_total": 202.5,
-  "Q_source": 166.78165274984227,
-  "T_ruecklauf_senke": null,
-  "T_sink": 101.5,
   "T_source": 64.66091736250789,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
-  "demand_limited": false,
-  "hp_level": "1",
-  "medium_sink": "Water",
+  "T_sink": 101.5,
+  "Q_source": 166.78165274984227,
+  "Q_demand": 202.5,
+  "COP": 5.669453874688936,
   "refrigerant": "Butane_1",
+  "medium_sink": "Water",
   "refrigerant_type": "Natural",
+  "hp_level": "1",
+  "Q_demand_total": 202.5,
   "source_limited": false,
-  "theoretical": false
+  "demand_limited": false,
+  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
+  "theoretical": false,
+  "T_vorlauf_quelle": null,
+  "T_ruecklauf_senke": null
  },
  "points": [
   {
-   "COP": 5.669453874688936,
-   "Q_demand": 202.5,
-   "Q_demand_total": 202.5,
-   "Q_source": 166.78165274984227,
-   "T_ruecklauf_senke": null,
-   "T_sink": 101.5,
    "T_source": 64.66091736250789,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
-   "demand_limited": false,
-   "hp_level": "1",
-   "medium_sink": "Water",
+   "T_sink": 101.5,
+   "Q_source": 166.78165274984227,
+   "Q_demand": 202.5,
+   "COP": 5.669453874688936,
    "refrigerant": "Butane_1",
+   "medium_sink": "Water",
    "refrigerant_type": "Natural",
+   "hp_level": "1",
+   "Q_demand_total": 202.5,
    "source_limited": false,
-   "theoretical": false
+   "demand_limited": false,
+   "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
+   "theoretical": false,
+   "T_vorlauf_quelle": null,
+   "T_ruecklauf_senke": null
   }
  ],
  "inp": {
@@ -16072,7 +16062,6 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
   "opFunding": 0,
   "opFundingYears": 10
  },
- "realFeasible": "[232 items bfcf2864]",
  "refSys": {
   "Q": 375,
   "Qsrc": 296.29083038173945
@@ -16399,7 +16388,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 25,29 ct/kWh. That is the dashed line.",
  "sizeExplain": "Of the 375 kW demand, the best economic size is 293 kW (78 %): Butane_2 108 °C at a COP of 5,02, net present value 306.747 €. The rest stays on the Gas boiler.",
- "sizes": "[62 items af3d9cb1]",
+ "sizes": "[62 items 75b0d9d1]",
  "figures": {
   "bar": {
    "data": [
@@ -18917,206 +18906,4 @@ exports[`economic model > report data, core and pump choice 1`] = `
   "co2_saving": 177.45325870504797
  }
 }"
-`;
-
-exports[`economic model > report data, core and pump choice 2`] = `
-"{
- "pump": {
-  "COP": 4.764374999999999,
-  "Q_demand": 375,
-  "Q_demand_total": 375,
-  "Q_source": 296.29083038173945,
-  "T_ruecklauf_senke": null,
-  "T_sink": 113,
-  "T_source": 58.18545848091303,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
-  "demand_limited": false,
-  "hp_level": "—",
-  "medium_sink": "—",
-  "refrigerant": "Carnot",
-  "refrigerant_type": "Theoretical",
-  "source_limited": false,
-  "theoretical": true
- },
- "points": [
-  {
-   "COP": 4.764374999999999,
-   "Q_demand": 375,
-   "Q_demand_total": 375,
-   "Q_source": 296.29083038173945,
-   "T_ruecklauf_senke": null,
-   "T_sink": 113,
-   "T_source": 58.18545848091303,
-   "T_vorlauf_quelle": null,
-   "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
-   "demand_limited": false,
-   "hp_level": "—",
-   "medium_sink": "—",
-   "refrigerant": "Carnot",
-   "refrigerant_type": "Theoretical",
-   "source_limited": false,
-   "theoretical": true
-  }
- ],
- "inp": {
-  "hours": 6000,
-  "eta": 0.87,
-  "hsHi": 1.11,
-  "pFuel": 0.06,
-  "rFuel": 0.03,
-  "co2Fuel": 0.201,
-  "co2Priced": true,
-  "co2Price": 55,
-  "rCo2": 0,
-  "pEl": 0.13,
-  "rEl": 0.03,
-  "co2El": 0.352,
-  "co2ElPriced": false,
-  "i": 0.12,
-  "T": 20,
-  "fMaint": 0.025,
-  "opHours": 5,
-  "wage": 100,
-  "funding": 0,
-  "pDemand": 0,
-  "coolShare": 0,
-  "eer": 4,
-  "reinvestShare": 0,
-  "reinvestYear": 10,
-  "life": 20,
-  "rInv": 0,
-  "boilerInvest": 0,
-  "fMaintRef": 0.03,
-  "opFunding": 0,
-  "opFundingYears": 10
- },
- "realFeasible": "[232 items bfcf2864]",
- "refSys": {
-  "Q": 375,
-  "Qsrc": 296.29083038173945
- },
- "ref": {
-  "fuel": 2586206.896551724,
-  "elCool": 0,
-  "co2": 468.3131407269338,
-  "opex1": 185584.8089468779,
-  "cumCost": 4809771.549848747
- },
- "specTotal": 1562.5,
- "variants": [
-  {
-   "Q": 375,
-   "Qsrc": 296.29083038173945,
-   "cop": 4.764374999999999,
-   "capex": 585938
-  }
- ],
- "results": [
-  {
-   "fuel": 0,
-   "el": 472255.01770956325,
-   "elCool": 0,
-   "co2": 166.23376623376626,
-   "opex1": 78383.39687131053,
-   "energySaving": 2113951.878842161,
-   "saving1": 107201.41207556736,
-   "co2Saving": 302.0793744931675,
-   "npvCurve": [
-    -585938,
-    -490222.4535039577,
-    -402452.05231164675,
-    -321961.1632332708,
-    -248140.5540332428,
-    -180432.54914926918,
-    -118326.6081191563,
-    -61355.28916541602,
-    -9090.563788975007,
-    38859.54868991833,
-    82854.05490346876,
-    123221.79523659064,
-    160264.00906107167,
-    194256.67871048537,
-    225452.67159608126,
-    254083.69813131302,
-    280362.1015579227,
-    304482.49433490855,
-    326623.25444998115,
-    346947.8938292331,
-    365606.3099438236
-   ],
-   "residual": 0,
-   "npv": 365606.3099438236,
-   "payback": 9,
-   "paybackStatic": 5.465767555253529,
-   "irr": 0.20242887324449832,
-   "lcohHp": 0.07557585896188634,
-   "lcohRef": 0.09733004862858906,
-   "alpha": 1,
-   "cumCost": 2002115.7032228974
-  }
- ],
- "breakEven": [
-  0.21322938836710895
- ]
-}"
-`;
-
-exports[`economic model > report data, core and pump choice 3`] = `
-"[
- {
-  "COP": 4.764374999999999,
-  "Q_demand": 375,
-  "Q_demand_total": 375,
-  "Q_source": 296.29083038173945,
-  "T_ruecklauf_senke": null,
-  "T_sink": 113,
-  "T_source": 58.18545848091303,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "50 % of the Carnot ceiling, so a real machine can and often does score above this line.\\nCOP = 0.5 * T_sink(K) / (T_sink - T_source)\\n= 0.5 * (108.0 + 273.15) / (108.0 - 68.0)\\n= 0.5 * 9.529",
-  "demand_limited": false,
-  "hp_level": "—",
-  "medium_sink": "—",
-  "refrigerant": "Carnot",
-  "refrigerant_type": "Theoretical",
-  "source_limited": false,
-  "theoretical": true
- },
- {
-  "COP": 5.669453874688936,
-  "Q_demand": 202.5,
-  "Q_demand_total": 202.5,
-  "Q_source": 166.78165274984227,
-  "T_ruecklauf_senke": null,
-  "T_sink": 101.5,
-  "T_source": 64.66091736250789,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_1 (sink medium Water, 1 stage(s)) at T_source = 64.7 °C, T_sink = 101.5 °C.",
-  "demand_limited": false,
-  "hp_level": "1",
-  "medium_sink": "Water",
-  "refrigerant": "Butane_1",
-  "refrigerant_type": "Natural",
-  "source_limited": false,
-  "theoretical": false
- },
- {
-  "COP": 7.476014713170662,
-  "Q_demand": 105,
-  "Q_demand_total": 105,
-  "Q_source": 90.95508017361743,
-  "T_ruecklauf_senke": null,
-  "T_sink": 83.5,
-  "T_source": 68.45224599131913,
-  "T_vorlauf_quelle": null,
-  "calculation_details": "Regression over heat pump simulation data from a manufacturer parameter study, evaluated for Butane_2 (sink medium Water, 2 stage(s)) at T_source = 68.5 °C, T_sink = 83.5 °C.",
-  "demand_limited": false,
-  "hp_level": "2",
-  "medium_sink": "Water",
-  "refrigerant": "Butane_2",
-  "refrigerant_type": "Natural",
-  "source_limited": false,
-  "theoretical": false
- }
-]"
 `;
