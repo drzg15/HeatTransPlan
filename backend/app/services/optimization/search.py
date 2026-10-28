@@ -13,6 +13,8 @@ from app.models.analysis import (
     OptimizedIntegrationPoint,
 )
 from app.config_optimization import OPTIMIZATION_CONFIG
+from app.services import cop_training
+from app.services.cop_training import model as trained
 from app.modules.pinch.streams import write_streams_csv
 from app.services.optimization.alternatives import (
     _calculation_details,
@@ -34,6 +36,7 @@ from app.services.optimization.profiles import (
 def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOptimizationResult:
     # Accept a bare PinchResult as well, so older callers keep working.
     cop_formula = None
+    custom_model = None
     cop_model = "4t"
     recovery_pct = 100.0
     lang = "en"
@@ -41,6 +44,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         pinch = request.pinch_result
         profile_mode = request.profile_mode
         cop_formula = request.cop_formula
+        custom_model = request.custom_cop_model
         cop_model = request.cop_model
         recovery_pct = request.recovery_pct
         lang = request.lang
@@ -76,6 +80,13 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         # _load_model_and_data caches its list; copy before appending so the
         # custom entry does not leak into the next request.
         alternatives = list(alternatives) + [_formula_alternative(cop_formula)]
+
+    # A model trained on the user's data, unless the module is switched off.
+    if custom_model is not None and custom_model.enabled and cop_training.ENABLED:
+        alternatives = list(alternatives) + trained.alternatives(
+            custom_model, pinch, OPTIMIZATION_CONFIG["deltaT_evap"], OPTIMIZATION_CONFIG["deltaT_cond"],
+            trained.describe,
+        )
 
     # Reconstruct Pinch for HPI
     csv_path = write_streams_csv(pinch.T_min, ((sd["cp"], sd["ts"], sd["tt"]) for sd in pinch.streams_data))

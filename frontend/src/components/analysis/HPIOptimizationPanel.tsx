@@ -5,6 +5,8 @@ import HPIOptimizationChart from './HPIOptimizationChart';
 import HPIOptimizationFilters from './HPIOptimizationFilters';
 import HPIOptimizationTable from './HPIOptimizationTable';
 import CopFormulaModal from './CopFormulaModal';
+import CopModelTrainModal from './CopModelTrainModal';
+import { useFeatures } from '../../hooks/useFeatures';
 import {
   chartView,
   filterOptions,
@@ -35,6 +37,11 @@ export default function HPIOptimizationPanel() {
   const setCopModel = useAnalysisStore((s) => s.setCopModel);
   const setCopFormula = useAnalysisStore((s) => s.setCopFormula);
   const [formulaOpen, setFormulaOpen] = useState(false);
+  // Trained COP model (COP training module).
+  const customCopModel = useAnalysisStore((s) => s.customCopModel);
+  const setCustomCopModel = useAnalysisStore((s) => s.setCustomCopModel);
+  const [trainingOpen, setTrainingOpen] = useState(false);
+  const trainingAvailable = useFeatures().cop_training;
 
   // Filter states
   const [mediumSinkFilter, setMediumSinkFilter] = useState<string>('All');
@@ -149,6 +156,12 @@ export default function HPIOptimizationPanel() {
               onCopModel={setCopModel}
               copFormula={copFormula}
               onOpenFormula={() => setFormulaOpen(true)}
+              trainingAvailable={trainingAvailable}
+              customModel={customCopModel}
+              onOpenTraining={() => setTrainingOpen(true)}
+              onToggleCustomModel={(enabled) =>
+                customCopModel && setCustomCopModel({ ...customCopModel, enabled })
+              }
             />
 
             {/* Visual on the right */}
@@ -172,6 +185,17 @@ export default function HPIOptimizationPanel() {
           </div>
         </div>
       </div>
+
+      {trainingOpen && (
+        <CopModelTrainModal
+          initial={customCopModel}
+          onCancel={() => setTrainingOpen(false)}
+          onApply={(model) => {
+            setCustomCopModel(model);
+            setTrainingOpen(false);
+          }}
+        />
+      )}
 
       {formulaOpen && (
         <CopFormulaModal

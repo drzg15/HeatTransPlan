@@ -12,6 +12,7 @@ import type {
   ProfileMode,
   StatusQuoResult,
 } from '../types/analysis';
+import type { CustomCopModelSpec } from '../types/copTraining';
 import { newId } from '../utils/id';
 import {
   DEFAULTS as ECON_DEFAULTS,
@@ -49,6 +50,8 @@ interface AnalysisStore {
   /** User-supplied COP correlation, evaluated alongside the trained model.
    *  null means "model only", which is the default. */
   copFormula: CopFormulaSpec | null;
+  // A COP network trained on the user's data (COP training module).
+  customCopModel: CustomCopModelSpec | null;
   copModel: CopModel;
 
   // Results from backend
@@ -98,6 +101,7 @@ interface AnalysisStore {
   setProfileMode: (mode: ProfileMode) => void;
   setRecoveryPct: (pct: number) => void;
   setCopFormula: (formula: CopFormulaSpec | null) => void;
+  setCustomCopModel: (model: CustomCopModelSpec | null) => void;
   setCopModel: (model: CopModel) => void;
   setPinchResult: (result: PinchResult | null) => void;
   setHPIResult: (result: HPIResult | null) => void;
@@ -161,6 +165,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   profileMode: 'net_load',
   recoveryPct: 100,
   copFormula: null,
+  customCopModel: null,
   // The 4-temperature model is the standard: about four times as accurate.
   copModel: '4t',
   pinchResult: null,
@@ -255,6 +260,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   setRecoveryPct: (pct) =>
     set({ recoveryPct: pct, profileMode: pct === 0 ? 'composite' : 'net_load' }),
   setCopFormula: (formula) => set({ copFormula: formula }),
+  setCustomCopModel: (model) => set({ customCopModel: model }),
   setCopModel: (model) => set({ copModel: model }),
 
   setPinchResult: (result) => {

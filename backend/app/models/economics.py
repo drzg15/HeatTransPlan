@@ -7,6 +7,7 @@ from typing import Dict, List, Literal, Optional
 from pydantic import BaseModel, Field, field_validator
 
 from app.models.analysis import CopFormulaSpec, HPIOptimizationResult, OptimizedIntegrationPoint
+from app.models.cop_training import CustomCopModelSpec
 from app.models.project import ProjectState
 
 
@@ -21,6 +22,7 @@ class ProjectAnalysisRequest(BaseModel):
     recovery_pct: float = Field(100.0, ge=0, le=100)
     cop_model: Literal["2t", "4t"] = "4t"
     cop_formula: Optional[CopFormulaSpec] = None
+    custom_cop_model: Optional[CustomCopModelSpec] = None
     # Given: the economic analysis runs too, with these inputs.
     economics_form: Optional[Dict[str, float]] = None
     ref_type: Literal["gas", "oil", "eboiler"] = "gas"

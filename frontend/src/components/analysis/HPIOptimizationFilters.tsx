@@ -4,6 +4,8 @@
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { CopFormulaSpec, CopModel } from '../../types/analysis';
+import type { CustomCopModelSpec } from '../../types/copTraining';
+import { formatDe } from '../../utils/numberFormat';
 import ChartHelpButton from '../ui/ChartHelpButton';
 
 interface Props {
@@ -39,6 +41,11 @@ interface Props {
   onCopModel: (v: CopModel) => void;
   copFormula: CopFormulaSpec | null;
   onOpenFormula: () => void;
+  // COP training module; off when the server does not run it.
+  trainingAvailable: boolean;
+  customModel: CustomCopModelSpec | null;
+  onOpenTraining: () => void;
+  onToggleCustomModel: (enabled: boolean) => void;
 }
 
 /** A dropdown of checkboxes; nothing ticked means all. Closes on a click
@@ -432,16 +439,43 @@ export default function HPIOptimizationFilters(p: Props) {
             description={<CopFormulaHelp />}
           />
         </div>
-        <button className={`cf-trigger ${p.copFormula ? 'active' : ''}`} onClick={p.onOpenFormula}>
-          {p.copFormula
-            ? `ƒ ${p.copFormula.name}`
-            : `ƒ ${t('optimization.panel.filters.custom_cop_btn')}`}
-          <span className="cf-trigger-sub">
-            {p.copFormula
-              ? p.copFormula.expression
-              : t('optimization.panel.filters.custom_cop_desc')}
-          </span>
-        </button>
+        {/* Both ways to bring your own COP, side by side; the line under a
+            name appears once one is in use. */}
+        <div className="cf-trigger-row">
+          <button
+            className={`cf-trigger ${p.copFormula ? 'active' : ''}`}
+            onClick={p.onOpenFormula}
+            title={t('optimization.panel.filters.custom_cop_desc')}
+          >
+            ƒ {p.copFormula ? p.copFormula.name : t('optimization.panel.filters.custom_cop_btn')}
+            {p.copFormula && <span className="cf-trigger-sub">{p.copFormula.expression}</span>}
+          </button>
+          {p.trainingAvailable && (
+            <button
+              className={`cf-trigger ${p.customModel?.enabled ? 'active' : ''}`}
+              onClick={p.onOpenTraining}
+              title={t('optimization.train.desc')}
+            >
+              {p.customModel ? p.customModel.name : t('optimization.train.btn')}
+              {p.customModel && (
+                <span className="cf-trigger-sub">
+                  R² {formatDe(p.customModel.metrics.r2 ?? NaN, 3)} · MAE{' '}
+                  {formatDe(p.customModel.metrics.mae ?? NaN, 3)}
+                </span>
+              )}
+            </button>
+          )}
+        </div>
+        {p.trainingAvailable && p.customModel && (
+          <label className="cf-trigger-toggle">
+            <input
+              type="checkbox"
+              checked={p.customModel.enabled}
+              onChange={(e) => p.onToggleCustomModel(e.target.checked)}
+            />
+            {t('optimization.train.use')}
+          </label>
+        )}
       </div>
     </div>
   );

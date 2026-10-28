@@ -50,6 +50,46 @@ The 2-temperature model cannot see how far the source is cooled down or how much
 
 </details>
 
+### Training your own COP model (optional module)
+
+Next to **Use my own COP formula** the page offers **Train from my data**: upload measured or simulated operating points and fit a COP model to them — a neural network, a polynomial regression (degree 2 or 3) or a linear regression. The trained model joins the optimization as heat pumps of type *Custom model*, compared directly against the shipped model.
+
+**Data.** A CSV (comma or semicolon, decimal point or comma), Excel or Parquet file, one operating point per row. For Excel the sheet can be chosen; the first one with a COP column is preselected, so a parameter study with its inputs on the first sheet and its results on another opens on the results. The dialog shows the first rows and a guess of which column is which; every column is assigned there:
+
+| Column | |
+|---|---|
+| Source outlet (return), sink outlet (supply), COP | required |
+| Source inlet (supply) and sink inlet (return) | optional, both or neither: with both the model uses four temperatures, and the optimization fills them from the pinch as for the shipped 4-temperature model |
+| Sink medium, refrigerant, number of compressors | optional: each combination in the data becomes one heat pump in the optimization |
+
+The data the shipped models were trained on is in `data/cop_modelling/` (kept out of git): the manufacturer's parameter study as `V2_Parameter study_Heat map_LL*_results.xlsx`, and the prepared table `data_cop_modelling.parquet`, also saved as `cop_training_data.xlsx` for upload.
+
+Rows with gaps, text in a number column or a COP of 1 or less are left out. At most **10,000 rows** are used — a network with 2–4 temperature inputs stops improving long before that (the shipped model was trained on 3,468), and it keeps training to seconds; larger files are sampled at random. At least 30 usable rows are needed, 200 or more are better.
+
+**Training.** All three are fitted on 80 % of the rows; the remaining 20 % give the metrics shown ($R^2$, MAE, RMSE, mean error in %) and a predicted-vs-actual chart.
+
+- **Neural network** — set up exactly as the shipped models (scikit-learn `MLPRegressor`, hidden layers 128 and 64, standardised temperatures in the shipped order, one-hot categories, early stopping, same split): the same data trains the same network as `cop_analysis/train_cop_4t.py`. Most accurate, no formula.
+- **Polynomial regression** — least squares on the temperatures in °C and their products up to degree 2 or 3; each medium, refrigerant and compressor value adds a constant offset. The formula is shown.
+- **Linear regression** — the same with degree 1.
+
+On the shipped training data (3,468 rows, 4 temperatures, medium and refrigerant) the network reaches $R^2$ 0.98 and a regression about 0.76–0.81: the categories only shift a regression up or down, while the network learns how they change the whole curve.
+
+**Where it is offered.** The optimization offers the model's heat pumps only inside this range: outside the temperatures it was trained on a model has never seen how a heat pump behaves, so its COP there would be a guess. By default the range is that of its data, with the sink at most 180 °C — beyond that no heat pump is on the market. A range of one's own can be set instead; where it goes beyond the data the dialog warns that the model extrapolates there.
+
+**Use.** A checkbox switches it off and on without deleting it. It is stored as plain numbers (network weights or regression terms, scaling, categories) and evaluated directly, so the backend never loads code sent by the page; training checks that this export reproduces the trained network exactly.
+
+**Switching the module off.** `COP_TRAINING_ENABLED=0` on the server removes the endpoints, hides the button and makes the optimization ignore trained models. `GET /api/features` tells the page whether it runs.
+
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/cop_training/model.py</code> (<code>predict</code>)</summary>
+
+```{literalinclude} ../backend/app/services/cop_training/model.py
+:language: python
+:pyobject: predict
+```
+
+</details>
+
 ## Refrigerant Operating Limits
 
 For the complete list of operating temperature ranges and COP bounds for all refrigerant alternatives, see [Refrigerant Operating Limits](refrigerant_limits.md).

@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import CORS_ORIGINS
 from app.routers import projects, processes, streams, analysis, io_routes, assets, live
+from app.services import cop_training
 from app.dependencies import verify_api_key
 
 app = FastAPI(
@@ -33,6 +34,18 @@ app.include_router(analysis.router, prefix="/api/analysis", tags=["Analysis"], d
 app.include_router(io_routes.router, prefix="/api/io", tags=["Import/Export"], dependencies=api_dependencies)
 app.include_router(assets.router, prefix="/api/assets", tags=["Assets"], dependencies=api_dependencies)
 app.include_router(live.router, prefix="/api/live", tags=["Live"], dependencies=api_dependencies)
+# Optional modules: mounted only while switched on.
+if cop_training.ENABLED:
+    from app.routers import cop_training as cop_training_router
+
+    app.include_router(cop_training_router.router, prefix="/api/analysis/cop-model",
+                       tags=["COP training"], dependencies=api_dependencies)
+
+
+@app.get("/api/features")
+async def features():
+    """Which optional modules this server runs, so the page shows only those."""
+    return {"cop_training": cop_training.ENABLED}
 
 
 @app.get("/api/health")

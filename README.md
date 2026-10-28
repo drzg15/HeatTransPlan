@@ -100,6 +100,7 @@ The app will be served on port `80` (HTTP) and `443` (HTTPS) via Caddy.
 | `PORT` | `8000` | Bind port |
 | `API_KEYS` | *(empty — auth disabled)* | Comma-separated API keys for `X-API-Key` header auth |
 | `HEATTRANSPLAN_STATE_DIR` | `/app/state` | Directory for persisted project state |
+| `COP_TRAINING_ENABLED` | `1` | `0` switches the COP training module off: its endpoints, its button on the page, and trained models in the optimization |
 
 ### Frontend
 

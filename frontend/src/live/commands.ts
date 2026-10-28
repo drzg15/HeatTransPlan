@@ -17,6 +17,7 @@ import type {
   ProfileMode,
 } from '../types/analysis';
 import type { ProjectState } from '../types/project';
+import type { CustomCopModelSpec } from '../types/copTraining';
 import { buildView } from './view';
 
 export type Args = Record<string, unknown>;
@@ -215,6 +216,17 @@ const BUILT_IN: Record<string, Handler> = {
   set_cop_formula: (args) => {
     analysis().setCopFormula((args.formula as CopFormulaSpec | null) ?? null);
     return { formula: analysis().copFormula };
+  },
+  /** A COP model trained on the user's data (COP training module): the
+   *  model, or null to remove it; `enabled` switches it off and on. */
+  set_custom_cop_model: (args) => {
+    const s = analysis();
+    if (args.model !== undefined)
+      s.setCustomCopModel((args.model as CustomCopModelSpec | null) ?? null);
+    if (args.enabled !== undefined && s.customCopModel)
+      s.setCustomCopModel({ ...s.customCopModel, enabled: Boolean(args.enabled) });
+    const m = analysis().customCopModel;
+    return m ? { name: m.name, enabled: m.enabled, metrics: m.metrics } : null;
   },
   set_hp_types: (args) => {
     analysis().setSelectedHPTypes(args.types as string[]);
