@@ -30,7 +30,7 @@ RefType = Literal["gas", "oil", "eboiler"]
 # Display units: prices in ct/kWh, rates and shares in %.
 # Defaults follow VDI 4646 (2026) and VDI 2067 Blatt 1 (2012), except the
 # specific investment of the heat pump. Each value, its source page and why
-# it may differ: economic_calculation/economic_analysis_rationale.md.
+# it may differ: data/economic_calculation/economic_analysis_rationale.md.
 DEFAULTS: Dict[str, float] = {
     "year": date.today().year + 1,
     "hours": 6000,  # VDI 4646 Tabelle 8: three-shift operation

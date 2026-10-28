@@ -6,6 +6,7 @@
 **/.pytest_cache
 frontend/dist
 docs/_build
-economic_calculation
+data/economic_calculation
+data/examples_validation
 graphify-out
 scratch
