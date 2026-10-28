@@ -4,6 +4,7 @@ I18N = {
     "en": {
         "report_title": "Heat Integration Report",
         "generated": "Generated",
+        "ai_note": "Created by an AI assistant through HeatTransPlan's MCP server. Check the inputs and results before relying on them.",
         "data_collection": "Data Collection",
         "process_maps": "Process Level Maps",
         "collected_data": "Collected Data",
@@ -92,6 +93,7 @@ I18N = {
     "de": {
         "report_title": "Wärmeintegrationsbericht",
         "generated": "Erstellt",
+        "ai_note": "Von einem KI-Assistenten über den MCP-Server von HeatTransPlan erstellt. Eingaben und Ergebnisse vor der Verwendung prüfen.",
         "data_collection": "Datenerfassung",
         "process_maps": "Prozesskarten",
         "collected_data": "Erfasste Daten",

@@ -6,11 +6,13 @@ import client from '../api/client';
 
 export interface Features {
   cop_training: boolean;
+  /** AI access: Connect AI and its setup. */
+  ai: boolean;
   /** The server wants an API key. */
   api_key: boolean;
 }
 
-const OFF: Features = { cop_training: false, api_key: false };
+const OFF: Features = { cop_training: false, ai: false, api_key: false };
 let pending: Promise<Features> | null = null;
 
 export function useFeatures(): Features {

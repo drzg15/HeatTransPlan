@@ -224,11 +224,15 @@ def generate_html_report(req: ReportRequest) -> str:
             </div>
         </div>"""
 
+    ai_meta = '<meta name="generator" content="HeatTransPlan, AI assistant via MCP">' if req.created_by_ai else ""
+    ai_note = (f'<p class="ai-note" style="color:#7a4b00;background:#fff4e0;padding:8px 12px;'
+               f'border-radius:6px">🤖 {texts["ai_note"]}</p>') if req.created_by_ai else ""
+
     # Final HTML assembly
     html = f"""<!DOCTYPE html>
 <html lang="{lang}">
 <head>
-<meta charset="UTF-8"><title>{texts['report_title']}</title>
+<meta charset="UTF-8"><title>{texts['report_title']}</title>{ai_meta}
 <style>
     body {{ font-family: 'Segoe UI', sans-serif; background:#f5f5f5; margin:0; padding:20px; }}
     .report-container {{ background:#fff; padding:30px; border-radius:8px; max-width:2400px; margin:auto; box-shadow:0 2px 10px rgba(0,0,0,0.1); }}
@@ -274,7 +278,7 @@ def generate_html_report(req: ReportRequest) -> str:
 <body>
 <div class="report-container">
     <h1>{texts['report_title']}</h1>
-    <p style="color:#666">{texts['generated']}: {now_str}</p>
+    <p style="color:#666">{texts['generated']}: {now_str}</p>{ai_note}
     <ul class="nav-tabs">{nav_links_html}</ul>
     
     <div id="data-collection" class="page-content active">

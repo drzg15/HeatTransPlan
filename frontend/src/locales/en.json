@@ -984,11 +984,17 @@
     "close": "Close",
     "setup_title": "Set up an AI agent",
     "setup_intro": "Any AI agent that supports MCP (Model Context Protocol), such as Claude, can work with HeatTransPlan. Nothing to install:",
-    "setup_add": "Add HeatTransPlan to your agent as a remote MCP server (also called a connector) with this address:",
+    "setup_add": "Add HeatTransPlan to your agent as an MCP server with this address:",
     "setup_key": "This server needs an API key: give it to the agent as the header X-API-Key (or Authorization: Bearer <key>).",
     "setup_connect": "Click Connect AI and tell the agent the session code, e.g. \"Use HeatTransPlan session AB12CD\". It then sees and controls this page until you disconnect.",
     "setup_files": "Without connecting, the agent can still create projects, enter data, run the analysis and write the report; it gives you download links to open here. It cannot see or change this page.",
     "setup_guided": "Then ask the agent, for example: \"Guide me through a HeatTransPlan study.\" It goes page by page, asks for what it needs, and reads the Word, PowerPoint and Excel files you attach or numbers you paste.",
-    "setup_where": "In Claude: Settings → Connectors → Add custom connector. In other agents: add an MCP server by URL (HTTP)."
+    "setup_claude_connector": "Claude (web, desktop, mobile): Settings → Connectors → Add custom connector, and paste the address.",
+    "setup_local": "This app runs on this computer (http), so agents that connect over the internet, such as Claude's connectors, cannot reach it. Use an agent that runs on this computer.",
+    "setup_claude_code": "Claude Code: run in a terminal:",
+    "setup_other": "Other agents: add a remote MCP server of type HTTP (also called streamable HTTP) with the address above.",
+    "setup_self": "Or let the agent set itself up: paste this into it:",
+    "setup_self_text": "Add the MCP server \"heattransplan\" with the address {{url}} (transport: HTTP, also called streamable HTTP; no command to run, nothing to install) to your MCP settings. Then call its tool guide to check that it works.",
+    "setup_permissions": "Agents may ask before every tool they use. To allow all HeatTransPlan tools at once: in Claude Code, /permissions and allow mcp__heattransplan; in other agents, allow the heattransplan server in their tool settings."
   }
 }

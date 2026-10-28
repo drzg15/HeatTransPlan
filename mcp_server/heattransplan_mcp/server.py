@@ -905,7 +905,7 @@ async def generate_report(project_id: str, file_path: Optional[str] = None,
         "proc_group_coordinates": state.get("proc_group_coordinates", {}),
         "selected_streams": streams, "pinch_result": cache["pinch"], "heat_pumps": cache["hpi"]["heat_pumps"],
         "hpi_optimization_result": cache["optimization"], "energy_demands": [], "t_min": cache["t_min"],
-        "scenarios": [scenario],
+        "scenarios": [scenario], "created_by_ai": True,
     })
     return _deliver(file_path, "heattransplan_report.html", html.encode("utf-8"), "text/html")
 

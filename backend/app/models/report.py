@@ -81,3 +81,6 @@ class ReportRequest(BaseModel):
 
     # Scenarios for comparison
     scenarios: List[ScenarioReportData] = Field(default_factory=list)
+
+    # Made by an AI assistant (through the MCP server): the report says so.
+    created_by_ai: bool = False

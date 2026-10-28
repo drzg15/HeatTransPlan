@@ -75,3 +75,20 @@ def test_a_command_without_a_page_fails_fast(client):
     assert client.get(f"/api/projects/{created['project_id']}").json()["project_notes"] == "x"
     assert client.put(f"/api/live/sessions/{sid}/view", json={"page": "home"}).status_code == 200
     assert client.get(f"/api/live/sessions/{sid}").json()["view"] == {"page": "home"}
+
+
+def test_ai_switched_off_leaves_the_rest():
+    """AI_ENABLED=0: no Connect AI, no live endpoints, no /mcp; projects still work."""
+    import subprocess
+    import sys
+    code = (
+        "import os; os.environ['AI_ENABLED']='0'\n"
+        "from fastapi.testclient import TestClient\nfrom app.main import app\n"
+        "with TestClient(app) as c:\n"
+        "    f = c.get('/api/features').json()\n"
+        "    print(f['ai'], f['mcp'], c.post('/api/live/sessions', json={}).status_code,\n"
+        "          c.post('/mcp', json={}).status_code, c.post('/api/projects').status_code)"
+    )
+    out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout.split()
+    assert out[:2] == ["False", "False"]
+    assert out[2] in ("404", "405") and out[3] in ("404", "405") and out[4] == "200"

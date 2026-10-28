@@ -101,6 +101,7 @@ ports `80` and `443`. `.env` stays out of git.
 | `PORT` | `8000` | Bind port |
 | `API_KEYS` | *(empty — auth disabled)* | Comma-separated API keys for `X-API-Key` header auth |
 | `HEATTRANSPLAN_STATE_DIR` | `/app/state` | Directory for persisted project state |
+| `AI_ENABLED` | `1` | `0` switches AI access off: the Connect AI button, the live endpoints and the MCP server at `/mcp`. The rest of the app is unchanged |
 | `COP_TRAINING_ENABLED` | `1` | `0` switches the COP training module off: its endpoints, its button on the page, and trained models in the optimization |
 
 ### Frontend

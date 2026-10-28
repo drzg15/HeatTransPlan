@@ -6,6 +6,7 @@ import { useUIStore } from '../../store/uiStore';
 import { useProjectStore } from '../../store/projectStore';
 import LanguagePicker from './LanguagePicker';
 import LiveButton from '../../live/LiveButton';
+import { useFeatures } from '../../hooks/useFeatures';
 import './AppShell.css';
 
 interface Props {
@@ -40,6 +41,7 @@ export default function AppShell({ children }: Props) {
   const { t } = useTranslation();
   const theme = useUIStore((s) => s.theme);
   const toggleTheme = useUIStore((s) => s.toggleTheme);
+  const features = useFeatures();
 
   // Burger menu — only rendered/visible below 768px, see AppShell.css
   const [menuOpen, setMenuOpen] = useState(false);
@@ -125,7 +127,7 @@ export default function AppShell({ children }: Props) {
           >
             <RotateCcw size={14} /> {t('home.reset_all')}
           </button>
-          <LiveButton />
+          {features.ai && <LiveButton />}
           <LanguagePicker />
           <button
             className="theme-toggle"
