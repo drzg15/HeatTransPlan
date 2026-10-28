@@ -21,11 +21,12 @@ env/
 # OS files
 .DS_Store
 
-# COP modelling data and notebooks — stay local, never committed.
-# The deployment needs only the trained model and its validity ranges:
+# Local data: COP modelling data, economic calculation sources, example
+# validations. Stays local, never committed. The deployment needs only the
+# trained model and its validity ranges:
 #   models/cop/best_model.joblib
 #   models/cop/cop_ranges.json   (regenerate: cop_analysis/export_cop_ranges.py)
-data/cop_modelling*/
+data/
 cop_modelling_V0/
 cop_modelling/
 *.parquet
@@ -46,4 +47,3 @@ test.json
 GEMINI.md
 graphify-out/
 .gemini/
-economic_calculation/

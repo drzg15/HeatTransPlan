@@ -1,6 +1,7 @@
 # The public address comes from SITE_ADDRESS (see .env.example): a domain
-# gets its TLS certificate automatically. Unset: http://localhost.
-{$SITE_ADDRESS:http://localhost} {
+# gets its TLS certificate automatically. Unset: plain http on port 80, any
+# address (http://localhost, http://127.0.0.1).
+{$SITE_ADDRESS::80} {
     reverse_proxy /api/* backend:8000
     # The MCP server for AI agents (backend/app/mcp_http.py).
     reverse_proxy /mcp backend:8000

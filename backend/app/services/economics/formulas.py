@@ -14,7 +14,7 @@ Prices are given for the base year (today) and change from year 1. Gas is
 priced per kWh of gross calorific value (Hs, as tariffs are); its CO₂
 factor is per kWh of net calorific value (Hi), so the two are linked by
 the Hs/Hi ratio (VDI 4646 eq. 23). Every value, formula and check is
-documented in economic_calculation/economic_analysis_rationale.md.
+documented in data/economic_calculation/economic_analysis_rationale.md.
 
 Line for line the same as frontend/src/utils/economics.ts used to be, so
 the page shows exactly what it showed when the numbers were computed there.

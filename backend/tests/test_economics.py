@@ -188,7 +188,7 @@ def test_finds_the_electricity_price_where_the_kapitalwert_is_zero():
 
 
 # The worked examples in VDI 2067, VDI 4646 and the Hitzköpfe lecture
-# (economic_calculation/). Page and slide numbers in the rationale file.
+# (data/economic_calculation/). Page and slide numbers in the rationale file.
 NONE = _r(INP, hours=0, fMaint=0)  # no energy flows: only the capital side moves
 ZERO = EconReference(Q=0, Qsrc=0)
 

@@ -6,7 +6,7 @@ import type { OptimizedIntegrationPoint } from '../../types/analysis';
 // Display units: prices in ct/kWh, rates and shares in %.
 // Defaults follow VDI 4646 (2026) and VDI 2067 Blatt 1 (2012), except the
 // specific investment of the heat pump. Each value, its source page and why
-// it may differ: economic_calculation/economic_analysis_rationale.md.
+// it may differ: data/economic_calculation/economic_analysis_rationale.md.
 export const DEFAULTS = {
   year: new Date().getFullYear() + 1,
   hours: 6000, // VDI 4646 Tabelle 8: three-shift operation
@@ -32,7 +32,7 @@ export const DEFAULTS = {
   pDemand: 0, // only if not already in the electricity price
   // Price of the heat pump itself per kW (machine only): SPH offers for large
   // industrial high-temperature heat pumps up to ~150 °C (≈ 1.000–1.200 €/kW);
-  // 175 °C steam ≈ 2.000 €/kW. See economic_calculation rationale D1.
+  // 175 °C steam ≈ 2.000 €/kW. See data/economic_calculation rationale D1.
   specCost: 1000,
   fPI: 1.25, // VDI 4646 Tabelle 6, p. 59: planning and installation
   // System integration (periphery). VDI 4646 Tabelle 6 (p. 59) has 1,8, fitted to
