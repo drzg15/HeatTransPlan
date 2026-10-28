@@ -8,7 +8,11 @@ import i18n from '../i18n';
 import { useAnalysisStore } from '../store/analysisStore';
 import { useProjectStore } from '../store/projectStore';
 import { useUIStore } from '../store/uiStore';
-import { DEFAULTS as ECON_DEFAULTS, type RefType } from '../components/analysis/econConfig';
+import {
+  DEFAULTS as ECON_DEFAULTS,
+  PRESETS as ECON_PRESETS,
+  type RefType,
+} from '../components/analysis/econConfig';
 import { distanceCsv, projectCsv } from '../utils/csvExport';
 import type {
   CopFormulaSpec,
@@ -47,18 +51,24 @@ const allStreamKeys = (state: ProjectState) =>
   state.processes.flatMap((p, pi) => (p.streams ?? []).map((_, si) => `stream_${pi}_${si}`));
 
 /** Find optimization points by refrigerant and sink temperature. */
-function findPoints(specs: Array<{ refrigerant: string; T_sink?: number }>) {
+/** A refrigerant alone: all its points. A T_sink alone: everything at that
+ *  sink temperature, as a click on the chart. Both: that one point. */
+function findPoints(specs: Array<{ refrigerant?: string; T_sink?: number }>) {
   const opt = analysis().hpiOptimizationResult;
   if (!opt) throw new CommandError('There are no optimization results yet.');
   return specs.flatMap((spec) => {
+    if (spec.refrigerant === undefined && spec.T_sink === undefined)
+      throw new CommandError('Give a refrigerant, a T_sink or both.');
     const hits = opt.feasible_points.filter(
       (p) =>
-        p.refrigerant === spec.refrigerant &&
+        (spec.refrigerant === undefined || p.refrigerant === spec.refrigerant) &&
         (spec.T_sink === undefined || Math.abs(p.T_sink - spec.T_sink) < 0.05)
     );
     if (!hits.length)
-      throw new CommandError(`No heat pump ${spec.refrigerant} at T_sink ${spec.T_sink ?? 'any'}.`);
-    return spec.T_sink === undefined ? hits : hits.slice(0, 1);
+      throw new CommandError(
+        `No heat pump ${spec.refrigerant ?? ''} at T_sink ${spec.T_sink ?? 'any'}.`
+      );
+    return spec.refrigerant !== undefined && spec.T_sink !== undefined ? hits.slice(0, 1) : hits;
   });
 }
 
@@ -240,7 +250,7 @@ const BUILT_IN: Record<string, Handler> = {
     return { types: analysis().selectedHPTypes };
   },
   select_heat_pumps: (args) => {
-    const specs = (args.points as Array<{ refrigerant: string; T_sink?: number }>) ?? [];
+    const specs = (args.points as Array<{ refrigerant?: string; T_sink?: number }>) ?? [];
     const picked: OptimizedIntegrationPoint[] = args.clear
       ? []
       : [...(args.add ? analysis().selectedHPPoints : []), ...findPoints(specs)];
@@ -257,7 +267,9 @@ const BUILT_IN: Record<string, Handler> = {
     const patch = (args.form as Record<string, number> | undefined) ?? {};
     for (const k of Object.keys(patch))
       if (!(k in ECON_DEFAULTS)) throw new CommandError(`Unknown economics input "${k}"`);
-    s.setEcon({ ...s.econForm, ...patch }, refType);
+    // Picking a heater on the page brings its efficiency, price and CO2 factor.
+    const preset = refType !== s.econRefType ? ECON_PRESETS[refType] : {};
+    s.setEcon({ ...s.econForm, ...preset, ...patch }, refType);
     return { form: analysis().econForm, ref_type: analysis().econRefType };
   },
   reset_economics: () => {

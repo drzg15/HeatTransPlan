@@ -7,6 +7,7 @@ import HPIOptimizationTable from './HPIOptimizationTable';
 import CopFormulaModal from './CopFormulaModal';
 import CopModelTrainModal from './CopModelTrainModal';
 import { useFeatures } from '../../hooks/useFeatures';
+import { CommandError, useLiveCommand } from '../../live/commands';
 import {
   chartView,
   filterOptions,
@@ -75,18 +76,55 @@ export default function HPIOptimizationPanel() {
     setSelectedPoints([]);
   }, [mediumSinkFilter, refrigerantTypeFilter, refrigerantFilter, hpLevelFilter]);
 
-  if (!hpiOptimizationResult || !pinchResult) return null;
-
-  const { feasible_points, max_q_point, original_gcc } = hpiOptimizationResult;
-  const diagnosticMessages = hpiOptimizationResult.diagnostics?.messages ?? [];
-
-  const filteredPoints = filterPoints(feasible_points, {
+  // The AI sets the same filters (and "Select all") as the controls on the left.
+  const currentFilters = {
     mediumSink: mediumSinkFilter,
     refrigerantType: refrigerantTypeFilter,
     refrigerants: refrigerantFilter,
     hpLevels: hpLevelFilter,
     showTheoretical,
+  };
+  useLiveCommand('set_heat_pump_filters', (args) => {
+    if (!hpiOptimizationResult) throw new CommandError('There are no optimization results yet.');
+    const options = filterOptions(hpiOptimizationResult.feasible_points);
+    const pick = (value: unknown, allowed: string[], what: string) => {
+      const v = String(value);
+      if (v !== 'All' && !allowed.includes(v))
+        throw new CommandError(`${what} must be "All" or one of ${allowed.join(', ')}`);
+      return v;
+    };
+    const many = (value: unknown, allowed: string[], what: string) =>
+      (value as unknown[]).map((v) => pick(v, allowed, what)).filter((v) => v !== 'All');
+    if (args.medium_sink !== undefined)
+      setMediumSinkFilter(pick(args.medium_sink, options.mediumSinks, 'medium_sink'));
+    if (args.refrigerant_type !== undefined)
+      setRefrigerantTypeFilter(
+        pick(args.refrigerant_type, options.refrigerantTypes, 'refrigerant_type')
+      );
+    if (args.refrigerants !== undefined)
+      setRefrigerantFilter(many(args.refrigerants, options.refrigerants, 'refrigerants'));
+    if (args.stages !== undefined)
+      setHpLevelFilter(many(args.stages, options.hpLevels, 'stages'));
+    if (args.show_theoretical !== undefined) setShowTheoretical(Boolean(args.show_theoretical));
+    if (args.show_source_limited !== undefined)
+      setShowSourceLimited(Boolean(args.show_source_limited));
+    if (args.show_demand_limited !== undefined)
+      setShowDemandLimited(Boolean(args.show_demand_limited));
+    return { options };
   });
+  useLiveCommand('select_filtered_heat_pumps', () => {
+    if (!hpiOptimizationResult) throw new CommandError('There are no optimization results yet.');
+    const points = filterPoints(hpiOptimizationResult.feasible_points, currentFilters);
+    setSelectedPoints([...points]);
+    return { selected: points.length };
+  });
+
+  if (!hpiOptimizationResult || !pinchResult) return null;
+
+  const { feasible_points, max_q_point, original_gcc } = hpiOptimizationResult;
+  const diagnosticMessages = hpiOptimizationResult.diagnostics?.messages ?? [];
+
+  const filteredPoints = filterPoints(feasible_points, currentFilters);
 
   // Counted on the raw results, so the checkbox can say how many rows it would
   // bring back while they are hidden.

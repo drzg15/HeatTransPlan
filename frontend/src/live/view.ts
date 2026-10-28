@@ -48,6 +48,7 @@ export function buildView() {
           })),
         })),
       })),
+      map: { center: proj.map_center, zoom: proj.map_zoom, bearing: proj.map_bearing ?? 0 },
       has_site_plan: Boolean(proj.site_plan),
       subprocess_plans: Object.keys(proj.canvas_plans ?? {}),
     },

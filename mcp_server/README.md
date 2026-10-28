@@ -1,6 +1,6 @@
 # HeatTransPlan MCP server
 
-Lets an AI assistant (Claude Desktop, Claude Code, or any MCP client) do
+Lets any AI agent that supports MCP do
 what the HeatTransPlan pages do. It talks to the HeatTransPlan backend over
 HTTP, so it works with a local app and with the deployed one.
 
@@ -25,7 +25,8 @@ also stored on the server.
 ## Setup
 
 ```bash
-pip install -e mcp_server        # or: uv tool install ./mcp_server
+pip install -e mcp_server        # or: uv tool install --editable ./mcp_server
+# editable, so the server finds the docs/ folder for explain()
 ```
 
 Environment:
@@ -35,7 +36,9 @@ Environment:
 | `HEATTRANSPLAN_URL` | `http://localhost:8000` | the backend |
 | `HEATTRANSPLAN_API_KEY` | – | only if the backend sets `API_KEYS` |
 
-Claude Desktop (`claude_desktop_config.json`):
+In the agent's MCP settings, add a stdio server with the command
+`heattransplan-mcp` and the variables above. Agents configured by a JSON
+file take this (some name the top key `servers`):
 
 ```json
 {
@@ -48,11 +51,7 @@ Claude Desktop (`claude_desktop_config.json`):
 }
 ```
 
-Claude Code:
-
-```bash
-claude mcp add heattransplan --env HEATTRANSPLAN_URL=http://localhost:8000 -- heattransplan-mcp
-```
+The app's **?** next to Connect AI shows the same, with its own address.
 
 ## Tools
 
@@ -60,15 +59,24 @@ Projects: `list_examples`, `create_project`, `list_projects`, `get_project`,
 `save_project_file`, `replace_project`, `delete_project`, `add_process`,
 `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`,
 `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`,
-`set_notes`, `set_map`, `set_site_plan`, `export_csv`, `import_csv`.
+`set_notes`, `set_map`, `search_address`, `set_site_plan`, `export_csv`,
+`import_csv`.
+
+The method: `explain` (what the app does, pinch, heat pump integration,
+optimization, economics, refrigerants, API: the docs, without the code).
+
+Guided study: `guide` (questions for each step: start, data, analysis,
+economics, report), `read_document` (Word, PowerPoint, Excel, CSV: text and
+tables), and the prompt `guided_study`.
 
 Analysis: `analyse_project`, `list_heat_pumps`, `economics_defaults`,
-`economic_analysis`, `validate_cop_formula`, `train_cop_model` (when the
+`economic_analysis`, `validate_cop_formula`, `inspect_cop_data`, `train_cop_model` (when the
 server runs the COP training module), `generate_report`.
 
 Live: `live_sessions`, `live_view`, `live_results`, `live_command` (every
 page command; `list_commands` lists them), `live_navigate`, `live_wait`,
 `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`,
+`live_filter_heat_pumps`,
 `live_set_economics`, `live_use_cop_model`, `live_save_scenario`, `live_generate_report`,
 `live_load_site_plan`.
 
