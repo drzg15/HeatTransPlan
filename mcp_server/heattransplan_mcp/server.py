@@ -42,15 +42,17 @@ async def _record(key: str, name: str, given: Dict[str, Any]) -> None:
     """Note a change in the page's AI activity list (and the server's log)."""
     if name == "live_command" and given.get("command") in LIVE_READS:
         return
-    parts = []
+    parts, fields = [], []
     for k, v in given.items():
         if v is None:
             continue
+        fields.append(k)
         text = "…" if k in ("content", "state") else v if isinstance(v, str) else json.dumps(
             v, ensure_ascii=False, default=str)
         parts.append(f"{k}={text[:60] + '…' if len(text) > 60 else text}")
     try:
-        await api.post(f"/api/live/pages/{key}/log", json={"tool": name, "detail": ", ".join(parts)[:500]})
+        await api.post(f"/api/live/pages/{key}/log",
+                       json={"tool": name, "detail": ", ".join(parts)[:500], "fields": fields})
     except ApiError:
         pass  # the change is made; a missing log line must not undo it
 

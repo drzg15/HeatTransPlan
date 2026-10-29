@@ -21,7 +21,8 @@ class Api:
                  client: Optional[httpx.AsyncClient] = None):
         self.base_url = (base_url or os.getenv("HEATTRANSPLAN_URL") or DEFAULT_URL).rstrip("/")
         key = api_key if api_key is not None else os.getenv("HEATTRANSPLAN_API_KEY", "")
-        headers = {"X-API-Key": key} if key else {}
+        # X-Actor: the backend's activity log tells the AI's changes from the user's.
+        headers = {"X-Actor": "ai", **({"X-API-Key": key} if key else {})}
         # Optimizations and reports take a few seconds; live commands wait for the page.
         self.client = client or httpx.AsyncClient(base_url=self.base_url, headers=headers, timeout=330)
 

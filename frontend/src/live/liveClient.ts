@@ -56,6 +56,14 @@ let abort: AbortController | null = null;
 let unsubscribers: Array<() => void> = [];
 // Set while a project from the backend is being applied, so it is not sent back.
 let applyingRemote = false;
+// AI commands running now, and who changed the project since the last sync:
+// the server's activity log (X-Actor) tells the AI's changes from the user's.
+let aiCommands = 0;
+const changedBy = new Set<'ai' | 'human'>();
+client.interceptors.request.use((cfg) => {
+  if (aiCommands > 0 && !cfg.headers['X-Actor']) cfg.headers['X-Actor'] = 'ai';
+  return cfg;
+});
 
 const set = (patch: Partial<LiveState>) => useLiveStore.setState(patch);
 
@@ -112,8 +120,10 @@ function handleEvent(sessionId: string, type: string, data: Record<string, unkno
     }
   } else if (type === 'command') {
     const id = String(data.id);
+    aiCommands++;
     Promise.resolve()
       .then(() => runCommand(String(data.name), (data.args as Record<string, unknown>) ?? {}))
+      .finally(() => aiCommands--)
       .then((result) => answer(sessionId, id, { ok: true, result: result ?? null }))
       .catch((e: unknown) =>
         answer(sessionId, id, { ok: false, error: e instanceof Error ? e.message : String(e) })
@@ -164,9 +174,11 @@ async function listen(sessionId: string, signal: AbortSignal) {
 
 function startSync(sessionId: string, projectId: string) {
   const pushProject = debounce(() => {
+    const actor = [...changedBy].sort().join('+') || 'human';
+    changedBy.clear();
     client
       .put(`/api/projects/${projectId}`, useProjectStore.getState().state, {
-        headers: { 'X-Live-Session': sessionId },
+        headers: { 'X-Live-Session': sessionId, 'X-Actor': actor },
       })
       .catch(() => {});
   }, PROJECT_DEBOUNCE_MS);
@@ -176,7 +188,10 @@ function startSync(sessionId: string, projectId: string) {
 
   unsubscribers = [
     useProjectStore.subscribe((s, prev) => {
-      if (s.state !== prev.state && !applyingRemote) pushProject();
+      if (s.state !== prev.state && !applyingRemote) {
+        changedBy.add(aiCommands > 0 ? 'ai' : 'human');
+        pushProject();
+      }
       pushView();
     }),
     useAnalysisStore.subscribe(pushView),

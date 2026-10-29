@@ -19,12 +19,14 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "500m"
+        max-size: "10m"
         max-file: "2"
     volumes:
       # Only the trained model and its validity ranges — the modelling data
       # stays off the server entirely.
       - ./models:/app/models:ro
+      # Who changed what (app/services/activity_log.py); trims itself at 20 MB.
+      - activity_log:/app/logs
 
   frontend:
     build:
@@ -49,7 +51,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "500m"
+        max-size: "10m"
         max-file: "2"
 
   docs:
@@ -64,6 +66,11 @@ services:
     cap_drop: [ALL]
     cap_add: [NET_BIND_SERVICE]
     security_opt: ["no-new-privileges:true"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
 
   caddy:
     image: caddy:2-alpine
@@ -81,7 +88,7 @@ services:
     logging:
       driver: "json-file"
       options:
-        max-size: "500m"
+        max-size: "10m"
         max-file: "2"
     environment:
       # Set per machine in .env (not in git); unset serves plain http on port 80.
@@ -94,5 +101,6 @@ services:
       - caddy_data:/data
       - caddy_config:/config
 volumes:
+  activity_log:
   caddy_data:
   caddy_config:

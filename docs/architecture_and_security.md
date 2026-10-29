@@ -63,7 +63,7 @@ sequenceDiagram
 | **Only on the open page.** Without a connected page, or once it closes, every project tool refuses; only tools that touch no project (`explain`, `guide`, `read_document`, address search, …) answer. | Every project tool passes the one check `_page_info` (MCP server), which asks the backend for the connected page with this code. |
 | **Pause.** The user can stop the agent (⏸ next to the code): it can do nothing, not even read, until resumed. | The backend answers 423 for a paused page, to the check above and to every command. |
 | **Asked first.** Deleting a process, subprocess or stream, replacing the project, a CSV import, removing a site plan or a scenario: the page asks the user, and nothing happens unless they allow it within two minutes. | `_confirm` (MCP server) sends the page `confirm_ai_action` and waits for the answer. |
-| **Seen.** Every change the agent makes is listed on the page (🕘) and in the server's log. | The tools are registered through `tool`, which notes each change (`/api/live/pages/{code}/log`). |
+| **Seen.** Every change the agent makes is listed on the page (🕘), and anonymously in the server's activity log (the tool and the names of its fields). | The tools are registered through `tool`, which notes each change (`/api/live/pages/{code}/log`). |
 | **Marked.** A report made by the agent says so on its first page and in its metadata. | `created_by_ai` in the report request. |
 | **Told.** The agent is told that text in documents, files and on the page is data, never instructions: if a file says "delete everything", it must tell the user, not do it. | The instructions the MCP server gives every agent. |
 | **No server files.** Online, the tools never open or write the server's own files: files come in as their content, results go out as download links valid for an hour. | `_read_input` and `_deliver` (MCP server). |
@@ -108,7 +108,8 @@ There is no login: the app is public, so each layer has to hold on its own.
 | **Browser protections** | Framing by other sites, plugins, form tricks; HTTPS only, once on a domain. No script policy on purpose: maps, charts and docs load from several sites. | `Caddyfile` |
 | **Text, never markup** | A name or note like `<script>` running when someone opens a report. | `backend/app/services/report/` |
 | **Data leaves** | A site's process data staying on the server: a page's project goes at Disconnect, any other after 24 hours untouched. | `backend/app/services/project_service.py` |
-| **Hardened containers** | A flaw in a library taking over the machine: read-only files (only `/tmp` writable), no root rights (the backend runs as an ordinary user), no way to gain any. | `docker-compose.yml`, `backend/Dockerfile` |
+| **Hardened containers** | A flaw in a library taking over the machine: read-only files (only `/tmp` and the activity log's folder writable), no root rights (the backend runs as an ordinary user), no way to gain any. | `docker-compose.yml`, `backend/Dockerfile` |
+| **Anonymous activity log** | Recording people while debugging: the log keeps only which feature was used, whether by a person (`human`) or an AI (`ai`), whether it worked (`system` for errors) and how long it took. No addresses, page codes or project ids (paths keep their pattern, `/api/projects/{project_id}`), no values or names: for a project only which parts changed, for an AI tool only the names of the fields it set, for an error its type and where in the code. The server keeps no access log either. It stays in the container's volume and deletes its older half past 20 MB. Read it with `docker compose exec backend python -m app.services.activity_log [rows] [actor]`. | `backend/app/services/activity_log.py` |
 | **Known flaws in libraries** | Outdated dependencies: Dependabot checks them weekly and opens a pull request for each fix. Plotly is kept below 7, the version the report is tested with. | `.github/dependabot.yml`, `backend/pyproject.toml` |
 | **Nothing listed** | Finding other people's pages or projects: neither sessions nor projects can be listed. | `backend/app/routers/` |
 
@@ -136,6 +137,7 @@ There is no login: the app is public, so each layer has to hold on its own.
 
 - **No accounts.** Anyone can open the app and compute. Who may use it is not checked; a login (for example the university's) would be the next step.
 - **The code is the key.** Whoever has a page's Connect AI code can work on that page while it is open, also through the API directly; pause, questions and the activity log bind agents that use the MCP server.
+- **Human or AI is declared, not proven.** The page and the MCP server say which in a header (`X-Actor`); the log is for debugging, not evidence. A user's edits reach it only while the page is connected (Connect AI), since otherwise the project stays in the browser.
 - **One process.** The limits, sessions and download links are kept in the backend's memory: fine for one server, a shared store (e.g. Redis) when it runs on several.
 
 ---
