@@ -1,4 +1,13 @@
-import { BookOpen, ChartArea, ClipboardList, Moon, RotateCcw, Save, Sun } from 'lucide-react';
+import {
+  BookOpen,
+  ChartArea,
+  ClipboardList,
+  House,
+  Moon,
+  RotateCcw,
+  Save,
+  Sun,
+} from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -17,13 +26,7 @@ const NAV_ITEMS = [
   {
     path: '/',
     translationKey: 'appshell.nav.home',
-    icon: (
-      <img
-        src="/favicon.svg"
-        alt="HTP"
-        style={{ width: '1.2em', height: '1.2em', display: 'block' }}
-      />
-    ),
+    icon: <House size={16} />,
   },
   {
     path: '/data-collection',

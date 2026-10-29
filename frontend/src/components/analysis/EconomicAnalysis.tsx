@@ -338,7 +338,7 @@ export default function EconomicAnalysis() {
   if (!e) {
     return (
       <Part
-        n={3}
+        n={4}
         title={t('analysis.parts.costs')}
         input={t('analysis.parts.costs_in')}
         actions={header}
@@ -472,7 +472,7 @@ export default function EconomicAnalysis() {
 
   return (
     <Part
-      n={3}
+      n={4}
       title={t('analysis.parts.costs')}
       input={t('analysis.parts.costs_in')}
       actions={header}
