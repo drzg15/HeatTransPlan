@@ -614,3 +614,17 @@ input[type='number'],
 .econ-key-card {
   font-variant-numeric: tabular-nums;
 }
+
+/* What an AI just added or changed on the page (live/commands.ts showFocus). */
+@keyframes ai-flash {
+  from {
+    box-shadow: 0 0 0 3px var(--primary);
+    background-color: var(--primary-light);
+  }
+  to {
+    box-shadow: 0 0 0 3px transparent;
+  }
+}
+.ai-flash {
+  animation: ai-flash 2.5s ease-out;
+}

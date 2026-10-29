@@ -117,6 +117,8 @@ interface AnalysisStore {
   deleteScenario: (index: number) => void;
   renameScenario: (index: number, newName: string) => void;
   clearActiveScenario: () => void;
+  /** A new case is loaded: its scenarios describe streams that are gone. */
+  resetScenarios: () => void;
 }
 
 // Helper to update the scenario list if an active scenario is set
@@ -368,4 +370,5 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
     })),
 
   clearActiveScenario: () => set({ activeScenarioId: null }),
+  resetScenarios: () => set({ scenarios: [], activeScenarioId: null, selectedHPPoints: [] }),
 }));

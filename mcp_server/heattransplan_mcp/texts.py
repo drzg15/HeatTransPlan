@@ -1,5 +1,26 @@
 """What the MCP server says rather than does: the instructions a model gets
-when it connects, the topics `explain` serves, and the guided study's steps."""
+when it connects, the ways of working `start` offers, the topics `explain`
+serves, and the guided study's steps."""
+
+# The ways of working start() offers; the user picks one.
+MODES = {
+    "guided_study": "Guided study: I ask you page by page what the study needs (guide), "
+                    "and enter your answers as we go.",
+    "chat_building": "Chat building: you say what to add or change, and you see each step "
+                     "appear on the page.",
+    "from_document": "From a document: I take the streams out of your presentation, Excel or "
+                     "Word file, show you the list to approve, then build it on the page step by step.",
+    "validation": "Validation: I compare the app's results with a presentation and give you a "
+                  "report and a file of the differences.",
+}
+
+# What the AI says it will keep to, whichever way of working is picked.
+RULES = [
+    "Before a new case I clear the page (with your OK), so nothing of the last case carries over.",
+    "I write no files outside the case's folder without asking you first.",
+    "Confidential data (documents, measurements, results) stays out of git and out of anything "
+    "shared.",
+]
 
 INSTRUCTIONS = """\
 HeatTransPlan screens an industrial site for heat recovery and heat pumps.
@@ -54,19 +75,30 @@ READING RESULTS
 - Results depend on ΔTmin, the stream selection and profile_mode: say which
   you used.
 
+FIRST, WHEN THE USER GIVES YOU THE CODE
+Call start(code). Open with its `say` line (what the page holds now:
+continue with it or start fresh?), offer its ways of working (guided
+study, chat building, from a document, validation) and state its standing
+rules. Starting fresh: replace_project(empty=True).
+
 STEPS (always on the page the user has open)
 1. The user opens HeatTransPlan, clicks "Connect AI" and tells you the code
    shown there. You work only on that open page: without the code (or once
    the page closes) you can explain the method (explain, guide) and read
    documents, but not create, change or analyse anything. Every project
    tool takes the code as project_id; live_view shows what the page shows.
-   replace_project loads an example (list_examples) or a saved file onto
-   the page: ask first, it replaces what the page shows.
-2. Data: add_process (a plant area: a box on the map, lat/lon) ->
-   add_subprocess (a machine or step; streams live here) -> add_stream
-   (t_in, t_out and mass_flow + cp, or CP). update_* sets positions,
-   operating hours and the process flow (next). get_project shows indices
-   and stream keys.
+   replace_project is only for a whole case: an example (list_examples),
+   a saved file, or empty. Ask first; the page asks too, and the old case's
+   scenarios go with it.
+2. Data, one step at a time: add_process (a plant area: a box on the map,
+   lat/lon) -> add_subprocess (a machine or step; streams live here) ->
+   add_stream (t_in, t_out and mass_flow + cp, or CP). update_* sets
+   positions, operating hours and the process flow (next). Each step
+   changes only its target, returns it and is highlighted on the page;
+   selection, scenarios and economics stay as they are. undo takes the
+   last step back. get_project shows indices and stream keys.
+   live_select_streams picks the streams for the analysis: by keys, by
+   process or by subprocess (all/none first).
 3. analyse_project: pinch, heat pump integration, optimization and the
    economics of the best pump, for the streams chosen (selected_streams).
 4. list_heat_pumps; economic_analysis to price another pump or change
@@ -92,6 +124,13 @@ WORKING WITH THE USER
   tables. Loose numbers in the chat work too. Pull out the streams, show
   them back as a table (name, hot/cold, t_in, t_out, flow and cp or CP or
   duty, hours) with what you assumed, and enter them once confirmed.
+- From a document: show the extracted streams as a table and enter them
+  only once the user approves, one step at a time.
+- Validation: read the presentation's figures, run the same case on the
+  page, and compare value by value (minimum heating and cooling, pinch,
+  heat pump COP and duty, economics). Give a short report and a
+  differences file (save_text_file, CSV: quantity, presentation, app,
+  difference, likely reason).
 - Guided study: go page by page, as the app does: guide("start"), then
   "data", "analysis", "economics", "report". Each gives the questions for
   that step. Ask a few at a time, only what the documents do not answer,

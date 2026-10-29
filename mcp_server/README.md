@@ -48,10 +48,14 @@ the published docs on GitHub.
 
 ## Tools
 
+Start: `start` (what the open page holds, the ways of working, the standing
+rules; an agent calls it first).
+
 Projects: `list_examples`, `get_project`, `save_project_file`,
-`replace_project` (an example or a saved file onto the page), `add_process`,
+`replace_project` (a whole case: an example, a saved file or empty),
+`save_text_file`, `add_process`,
 `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`,
-`delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`,
+`delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`, `undo`,
 `set_notes`, `set_map`, `search_address`, `set_site_plan`, `export_csv`,
 `import_csv`.
 

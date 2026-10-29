@@ -10,6 +10,7 @@ import { BookOpen, Bot, CirclePlay, FileText, FolderOpen } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { getExample } from '../api/io';
 import { useProjectStore } from '../store/projectStore';
+import { loadProject } from '../store/loadProject';
 import { useFeatures } from '../hooks/useFeatures';
 import LiveSetup from '../live/LiveSetup';
 import { CHAPTERS, PARTS, startTour, type PartNumber } from '../tour/guidedTour';
@@ -66,7 +67,7 @@ export default function HomePage() {
     setBusy(true);
     setError(null);
     try {
-      useProjectStore.getState().setState(await getExample(EXAMPLE));
+      loadProject(await getExample(EXAMPLE));
       return true;
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));
