@@ -47,3 +47,6 @@ test.json
 GEMINI.md
 graphify-out/
 .gemini/
+
+# Built by CI and the docs container
+docs/_build/

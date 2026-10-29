@@ -20,11 +20,7 @@ The backend is a FastAPI application. Its interactive reference, with every endp
 | Method | Path | What it does |
 |---|---|---|
 | POST | `/api/projects` | Create a project, optionally from a project JSON |
-| GET / PUT / DELETE | `/api/projects/{id}` | Read, replace or delete a project |
-| POST / PUT / DELETE | `/api/projects/{id}/groups[/{g}]` | Add, rename, delete a process |
-| POST | `/api/projects/{id}/groups/{g}/procs` | Add a subprocess |
-| PUT / DELETE | `/api/procs/{id}/{p}` | Change or delete a subprocess |
-| POST / PUT / DELETE | `/api/procs/{id}/{p}/streams`, `/api/streams/{id}/{p}/{s}` | Add, change, delete a stream |
+| GET / PUT / DELETE | `/api/projects/{id}` | Read, replace or delete a project. Edits replace the whole project, as the page does; for one step at a time use the MCP tools (add_process, add_stream, ...) |
 | POST | `/api/geo/search` | Address search (OpenStreetMap Nominatim) |
 
 **Analysis** — stateless: send the inputs, get the results.

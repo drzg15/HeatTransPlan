@@ -22,11 +22,7 @@ export function BoxSelector({
   const startRef = useRef<L.Point | null>(null);
 
   useEffect(() => {
-    if (!active) {
-      setCorners(null);
-      startRef.current = null;
-      return;
-    }
+    if (!active) return;
 
     const container = map.getContainer();
     const box = (e: MouseEvent) => L.bounds(startRef.current!, map.mouseEventToContainerPoint(e));
@@ -97,10 +93,13 @@ export function BoxSelector({
       L.DomEvent.off(window as any, 'mousemove', onMove as any);
       L.DomEvent.off(window as any, 'mouseup', onUp as any);
       restoreDragging();
+      // Switched off (or re-wired) mid-drag: drop the half-drawn box.
+      startRef.current = null;
+      setCorners(null);
     };
   }, [active, map, onSelect, locked]);
 
-  if (!corners) return null;
+  if (!active || !corners) return null;
   return (
     <Polygon
       positions={corners}

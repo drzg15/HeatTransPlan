@@ -89,7 +89,7 @@ export default function StreamEditor({ id, stream, onChange, onDelete }: Props) 
     }
     // fallback 1: properties/values mapping
     if (stream.properties && stream.values) {
-      const propEntry = Object.entries(stream.properties).find(([_, v]) => v === key);
+      const propEntry = Object.entries(stream.properties).find(([, v]) => v === key);
       if (propEntry) {
         const valKey = propEntry[0].replace('prop', 'val');
         if ((stream.values as Record<string, string>)[valKey] !== undefined) {

@@ -31,7 +31,7 @@ export default function EnergyDemands() {
       });
     });
     return { hotNames: hot, coldNames: cold };
-  }, [processes]);
+  }, [processes, t]);
 
   // Auto-initialize empty selections with all available streams
   useEffect(() => {

@@ -1,1 +1,1 @@
-from app.routers import projects, processes, streams, analysis, io_routes, assets
+from app.routers import projects, processes, analysis, io_routes, assets

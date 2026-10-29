@@ -33,7 +33,6 @@ import { StreamCirclesOverlay } from './StreamCirclesOverlay';
 import { TILE_URLS, createDivIcon } from './mapHelpers';
 import type { GroupCoords } from './types';
 
-// @ts-ignore
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: markerIcon2x,
@@ -201,12 +200,12 @@ export default function MapViewer({
     }
 
     // 2. Prepare updates
-    let nextGroupCoords = { ...groupCoordinates };
+    const nextGroupCoords = { ...groupCoordinates };
     // Built from the RAW processes, not the resolved ones: writing back a
     // resolved array would stamp every inherited coordinate onto its node as
     // if it had been placed there, so a later move of the process would no
     // longer carry its subprocesses along.
-    let nextProcesses = [...rawProcesses];
+    const nextProcesses = [...rawProcesses];
     let changedGroup = false;
     let changedProc = false;
 

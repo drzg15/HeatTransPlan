@@ -182,21 +182,18 @@ export function SubprocessCanvasOverlay({
   image?: string;
 }) {
   const map = useMap();
-  const [center, setCenter] = useState<L.LatLng | null>(null);
-  const [size, setSize] = useState<L.Point | null>(null);
+  // The map's center and size, taken again whenever deps change, so the canvas
+  // follows the map. Taken while rendering, not in an effect: no empty frame.
+  const key = JSON.stringify(deps ?? null);
+  const [view, setView] = useState<{ key: string; center: L.LatLng; size: L.Point } | null>(null);
+  if (active && view?.key !== key) {
+    setView({ key, center: map.getCenter(), size: map.getSize() });
+  } else if (!active && view) {
+    setView(null);
+  }
 
-  // We re-evaluate the center whenever deps change to ensure the canvas follows the map if needed
-  useEffect(() => {
-    if (active) {
-      setCenter(map.getCenter());
-      setSize(map.getSize());
-    } else {
-      setCenter(null);
-      setSize(null);
-    }
-  }, [active, map, deps]);
-
-  if (!active || !center || !size) return null;
+  if (!active || !view) return null;
+  const { center, size } = view;
 
   // Use 90% of the viewport dimensions
   const width = size.x * 0.9;

@@ -10,6 +10,7 @@ from plotly.offline import get_plotlyjs_version
 
 from app.models.report import ReportRequest, ReportStream
 from app.services.map_service import generate_process_map_b64
+from app.services.project_analysis import stream_info
 from app.services.report.figures import _chart
 from app.services.report.formatting import _de, _fmt, _part
 from app.services.report.points import _headline_point
@@ -70,20 +71,16 @@ def generate_html_report(req: ReportRequest) -> str:
         p_idx = subprocess_to_process.get(sp_idx)
         process_name = req.proc_group_names[p_idx] if p_idx is not None and p_idx < len(req.proc_group_names) else "Unknown"
         for s in (sp.streams or []):
-            sv = s.get('stream_values', {})
-            tin, tout = sv.get('Tin', s.get('temp_in', '')), sv.get('Tout', s.get('temp_out', ''))
-            mdot, cp = sv.get('ṁ', s.get('mdot', '')), sv.get('cp', s.get('cp', ''))
-            CP = sv.get('CP', '')
-            Q = f"{(float(mdot)*float(cp)*abs(float(tout)-float(tin))):.2f}" if (tin and tout and mdot and cp) else ""
-            
+            # Read the way the analysis reads it: any input format, in base units.
+            info = stream_info(s)
             s_type = s.get('type', '')
             localized_type = texts['hot'] if s_type == 'HOT' else (texts['cold'] if s_type == 'COLD' else s_type)
-            
+            cells = [_fmt(info[k]) for k in ('tin', 'tout', 'mdot', 'cp', 'CP', 'Q')]
+
             data_rows.append(
-                # Names and values are typed by users (or an AI): text, never markup.
+                # Names are typed by users (or an AI): text, never markup.
                 f"<tr><td>{escape(str(process_name))}</td><td>{escape(str(sp.name))}</td><td>{escape(str(s.get('name')))}</td>"
-                f"<td>{escape(str(localized_type))}</td><td>{escape(str(tin))}</td><td>{escape(str(tout))}</td><td>{escape(str(mdot))}</td>"
-                f"<td>{escape(str(cp))}</td><td>{escape(str(CP))}</td><td>{Q}</td></tr>"
+                f"<td>{escape(str(localized_type))}</td>" + "".join(f"<td>{c}</td>" for c in cells) + "</tr>"
             )
     data_rows_html = "".join(data_rows)
 
@@ -353,7 +350,7 @@ def generate_html_report(req: ReportRequest) -> str:
         <h3>{texts['collected_data']}</h3>
         <div class="card table-wrap">
         <table class="data-table">
-            <thead><tr><th>{texts['process']}</th><th>{texts['subprocess']}</th><th>{texts['stream']}</th><th>{texts['type']}</th><th>Tin (°C)</th><th>Tout (°C)</th><th>ṁ</th><th>cp</th><th>CP</th><th>Q (kW)</th></tr></thead>
+            <thead><tr><th>{texts['process']}</th><th>{texts['subprocess']}</th><th>{texts['stream']}</th><th>{texts['type']}</th><th>Tin (°C)</th><th>Tout (°C)</th><th>ṁ (kg/s)</th><th>cp (kJ/(kg·K))</th><th>CP (kW/K)</th><th>Q (kW)</th></tr></thead>
             <tbody>{data_rows_html}</tbody>
         </table>
         </div>
