@@ -13,6 +13,7 @@ import {
   Search,
 } from 'lucide-react';
 import { useProjectStore } from '../../store/projectStore';
+import { loadProject } from '../../store/loadProject';
 import { exportProjectToCsv } from '../../utils/csvExport';
 import { projectStateSchema } from '../../schemas/projectSchema';
 import './ActionBar.css';
@@ -54,7 +55,6 @@ export default function ActionBar({
 }: Props) {
   const { t } = useTranslation();
   const state = useProjectStore((s) => s.state);
-  const setState = useProjectStore((s) => s.setState);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -120,7 +120,7 @@ export default function ActionBar({
         }
 
         // If it succeeds, parsed.data is heavily typed and guaranteed to be clean
-        setState({ ...data, map_locked: true });
+        loadProject({ ...data, map_locked: true });
       } catch (err) {
         alert('Could not parse the file. It is not a valid JSON document.');
       }

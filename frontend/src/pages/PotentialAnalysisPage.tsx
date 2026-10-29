@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import { useCallback, useEffect, useState, useRef, type ChangeEvent } from 'react';
 import { useProjectStore } from '../store/projectStore';
+import { loadProject } from '../store/loadProject';
 import { useAnalysisStore } from '../store/analysisStore';
 import { runEconomics, generateReport } from '../api/analysis';
 import { getStreamInfo } from '../utils/streamUtils';
@@ -73,7 +74,6 @@ export default function PotentialAnalysisPage() {
   const fileRef = useRef<HTMLInputElement>(null);
 
   // Store actions
-  const setState = useProjectStore((s) => s.setState);
   const setAnalysisSelection = useProjectStore((s) => s.setAnalysisSelection);
   const setAnalysisDemands = useProjectStore((s) => s.setAnalysisDemands);
   const setAnalysisTMin = useProjectStore((s) => s.setAnalysisTMin);
@@ -158,24 +158,21 @@ export default function PotentialAnalysisPage() {
     URL.revokeObjectURL(url);
   }, [projectState]);
 
-  const handleLoadProject = useCallback(
-    (e: ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const data = JSON.parse(reader.result as string);
-          setState({ ...data, map_locked: true });
-        } catch (err) {
-          alert('Invalid JSON file');
-        }
-      };
-      reader.readAsText(file);
-      if (fileRef.current) fileRef.current.value = '';
-    },
-    [setState]
-  );
+  const handleLoadProject = useCallback((e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const data = JSON.parse(reader.result as string);
+        loadProject({ ...data, map_locked: true });
+      } catch (err) {
+        alert('Invalid JSON file');
+      }
+    };
+    reader.readAsText(file);
+    if (fileRef.current) fileRef.current.value = '';
+  }, []);
 
   const { streamsData, pinchError, getStreamsFromSelection } = useAnalysisPipeline();
 

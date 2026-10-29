@@ -5,8 +5,8 @@
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
-import { History, Pause, Play } from 'lucide-react';
-import { useLiveCommand } from './commands';
+import { History, Pause, Play, Undo2 } from 'lucide-react';
+import { undoStep, useAiHistory, useLiveCommand } from './commands';
 import { setAiPaused, useLiveStore } from './liveClient';
 import '../components/analysis/CopFormulaModal.css';
 
@@ -23,6 +23,7 @@ export default function AiControls() {
   const { t } = useTranslation();
   const paused = useLiveStore((s) => s.paused);
   const log = useLiveStore((s) => s.log);
+  const lastStep = useAiHistory((s) => s.steps[s.steps.length - 1]);
   const [showLog, setShowLog] = useState(false);
   const [ask, setAsk] = useState<Ask | null>(null);
 
@@ -97,6 +98,17 @@ export default function AiControls() {
           </div>
         )}
       </span>
+      {lastStep && (
+        <button
+          type="button"
+          className="live-icon"
+          onClick={() => undoStep()}
+          data-tip={t('live.undo', { step: lastStep.label })}
+          aria-label={t('live.undo', { step: lastStep.label })}
+        >
+          <Undo2 size={13} />
+        </button>
+      )}
       {paused && <span className="live-paused">{t('live.paused')}</span>}
       {ask &&
         createPortal(

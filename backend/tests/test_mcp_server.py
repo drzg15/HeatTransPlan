@@ -2,12 +2,14 @@
 page answering live commands the way the browser does."""
 
 import asyncio
+import copy
 import json
 
 import httpx
 import pytest
 
 from app.main import app
+from app.models.project import ProjectState
 from app.services import live, project_service
 
 mcp_server = pytest.importorskip("heattransplan_mcp.server")
@@ -35,25 +37,60 @@ def run(coro_fn):
 
 _pages = []  # the stand-in pages' listeners, to close one
 _asked = []  # what the stand-in pages were asked to allow
+EMPTY = ProjectState().model_dump()
+
+
+def page_command(page: dict, name: str, args: dict, allow: bool = True):
+    """What the browser page does with a command (frontend/src/live/commands.ts),
+    on page = {"state": project, "steps": undo stack}."""
+    state = page["state"]
+    if name == "confirm_ai_action":
+        _asked.append(args)
+        return {"allowed": allow}
+    if name == "get_project":
+        return {**state, "selected_streams": state.get("selected_streams") or {}}
+    if name == "edit_project":
+        page["steps"].append(copy.deepcopy(state))
+        state.update(args["changes"])
+        return {"ok": True}
+    if name == "undo":
+        page["state"] = page["steps"].pop()
+        return {"undone": True}
+    if name == "set_project":
+        page["state"], page["steps"] = copy.deepcopy(args.get("state") or EMPTY), []
+        return {"processes": len(page["state"].get("proc_group_names", []))}
+    if name in ("set_project_notes", "set_pinch_notes"):
+        state[name[4:]] = args["notes"]
+        return {"ok": True}
+    if name == "get_view":
+        return {"page": "/data-collection", "scenarios": [], "project": {"groups": [
+            {"index": gi, "name": n, "subprocesses": [
+                {"index": pi, "streams": state["processes"][pi].get("streams", [])}
+                for pi in state["proc_groups"][gi]]}
+            for gi, n in enumerate(state.get("proc_group_names", []))]}}
+    return {"ran": name, "args": args}
 
 
 async def open_page(example=None, allow=True):
     """A page the user has open and connected, with an empty project or an
-    example: returns its Connect AI code, all the AI works with. The user
-    there answers every "may the AI ...?" with allow."""
+    example: returns its Connect AI code, all the AI works with. It holds the
+    project as the browser does and keeps the backend's copy in step; the
+    user there answers every "may the AI ...?" with allow."""
     state = await S.api.get(f"/api/assets/examples/{example}") if example else None
     created = await S.api.post("/api/projects", json=state)
     session = live.create(created["project_id"])
+    page = {"state": await S.api.get(f"/api/projects/{created['project_id']}"), "steps": []}
 
     async def listen():
         async for chunk in live.events(session):
             if chunk.startswith("event: "):
                 event = json.loads(chunk.split("data: ", 1)[1])
-                if event.get("type") == "command" and event["name"] == "confirm_ai_action":
-                    _asked.append(event["args"])
-                    live.resolve(session, event["id"], True, {"allowed": allow})
-                elif event.get("type") == "command":
-                    live.resolve(session, event["id"], True, {"ran": event["name"]})
+                if event.get("type") != "command":
+                    continue
+                result = page_command(page, event["name"], event["args"], allow)
+                project_service.update_project(session.project_id, ProjectState(**page["state"]),
+                                               origin=session.id)
+                live.resolve(session, event["id"], True, result)
 
     _pages.append(asyncio.create_task(listen()))
     await asyncio.sleep(0.01)
@@ -67,7 +104,7 @@ def test_building_and_analysing_a_project(tmp_path):
 
         r = await S.add_process(pid, name="Dryer", lat=51.7, lon=8.7)
         assert r["result"] == {"process": 0}
-        proc = r["project"]["processes"][0]
+        proc = r["changed"]  # the step returns what it changed
         assert proc["name"] == "Dryer" and proc["subprocesses"][0]["name"] == "Subprocess 1"
 
         await S.add_stream(pid, 0, "Exhaust air", t_in=70, t_out=30, mass_flow=10, cp=1.0, stream_type="air")
@@ -137,8 +174,8 @@ def test_examples_site_plan_and_formula(tmp_path):
         png.write_bytes(bytes.fromhex(
             "89504e470d0a1a0a0000000d4948445200000001000000010806000000"
             "1f15c4890000000d49444154789c6360000002000154a24f5d0000000049454e44ae426082"))
-        r = await S.set_site_plan(pid, str(png), bounds=[[51.70, 8.76], [51.71, 8.78]])
-        assert r["project"]["has_site_plan"]
+        await S.set_site_plan(pid, str(png), bounds=[[51.70, 8.76], [51.71, 8.78]])
+        assert (await S.get_project(pid))["has_site_plan"]
         full = await S.get_project(pid, full=True)
         assert full["site_plan"]["url"].startswith("data:image/png;base64,")
         await S.set_site_plan(pid, remove=True)
@@ -193,11 +230,10 @@ def test_driving_a_connected_page(tmp_path):
         with pytest.raises(ApiError, match="not available here"):
             await S.live_command(session.id, "fail")
 
-        # Project edits on the session's project reach the page.
+        # Notes are the page's own command, not a new project.
         await S.set_notes(pid, project_notes="Edited by the AI")
-        await asyncio.sleep(0.05)
-        project_events = [e for e in seen if e.get("type") == "project"]
-        assert project_events[-1]["state"]["project_notes"] == "Edited by the AI"
+        assert seen[-1]["name"] == "set_project_notes"
+        assert seen[-1]["args"] == {"notes": "Edited by the AI"}
         task.cancel()
 
     run(body)
@@ -366,6 +402,13 @@ def test_served_online_at_mcp(monkeypatch):
     from fastapi.testclient import TestClient
     from app import dependencies, mcp_http
 
+    page = {"state": copy.deepcopy(EMPTY), "steps": []}
+
+    async def the_page(session_id, name, args=None, timeout=60):
+        return page_command(page, name, args or {})
+
+    monkeypatch.setattr(S, "_live", the_page)
+
     monkeypatch.setattr(dependencies, "API_KEYS", ["k1"])
     monkeypatch.setattr(mcp_http, "API_KEYS", ["k1"])
     headers = {"Accept": "application/json, text/event-stream", "Authorization": "Bearer k1"}
@@ -400,3 +443,43 @@ def test_served_online_at_mcp(monkeypatch):
         err, text = call(c, "read_document", {"file_path": "s.csv", "content": "a,b\n1,2"})
         assert not err and json.loads(text)["text"] == "a,b\n1,2"
     assert files.HOSTED is False  # the local tools are themselves again
+
+
+def test_one_step_at_a_time(tmp_path, monkeypatch):
+    """The AI opens with what the page holds and the ways of working; each
+    step sends only what it changes, returns it, and can be taken back; a new
+    case starts empty."""
+    sent = []
+    real = S._live
+
+    async def spy(session_id, name, args=None, timeout=60):
+        sent.append((name, args or {}))
+        return await real(session_id, name, args, timeout)
+
+    monkeypatch.setattr(S, "_live", spy)
+
+    async def body():
+        code = await open_page((await S.list_examples())[0])
+        started = await S.start(code)
+        assert started["say"] == ("Here is the current page: 1 process, 4 subprocesses, 6 streams. "
+                                  "Continue with it or start fresh?")
+        assert set(started["modes"]) == {"guided_study", "chat_building", "from_document", "validation"}
+        assert len(started["rules"]) == 3
+
+        r = await S.add_stream(code, 1, "Condenser", t_in=40, t_out=30, CP=5)
+        assert r["changed"]["key"] == "stream_1_1" and r["changed"]["values"]["CP"] == "5"
+        step = [args for name, args in sent if name == "edit_project"][-1]
+        assert list(step["changes"]) == ["processes"]  # not the whole project
+        assert step["focus"] == "stream_1_1" and step["label"] == "add stream Condenser"
+        await S.undo(code)
+        assert len((await S.get_project(code))["processes"][0]["subprocesses"][1]["streams"]) == 1
+
+        await S.replace_project(code, empty=True)
+        assert (await S.get_project(code))["processes"] == []
+        assert (await S.start(code))["say"] == "The page is empty, so we start a new case."
+
+        out = tmp_path / "differences.csv"
+        await S.save_text_file(str(out), "quantity,presentation,app\n")
+        assert out.read_text() == "quantity,presentation,app\n"
+
+    run(body)

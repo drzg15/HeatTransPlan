@@ -4,9 +4,11 @@
  *  (the report, the site plan on the map) while they are on screen. */
 
 import { useEffect, useRef } from 'react';
+import { create } from 'zustand';
 import i18n from '../i18n';
 import { useAnalysisStore } from '../store/analysisStore';
 import { useProjectStore } from '../store/projectStore';
+import { loadProject } from '../store/loadProject';
 import { useUIStore } from '../store/uiStore';
 import {
   DEFAULTS as ECON_DEFAULTS,
@@ -49,6 +51,95 @@ const idle = () => {
 /** Every stream key of the project, as the selection stores them. */
 const allStreamKeys = (state: ProjectState) =>
   state.processes.flatMap((p, pi) => (p.streams ?? []).map((_, si) => `stream_${pi}_${si}`));
+
+// ── Single steps on the project ─────────────────────────────────────────────
+// The MCP server works out each step (project_edit.py, the same rules as the
+// page's buttons) and sends only the fields it changed. Applying them here
+// leaves scenarios, economics and the analysis settings as they are.
+
+/** The project fields a step may change. */
+const EDITABLE = new Set([
+  'processes',
+  'proc_groups',
+  'proc_group_names',
+  'proc_group_coordinates',
+  'selected_streams',
+  'canvas_plans',
+  'site_plan',
+  't_min',
+  'energy_demands',
+]);
+
+interface Step {
+  label: string;
+  state: ProjectState;
+  selection: Record<string, boolean>;
+}
+
+/** The AI's steps that can be taken back, newest last. */
+export const useAiHistory = create<{ steps: Step[] }>(() => ({ steps: [] }));
+const HISTORY = 20;
+
+/** Open what an AI just changed and mark it: g<process>, s<subprocess> or a stream key. */
+function showFocus(key: string) {
+  const state = project().state;
+  const ui = useUIStore.getState();
+  const sub = /^(?:s|stream_)(\d+)/.exec(key);
+  const group = /^g(\d+)$/.exec(key)
+    ? Number(key.slice(1))
+    : sub
+      ? state.proc_groups.findIndex((g) => g.includes(Number(sub[1])))
+      : -1;
+  if (group >= 0) ui.setGroupsExpanded(new Set([...ui.expandedGroups, group]));
+  if (sub) ui.setSubprocessExpanded(Number(sub[1]), true);
+  // The cards' own ids (ProcessGroupList, SubprocessCard); on another page there is none.
+  const m = /^stream_(\d+)_(\d+)$/.exec(key);
+  const id = m
+    ? `stream-editor-${m[1]}-${m[2]}`
+    : key.startsWith('g')
+      ? `group-list-item-${key.slice(1)}`
+      : `sub-card-${key.slice(1)}`;
+  setTimeout(() => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    el.classList.remove('ai-flash');
+    void el.offsetWidth; // restart the animation on a second step to the same card
+    el.classList.add('ai-flash');
+  }, 50);
+}
+
+function applyStep(args: Args) {
+  const changes = (args.changes ?? {}) as Partial<ProjectState>;
+  const unknown = Object.keys(changes).filter((k) => !EDITABLE.has(k));
+  if (unknown.length) throw new CommandError(`A step cannot change ${unknown.join(', ')}.`);
+  const p = project();
+  const a = analysis();
+  const steps = useAiHistory.getState().steps;
+  useAiHistory.setState({
+    steps: [
+      ...steps,
+      { label: String(args.label ?? ''), state: p.state, selection: a.selectedStreams },
+    ].slice(-HISTORY),
+  });
+  p.setState({ ...p.state, ...changes });
+  if (changes.selected_streams) a.setSelectedStreams(changes.selected_streams);
+  if (changes.t_min !== undefined) a.setTMin(changes.t_min);
+  if (changes.energy_demands) a.setEnergyDemands(changes.energy_demands as never);
+  if (args.focus) showFocus(String(args.focus));
+  return { ok: true };
+}
+
+/** Take back the AI's last step (also the Undo button in the AI panel). */
+export function undoStep() {
+  const steps = useAiHistory.getState().steps;
+  const last = steps[steps.length - 1];
+  if (!last) throw new CommandError('There is no step to undo.');
+  useAiHistory.setState({ steps: steps.slice(0, -1) });
+  project().setState(last.state);
+  analysis().setSelectedStreams(last.selection);
+  return { undone: last.label, steps_left: steps.length - 1 };
+}
 
 /** Find optimization points by refrigerant and sink temperature. */
 /** A refrigerant alone: all its points. A T_sink alone: everything at that
@@ -117,11 +208,21 @@ const BUILT_IN: Record<string, Handler> = {
   },
 
   // ── Project (data collection) ───────────────────────────────────────────
-  get_project: () => project().state,
+  // The selection as the analysis uses it, which the page may hold ahead of the project.
+  get_project: () => ({ ...project().state, selected_streams: analysis().selectedStreams }),
+  /** Load a whole case ({state}, or none for an empty one): scenarios and
+   *  the undo steps of the old case go. Single changes use edit_project. */
   set_project: (args) => {
-    project().setState(args.state as ProjectState);
-    return { processes: project().state.processes.length };
+    loadProject((args.state as ProjectState | null | undefined) ?? null);
+    useAiHistory.setState({ steps: [] });
+    const s = project().state;
+    return {
+      processes: s.proc_group_names.length,
+      streams: allStreamKeys(s).length,
+    };
   },
+  edit_project: applyStep,
+  undo: () => undoStep(),
   set_project_notes: (args) => {
     project().setProjectNotes(String(args.notes ?? ''));
     return { ok: true };
@@ -166,21 +267,40 @@ const BUILT_IN: Record<string, Handler> = {
     distanceCsv(project().state, args.metric === 'euclidean' ? 'euclidean' : 'manhattan'),
 
   // ── Potential analysis: inputs ──────────────────────────────────────────
+  /** Tick streams for the analysis. all / none first, then every stream of
+   *  a process or of a subprocess, then listed keys, each set to `value`. */
   select_streams: (args) => {
     const state = project().state;
     const keys = allStreamKeys(state);
+    const value = args.value !== false;
+    const given = ['all', 'none', 'process', 'subprocess', 'keys'].filter(
+      (k) => args[k] !== undefined && args[k] !== false && args[k] !== null
+    );
+    if (!given.length)
+      throw new CommandError('Say which streams: all, none, process, subprocess or keys.');
+    const index = (key: 'process' | 'subprocess', count: number) => {
+      const i = Number(args[key]);
+      if (!Number.isInteger(i) || i < 0 || i >= count)
+        throw new CommandError(`There is no ${key} ${String(args[key])}; there are ${count}.`);
+      return i;
+    };
     const current = analysis().selectedStreams;
     const next: Record<string, boolean> = {};
-    const base = args.all === true ? true : args.none === true ? false : null;
-    for (const k of keys) next[k] = base ?? current[k] !== false;
-    if (args.process !== undefined) {
-      const pi = num(args, 'process');
-      for (const k of keys) if (k.startsWith(`stream_${pi}_`)) next[k] = args.value !== false;
-    }
-    for (const k of (args.keys as string[] | undefined) ?? []) {
-      if (!keys.includes(k))
-        throw new CommandError(`Unknown stream ${k}; keys are ${keys.join(', ')}`);
-      next[k] = args.value !== false;
+    for (const k of keys)
+      next[k] = args.all === true ? true : args.none === true ? false : current[k] === true;
+    const subs: number[] = [];
+    if (args.process !== undefined && args.process !== null)
+      subs.push(...(state.proc_groups[index('process', state.proc_group_names.length)] ?? []));
+    if (args.subprocess !== undefined && args.subprocess !== null)
+      subs.push(index('subprocess', state.processes.length));
+    for (const pi of subs) for (const k of keys) if (k.startsWith(`stream_${pi}_`)) next[k] = value;
+    if (args.keys !== undefined && args.keys !== null) {
+      if (!Array.isArray(args.keys) || args.keys.some((k) => typeof k !== 'string'))
+        throw new CommandError('keys must be a list of stream keys, e.g. ["stream_0_1"].');
+      const bad = (args.keys as string[]).filter((k) => !keys.includes(k));
+      if (bad.length)
+        throw new CommandError(`Unknown stream ${bad.join(', ')}; keys are ${keys.join(', ')}.`);
+      for (const k of args.keys as string[]) next[k] = value;
     }
     analysis().setSelectedStreams(next);
     project().setAnalysisSelection(next);

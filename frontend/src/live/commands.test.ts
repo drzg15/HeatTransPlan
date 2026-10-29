@@ -6,7 +6,7 @@ import { useProjectStore } from '../store/projectStore';
 import type { HPIOptimizationResult } from '../types/analysis';
 import type { ProjectState } from '../types/project';
 import fixture from '../test/fixtures/optimization.json';
-import { runCommand } from './commands';
+import { runCommand, useAiHistory } from './commands';
 
 // The backend's example project. A glob, not an import: the frontend image is
 // built from frontend/ alone, where the type check cannot see backend/.
@@ -28,8 +28,14 @@ beforeEach(() => {
     pinchLoading: false,
     hpiLoading: false,
     hpiOptimizationLoading: false,
+    scenarios: [],
+    activeScenarioId: null,
   });
+  useAiHistory.setState({ steps: [] });
 });
+
+/** A saved scenario, as the page keeps one. */
+const scenario = () => useAnalysisStore.getState().saveScenario('Kept');
 
 describe('live commands', () => {
   it('selects streams like the stream table', async () => {
@@ -41,6 +47,50 @@ describe('live commands', () => {
     await expect(runCommand('select_streams', { keys: ['stream_9_9'] })).rejects.toThrow(
       /Unknown stream/
     );
+  });
+
+  it('selects by process and by subprocess, and never ticks streams nobody named', async () => {
+    useAnalysisStore.setState({ selectedStreams: { stream_0_0: true } });
+    const one = (await runCommand('select_streams', { keys: ['stream_2_1'] })) as {
+      selected: string[];
+    };
+    expect(one.selected).toEqual(['stream_0_0', 'stream_2_1']);
+    const sub = (await runCommand('select_streams', { none: true, subprocess: 2 })) as {
+      selected: string[];
+    };
+    expect(sub.selected).toEqual(['stream_2_0', 'stream_2_1']);
+    const all = (await runCommand('select_streams', { process: 0 })) as { selected: string[] };
+    expect(all.selected).toHaveLength(6);
+    await expect(runCommand('select_streams', { process: 3 })).rejects.toThrow(
+      /no process 3; there are 1/
+    );
+    await expect(runCommand('select_streams', { keys: 'stream_0_0' })).rejects.toThrow(/list/);
+    await expect(runCommand('select_streams', {})).rejects.toThrow(/Say which/);
+  });
+
+  it('applies a single step without touching scenarios, and takes it back', async () => {
+    scenario();
+    const before = useProjectStore.getState().state;
+    const names = [...before.proc_group_names, 'Dryer'];
+    await runCommand('edit_project', { changes: { proc_group_names: names }, label: 'add Dryer' });
+    expect(useProjectStore.getState().state.proc_group_names).toEqual(names);
+    expect(useProjectStore.getState().state.processes).toBe(before.processes);
+    expect(useAnalysisStore.getState().scenarios.map((s) => s.name)).toEqual(['Kept']);
+    await expect(runCommand('edit_project', { changes: { map_center: [0, 0] } })).rejects.toThrow(
+      /cannot change map_center/
+    );
+    expect(await runCommand('undo', {})).toEqual({ undone: 'add Dryer', steps_left: 0 });
+    expect(useProjectStore.getState().state.proc_group_names).toEqual(before.proc_group_names);
+    await expect(runCommand('undo', {})).rejects.toThrow(/no step/);
+  });
+
+  it('loads a whole case in place of the old one, scenarios included', async () => {
+    scenario();
+    await runCommand('edit_project', { changes: { proc_group_names: ['X'] } });
+    const r = await runCommand('set_project', {});
+    expect(r).toEqual({ processes: 0, streams: 0 });
+    expect(useAnalysisStore.getState().scenarios).toEqual([]);
+    expect(useAiHistory.getState().steps).toEqual([]);
   });
 
   it('sets ΔTmin and the heat recovery share', async () => {

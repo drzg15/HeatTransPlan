@@ -22,7 +22,7 @@ from mcp.server.mcpserver import MCPServer
 
 from heattransplan_mcp import documents, files, project_edit as edit
 from heattransplan_mcp.files import _deliver, _read_input
-from heattransplan_mcp.texts import GUIDE, INSTRUCTIONS, TOPICS
+from heattransplan_mcp.texts import GUIDE, INSTRUCTIONS, MODES, RULES, TOPICS
 from heattransplan_mcp.api import Api, ApiError
 
 
@@ -30,7 +30,7 @@ mcp = MCPServer(name="heattransplan", instructions=INSTRUCTIONS, version="3.0.0"
 api = Api()
 
 # Tools that only read: they are not listed in the page's AI activity.
-READS = {"get_project", "list_heat_pumps", "save_project_file", "export_csv", "live_view",
+READS = {"start", "get_project", "list_heat_pumps", "save_project_file", "export_csv", "live_view",
          "live_results", "live_wait"}
 LIVE_READS = {"get_view", "get_results", "list_commands", "wait_idle", "get_project", "export_csv",
               "export_distances_csv"}
@@ -143,24 +143,47 @@ def _label(state: Dict[str, Any], process: Optional[int] = None, subprocess: Opt
 
 
 async def _load(project_id: str) -> Dict[str, Any]:
-    return await api.get(f"/api/projects/{await _page(project_id)}")
+    """The open page's project as it is now: while a page is connected it,
+    not the backend's copy, is the truth."""
+    return await _live((await _page_info(project_id))["session_id"], "get_project")
 
 
-async def _save(project_id: str, state: Dict[str, Any]) -> Dict[str, Any]:
-    project_id = await _page(project_id)
-    _analysis.pop(project_id, None)
-    return await api.put(f"/api/projects/{project_id}", json=state)
+def _target(state: Dict[str, Any], focus: Optional[str]) -> Any:
+    """What a step changed, as get_project shows it: a process (g<i>), a
+    subprocess (s<i>) or a stream (its key)."""
+    if not focus:
+        return None
+    for proc in edit.overview(state)["processes"]:
+        if focus == f"g{proc['process']}":
+            return proc
+        for sub in proc["subprocesses"]:
+            if focus == f"s{sub['subprocess']}":
+                return sub
+            for stream in sub["streams"]:
+                if focus == stream["key"]:
+                    return stream
+    return None
 
 
-async def _edit(project_id: str, change) -> Dict[str, Any]:
-    """Load, change, save; returns the change's result and the new overview."""
-    state = await _load(project_id)
+async def _edit(project_id: str, label: str, change, focus=None) -> Dict[str, Any]:
+    """One step on the open page: worked out on its project as it is now,
+    then only the fields it changed are sent. The page applies them without
+    touching its scenarios, economics or analysis settings, keeps the step
+    for undo and highlights it. focus(result) names what changed (see
+    _target). Returns the step's result and that changed object."""
+    info = await _page_info(project_id)
+    before = await _live(info["session_id"], "get_project")
+    state = edit.clone(before)
     try:
         result = change(state)
     except edit.EditError as exc:
         raise ApiError(str(exc)) from exc
-    saved = await _save(project_id, state)
-    return {"result": result, "project": edit.overview(saved)}
+    changes = {k: v for k, v in state.items() if before.get(k) != v}
+    key = focus(result) if callable(focus) else focus
+    if changes:
+        await _live(info["session_id"], "edit_project", {"changes": changes, "focus": key, "label": label})
+    _analysis.pop(info["project_id"], None)
+    return {"result": result, "changed": _target(state, key)}
 
 
 # ── The method ──────────────────────────────────────────────────────────────
@@ -235,6 +258,44 @@ async def read_document(file_path: Optional[str] = None, content: Optional[str] 
 
 
 @tool
+async def start(project_id: str) -> Dict[str, Any]:
+    """Call this first, when the user gives you the code. What the open page
+    holds now, the ways of working to offer and your standing rules. Open
+    with `say`, offer `modes`, state `rules`, then do what the user picks."""
+    view = await _live((await _page_info(project_id))["session_id"], "get_view")
+    groups = view["project"]["groups"]
+    subs = [sp for g in groups for sp in g["subprocesses"]]
+    streams = sum(len(sp["streams"]) for sp in subs)
+    scenarios = len(view.get("scenarios") or [])
+    held = (f"{len(groups)} process{'es' if len(groups) != 1 else ''}, "
+            f"{len(subs)} subprocess{'es' if len(subs) != 1 else ''}, "
+            f"{streams} stream{'s' if streams != 1 else ''}"
+            + (f", {scenarios} saved scenario{'s' if scenarios != 1 else ''}" if scenarios else ""))
+    say = (f"Here is the current page: {held}. Continue with it or start fresh?" if groups else
+           "The page is empty, so we start a new case.")
+    return {"page": {"processes": len(groups), "subprocesses": len(subs), "streams": streams,
+                     "scenarios": scenarios, "open": view.get("page")},
+            "say": say, "modes": MODES, "rules": RULES}
+
+
+@tool
+async def undo(project_id: str) -> Dict[str, Any]:
+    """Take back your last step on the page (add, change or delete of a
+    process, subprocess or stream, site plan, analysis inputs). Up to 20
+    steps; a whole case loaded with replace_project clears them."""
+    return await _live((await _page_info(project_id))["session_id"], "undo")
+
+
+@tool
+async def save_text_file(file_path: str, content: str) -> str:
+    """Save text you wrote for the user, e.g. a validation's differences as
+    CSV. Locally into file_path (only in the case's folder unless the user
+    agreed otherwise); online a download link for the user."""
+    media = mimetypes.guess_type(file_path)[0] or "text/plain"
+    return _deliver(file_path, Path(file_path).name, content.encode("utf-8"), media)
+
+
+@tool
 async def list_examples() -> List[str]:
     """Example projects that ship with HeatTransPlan."""
     return (await api.get("/api/assets/examples"))["examples"]
@@ -260,20 +321,28 @@ async def save_project_file(project_id: str, file_path: Optional[str] = None) ->
 @tool
 async def replace_project(project_id: str, state: Optional[Dict[str, Any]] = None,
                           example: Optional[str] = None, file_path: Optional[str] = None,
-                          content: Optional[str | Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Replace the open page's whole project, as loading a file on the page:
-    with a project JSON (state), an example (see list_examples) or a saved
-    project file (file_path, or its content). Ask the user first: what the
-    page shows is replaced (the page asks them too)."""
+                          content: Optional[str | Dict[str, Any]] = None,
+                          empty: bool = False) -> Dict[str, Any]:
+    """Load a whole case onto the open page, as loading a file there: a
+    project JSON (state), an example (see list_examples), a saved project file
+    (file_path, or its content), or empty=True to start fresh. Only for a
+    new case; single changes have their own tools. Ask the user first: the
+    page asks them too, and the old case's scenarios go with it."""
     given = [x for x in (state, example, file_path or content) if x is not None]
-    if len(given) != 1:
-        raise ApiError("Give one of state, example or a file (file_path or content).")
+    if len(given) + bool(empty) != 1:
+        raise ApiError("Give one of state, example, a file (file_path or content) or empty=True.")
+    if empty:
+        await _confirm(project_id, "replace_project", "an empty project")
+        await _live((await _page_info(project_id))["session_id"], "set_project", {"state": None})
+        return edit.overview(await _load(project_id))
     if example:
         state = await api.get(f"/api/assets/examples/{example}")
     elif state is None:
         state = json.loads(_read_input(file_path, content)[1].decode("utf-8"))
     await _confirm(project_id, "replace_project", example or (Path(file_path).name if file_path else ""))
-    return edit.overview(await _save(project_id, state))
+    # A whole case: the page drops the old one's scenarios and undo steps with it.
+    await _live((await _page_info(project_id))["session_id"], "set_project", {"state": state})
+    return edit.overview(await _load(project_id))
 
 
 @tool
@@ -281,7 +350,9 @@ async def add_process(project_id: str, name: Optional[str] = None, lat: Optional
                       lon: Optional[float] = None) -> Dict[str, Any]:
     """Add a process (a box on the map) with one empty subprocess, as the
     "Add process" button. Returns the new process index."""
-    return await _edit(project_id, lambda s: {"process": edit.add_process(s, name, lat, lon)})
+    return await _edit(project_id, f"add process {name or ''}".strip(),
+                       lambda s: {"process": edit.add_process(s, name, lat, lon)},
+                       lambda r: f"g{r['process']}")
 
 
 @tool
@@ -289,22 +360,25 @@ async def update_process(project_id: str, process: int, name: Optional[str] = No
                          lat: Optional[float] = None, lon: Optional[float] = None,
                          hours: Optional[str] = None, box_scale: Optional[float] = None) -> Dict[str, Any]:
     """Rename a process or set its position (lat/lon), operating hours or box size."""
-    return await _edit(project_id, lambda s: edit.update_process(
-        s, process, name, lat=lat, lon=lon, hours=hours, box_scale=box_scale))
+    return await _edit(project_id, f"change process {process}", lambda s: edit.update_process(
+        s, process, name, lat=lat, lon=lon, hours=hours, box_scale=box_scale), f"g{process}")
 
 
 @tool
 async def delete_process(project_id: str, process: int) -> Dict[str, Any]:
     """Delete a process and its subprocesses; later indices and the stream
     selection move up, as on the page. The user is asked on the page first."""
-    await _confirm(project_id, "delete_process", _label(await _load(project_id), process=process))
-    return await _edit(project_id, lambda s: edit.delete_process(s, process))
+    label = _label(await _load(project_id), process=process)
+    await _confirm(project_id, "delete_process", label)
+    return await _edit(project_id, f"delete process {label}", lambda s: edit.delete_process(s, process))
 
 
 @tool
 async def add_subprocess(project_id: str, process: int, name: Optional[str] = None) -> Dict[str, Any]:
     """Add a subprocess (where streams live) to a process. Returns its index."""
-    return await _edit(project_id, lambda s: {"subprocess": edit.add_subprocess(s, process, name)})
+    return await _edit(project_id, f"add subprocess {name or ''}".strip(),
+                       lambda s: {"subprocess": edit.add_subprocess(s, process, name)},
+                       lambda r: f"s{r['subprocess']}")
 
 
 @tool
@@ -319,18 +393,20 @@ async def update_subprocess(project_id: str, subprocess: int, name: Optional[str
     subprocess(es) (comma separated names), box size on the map, or its
     "Parameters & notes" (notes, density, pressure, water content in/out:
     free text, as typed on the page)."""
-    return await _edit(project_id, lambda s: edit.update_subprocess(
+    return await _edit(project_id, f"change subprocess {subprocess}", lambda s: edit.update_subprocess(
         s, subprocess, name=name, lat=lat, lon=lon, hours=hours, next=next, box_scale=box_scale,
         notes=notes, density=density, pressure=pressure, water_content_in=water_content_in,
-        water_content_out=water_content_out))
+        water_content_out=water_content_out), f"s{subprocess}")
 
 
 @tool
 async def delete_subprocess(project_id: str, subprocess: int) -> Dict[str, Any]:
     """Delete a subprocess (the last one takes its process along), as on the
     page. The user is asked on the page first."""
-    await _confirm(project_id, "delete_subprocess", _label(await _load(project_id), subprocess=subprocess))
-    return await _edit(project_id, lambda s: edit.delete_subprocess(s, subprocess))
+    label = _label(await _load(project_id), subprocess=subprocess)
+    await _confirm(project_id, "delete_subprocess", label)
+    return await _edit(project_id, f"delete subprocess {label}",
+                       lambda s: edit.delete_subprocess(s, subprocess))
 
 
 @tool
@@ -349,8 +425,9 @@ async def add_stream(project_id: str, subprocess: int, name: str,
     "Pressure" (bar, Pa, atm); they are recorded, the analysis does not use
     them. A stream is hot (a heat source) when t_in > t_out."""
     values = {"Tin": t_in, "Tout": t_out, "ṁ": mass_flow, "cp": cp, "CP": CP, **(extra or {})}
-    return await _edit(project_id, lambda s: {
-        "stream": edit.add_stream(s, subprocess, edit.make_stream(name, values, units, stream_type))})
+    return await _edit(project_id, f"add stream {name}", lambda s: {
+        "stream": edit.add_stream(s, subprocess, edit.make_stream(name, values, units, stream_type))},
+        lambda r: f"stream_{subprocess}_{r['stream']}")
 
 
 @tool
@@ -369,29 +446,30 @@ async def update_stream(project_id: str, subprocess: int, stream: int, name: Opt
     values = {k: v for k, v in {"Tin": t_in, "Tout": t_out, "ṁ": mass_flow, "cp": cp, "CP": CP,
                                 **(extra or {})}.items() if v is not None}
     values.update({k: "" for k in clear or []})
-    return await _edit(project_id, lambda s: edit.update_stream(
-        s, subprocess, stream, name, values, units, stream_type, show))
+    return await _edit(project_id, f"change stream {subprocess}/{stream}", lambda s: edit.update_stream(
+        s, subprocess, stream, name, values, units, stream_type, show), f"stream_{subprocess}_{stream}")
 
 
 @tool
 async def delete_stream(project_id: str, subprocess: int, stream: int) -> Dict[str, Any]:
     """Delete a stream; later streams of the subprocess move up, selection
     too. The user is asked on the page first."""
-    await _confirm(project_id, "delete_stream",
-                   _label(await _load(project_id), subprocess=subprocess, stream=stream))
-    return await _edit(project_id, lambda s: edit.delete_stream(s, subprocess, stream))
+    label = _label(await _load(project_id), subprocess=subprocess, stream=stream)
+    await _confirm(project_id, "delete_stream", label)
+    return await _edit(project_id, f"delete stream {label}",
+                       lambda s: edit.delete_stream(s, subprocess, stream))
 
 
 @tool
 async def set_notes(project_id: str, project_notes: Optional[str] = None,
                     pinch_notes: Optional[str] = None) -> Dict[str, Any]:
     """Set the data collection notes and/or the analysis notes."""
-    def change(s):
-        if project_notes is not None:
-            s["project_notes"] = project_notes
-        if pinch_notes is not None:
-            s["pinch_notes"] = pinch_notes
-    return await _edit(project_id, change)
+    session_id = (await _page_info(project_id))["session_id"]
+    if project_notes is not None:
+        await _live(session_id, "set_project_notes", {"notes": project_notes})
+    if pinch_notes is not None:
+        await _live(session_id, "set_pinch_notes", {"notes": pinch_notes})
+    return {"project_notes": project_notes, "pinch_notes": pinch_notes}
 
 
 @tool
@@ -400,18 +478,10 @@ async def set_map(project_id: str, center: Optional[List[float]] = None, zoom: O
                   locked: Optional[bool] = None, bearing: Optional[float] = None) -> Dict[str, Any]:
     """Set the map's centre [lat, lon], zoom, base layer, lock or bearing
     (degrees clockwise from north; 0 faces north)."""
-    def change(s):
-        if center is not None:
-            s["map_center"] = center
-        if zoom is not None:
-            s["map_zoom"] = zoom
-        if bearing is not None:
-            s["map_bearing"] = bearing % 360
-        if base is not None:
-            s["current_base"] = base
-        if locked is not None:
-            s["map_locked"] = locked
-    return await _edit(project_id, change)
+    args = {"center": center, "zoom": zoom, "bearing": None if bearing is None else bearing % 360,
+            "base": base, "locked": locked}
+    return await _live((await _page_info(project_id))["session_id"], "set_map_view",
+                       {k: v for k, v in args.items() if v is not None})
 
 
 @tool
@@ -454,7 +524,7 @@ async def set_site_plan(project_id: str, image_path: Optional[str] = None,
             if not bounds:
                 raise edit.EditError("bounds [[south, west], [north, east]] are needed for the site plan")
             s["site_plan"] = {"url": url, "bounds": bounds}
-    return await _edit(project_id, change)
+    return await _edit(project_id, "remove site plan" if remove else "site plan", change)
 
 
 @tool
@@ -478,6 +548,8 @@ async def import_csv(project_id: str, file_path: Optional[str] = None,
     await api.request("POST", f"/api/io/import-csv/{project_id}",
                       files={"file": (name, data, "text/csv")})
     _analysis.pop(project_id, None)
+    session_id = (await _page_info(project_id))["session_id"]
+    await _live(session_id, "set_project", {"state": await api.get(f"/api/projects/{project_id}")})
     return edit.overview(await _load(project_id))
 
 
@@ -580,13 +652,13 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
     (default the project's). The streams, ΔTmin and demands given are saved
     to the project, as the page does. Results are kept for list_heat_pumps,
     economic_analysis and generate_report."""
-    project_id = await _page(project_id)
-    state = await _load(project_id)
     sel = {k: True for k in selected_streams} if selected_streams is not None else None
     changed = {k: v for k, v in {"selected_streams": sel, "t_min": t_min,
                                   "energy_demands": energy_demands}.items() if v is not None}
     if changed:
-        state = await _save(project_id, {**state, **changed})
+        await _edit(project_id, "analysis inputs", lambda s: s.update(changed))
+    state = await _load(project_id)
+    project_id = await _page(project_id)
     economics_inputs = {**await _preset(reference_heater), **(economics_inputs or {})}
     out = await api.post("/api/analysis/project", json={
         "state": state, "selected_streams": sel, "t_min": t_min, "profile_mode": profile_mode,
@@ -807,7 +879,7 @@ async def live_command(session_id: str, command: str, args: Optional[Dict[str, A
     """Run any page command; "list_commands" lists those available now (some
     exist only while their page is open). Commands: navigate {page: home |
     data-collection | potential-analysis}, set_language {lang}, set_theme
-    {theme}, select_streams {all|none|keys[]|process, value}, set_t_min
+    {theme}, select_streams {all|none|process|subprocess|keys[], value}, undo, set_t_min
     {value}, set_show_shifted {value}, set_recovery_pct {value},
     set_profile_mode {mode}, set_energy_demands {demands}, reset_pinch,
     set_cop_model {model}, set_cop_formula {formula}, set_custom_cop_model
@@ -844,15 +916,17 @@ async def live_wait(session_id: str, timeout: float = 60) -> Dict[str, Any]:
 
 @tool
 async def live_select_streams(session_id: str, keys: Optional[List[str]] = None, value: bool = True,
-                              all: bool = False, none: bool = False,
+                              all: bool = False, none: bool = False, process: Optional[int] = None,
                               subprocess: Optional[int] = None) -> Any:
-    """Tick streams for the analysis: all, none, every stream of a
-    subprocess, or listed keys (stream_<subprocess>_<stream>)."""
+    """Tick streams for the analysis. all or none first, then every stream
+    of a process, of a subprocess, and the listed keys
+    (stream_<subprocess>_<stream>), each set to value. Streams not named
+    keep their tick. E.g. none=True, process=0: only process 0's streams.
+    Returns the selected keys; a bad index or key says what exists."""
     args: Dict[str, Any] = {"value": value, "all": all, "none": none}
-    if keys is not None:
-        args["keys"] = keys
-    if subprocess is not None:
-        args["process"] = subprocess
+    for name, given in (("keys", keys), ("process", process), ("subprocess", subprocess)):
+        if given is not None:
+            args[name] = given
     return await _live(session_id, "select_streams", args)
 
 

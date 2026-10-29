@@ -1027,7 +1027,8 @@
     "setup_ex_mistral": "Mistral Le Chat: Connectors → + Connector hinzufügen → Benutzerdefinierter MCP-Connector; Name heattransplan (ohne Leerzeichen), die Adresse → Verbinden. Nur Administratoren können Connectors hinzufügen.",
     "setup_ex_claude_code": "Claude Code, im Terminal (alle Werkzeuge erlauben: /permissions, mcp__heattransplan erlauben):",
     "setup_ex_gemini": "Gemini CLI, im Terminal, oder den Eintrag unten in ~/.gemini/settings.json einfügen; danach zeigt /mcp die Werkzeuge. (Die Gemini-Web-App nimmt keine eigenen MCP-Server.)",
-    "setup_ex_note": "Die Menünamen ändern sich mit Versionen und Tarifen; nach MCP, Connectors, Apps oder Werkzeugen suchen."
+    "setup_ex_note": "Die Menünamen ändern sich mit Versionen und Tarifen; nach MCP, Connectors, Apps oder Werkzeugen suchen.",
+    "undo": "Letzten Schritt der KI rückgängig machen: {{step}}"
   },
   "home_preview": {
     "lead": "HeatTransPlan unterstützt Industrieunternehmen auf dem Weg zur klimaneutralen Prozesswärme. Das Tool erfasst Prozessenergiedaten strukturiert und nutzt sie für eine erste Energiepotenzialanalyse: das Wärmerückgewinnungspotenzial, den minimalen Energiebedarf und mögliche Wärmepumpenintegrationen mit ihrer Leistungszahl (COP) und Wirtschaftlichkeit.",

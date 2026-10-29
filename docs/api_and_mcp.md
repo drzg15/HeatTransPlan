@@ -113,8 +113,8 @@ sequenceDiagram
 | Area | Commands |
 |---|---|
 | Page | `navigate`, `set_language`, `set_theme`, `get_view`, `get_results`, `wait_idle` |
-| Project | `get_project`, `set_project`, `set_project_notes`, `set_pinch_notes`, `set_map_view`, `load_site_plan`¹, `set_site_plan_bounds`, `remove_site_plan`, `remove_subprocess_plan`, `export_csv`, `export_distances_csv` |
-| Analysis | `select_streams`, `set_t_min`, `set_show_shifted`, `set_recovery_pct`, `set_profile_mode`, `set_energy_demands`, `reset_pinch` |
+| Project | `get_project`, `set_project` (a whole case, or empty), `edit_project` (one step, from the MCP tools), `undo`, `set_project_notes`, `set_pinch_notes`, `set_map_view`, `load_site_plan`¹, `set_site_plan_bounds`, `remove_site_plan`, `remove_subprocess_plan`, `export_csv`, `export_distances_csv` |
+| Analysis | `select_streams` (all / none, a process, a subprocess, keys), `set_t_min`, `set_show_shifted`, `set_recovery_pct`, `set_profile_mode`, `set_energy_demands`, `reset_pinch` |
 | Heat pumps | `set_cop_model`, `set_cop_formula`, `set_custom_cop_model`, `set_hp_types`, `select_heat_pumps`, `reset_heat_pumps`² |
 | Economics | `set_economics`, `reset_economics` |
 | Scenarios | `save_scenario`, `load_scenario`, `rename_scenario`, `delete_scenario` |
@@ -171,14 +171,26 @@ No login, limits per visitor, browser protections, projects that leave the serve
 
 | Area | Tools |
 |---|---|
+| Start | `start` (what the page holds, the ways of working, the standing rules: the agent calls it first) |
 | The method | `explain` (overview, pinch, heat pump integration, optimization, economics, refrigerants, api: these pages, without the code) |
 | Guided study | `guide` (the questions to ask at each step: start, data, analysis, economics, report), `read_document` (text and tables of Word, PowerPoint, Excel and CSV files), the prompt `guided_study` |
-| Projects | `list_examples`, `get_project`, `save_project_file`, `replace_project` (loads an example or a saved file onto the page) |
-| Processes & streams | `add_process`, `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`, `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`, `set_notes`, `set_map`, `search_address`, `set_site_plan`, `export_csv`, `import_csv` |
+| Projects | `list_examples`, `get_project`, `save_project_file`, `replace_project` (a whole case: an example, a saved file or empty), `save_text_file` |
+| Processes & streams | `add_process`, `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`, `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`, `undo`, `set_notes`, `set_map`, `search_address`, `set_site_plan`, `export_csv`, `import_csv` |
 | Analysis | `analyse_project` (with today's energy demands: status quo), `list_heat_pumps`, `economics_defaults`, `economic_analysis`, `validate_cop_formula`, `inspect_cop_data`, `train_cop_model`, `generate_report` |
 | Live | `live_view`, `live_results`, `live_command`, `live_navigate`, `live_wait`, `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`, `live_filter_heat_pumps`, `live_set_economics`, `live_use_cop_model`, `live_save_scenario`, `live_generate_report`, `live_load_site_plan` |
 
-When it connects, the assistant is told what the app is for, the physics in short, how to read the results and the steps of an analysis; `explain` gives it the full method.
+When it connects, the assistant is told what the app is for, the physics in short, how to read the results and the steps of an analysis; `explain` gives it the full method. Once you give it the code it calls `start` and opens with what the page holds ("Here is the current page: 1 process, 4 subprocesses, 6 streams. Continue with it or start fresh?"), then offers four ways of working and states its standing rules:
+
+| Way of working | What happens |
+|---|---|
+| Guided study | It asks you page by page what the study needs (`guide`) and enters your answers. |
+| Chat building | You say what to add or change and see each step appear on the page. |
+| From a document | It takes the streams from a presentation, Excel or Word file, shows you the list to approve, then builds it step by step. |
+| Validation | It compares the app's results with a presentation and gives you a report and a file of the differences. |
+
+Standing rules: it clears the page (with your OK) before a new case, writes no files outside the case's folder without asking, and keeps confidential data out of git.
+
+**One step at a time.** While a page is connected, the page holds the project. Each edit tool works out its change on the page's project as it is now and sends only the fields it changes; the page applies them without touching the stream selection, scenarios or economics, highlights what changed, and keeps the step for `undo` (up to 20; the AI panel has an Undo button too). Only `replace_project` loads a whole case: you confirm it on the page, and the old case's scenarios go with it, as when you load a file yourself.
 
 **Guided study.** Ask the assistant to guide you through a study (or use the `guided_study` prompt where the agent offers prompts). It goes page by page, Data Collection, Potential Analysis, Economics, Report, and asks a few questions at a time, only what your documents do not answer. Hand it Word, PowerPoint or Excel files, or paste the stream numbers. It shows the streams back as a table before entering them, and it says which values are assumptions.
 
