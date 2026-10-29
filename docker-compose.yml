@@ -40,12 +40,21 @@ services:
         max-size: "500m"
         max-file: "2"
 
+  docs:
+    # The documentation site, served at /docs.
+    build:
+      context: .
+      dockerfile: docs/Dockerfile
+    container_name: heattransplan-docs
+    restart: unless-stopped
+
   caddy:
     image: caddy:2-alpine
     container_name: heattransplan-caddy
     depends_on:
       - frontend
       - backend
+      - docs
     logging:
       driver: "json-file"
       options:

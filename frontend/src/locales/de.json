@@ -987,7 +987,7 @@
     "setup_add": "HeatTransPlan im Agenten als MCP-Server mit dieser Adresse eintragen:",
     "setup_key": "Dieser Server braucht einen API-Schlüssel: dem Agenten als Header X-API-Key (oder Authorization: Bearer <Schlüssel>) mitgeben.",
     "setup_connect": "Auf „KI verbinden“ klicken und dem Agenten den Sitzungscode nennen, z. B. „Nutze die HeatTransPlan-Sitzung AB12CD“. Er sieht und steuert dann diese Seite, bis die Verbindung getrennt wird.",
-    "setup_files": "Ohne Verbindung kann der Agent trotzdem Projekte anlegen, Daten eingeben, die Analyse rechnen und den Bericht schreiben; er gibt Download-Links, die hier geöffnet werden. Diese Seite sieht und ändert er nicht.",
+    "setup_files": "Ohne „KI verbinden“ kann der Agent nur die Methode erklären und Dokumente lesen; er sieht, erstellt und ändert nichts. Nach dem Trennen oder Schließen der Seite gilt das wieder.",
     "setup_guided": "Dann den Agenten fragen, z. B.: „Führe mich durch eine HeatTransPlan-Studie.“ Er geht Seite für Seite vor, fragt nach, was er braucht, und liest angehängte Word-, PowerPoint- und Excel-Dateien oder eingefügte Zahlen.",
     "setup_claude_connector": "Claude (Web, Desktop, Mobil): Einstellungen → Connectors → Benutzerdefinierten Connector hinzufügen und die Adresse einfügen.",
     "setup_local": "Diese App läuft auf diesem Rechner (http), daher erreichen sie Agenten, die sich über das Internet verbinden, etwa Claudes Connectors, nicht. Einen Agenten verwenden, der auf diesem Rechner läuft.",

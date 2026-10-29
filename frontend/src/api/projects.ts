@@ -1,11 +1,6 @@
 import client from './client';
 import type { ProjectState } from '../types/project';
 
-export async function listProjects(): Promise<Record<string, string>> {
-  const res = await client.get('/api/projects');
-  return res.data;
-}
-
 export async function createProject(
   state?: ProjectState
 ): Promise<{ project_id: string; state: ProjectState }> {

@@ -76,6 +76,15 @@ def get(session_id: str) -> Optional[Session]:
     return _sessions.get(session_id)
 
 
+def connected_project(key: str) -> Optional[str]:
+    """The project of a page that is open and connected, found by its session
+    code or its project id. The AI works only on such a page."""
+    for s in _sessions.values():
+        if s.connected and key in (s.id, s.project_id):
+            return s.project_id
+    return None
+
+
 def remove(session_id: str) -> bool:
     return _sessions.pop(session_id, None) is not None
 

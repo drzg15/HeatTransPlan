@@ -55,6 +55,16 @@ async def create_session(body: SessionCreate):
     return session.summary()
 
 
+@router.get("/pages/{key}")
+async def connected_page(key: str):
+    """The project of the open, connected page with this session code or
+    project id; 404 when no such page is open."""
+    project_id = live.connected_project(key)
+    if project_id is None:
+        raise HTTPException(404, "No open page is connected with this code or project")
+    return {"project_id": project_id}
+
+
 @router.get("/sessions/{session_id}")
 async def get_session(session_id: str):
     """The session and what its page shows right now."""

@@ -83,7 +83,8 @@ docker compose up -d --build
 ```
 
 Without settings it serves `http://localhost` (with the MCP server for AI
-agents at `http://localhost/mcp`), so the whole stack can be tested on your
+agents at `http://localhost/mcp` and this version's documentation at
+`http://localhost/docs`), so the whole stack can be tested on your
 own computer. On a server, copy `.env.example` to `.env` and set
 `SITE_ADDRESS` to its domain; Caddy then gets the TLS certificate and serves
 ports `80` and `443`. `.env` stays out of git.

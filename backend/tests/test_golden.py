@@ -168,7 +168,6 @@ def test_project_editing(client, example):
     r = client.post("/api/projects", json=_example(example))
     rec("create", r)
     pid = r.json()["project_id"] if "project_id" in r.json() else r.json()["id"]
-    rec("list", client.get("/api/projects"))
     rec("get", client.get(f"/api/projects/{pid}"))
     rec("add_group", client.post(f"/api/projects/{pid}/groups", json={"name": "New group"}))
     rec("rename_group", client.put(f"/api/projects/{pid}/groups/0", json={"name": "Renamed"}))

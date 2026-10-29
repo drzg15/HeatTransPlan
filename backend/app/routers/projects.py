@@ -11,12 +11,6 @@ from app.services import project_service
 router = APIRouter()
 
 
-@router.get("")
-async def list_projects():
-    """List all project IDs and timestamps."""
-    return project_service.list_projects()
-
-
 @router.post("")
 async def create_project(state: ProjectState | None = None):
     """Create a new project, optionally initialized with state."""
