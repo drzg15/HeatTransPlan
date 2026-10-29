@@ -17,7 +17,9 @@ edits appear on the page at once, and your own edits reach the AI.
 Disconnect with the × next to the code. While connected, the project is
 also stored on the server. Without a connected page (or once it closes) the
 project tools refuse; only `explain`, `guide`, `read_document` and the
-other tools that touch no project still answer.
+other tools that touch no project still answer. On the page the user can
+pause the AI, sees what it changed, and is asked before anything is
+deleted or replaced.
 
 ## Setup
 

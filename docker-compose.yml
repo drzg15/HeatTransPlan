@@ -10,6 +10,12 @@ services:
     environment:
       # AI_ENABLED=0 in .env hides Connect AI and turns off the MCP server.
       AI_ENABLED: ${AI_ENABLED:-1}
+    # Hardened: read-only except /tmp, no special rights, no way to gain any.
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ALL]
+    security_opt: ["no-new-privileges:true"]
     logging:
       driver: "json-file"
       options:
@@ -34,6 +40,12 @@ services:
     depends_on:
       - backend
     restart: unless-stopped
+    # Serves files only: read-only, no special rights but binding its port.
+    read_only: true
+    tmpfs: [/data, /config, /tmp]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
     logging:
       driver: "json-file"
       options:
@@ -47,10 +59,21 @@ services:
       dockerfile: docs/Dockerfile
     container_name: heattransplan-docs
     restart: unless-stopped
+    read_only: true
+    tmpfs: [/data, /config, /tmp]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
 
   caddy:
     image: caddy:2-alpine
     container_name: heattransplan-caddy
+    # Certificates live in its volumes; it needs only to bind ports 80 and 443.
+    read_only: true
+    tmpfs: [/tmp]
+    cap_drop: [ALL]
+    cap_add: [NET_BIND_SERVICE]
+    security_opt: ["no-new-privileges:true"]
     depends_on:
       - frontend
       - backend

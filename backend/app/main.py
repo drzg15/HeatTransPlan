@@ -7,6 +7,7 @@ from app.config import AI_ENABLED, CORS_ORIGINS
 from app.routers import projects, processes, streams, analysis, io_routes, assets, live
 from app.services import cop_training
 from app.dependencies import API_KEYS, verify_api_key
+from app.rate_limit import RateLimit
 
 # The MCP server online, when AI access is on and its package is installed
 # (see app/mcp_http.py).
@@ -28,6 +29,9 @@ app = FastAPI(
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
 )
+
+# Requests per visitor (app/rate_limit.py); added first so CORS wraps its answers.
+app.add_middleware(RateLimit)
 
 # CORS
 app.add_middleware(

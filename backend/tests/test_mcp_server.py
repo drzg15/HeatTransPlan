@@ -33,11 +33,13 @@ def run(coro_fn):
 
 
 _pages = []  # the stand-in pages' listeners, to close one
+_asked = []  # what the stand-in pages were asked to allow
 
 
-async def open_page(example=None):
+async def open_page(example=None, allow=True):
     """A page the user has open and connected, with an empty project or an
-    example: returns its Connect AI code, all the AI works with."""
+    example: returns its Connect AI code, all the AI works with. The user
+    there answers every "may the AI ...?" with allow."""
     state = await S.api.get(f"/api/assets/examples/{example}") if example else None
     created = await S.api.post("/api/projects", json=state)
     session = live.create(created["project_id"])
@@ -46,7 +48,10 @@ async def open_page(example=None):
         async for chunk in live.events(session):
             if chunk.startswith("event: "):
                 event = json.loads(chunk.split("data: ", 1)[1])
-                if event.get("type") == "command":
+                if event.get("type") == "command" and event["name"] == "confirm_ai_action":
+                    _asked.append(event["args"])
+                    live.resolve(session, event["id"], True, {"allowed": allow})
+                elif event.get("type") == "command":
                     live.resolve(session, event["id"], True, {"ran": event["name"]})
 
     _pages.append(asyncio.create_task(listen()))
@@ -164,6 +169,8 @@ def test_driving_a_connected_page(tmp_path):
                 name, args = event["name"], event["args"]
                 if name == "fail":
                     live.resolve(session, event["id"], False, error="not available here")
+                elif name == "confirm_ai_action":
+                    live.resolve(session, event["id"], True, {"allowed": True})
                 elif name == "generate_report":
                     live.resolve(session, event["id"], True, {"html": "<html>page report</html>"})
                 else:
@@ -326,6 +333,32 @@ def test_only_on_an_open_page():
     run(body)
 
 
+def test_the_user_decides_and_sees():
+    """Deleting asks the user on the page and stops if they decline; what the
+    AI changed is listed on the page; while paused the AI can do nothing."""
+    async def body():
+        code = await open_page(allow=False)
+        await S.add_process(code, name="Kiln")
+        await S.get_project(code)  # reading is not listed
+        with pytest.raises(ApiError, match="declined"):
+            await S.delete_process(code, 0)
+        assert _asked[-1] == {"kind": "delete_process", "name": "Kiln"}
+        assert (await S.get_project(code))["processes"][0]["name"] == "Kiln"  # untouched
+        session = live.get(code)
+        assert [e["tool"] for e in session.log] == ["add_process"]
+        assert "name=Kiln" in session.log[0]["detail"]
+
+        session.paused = True
+        with pytest.raises(ApiError, match="paused"):
+            await S.get_project(code)
+        with pytest.raises(ApiError, match="paused"):
+            await S.live_view(code)
+        session.paused = False
+        assert (await S.get_project(code))["processes"]
+
+    run(body)
+
+
 def test_served_online_at_mcp(monkeypatch):
     """The backend's /mcp: an agent connects with the URL alone. Files come in
     as content and go out as links; the server's own disk stays out of reach."""
@@ -349,11 +382,10 @@ def test_served_online_at_mcp(monkeypatch):
         assert "analyse_project" in names
         assert not names & {"live_sessions", "list_projects", "create_project", "delete_project"}
 
-        # A page connects (its event stream stands in here), and the AI loads a file onto it.
+        # A page connects (its event stream stands in here), and the AI writes on it.
         code = c.post("/api/live/sessions", json={}, headers={"X-API-Key": "k1"}).json()["session_id"]
         monkeypatch.setattr(live.Session, "connected", property(lambda s: s.id == code))
-        err, text = call(c, "replace_project", {"project_id": code,
-                                                "content": json.dumps({"project_notes": "from a file"})})
+        err, text = call(c, "set_notes", {"project_id": code, "project_notes": "from a file"})
         assert not err, text
         _, text = call(c, "save_project_file", {"project_id": code, "file_path": "/etc/evil.json"})
         url = text.split(": ", 1)[1]

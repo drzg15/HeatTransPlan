@@ -1,5 +1,6 @@
 """One scenario page of the report: streams, metrics, tables and charts."""
 
+from html import escape
 from typing import Any, Dict, List, Optional
 
 import plotly.graph_objects as go
@@ -39,7 +40,8 @@ def _render_pinch_content(
 ) -> str:
     """Helper to render the detailed analysis content for a single scenario."""
     texts = I18N.get(lang, I18N["en"])
-    display_name = texts['all_streams'] if name.lower() == 'all streams' else name
+    # Shown in headings only: typed text, never markup.
+    display_name = escape(texts['all_streams'] if name.lower() == 'all streams' else name)
     
     if not pinch_result or len(selected_streams) < 2:
         return f"""
@@ -61,7 +63,7 @@ def _render_pinch_content(
         badge_cls = "hot" if is_hot else "cold"
         badge_lbl = texts['hot'] if is_hot else texts['cold']
         rows += (
-            f"<tr><td>{s.name}</td><td>{s.Tin:.1f}</td><td>{s.Tout:.1f}</td>"
+            f"<tr><td>{escape(s.name)}</td><td>{s.Tin:.1f}</td><td>{s.Tout:.1f}</td>"
             f"<td>{s.CP:.2f}</td><td>{s.Q:.2f}</td>"
             f"<td><span class='badge {badge_cls}'>{badge_lbl}</span></td></tr>\n"
         )

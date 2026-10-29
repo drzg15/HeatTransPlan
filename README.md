@@ -103,6 +103,8 @@ ports `80` and `443`. `.env` stays out of git.
 | `API_KEYS` | *(empty — auth disabled)* | Comma-separated API keys for `X-API-Key` header auth |
 | `HEATTRANSPLAN_STATE_DIR` | `/app/state` | Directory for persisted project state |
 | `AI_ENABLED` | `1` | `0` switches AI access off: the Connect AI button, the live endpoints and the MCP server at `/mcp`. The rest of the app is unchanged |
+| `RATE_LIMIT` | `1` | `0` switches off the requests-per-visitor limits (`backend/app/rate_limit.py`) |
+| `PROJECT_RETENTION_HOURS` | `24` | Projects nobody changed for this long, and no open page uses, are deleted from the server; a page's project goes when it disconnects |
 | `COP_TRAINING_ENABLED` | `1` | `0` switches the COP training module off: its endpoints, its button on the page, and trained models in the optimization |
 
 ### Frontend

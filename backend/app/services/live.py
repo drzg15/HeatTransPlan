@@ -16,8 +16,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+import logging
 import time
 import uuid
+from collections import deque
 from dataclasses import dataclass, field
 from typing import Any, AsyncIterator, Dict, List, Optional
 
@@ -31,6 +33,19 @@ class SessionNotConnected(Exception):
     """No page is listening on the session, so a command cannot run."""
 
 
+class SessionPaused(Exception):
+    """The user paused the AI on the page: nothing runs until they resume."""
+
+
+# What AIs did on pages, for the server's log (not the repository).
+ai_log = logging.getLogger("heattransplan.ai")
+if not ai_log.handlers:
+    _handler = logging.StreamHandler()
+    _handler.setFormatter(logging.Formatter("%(asctime)s %(name)s %(message)s"))
+    ai_log.addHandler(_handler)
+    ai_log.setLevel(logging.INFO)
+
+
 @dataclass
 class Session:
     id: str
@@ -41,6 +56,10 @@ class Session:
     view: Dict[str, Any] = field(default_factory=dict)
     subscribers: List[asyncio.Queue] = field(default_factory=list)
     pending: Dict[str, asyncio.Future] = field(default_factory=dict)
+    # Set by the user on the page; the AI then can do nothing until resumed.
+    paused: bool = False
+    # What the AI did, newest last, for the page's activity list.
+    log: deque = field(default_factory=lambda: deque(maxlen=100))
 
     @property
     def connected(self) -> bool:
@@ -53,6 +72,7 @@ class Session:
             "connected": self.connected,
             "page": self.view.get("page"),
             "last_seen": self.last_seen,
+            "paused": self.paused,
         }
 
 
@@ -76,13 +96,27 @@ def get(session_id: str) -> Optional[Session]:
     return _sessions.get(session_id)
 
 
-def connected_project(key: str) -> Optional[str]:
-    """The project of a page that is open and connected, found by its session
-    code or its project id. The AI works only on such a page."""
+def connected_session(key: str) -> Optional[Session]:
+    """The session of a page that is open and connected, found by its code or
+    its project id. The AI works only on such a page."""
     for s in _sessions.values():
         if s.connected and key in (s.id, s.project_id):
-            return s.project_id
+            return s
     return None
+
+
+def record(session: Session, tool: str, detail: str) -> Dict[str, Any]:
+    """Note what the AI did: in the page's activity list and the server's log."""
+    entry = {"time": time.time(), "tool": tool, "detail": detail}
+    session.log.append(entry)
+    _publish(session, {"type": "ai_log", **entry})
+    ai_log.info("AI on page %s: %s %s", session.id, tool, detail)
+    return entry
+
+
+def project_ids() -> set:
+    """The projects open sessions use."""
+    return {s.project_id for s in _sessions.values()}
 
 
 def remove(session_id: str) -> bool:
@@ -112,6 +146,8 @@ async def send_command(session: Session, name: str, args: Dict[str, Any], timeou
     """Run a command on the page and return what it answered."""
     if not session.connected:
         raise SessionNotConnected(f"No page is connected to session {session.id}.")
+    if session.paused:
+        raise SessionPaused("The user has paused the AI on this page.")
     command_id = uuid.uuid4().hex
     future: asyncio.Future = asyncio.get_running_loop().create_future()
     session.pending[command_id] = future

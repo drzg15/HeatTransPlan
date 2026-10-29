@@ -68,4 +68,5 @@ heat_pump_optimization
 economic_analysis
 refrigerant_limits
 api_and_mcp
+architecture_and_security
 ```
