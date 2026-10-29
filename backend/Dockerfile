@@ -26,6 +26,10 @@ RUN uv pip install --system . /opt/mcp_server --no-cache-dir
 # mounts it): the projects and matplotlib's font cache live there.
 RUN useradd --system --uid 10001 --no-create-home app
 ENV HOME=/tmp MPLCONFIGDIR=/tmp/matplotlib XDG_CACHE_HOME=/tmp/cache
+# The COP model's many small matrix products lose more to thread start-up than
+# they gain from all cores: 2 BLAS threads per request are ~4x faster than the
+# default (one per core), and parallel requests do not fight over the cores.
+ENV OPENBLAS_NUM_THREADS=2
 USER app
 
 EXPOSE 8000

@@ -186,3 +186,22 @@ def test_unrecovered_heat_scales_with_recovery_share():
     assert _unrecovered_heat(pinch, 100) == 0
     assert _unrecovered_heat(pinch, 0) == 700
     assert _unrecovered_heat(pinch, 40) == 420
+
+
+def test_net_load_profiles_cut_pockets_on_their_own_side():
+    """A pocket above the pinch (e.g. a large condensing stream across a few
+    kelvin) becomes a vertical step in the sink; nothing of it may turn up in
+    the source above the pinch. Below the pinch the same, mirrored."""
+    from types import SimpleNamespace
+    from app.modules.utility.heat_profiles import _net_load_profiles
+
+    gcc = [(800, 130), (900, 95), (400, 90), (150, 80), (700, 79), (600, 75), (500, 70),
+           (250, 62), (100, 60), (0, 50), (300, 40), (200, 30), (600, 10)]
+    pinch = SimpleNamespace(pinch_temperature=50.0, grand_composite_curve={
+        "H": [h for h, _ in gcc], "T": [t for _, t in gcc]})
+    source, sink = _net_load_profiles(pinch)
+
+    pts = lambda c: [(round(h, 3), round(t, 3)) for h, t in zip(c["H"], c["T"])]
+    assert pts(sink) == [(800, 94), (400, 90), (150, 80), (150, 60.667), (100, 60), (0, 50)]
+    assert pts(source) == [(0, 50), (200, 43.333), (200, 30), (600, 10)]
+    assert max(source["T"]) == 50 and min(sink["T"]) == 50

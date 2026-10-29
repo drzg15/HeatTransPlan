@@ -183,6 +183,39 @@ def _composite_profiles(pinch: Any) -> Tuple[Curve, Curve]:
     return _curve(source_T, source_H), _curve(sink_T, sink_H)
 
 
+def _pocket_free(points: List[Tuple[float, float]]) -> List[Tuple[float, float]]:
+    """One side of the GCC without its pockets. `points` are (H, T) from the
+    far end of that side to the pinch. Walking towards the pinch, the heat
+    flow may only fall: where it rises again (a pocket: heat recovered inside
+    it), the curve is cut off by a vertical step and rejoins at the exact
+    temperature it gets back to that heat flow. The far end's vertical run
+    (above the hot or below the cold utility) carries no duty and goes."""
+    out = [points[0]]
+    low = points[0][0]
+    for (h0, t0), (h1, t1) in zip(points, points[1:]):
+        if h1 > low:
+            continue  # inside a pocket
+        if h0 > low:
+            out.append((low, t0 + (low - h0) * (t1 - t0) / (h1 - h0)))
+        out.append((h1, t1))
+        low = h1
+    while len(out) > 1 and out[1][0] == out[0][0]:
+        out.pop(0)
+    return out if len(out) > 1 else []
+
+
+def _net_load_profiles(pinch: Any) -> Tuple[Curve, Curve]:
+    """The pocket-free GCC split at the pinch: the sink is the part above it,
+    the source the part below. Split by side, never by the sign of a segment,
+    so a pocket's heat can never turn up as a source above the pinch."""
+    gcc = list(zip(pinch.grand_composite_curve["H"], pinch.grand_composite_curve["T"]))
+    tp = float(pinch.pinch_temperature)
+    sink = _pocket_free([p for p in gcc if p[1] >= tp])               # top -> pinch
+    source = _pocket_free([p for p in reversed(gcc) if p[1] <= tp])[::-1]  # pinch -> bottom
+    return (_curve([t for _, t in source], [h for h, _ in source]),
+            _curve([t for _, t in sink], [h for h, _ in sink]))
+
+
 def build_heat_profiles(pinch: Any, mode: str) -> Tuple[Curve, Curve]:
     """
     Build (source, sink) profiles for one of the non-cascaded modes.
@@ -203,8 +236,11 @@ def resolve_profiles(pinch: Any, hpi: Any, mode: str = "net_load") -> Tuple[Curv
     """
     Return the (source, sink) profiles for `mode`.
 
-    For 'net_load' this delegates to the existing pocket deletion + split on the
-    HeatPumpIntegration instance, so the default path is unchanged.
+    For 'net_load' the pocket-free GCC split at the pinch. The legacy pocket
+    deletion still runs for the state it leaves on the HeatPumpIntegration
+    instance, but its split went by the sign of each segment: a pocket it
+    could not remove leaked into the source above the pinch and folded the
+    sink back on itself (a large condensing stream across one kelvin).
     """
     if mode not in PROFILE_MODES:
         raise ValueError(
@@ -213,6 +249,6 @@ def resolve_profiles(pinch: Any, hpi: Any, mode: str = "net_load") -> Tuple[Curv
 
     if mode == "net_load":
         hpi.delete_temperature_pockets()
-        return hpi.split_hot_and_cold()
+        return _net_load_profiles(pinch)
 
     return build_heat_profiles(pinch, mode)

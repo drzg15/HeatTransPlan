@@ -46,6 +46,10 @@ EXPOSE 7860
 # sessions behind Connect AI, the MCP download links and the rate limiter live
 # in memory. The computing endpoints run in uvicorn's thread pool.
 ENV HEATTRANSPLAN_STATE_DIR=/app/state
+# The COP model's many small matrix products lose more to thread start-up than
+# they gain from all cores: 2 BLAS threads per request are ~4x faster than the
+# default (one per core), and parallel requests do not fight over the cores.
+ENV OPENBLAS_NUM_THREADS=2
 RUN mkdir -p /app/state
 
 # Run uvicorn server
