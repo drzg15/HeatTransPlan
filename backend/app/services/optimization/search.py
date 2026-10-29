@@ -145,8 +145,6 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         q_demand_flat = np.interp(T_senke_flat, t_sink_clean, q_demand_clean)
 
         feasible_points = []
-        max_q = -1.0
-        max_q_point = None
 
         diag = HPIOptimizationDiagnostics(
             source_T_min=float(t_source_clean.min()),
@@ -261,18 +259,6 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                     found_full = True
                     diag.accepted_full += 1
 
-                    # Dozens of machines can deliver the same maximum duty, so
-                    # duty alone leaves the pick to iteration order — it showed
-                    # a mid-range COP while the table listed a better one at the
-                    # identical duty. COP breaks the tie.
-                    if q_dem > max_q or (
-                        q_dem == max_q
-                        and max_q_point is not None
-                        and pt.COP > max_q_point.COP
-                    ):
-                        max_q = q_dem
-                        max_q_point = pt
-
                 if found_full:
                     continue
 
@@ -334,13 +320,12 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                 else:
                     diag.accepted_demand_limited += 1
 
-                if q_sink_best > max_q or (
-                    q_sink_best == max_q
-                    and max_q_point is not None
-                    and pt.COP > max_q_point.COP
-                ):
-                    max_q = q_sink_best
-                    max_q_point = pt
+        # The default pump, the one the chart boxes and economics prices when
+        # nothing is clicked: a real machine on both profiles (archetypes are
+        # yardsticks, limited points sit off a curve), most duty, then COP.
+        on_profile = [p for p in feasible_points if not p.source_limited and not p.demand_limited] or feasible_points
+        max_q_point = max([p for p in on_profile if not p.theoretical] or on_profile,
+                          key=lambda p: (p.Q_demand, p.COP), default=None)
 
         diag.messages = _diagnostic_messages(diag, len(feasible_points), lang)
 

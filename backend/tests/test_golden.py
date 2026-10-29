@@ -155,6 +155,20 @@ def test_assets(client):
     _check("assets_example_bad", client.get("/api/assets/examples/..%2Fsecret.json").status_code)
 
 
+def test_default_pump_is_a_real_machine_on_the_profiles(client):
+    """The pump the chart boxes and economics prices by default: never an
+    archetype or an off-profile point when a real one sits on both curves."""
+    pinch = client.post("/api/analysis/pinch", json={"streams": _pinch_streams(_example(EXAMPLES[0])), "T_min": 10.0}).json()
+    for mode, model, pct in (("net_load", "2t", 100.0), ("net_load", "4t", 50.0), ("composite", "2t", 100.0)):
+        opt = client.post("/api/analysis/hpi-optimization", json={
+            "pinch_result": pinch, "profile_mode": mode, "cop_model": model, "recovery_pct": pct}).json()
+        best = opt["max_q_point"]
+        assert not best["theoretical"] and not best["source_limited"] and not best["demand_limited"]
+        on = [p for p in opt["feasible_points"]
+              if not p["theoretical"] and not p["source_limited"] and not p["demand_limited"]]
+        assert best["Q_demand"] == max(p["Q_demand"] for p in on)
+
+
 @pytest.mark.parametrize("example", EXAMPLES)
 def test_project_editing(client, example):
     """Walk every editing endpoint the page uses, as a user would."""

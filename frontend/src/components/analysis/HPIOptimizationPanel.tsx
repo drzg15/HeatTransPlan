@@ -139,7 +139,9 @@ export default function HPIOptimizationPanel() {
     max_q_point
   );
 
-  const rows = sortRows(tableRows(filteredPoints, selectedPoints, showTheoretical), sortConfigs);
+  // The table picks its best rows from what the chart plots, so the boxed
+  // pump is always one of them (the report does the same).
+  const rows = sortRows(tableRows(chartPoints, selectedPoints, showTheoretical), sortConfigs);
 
   const handleSort = (key: SortKey) => setSortConfigs((prev) => nextSortConfigs(prev, key));
   const toggle = (prev: string[], v: string) =>
