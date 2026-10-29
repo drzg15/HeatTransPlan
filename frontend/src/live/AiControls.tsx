@@ -56,7 +56,7 @@ export default function AiControls() {
         type="button"
         className={`live-icon${paused ? ' live-icon-on' : ''}`}
         onClick={() => void setAiPaused(!paused).catch(() => {})}
-        title={paused ? t('live.resume') : t('live.pause')}
+        data-tip={paused ? t('live.resume') : t('live.pause')}
         aria-label={paused ? t('live.resume') : t('live.pause')}
         aria-pressed={paused}
       >
@@ -67,7 +67,7 @@ export default function AiControls() {
           type="button"
           className="live-icon"
           onClick={() => setShowLog((v) => !v)}
-          title={t('live.activity')}
+          data-tip={t('live.activity')}
           aria-label={t('live.activity')}
           aria-expanded={showLog}
         >

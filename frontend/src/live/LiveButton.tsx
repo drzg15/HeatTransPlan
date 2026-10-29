@@ -55,7 +55,7 @@ export default function LiveButton() {
         className="live-icon"
         style={{ marginRight: '8px' }}
         onClick={() => setSetupOpen(true)}
-        title={t('live.setup_title')}
+        data-tip={t('live.setup_title')}
         aria-label={t('live.setup_title')}
       >
         <CircleHelp size={15} />
@@ -67,20 +67,22 @@ export default function LiveButton() {
   if (status === 'on' || status === 'connecting') {
     return (
       <>
-        <span className="live-badge" title={t('live.code')}>
+        <span className="live-badge">
           {status === 'connecting' ? (
             <LoaderCircle size={14} className="pa-spin" />
           ) : (
             <span className="live-dot" />
           )}
           <Bot size={14} />
-          <code className="notranslate">{sessionId ?? '…'}</code>
+          <code className="notranslate" data-tip={t('live.code')}>
+            {sessionId ?? '…'}
+          </code>
           {sessionId && (
             <button
               type="button"
               className="live-icon"
               onClick={() => navigator.clipboard?.writeText(sessionId)}
-              title={t('live.copy')}
+              data-tip={t('live.copy')}
               aria-label={t('live.copy')}
             >
               <Copy size={13} />
@@ -91,7 +93,7 @@ export default function LiveButton() {
             type="button"
             className="live-icon"
             onClick={() => void disconnectLive()}
-            title={t('live.disconnect')}
+            data-tip={t('live.disconnect')}
             aria-label={t('live.disconnect')}
           >
             <X size={13} />

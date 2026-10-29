@@ -18,7 +18,8 @@ describe('guided tour', () => {
     const missing = TOUR.flatMap((step) =>
       [...(step.element ?? '').matchAll(/\.([\w-]+)/g)]
         .map((m) => m[1])
-        .filter((cls) => !cls.startsWith('leaflet-')) // drawn by the map library
+        // Drawn by the map and chart libraries, not by our pages.
+        .filter((cls) => !cls.startsWith('leaflet-') && !['subplot', 'xy', 'x2y'].includes(cls))
         .filter((cls) => !sources.includes(cls))
         .map((cls) => `${step.key}: .${cls}`)
     );
@@ -46,11 +47,9 @@ describe('guided tour', () => {
 });
 
 describe('guided tour in German', () => {
-  it('counts steps in German, the placeholders left for the tour', async () => {
+  it('counts steps in German', async () => {
     const { default: i18n } = await import('../i18n');
-    expect(i18n.t('tour.progress', { lng: 'de', current: '{{current}}', total: '{{total}}' })).toBe(
-      '{{current}} von {{total}}'
-    );
+    expect(i18n.t('tour.progress', { lng: 'de', current: 3, total: 18 })).toBe('3 von 18');
     // ΔTmin is the same symbol in both languages.
     for (const step of TOUR.filter((s) => !s.part && s.key !== 'tmin'))
       expect(i18n.t(`tour.${step.key}_title`, { lng: 'de' })).not.toBe(
