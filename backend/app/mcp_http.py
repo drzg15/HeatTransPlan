@@ -15,7 +15,7 @@ import logging
 import httpx
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import Response
-from heattransplan_mcp import server
+from heattransplan_mcp import files, server
 from heattransplan_mcp.api import Api
 from mcp.server.transport_security import TransportSecuritySettings
 
@@ -27,7 +27,7 @@ router = APIRouter()
 
 @router.get("/files/{token}/{name}")
 async def download(token: str, name: str):
-    found = server.download(token)
+    found = files.download(token)
     if not found or found[0] != name:
         raise HTTPException(404, "This download link has expired; ask the assistant for a new one.")
     filename, data, media_type, _ = found
@@ -61,11 +61,11 @@ class McpEndpoint:
         if self.handler is None:
             await Response("MCP is starting", 503)(scope, receive, send)
             return
-        token = server.BASE_URL.set(_base_url(headers))
+        token = files.BASE_URL.set(_base_url(headers))
         try:
             await self.handler(scope, receive, send)
         finally:
-            server.BASE_URL.reset(token)
+            files.BASE_URL.reset(token)
 
 
 endpoint = McpEndpoint()
@@ -83,7 +83,7 @@ async def lifespan(app):
         headers=headers)
     # The session manager logs every stateless request at INFO.
     logging.getLogger("mcp.server.streamable_http").setLevel(logging.WARNING)
-    server.HOSTED = True
+    files.HOSTED = True
     server.set_api(Api(base_url="http://backend", api_key="", client=client))
     # Stateless JSON: every call stands alone, nothing to keep per client.
     # The Host check guards local servers against DNS rebinding; this one is public by design.
@@ -95,5 +95,5 @@ async def lifespan(app):
             yield
     finally:
         endpoint.handler = None
-        server.HOSTED = False
+        files.HOSTED = False
         await client.aclose()

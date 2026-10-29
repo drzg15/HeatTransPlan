@@ -11,19 +11,11 @@ import {
   Save,
   TriangleAlert,
 } from 'lucide-react';
-import { useCallback, useEffect, useMemo, useState, useRef, type ChangeEvent } from 'react';
+import { useCallback, useEffect, useState, useRef, type ChangeEvent } from 'react';
 import { useProjectStore } from '../store/projectStore';
 import { useAnalysisStore } from '../store/analysisStore';
-import {
-  runPinch,
-  runHPI,
-  runStatusQuo,
-  runEconomics,
-  generateReport,
-  runHPIOptimization,
-} from '../api/analysis';
+import { runEconomics, generateReport } from '../api/analysis';
 import { getStreamInfo } from '../utils/streamUtils';
-import type { PinchStream } from '../types/analysis';
 
 import StreamSelector from '../components/analysis/StreamSelector';
 import EnergyDemands from '../components/analysis/EnergyDemands';
@@ -45,16 +37,10 @@ import CopCoverageChart from '../components/analysis/CopCoverageChart';
 import HeatRecoveryToggle from '../components/analysis/HeatRecoveryToggle';
 import { useTranslation } from 'react-i18next';
 import { useIsMobile } from '../hooks/useMediaQuery';
+import { useAnalysisPipeline } from '../hooks/useAnalysisPipeline';
 
 import './PotentialAnalysisPage.css';
 
-const DEFAULT_HP_TYPES = [
-  'Prototypical Stirling',
-  'VHTHP (HFC/HFO)',
-  'SHP and HTHPs (HFC/HFO)',
-  'SHP and HTHPs (R717)',
-  'Carnot',
-];
 import ChartHelpButton from '../components/ui/ChartHelpButton';
 
 export default function PotentialAnalysisPage() {
@@ -66,33 +52,17 @@ export default function PotentialAnalysisPage() {
   const selectedStreams = useAnalysisStore((s) => s.selectedStreams);
   const tMin = useAnalysisStore((s) => s.tMin);
   const showShifted = useAnalysisStore((s) => s.showShifted);
-  const profileMode = useAnalysisStore((s) => s.profileMode);
   const setTMin = useAnalysisStore((s) => s.setTMin);
   const setShowShifted = useAnalysisStore((s) => s.setShowShifted);
   const explain = usePinchLink((s) => s.explain);
   const setExplain = usePinchLink((s) => s.setExplain);
   const setProfileMode = useAnalysisStore((s) => s.setProfileMode);
-  const recoveryPct = useAnalysisStore((s) => s.recoveryPct);
-  const setPinchResult = useAnalysisStore((s) => s.setPinchResult);
-  const setHPIResult = useAnalysisStore((s) => s.setHPIResult);
-  const setStatusQuoResult = useAnalysisStore((s) => s.setStatusQuoResult);
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
-  const selectedHPTypes = useAnalysisStore((s) => s.selectedHPTypes);
-  const setSelectedHPTypes = useAnalysisStore((s) => s.setSelectedHPTypes);
-  const setPinchLoading = useAnalysisStore((s) => s.setPinchLoading);
-  const setHPILoading = useAnalysisStore((s) => s.setHPILoading);
-  const setHPIOptimizationLoading = useAnalysisStore((s) => s.setHPIOptimizationLoading);
-  const setHPIOptimizationResult = useAnalysisStore((s) => s.setHPIOptimizationResult);
   const hpiOptimizationResult = useAnalysisStore((s) => s.hpiOptimizationResult);
   const pinchLoading = useAnalysisStore((s) => s.pinchLoading);
   const hpiResult = useAnalysisStore((s) => s.hpiResult);
   const energyDemands = useAnalysisStore((s) => s.energyDemands);
-  const copFormula = useAnalysisStore((s) => s.copFormula);
-  const customCopModel = useAnalysisStore((s) => s.customCopModel);
-  const copModel = useAnalysisStore((s) => s.copModel);
 
-  const [pinchError, setPinchError] = useState<string | null>(null);
-  const [, setHPIError] = useState<string | null>(null);
   const [moreInfoOpen, setMoreInfoOpen] = useState(false);
   // The classic HPI panel — the five technology archetypes at a single sink
   // temperature — is superseded by the optimisation panel below, which sweeps
@@ -207,238 +177,7 @@ export default function PotentialAnalysisPage() {
     [setState]
   );
 
-  // Helper to extract valid streams from a selection object
-  const getStreamsFromSelection = useCallback(
-    (selection: Record<string, boolean>) => {
-      const result: Array<{
-        name: string;
-        CP: number;
-        Tin: number;
-        Tout: number;
-        Q: number;
-        type: 'Hot' | 'Cold';
-      }> = [];
-      for (const [key, selected] of Object.entries(selection)) {
-        if (!selected || !key.startsWith('stream_')) continue;
-        const parts = key.split('_');
-        const pIdx = parseInt(parts[1], 10);
-        const sIdx = parseInt(parts[2], 10);
-        if (pIdx >= processes.length) continue;
-        const proc = processes[pIdx];
-        const streams = proc.streams ?? [];
-        if (sIdx >= streams.length) continue;
-        const stream = streams[sIdx];
-        const info = getStreamInfo(stream);
-        if (info.tin !== null && info.tout !== null && info.CP !== null) {
-          const procName = proc.name || `Subprocess ${pIdx + 1}`;
-          const streamName = stream.name || `Stream ${sIdx + 1}`;
-          result.push({
-            name: `${procName} - ${streamName}`,
-            CP: info.CP,
-            Tin: info.tin,
-            Tout: info.tout,
-            Q: info.Q ?? 0,
-            type: info.tin > info.tout ? 'Hot' : 'Cold',
-          });
-        }
-      }
-      return result;
-    },
-    [processes]
-  );
-
-  // Extract valid streams for pinch analysis
-  const streamsData = useMemo(
-    () => getStreamsFromSelection(selectedStreams),
-    [getStreamsFromSelection, selectedStreams]
-  );
-
-  // Auto-run pinch analysis when streams/tMin change
-  useEffect(() => {
-    if (streamsData.length < 2) {
-      setPinchResult(null);
-      setHPIResult(null);
-      setHPIOptimizationResult(null);
-      setStatusQuoResult(null);
-      setPinchError(null);
-      return;
-    }
-    let cancelled = false;
-
-    const run = async () => {
-      setPinchLoading(true);
-      setPinchError(null);
-      try {
-        const pinchStreams: PinchStream[] = streamsData.map((s: any) => ({
-          name: s.name,
-          CP: s.CP,
-          T_supply: s.Tin,
-          T_target: s.Tout,
-        }));
-        const result = await runPinch({ streams: pinchStreams, T_min: tMin });
-        if (!cancelled) {
-          setPinchResult(result);
-          // Auto-run HPI
-          runHPIAnalysis(result);
-          // Auto-run HPI Optimization
-          runHPIOptimizationAnalysis(result);
-          // Run status-quo if demands exist
-          runStatusQuoAnalysis(result);
-        }
-      } catch (err: unknown) {
-        if (!cancelled) {
-          const msg = err instanceof Error ? err.message : 'Pinch analysis failed';
-          setPinchError(msg);
-          setPinchResult(null);
-        }
-      } finally {
-        if (!cancelled) setPinchLoading(false);
-      }
-    };
-
-    run();
-    return () => {
-      cancelled = true;
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [streamsData, tMin]);
-
-  // Always open the page on the standard setting. The store lives above the
-  // router, so without this a mode picked earlier would still be active after
-  // navigating away and back.
-  useEffect(() => {
-    setProfileMode('net_load');
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Re-run both integrations when the heat recovery mode changes.
-  // The pinch result itself is unaffected, so it is not recomputed.
-  const firstProfileModeRun = useRef(true);
-  useEffect(() => {
-    if (firstProfileModeRun.current) {
-      firstProfileModeRun.current = false;
-      return;
-    }
-    if (!pinchResult) return;
-    // The optimisation re-runs below: every mode change also changes the share.
-    runHPIAnalysis(pinchResult);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [profileMode]);
-
-  // Applying, editing or removing a custom formula, or moving the heat recovery
-  // share, re-runs the optimisation without touching anything else.
-  useEffect(() => {
-    if (!pinchResult) return;
-    runHPIOptimizationAnalysis(pinchResult);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [copFormula, customCopModel, copModel, recoveryPct]);
-
-  // The newest request of each kind. The server answers them in parallel, so an
-  // older one can come back last; only the newest may change the page.
-  const latest = useRef({ hpi: 0, opt: 0 });
-
-  // Run HPI analysis
-  const runHPIAnalysis = useCallback(
-    async (pinch: typeof pinchResult) => {
-      if (!pinch) return;
-      const run = ++latest.current.hpi;
-      setHPILoading(true);
-      setHPIError(null);
-      try {
-        const result = await runHPI({
-          pinch_result: pinch,
-          hp_types: DEFAULT_HP_TYPES,
-          profile_mode: profileMode,
-        });
-        if (run !== latest.current.hpi) return;
-        setHPIResult(result);
-        // Auto-select first available HP if current selection is invalid or empty
-        const currentSelection = useAnalysisStore.getState().selectedHPTypes;
-        const availableNames = result.heat_pumps
-          .filter((hp: any) => hp.available)
-          .map((hp: any) => hp.name);
-        const validSelection = currentSelection.filter((name) => availableNames.includes(name));
-
-        if (validSelection.length === 0 && availableNames.length > 0) {
-          setSelectedHPTypes([availableNames[0]]);
-        } else if (validSelection.length !== currentSelection.length) {
-          setSelectedHPTypes(validSelection);
-        }
-      } catch (err: unknown) {
-        if (run !== latest.current.hpi) return;
-        const msg = err instanceof Error ? err.message : 'HPI analysis failed';
-        setHPIError(msg);
-        setHPIResult(null);
-      } finally {
-        if (run === latest.current.hpi) setHPILoading(false);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selectedHPTypes, profileMode]
-  );
-
-  // Run HPI Optimization analysis
-  const runHPIOptimizationAnalysis = useCallback(
-    async (pinch: typeof pinchResult) => {
-      if (!pinch) return;
-      const run = ++latest.current.opt;
-      setHPIOptimizationLoading(true);
-      try {
-        const result = await runHPIOptimization({
-          pinch_result: pinch,
-          profile_mode: profileMode,
-          cop_formula: copFormula,
-          custom_cop_model: customCopModel,
-          cop_model: copModel,
-          recovery_pct: recoveryPct,
-          lang: i18n.language,
-        });
-        if (run === latest.current.opt) setHPIOptimizationResult(result);
-      } catch (err: unknown) {
-        console.error('HPI Optimization failed:', err);
-        if (run === latest.current.opt) setHPIOptimizationResult(null);
-      } finally {
-        if (run === latest.current.opt) setHPIOptimizationLoading(false);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [profileMode, copFormula, customCopModel, copModel, recoveryPct, i18n.language]
-  );
-
-  // Run status-quo analysis
-  const runStatusQuoAnalysis = useCallback(
-    async (pinch: typeof pinchResult) => {
-      if (!pinch) return;
-      const hasDemands = energyDemands.some((d) => d.heat_demand > 0 || d.cooling_demand > 0);
-      if (!hasDemands) {
-        setStatusQuoResult(null);
-        return;
-      }
-      try {
-        const demands = energyDemands.map((d) => ({
-          stream_name: '',
-          heating_kW: d.heat_demand,
-          cooling_kW: d.cooling_demand,
-        }));
-        const result = await runStatusQuo({
-          current_demands: demands,
-          pinch_hot_utility: pinch.hot_utility,
-          pinch_cold_utility: pinch.cold_utility,
-        });
-        setStatusQuoResult(result);
-      } catch {
-        setStatusQuoResult(null);
-      }
-    },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [energyDemands]
-  );
-
-  // Re-run status-quo when energy demands change
-  useEffect(() => {
-    if (pinchResult) runStatusQuoAnalysis(pinchResult);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [energyDemands, pinchResult]);
+  const { streamsData, pinchError, getStreamsFromSelection } = useAnalysisPipeline();
 
   // Helper to build payload for report and map preview
   const buildReportPayload = useCallback(async () => {

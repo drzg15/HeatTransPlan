@@ -12,6 +12,7 @@ from app.services import live, project_service
 
 mcp_server = pytest.importorskip("heattransplan_mcp.server")
 from heattransplan_mcp.api import Api, ApiError  # noqa: E402
+from heattransplan_mcp import files  # noqa: E402
 
 S = mcp_server
 
@@ -398,4 +399,4 @@ def test_served_online_at_mcp(monkeypatch):
         assert err and "cannot open files" in text
         err, text = call(c, "read_document", {"file_path": "s.csv", "content": "a,b\n1,2"})
         assert not err and json.loads(text)["text"] == "a,b\n1,2"
-    assert S.HOSTED is False  # the local tools are themselves again
+    assert files.HOSTED is False  # the local tools are themselves again
