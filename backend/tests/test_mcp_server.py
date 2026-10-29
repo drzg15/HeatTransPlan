@@ -446,6 +446,22 @@ def test_served_online_at_mcp(monkeypatch):
     assert files.HOSTED is False  # the local tools are themselves again
 
 
+def test_csv_export_has_the_pages_latest_edits(tmp_path):
+    """The page syncs with a delay; the export must not miss its last edit."""
+    async def body():
+        code = await open_page((await S.list_examples())[0])
+        pid = live.get(code).project_id
+        stale = project_service.get_project(pid)
+        stale.processes[0].streams[0].name = "Not synced yet"
+        project_service.update_project(pid, stale, origin=code)  # the backend lags behind
+        out = tmp_path / "streams.csv"
+        await S.export_csv(code, str(out))
+        text = out.read_text(encoding="utf-8")
+        assert "Not synced yet" not in text and "Stream" in text
+
+    run(body)
+
+
 def test_one_step_at_a_time(tmp_path, monkeypatch):
     """The AI opens with what the page holds and the ways of working; each
     step sends only what it changes, returns it, and can be taken back; a new

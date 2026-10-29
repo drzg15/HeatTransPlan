@@ -79,8 +79,11 @@ Open `http://localhost:5173` in your browser.
 The Docker Compose stack runs the backend, frontend, and a Caddy reverse proxy together.
 
 ```bash
-docker compose up -d --build
+./deploy.sh            # or: ./deploy.sh backend   for one service
 ```
+
+It runs `docker compose up -d --build` and then removes the images the
+rebuild replaced and week-old build cache, so the disk does not fill up.
 
 Without settings it serves `http://localhost` (with the MCP server for AI
 agents at `http://localhost/mcp` and this version's documentation at
@@ -161,7 +164,17 @@ pytest
 # Frontend
 cd frontend
 npm test
+
+# The main path in a real browser (starts the backend and the dev server)
+npx playwright install chromium   # once
+npx playwright test
 ```
+
+GitHub Actions runs all three on every push (`.github/workflows/tests.yml`), except
+the end-to-end reference runs (`test_analysis_chain`): they compare against
+output recorded on the development machine, so run them locally before a
+commit (`GOLDEN_UPDATE=1 pytest tests/test_golden.py` records a deliberate
+change).
 
 ---
 

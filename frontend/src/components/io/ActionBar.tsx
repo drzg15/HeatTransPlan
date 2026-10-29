@@ -121,7 +121,7 @@ export default function ActionBar({
 
         // If it succeeds, parsed.data is heavily typed and guaranteed to be clean
         loadProject({ ...data, map_locked: true });
-      } catch (err) {
+      } catch {
         alert('Could not parse the file. It is not a valid JSON document.');
       }
     };

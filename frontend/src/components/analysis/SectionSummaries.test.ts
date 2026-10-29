@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { summaryPoints } from './SectionSummaries';
+import { summaryPoints } from './summaryPoints';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 
 const pt = (refrigerant: string, T_sink: number) =>

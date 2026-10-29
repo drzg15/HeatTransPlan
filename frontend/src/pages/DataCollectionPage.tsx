@@ -40,16 +40,22 @@ export default function DataCollectionPage() {
   const [mobilePane, setMobilePane] = useState<'editor' | 'map'>('map');
 
   const [addressSearch, setAddressSearch] = useState('');
-  const [_searchResults, setSearchResults] = useState<any[]>([]);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
-  // Auto-sync UI mode with map_locked state (e.g., when loading files)
-  useEffect(() => {
+  // Auto-sync UI mode with map_locked state (e.g., when loading files), while
+  // rendering rather than in an effect, so the wrong mode is never drawn.
+  const [lockedSeen, setLockedSeen] = useState(state.map_locked);
+  if (lockedSeen !== state.map_locked) {
+    setLockedSeen(state.map_locked);
     setUiMode(state.map_locked ? 'analyze' : 'select');
-  }, [state.map_locked]);
+  }
 
-  // Upgrade legacy box scales automatically if loaded from local storage
+  // Upgrade legacy box scales automatically if loaded from local storage. Once,
+  // on the project as it is when the page opens: read from the stores
+  // directly, so the effect depends on nothing.
   useEffect(() => {
+    const { state, setProcesses, setGroups } = useProjectStore.getState();
+    const { selectedStreams, setSelectedStreams } = useAnalysisStore.getState();
     let changed = false;
     const processes = [...state.processes];
     processes.forEach((p, i) => {
@@ -261,7 +267,6 @@ export default function DataCollectionPage() {
       );
       const data = await resp.json();
       if (data.length > 0) {
-        setSearchResults(data);
         const lat = parseFloat(data[0].lat);
         const lon = parseFloat(data[0].lon);
         setMapCenter([lat, lon]);
@@ -273,7 +278,7 @@ export default function DataCollectionPage() {
     } catch {
       setStatusMsg('Search failed');
     }
-  }, [addressSearch, setMapCenter, setMapZoom]);
+  }, [addressSearch, setMapCenter, setMapZoom, t]);
 
   // Handle map click (for placement or measurement)
   const handleMapClick = useCallback(

@@ -32,7 +32,6 @@ export default function SubprocessCard({
   id,
   subprocess,
   subIdx,
-  groupIdx: _groupIdx,
   allProcessNames,
   onUpdate,
   onDelete,

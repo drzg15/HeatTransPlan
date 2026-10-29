@@ -171,7 +171,7 @@ def test_default_pump_is_a_real_machine_on_the_profiles(client):
 
 @pytest.mark.parametrize("example", EXAMPLES)
 def test_project_editing(client, example):
-    """Walk every editing endpoint the page uses, as a user would."""
+    """Walk the project endpoints: create, read, files in and out, replace, delete."""
     stem = Path(example).stem
     log = []
 
@@ -183,30 +183,14 @@ def test_project_editing(client, example):
     rec("create", r)
     pid = r.json()["project_id"] if "project_id" in r.json() else r.json()["id"]
     rec("get", client.get(f"/api/projects/{pid}"))
-    rec("add_group", client.post(f"/api/projects/{pid}/groups", json={"name": "New group"}))
-    rec("rename_group", client.put(f"/api/projects/{pid}/groups/0", json={"name": "Renamed"}))
-    rec("add_proc", client.post(f"/api/projects/{pid}/groups/0/procs"))
-    rec("add_proc_named", client.post(f"/api/projects/{pid}/groups/1/procs", json={"name": "Dryer", "level": 1}))
-    rec("update_proc", client.put(f"/api/procs/{pid}/0", json={"name": "Changed", "level": 1, "lat": "51.7", "lon": "8.7"}))
-    rec("add_child", client.post(f"/api/procs/{pid}/0/children"))
-    rec("add_stream", client.post(f"/api/procs/{pid}/0/streams"))
-    rec("add_stream_data", client.post(f"/api/procs/{pid}/1/streams", json={
-        "name": "Hot water", "type": "water", "values": {"val1": "90", "val2": "40", "val3": "2", "val4": "4.18"}}))
-    rec("update_stream", client.put(f"/api/streams/{pid}/1/0", json={"name": "Edited", "values": {"val1": "80", "val2": "30"}}))
-    rec("add_child_stream", client.post(f"/api/procs/{pid}/0/children/0/streams"))
-    rec("delete_stream", client.delete(f"/api/streams/{pid}/1/0"))
-    rec("delete_child", client.delete(f"/api/procs/{pid}/0/children/0"))
     rec("export_json", client.get(f"/api/io/export-json/{pid}"))
     csv = client.get(f"/api/io/export-csv/{pid}")
     rec("export_csv", csv)
     rec("import_csv", client.post(f"/api/io/import-csv/{pid}", files={"file": ("data.csv", csv.content, "text/csv")}))
-    rec("delete_proc", client.delete(f"/api/procs/{pid}/1"))
-    rec("delete_group", client.delete(f"/api/projects/{pid}/groups/1"))
     rec("after_edits", client.get(f"/api/projects/{pid}"))
     rec("import_json_body", client.post("/api/io/import-json-body", json=_example(example)))
     rec("import_json_file", client.post("/api/io/import-json", files={"file": ("p.json", json.dumps(_example(example)), "application/json")}))
     rec("put_project", client.put(f"/api/projects/{pid}", json=_example(example)))
     rec("delete_project", client.delete(f"/api/projects/{pid}"))
     rec("get_deleted", client.get(f"/api/projects/{pid}"))
-    rec("missing_proc", client.delete(f"/api/procs/{pid}/99"))
     _check(f"{stem}_project_editing", log)

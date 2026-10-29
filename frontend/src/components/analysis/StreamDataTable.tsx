@@ -145,7 +145,7 @@ export default function StreamDataTable({
       if (vA === vB) return 0;
       if (vA == null) return 1;
       if (vB == null) return -1;
-      let res = vA < vB ? -1 : 1;
+      const res = vA < vB ? -1 : 1;
       return sortDir === 'asc' ? res : -res;
     });
   }, [allRows, sortKey, sortDir]);

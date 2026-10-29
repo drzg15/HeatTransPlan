@@ -166,7 +166,7 @@ export default function PotentialAnalysisPage() {
       try {
         const data = JSON.parse(reader.result as string);
         loadProject({ ...data, map_locked: true });
-      } catch (err) {
+      } catch {
         alert('Invalid JSON file');
       }
     };
@@ -237,6 +237,7 @@ export default function PotentialAnalysisPage() {
     tMin,
     getStreamsFromSelection,
     t,
+    i18n.language,
   ]);
 
   // Handle report generation

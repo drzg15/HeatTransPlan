@@ -23,7 +23,6 @@ export interface StreamCirclesOverlayProps {
 export function StreamCirclesOverlay({
   processes,
   groups,
-  groupNames: _groupNames,
   groupCoordinates,
   onElementDoubleClick,
   selectedStreams,

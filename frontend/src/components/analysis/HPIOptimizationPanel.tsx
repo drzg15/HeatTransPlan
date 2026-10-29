@@ -56,12 +56,19 @@ export default function HPIOptimizationPanel() {
   const [showSourceLimited, setShowSourceLimited] = useState(false);
   const [showDemandLimited, setShowDemandLimited] = useState(false);
 
-  // Sort state (supports multi-column)
-  const [sortConfigs, setSortConfigs] = useState<SortConfig[]>([{ key: 'COP', direction: 'desc' }]);
+  // Sort state (supports multi-column). The panel shows only with a result,
+  // and a result opens sorted by duty.
+  const [sortConfigs, setSortConfigs] = useState<SortConfig[]>([
+    { key: 'Q_demand', direction: 'desc' },
+  ]);
 
-  useEffect(() => {
+  // A new result starts from the default view. Reset while rendering, not in an
+  // effect, so the stale view is never drawn (React: "adjusting state when a
+  // prop changes").
+  const [shownResult, setShownResult] = useState(hpiOptimizationResult);
+  if (shownResult !== hpiOptimizationResult) {
+    setShownResult(hpiOptimizationResult);
     if (hpiOptimizationResult?.max_q_point) {
-      setSelectedPoints([]);
       setMediumSinkFilter('All');
       setRefrigerantTypeFilter('All');
       setRefrigerantFilter([]);
@@ -70,11 +77,16 @@ export default function HPIOptimizationPanel() {
       setShowDemandLimited(false);
       setSortConfigs([{ key: 'Q_demand', direction: 'desc' }]);
     }
-  }, [hpiOptimizationResult]);
+  }
+
+  // The selection lives in the store: a new result or another filter clears it.
+  useEffect(() => {
+    if (hpiOptimizationResult?.max_q_point) setSelectedPoints([]);
+  }, [hpiOptimizationResult, setSelectedPoints]);
 
   useEffect(() => {
     setSelectedPoints([]);
-  }, [mediumSinkFilter, refrigerantTypeFilter, refrigerantFilter, hpLevelFilter]);
+  }, [mediumSinkFilter, refrigerantTypeFilter, refrigerantFilter, hpLevelFilter, setSelectedPoints]);
 
   // The AI sets the same filters (and "Select all") as the controls on the left.
   const currentFilters = {

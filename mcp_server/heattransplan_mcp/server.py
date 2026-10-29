@@ -534,6 +534,11 @@ async def export_csv(project_id: str, file_path: Optional[str] = None) -> str:
     """Write the project's streams as CSV (the backend's export). Online: a
     download link for the user."""
     project_id = await _page(project_id)
+    # The page is the truth and syncs to the backend with a delay: hand the
+    # backend the page's project first, so the export has the last edits.
+    session_id = (await _page_info(project_id))["session_id"]
+    await api.put(f"/api/projects/{project_id}", json=await _load(project_id),
+                  headers={"X-Live-Session": session_id})
     text = await api.get(f"/api/io/export-csv/{project_id}")
     return _deliver(file_path, "streams.csv", text.encode("utf-8"), "text/csv")
 

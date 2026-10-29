@@ -7,7 +7,7 @@ from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import AI_ENABLED, CORS_ORIGINS
-from app.routers import projects, processes, streams, analysis, io_routes, assets, live
+from app.routers import projects, processes, analysis, io_routes, assets, live
 from app.services import activity_log, cop_training
 from app.dependencies import API_KEYS, verify_api_key
 from app.rate_limit import RateLimit
@@ -86,7 +86,6 @@ api_dependencies = [Depends(verify_api_key)]
 
 app.include_router(projects.router, prefix="/api/projects", tags=["Projects"], dependencies=api_dependencies)
 app.include_router(processes.router, prefix="/api", tags=["Processes"], dependencies=api_dependencies)
-app.include_router(streams.router, prefix="/api", tags=["Streams"], dependencies=api_dependencies)
 app.include_router(analysis.router, prefix="/api/analysis", tags=["Analysis"], dependencies=api_dependencies)
 app.include_router(io_routes.router, prefix="/api/io", tags=["Import/Export"], dependencies=api_dependencies)
 app.include_router(assets.router, prefix="/api/assets", tags=["Assets"], dependencies=api_dependencies)

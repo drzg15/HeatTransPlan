@@ -100,7 +100,7 @@ export function extractStreamInfo(stream: Record<string, any>): StreamInfo {
   const water_out = sv['Water Content Out'] || null;
 
   // Compute CP (heat capacity flow rate)
-  let CP: number | null = cpDirect ?? (mdot != null && cpVal != null ? mdot * cpVal : null);
+  const CP: number | null = cpDirect ?? (mdot != null && cpVal != null ? mdot * cpVal : null);
 
   // Compute Q
   const Q = CP != null && tin != null && tout != null ? Math.abs(CP * (tout - tin)) : null;

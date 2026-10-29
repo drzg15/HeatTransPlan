@@ -14,6 +14,10 @@ const apiProxy = {
 
 export default defineConfig({
   plugins: [react()],
+  // Plotly's partial bundle pulls in has-hover, which reads Node's `global`.
+  // The production build rewrites it; the dev server does not, and the
+  // Potential Analysis page crashed there ("global is not defined").
+  define: { global: 'globalThis' },
   server: {
     host: true,
     port: 5173,

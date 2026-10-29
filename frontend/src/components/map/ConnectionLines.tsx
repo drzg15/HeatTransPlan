@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { ProcessNode } from '../../types/process';
@@ -24,8 +24,8 @@ export function ConnectionLines({
   onElementDoubleClick?: (type: 'group' | 'sub' | 'child' | 'stream', id: any, subId?: any) => void;
 }) {
   const map = useMap();
-  // The lines are laid out in screen pixels: redraw them when the map turns.
-  const [bearing, setBearing] = useState(0);
+  // The lines are laid out in screen pixels: a turn of the map re-renders them.
+  const [, setBearing] = useState(0);
   useEffect(() => {
     const turned = () => setBearing(map.getBearing());
     map.on('rotate', turned);
@@ -34,7 +34,9 @@ export function ConnectionLines({
     };
   }, [map]);
 
-  const connections = useMemo(() => {
+  // Built on every render (a turn re-renders through setBearing): a handful of
+  // lines, cheaper than tracking what they depend on.
+  const connections = (() => {
     const result: React.ReactElement[] = [];
 
     // Determine which nodes are currently visible
@@ -357,17 +359,7 @@ export function ConnectionLines({
     });
 
     return result;
-  }, [
-    processes,
-    groups,
-    groupCoordinates,
-    groupNames,
-    onElementDoubleClick,
-    subprocessMapExpanded,
-    childMapExpanded,
-    map,
-    bearing,
-  ]);
+  })();
 
   return <>{connections}</>;
 }
