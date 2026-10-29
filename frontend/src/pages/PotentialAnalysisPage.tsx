@@ -714,7 +714,7 @@ export default function PotentialAnalysisPage() {
       </div>
 
       <Part
-        n={1}
+        n={2}
         title={t('analysis.parts.integration')}
         input={t('analysis.parts.integration_in')}
       >
@@ -890,7 +890,7 @@ export default function PotentialAnalysisPage() {
       {pinchResult && streamsData.length >= 2 && (
         <>
           <Part
-            n={2}
+            n={3}
             title={t('analysis.parts.heat_pump')}
             input={t('analysis.parts.heat_pump_in')}
             actions={

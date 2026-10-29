@@ -29,6 +29,7 @@ const SAME_IN_BOTH = new Set([
   'cop_modal.envelope.cop_max',
   'optimization.train.rmse', // abbreviation
   'optimization.train.optional_title', // same word in both
+  'tour.tmin_title', // symbol
 ]);
 
 type Tree = { [k: string]: string | Tree };

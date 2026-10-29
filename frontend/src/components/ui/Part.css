@@ -1,0 +1,81 @@
+/* The numbered steps of the app: 1 Data Collection, 2–4 the parts of
+   Potential Analysis. Shared by both pages. */
+.pa-part {
+  margin: 20px 0 0;
+}
+/* Right under the page's title bar: its own margin is gap enough. */
+.pa-header-row + .pa-part {
+  margin-top: 0;
+}
+.pa-part-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 10px 16px;
+  background: var(--primary);
+  color: #fff;
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  font-size: 1.25rem;
+}
+.pa-part-banner {
+  flex-wrap: wrap;
+  list-style: none;
+  cursor: pointer;
+}
+.pa-part-banner::-webkit-details-marker {
+  display: none;
+}
+/* Chevron, rotated when open. */
+.pa-part-banner::before {
+  transition: transform 0.15s;
+}
+.pa-part[open] > .pa-part-banner::before {
+  transform: rotate(90deg);
+}
+.pa-part:not([open]) > .pa-part-banner {
+  border-radius: var(--radius-lg);
+}
+.pa-part-banner h2 {
+  margin: 0;
+  font-size: inherit;
+  color: inherit;
+}
+.pa-part-input {
+  font-size: 0.85rem;
+  font-weight: 400;
+  opacity: 0.85;
+}
+.pa-part-num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  background: #fff;
+  color: var(--primary);
+  font-weight: 700;
+}
+.pa-part-body {
+  padding: 8px 20px 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: none;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  box-shadow: var(--shadow);
+}
+/* The banner already opens the part: no rule right under it. */
+.pa-part-body > .pa-divider:first-child {
+  display: none;
+}
+
+/* Data Collection's banner: the same look, but it does not fold away. */
+.pa-part-banner.pa-part-banner-static {
+  cursor: default;
+  border-radius: var(--radius-lg);
+  margin-bottom: 8px;
+}
+.pa-part-banner.pa-part-banner-static::before {
+  display: none;
+}

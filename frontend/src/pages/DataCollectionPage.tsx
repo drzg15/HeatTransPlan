@@ -10,6 +10,7 @@ import ProcessGroupList from '../components/process/ProcessGroupList';
 import ActionBar from '../components/io/ActionBar';
 import StreamDataTable from '../components/analysis/StreamDataTable';
 import './DataCollectionPage.css';
+import { PartBanner } from '../components/ui/Part';
 import CollectionHelp from '../components/ui/CollectionHelp';
 import { useIsMobile } from '../hooks/useMediaQuery';
 import { orphanProcesses, removeProcesses } from '../utils/processIndex';
@@ -370,6 +371,13 @@ export default function DataCollectionPage() {
 
   return (
     <div className="dc-page">
+      {/* Step 1 of the app, in the same form as Potential Analysis' parts 2–4. */}
+      <PartBanner
+        n={1}
+        title={t('appshell.nav.data_collection')}
+        input={t('data_collection.part_in')}
+      />
+
       {/* Action bar */}
       <ActionBar
         uiMode={uiMode}
