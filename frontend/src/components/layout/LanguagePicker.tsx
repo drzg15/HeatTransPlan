@@ -59,7 +59,7 @@ export default function LanguagePicker() {
       <button
         className="theme-toggle lang-trigger"
         onClick={() => setOpen((v) => !v)}
-        title={`${t('ui.language')} — ${activeLabel}`}
+        data-tip={`${t('ui.language')}: ${activeLabel}`}
         aria-label={t('ui.choose_language')}
         aria-expanded={open}
         aria-haspopup="menu"

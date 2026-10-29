@@ -134,9 +134,14 @@ The analyses rerun by themselves after most changes; `wait_idle` returns the vie
 
 Add a remote MCP server of type HTTP ("streamable HTTP") with the address `<the app>/mcp`. Nothing to install, no command to run. The app's **?** next to Connect AI shows the address and these steps:
 
-- **Claude (web, desktop, mobile):** Settings → Connectors → Add custom connector. Claude connects from Anthropic's servers, so this needs the app at a public `https://` address.
-- **Claude Code:** `claude mcp add --transport http heattransplan <the app>/mcp`. Runs on your computer, so it also reaches an app at `http://localhost`.
-- **Other agents:** add a remote MCP server (HTTP) with the address. Or paste this into the agent and let it set itself up: *Add the MCP server "heattransplan" with the address `<the app>/mcp` (transport: HTTP, also called streamable HTTP; no command to run, nothing to install) to your MCP settings. Then call its tool guide to check that it works.*
+- **Claude (web, desktop, mobile):** Settings → Connectors → Add custom connector, then the address; switch it on in a chat with **+** → Connectors.
+- **ChatGPT:** Settings → Apps (formerly Connectors) → Advanced settings → Developer mode on → Create, then a name and the address. Only on some plans.
+- **Mistral Le Chat:** Connectors → + Add Connector → Custom MCP Connector, then a name without spaces and the address → Connect. Admins only.
+- **Claude Code:** `claude mcp add --transport http heattransplan <the app>/mcp`.
+- **Gemini CLI:** `gemini mcp add --transport http heattransplan <the app>/mcp`, or `"heattransplan": {"httpUrl": "<the app>/mcp"}` under `mcpServers` in `~/.gemini/settings.json`; `/mcp` lists the tools. The Gemini web app does not take custom MCP servers.
+- **Other agents:** add a remote MCP server (HTTP, also called streamable HTTP) with the address, or paste the setup text from the app's **?** dialog into the agent.
+
+Claude, ChatGPT and Le Chat connect from the internet, so they need the app at a public `https://` address; Claude Code and Gemini CLI run on your computer and also reach `http://localhost/mcp`. Menu names change between versions and plans.
 - **Permissions:** agents may ask before every tool. Claude Code allows them all with `/permissions` → allow `mcp__heattransplan`; other agents have a per-server setting.
 
 If the backend sets `API_KEYS`, the agent sends one as `X-API-Key` or `Authorization: Bearer <key>`. `AI_ENABLED=0` (in `.env`) switches all of this off and hides Connect AI; the rest of the app stays as it is. Reports made by an AI say so on their first page.

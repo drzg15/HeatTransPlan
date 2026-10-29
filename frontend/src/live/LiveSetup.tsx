@@ -8,10 +8,11 @@ import { Copy, X } from 'lucide-react';
 import { useFeatures } from '../hooks/useFeatures';
 import '../components/analysis/CopFormulaModal.css';
 
-function Command({ text }: { text: string }) {
+/** A text to copy; wrap: a sentence (not a command), broken into lines. */
+function Command({ text, wrap = false }: { text: string; wrap?: boolean }) {
   const { t } = useTranslation();
   return (
-    <div className="live-setup-cmd">
+    <div className={`live-setup-cmd${wrap ? ' live-setup-cmd-wrap' : ''}`}>
       <pre className="notranslate">{text}</pre>
       <button
         type="button"
@@ -31,8 +32,8 @@ export default function LiveSetup({ onClose }: { onClose: () => void }) {
   const features = useFeatures();
   // Caddy (and Vite in development) route /mcp to the backend.
   const url = `${window.location.origin}/mcp`;
-  // Agents that connect from the internet (Claude's connectors) need a public
-  // https address; an app served over http runs on this computer only.
+  // Agents that run in the cloud (web chats, connectors) need a public https
+  // address; an app served over http is reachable from this computer only.
   const online = window.location.protocol === 'https:';
 
   useEffect(() => {
@@ -63,23 +64,52 @@ export default function LiveSetup({ onClose }: { onClose: () => void }) {
             <li>
               {t('live.setup_add')}
               <Command text={url} />
-              {online ? (
-                <div className="cf-muted">{t('live.setup_claude_connector')}</div>
-              ) : (
-                <div className="cf-muted">{t('live.setup_local')}</div>
-              )}
-              <div className="cf-muted">{t('live.setup_claude_code')}</div>
-              <Command text={`claude mcp add --transport http heattransplan ${url}`} />
-              <div className="cf-muted">{t('live.setup_other')}</div>
+              <div className="cf-muted">{t('live.setup_where')}</div>
+              {!online && <div className="cf-muted">{t('live.setup_local')}</div>}
               <div className="cf-muted">{t('live.setup_self')}</div>
-              <Command text={t('live.setup_self_text', { url })} />
+              <Command text={t('live.setup_self_text', { url })} wrap />
               <div className="cf-muted">{t('live.setup_permissions')}</div>
               {features.api_key && <div className="cf-muted">{t('live.setup_key')}</div>}
+              {/* Well-known agents as examples; the steps above work for any. */}
+              <details className="live-setup-examples">
+                <summary>{t('live.setup_examples')}</summary>
+                <div className="cf-muted">{t('live.setup_ex_where')}</div>
+                <ul className="live-setup-ex">
+                  <li>{t('live.setup_ex_claude')}</li>
+                  <li>{t('live.setup_ex_chatgpt')}</li>
+                  <li>{t('live.setup_ex_mistral')}</li>
+                  <li>
+                    {t('live.setup_ex_claude_code')}
+                    <Command text={`claude mcp add --transport http heattransplan ${url}`} />
+                  </li>
+                  <li>
+                    {t('live.setup_ex_gemini')}
+                    <Command text={`gemini mcp add --transport http heattransplan ${url}`} />
+                    <Command
+                      text={JSON.stringify(
+                        { mcpServers: { heattransplan: { httpUrl: url } } },
+                        null,
+                        2
+                      )}
+                    />
+                  </li>
+                </ul>
+                <div className="cf-muted">{t('live.setup_ex_note')}</div>
+              </details>
             </li>
             <li>{t('live.setup_connect')}</li>
           </ol>
           <p>{t('live.setup_guided')}</p>
           <p className="cf-muted">{t('live.setup_files')}</p>
+          <p>
+            <a
+              href="/docs/api_and_mcp.html#the-mcp-server"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              {t('live.setup_docs')} ↗
+            </a>
+          </p>
         </div>
       </div>
     </div>,

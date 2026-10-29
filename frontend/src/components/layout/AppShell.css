@@ -20,9 +20,11 @@
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   color: var(--text-main);
-  display: flex;
+  /* Brand | links | actions: equal outer columns keep the links in the middle
+     of the screen; on a narrow screen the wider side takes what it needs. */
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
   padding: 0 var(--main-pad-x);
   border-bottom: 1px solid var(--border);
@@ -33,6 +35,7 @@
 }
 
 .nav-brand {
+  justify-self: start;
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -63,6 +66,7 @@
 
 /* ── Navigation items ─────────────────────────────────── */
 .nav-links {
+  grid-column: 2;
   display: flex;
   align-items: center;
   gap: 12px;
@@ -100,6 +104,8 @@
 
 /* ── Theme Toggle ─────────────────────────────────────── */
 .nav-actions {
+  grid-column: 3;
+  justify-self: end;
   display: flex;
   align-items: center;
   gap: 6px;
@@ -312,4 +318,47 @@
   font-size: 0.78rem;
   background: var(--surface-2, rgba(127, 127, 127, 0.1));
   border-radius: var(--radius);
+}
+/* A sentence to paste into an agent: broken into lines, not scrolled. */
+.live-setup-cmd-wrap pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.live-setup-examples {
+  margin-top: 8px;
+}
+.live-setup-examples summary {
+  cursor: pointer;
+  font-weight: 600;
+}
+.live-setup-ex {
+  margin: 6px 0;
+  padding-left: 1.1rem;
+}
+.live-setup-ex li + li {
+  margin-top: 6px;
+}
+
+/* Quick labels under the header's icons (data-tip), shown at once on hover
+   or keyboard focus; the browser's own tooltip is slow and easy to miss. */
+.top-nav [data-tip] {
+  position: relative;
+}
+.top-nav [data-tip]:hover::after,
+.top-nav [data-tip]:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2000;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--text-main);
+  color: var(--surface);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
 }

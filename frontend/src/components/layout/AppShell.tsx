@@ -112,16 +112,6 @@ export default function AppShell({ children }: Props) {
         </nav>
 
         <div className="nav-actions">
-          <a
-            href="/docs/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-sm"
-            style={{ marginRight: '8px', textDecoration: 'none' }}
-            title={t('home.documentation')}
-          >
-            <BookOpen size={14} /> {t('home.documentation')}
-          </a>
           <button
             className="btn btn-sm"
             onClick={() => setShowResetModal(true)}
@@ -132,10 +122,21 @@ export default function AppShell({ children }: Props) {
           </button>
           {features.ai && <LiveButton />}
           <LanguagePicker />
+          <a
+            href="/docs/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="theme-toggle"
+            data-tip={t('home.documentation')}
+            aria-label={t('home.documentation')}
+          >
+            <BookOpen size={16} />
+          </a>
           <button
             className="theme-toggle"
             onClick={toggleTheme}
-            title={theme === 'dark' ? t('appshell.theme.light') : t('appshell.theme.dark')}
+            data-tip={theme === 'dark' ? t('appshell.theme.light') : t('appshell.theme.dark')}
+            aria-label={theme === 'dark' ? t('appshell.theme.light') : t('appshell.theme.dark')}
           >
             {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
