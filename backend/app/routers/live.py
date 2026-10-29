@@ -28,6 +28,15 @@ class Command(BaseModel):
     timeout: float = Field(30.0, gt=0, le=300)
 
 
+class Pause(BaseModel):
+    paused: bool
+
+
+class LogEntry(BaseModel):
+    tool: str = Field(max_length=64)
+    detail: str = Field("", max_length=500)
+
+
 class CommandResult(BaseModel):
     ok: bool
     result: Any = None
@@ -55,14 +64,35 @@ async def create_session(body: SessionCreate):
     return session.summary()
 
 
+def _page(key: str) -> live.Session:
+    session = live.connected_session(key)
+    if session is None:
+        raise HTTPException(404, "No open page is connected with this code or project")
+    return session
+
+
 @router.get("/pages/{key}")
 async def connected_page(key: str):
-    """The project of the open, connected page with this session code or
-    project id; 404 when no such page is open."""
-    project_id = live.connected_project(key)
-    if project_id is None:
-        raise HTTPException(404, "No open page is connected with this code or project")
-    return {"project_id": project_id}
+    """The open, connected page with this code or project id: its project and
+    session. 404 when no such page is open, 423 while the user paused the AI."""
+    session = _page(key)
+    if session.paused:
+        raise HTTPException(423, "The user has paused the AI on this page")
+    return {"project_id": session.project_id, "session_id": session.id}
+
+
+@router.post("/pages/{key}/log")
+async def log_ai_action(key: str, entry: LogEntry):
+    """What the AI did, for the page's activity list and the server's log."""
+    return live.record(_page(key), entry.tool, entry.detail)
+
+
+@router.put("/sessions/{session_id}/pause")
+async def pause(session_id: str, body: Pause):
+    """The user pauses or resumes the AI on their page."""
+    session = _session(session_id)
+    session.paused = body.paused
+    return {"paused": session.paused}
 
 
 @router.get("/sessions/{session_id}")
@@ -74,8 +104,13 @@ async def get_session(session_id: str):
 
 @router.delete("/sessions/{session_id}")
 async def delete_session(session_id: str):
-    if not live.remove(session_id):
+    """Disconnect: the session ends and its project leaves the server (the
+    page keeps its own copy), unless another session still shows it."""
+    session = live.get(session_id)
+    if session is None or not live.remove(session_id):
         raise HTTPException(404, "Live session not found")
+    if session.project_id not in live.project_ids():
+        project_service.delete_project(session.project_id)
     return {"deleted": True}
 
 
@@ -106,6 +141,8 @@ async def run_command(session_id: str, command: Command):
         result = await live.send_command(session, command.name, command.args, command.timeout)
     except live.SessionNotConnected as exc:
         raise HTTPException(409, str(exc)) from exc
+    except live.SessionPaused as exc:
+        raise HTTPException(423, str(exc)) from exc
     except asyncio.TimeoutError as exc:
         raise HTTPException(504, f"The page did not answer '{command.name}' in time.") from exc
     except RuntimeError as exc:

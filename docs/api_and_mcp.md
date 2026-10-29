@@ -19,7 +19,6 @@ The backend is a FastAPI application. Its interactive reference, with every endp
 
 | Method | Path | What it does |
 |---|---|---|
-| GET | `/api/projects` | List projects (id → last change) |
 | POST | `/api/projects` | Create a project, optionally from a project JSON |
 | GET / PUT / DELETE | `/api/projects/{id}` | Read, replace or delete a project |
 | POST / PUT / DELETE | `/api/projects/{id}/groups[/{g}]` | Add, rename, delete a process |
@@ -60,12 +59,15 @@ The backend is a FastAPI application. Its interactive reference, with every endp
 
 | Method | Path | What it does |
 |---|---|---|
-| POST / GET | `/api/live/sessions` | Start a session for a page / list sessions |
+| POST | `/api/live/sessions` | Start a session for a page (sessions are never listed: the code is the key) |
 | GET / DELETE | `/api/live/sessions/{sid}` | A session and what its page shows / end it |
 | GET | `/api/live/sessions/{sid}/events` | The page's event stream (server-sent events) |
 | PUT | `/api/live/sessions/{sid}/view` | The page reports what it shows |
 | POST | `/api/live/sessions/{sid}/commands` | Run a command on the page and wait for its answer |
 | POST | `/api/live/sessions/{sid}/commands/{cid}/result` | The page's answer |
+| PUT | `/api/live/sessions/{sid}/pause` | The user pauses or resumes the AI |
+| GET | `/api/live/pages/{code}` | The open, connected page for a code (404 none, 423 paused) |
+| POST | `/api/live/pages/{code}/log` | Note what the AI changed (activity list, server log) |
 
 ### Example: analyse a project in one call
 
@@ -148,9 +150,17 @@ Online the server never opens files on its own disk for a caller: files come in 
 | `HEATTRANSPLAN_URL` | `http://localhost:8000` | the backend |
 | `HEATTRANSPLAN_API_KEY` | – | only if the backend sets `API_KEYS` |
 
-### Only on the open page
+### Only on the open page, and under the user's control
 
-The assistant works only on a page you have open: click **Connect AI** and give it the code. It sees what you see and works the page with you; every project tool takes the code, and its edits show up on your screen at once. Without the code, or once the page closes or you disconnect, it can only explain the method and read documents: it cannot create, change or analyse anything. Nothing it does happens out of your sight.
+The assistant works only on a page you have open: click **Connect AI** and give it the code. It sees what you see and works the page with you; every project tool takes the code, and its edits show up on your screen at once. Without the code, or once the page closes or you disconnect, it can only explain the method and read documents: it cannot create, change or analyse anything. Nothing it does happens out of your sight. While connected, the header shows:
+
+- **Pause** (⏸): the assistant can do nothing, not even read, until you resume.
+- **What the AI changed** (🕘): every change it made, newest first. The server logs the same.
+- **Its questions:** before it deletes or replaces anything (a process, subprocess or stream, the whole project, a CSV import, a site plan, a scenario), a window asks you to allow it. Nothing happens if you refuse or do not answer.
+
+### Security
+
+No login, limits per visitor, browser protections, projects that leave the server, hardened containers: see [Architecture & Security](architecture_and_security.md).
 
 ### Tools
 

@@ -995,6 +995,24 @@
     "setup_other": "Other agents: add a remote MCP server of type HTTP (also called streamable HTTP) with the address above.",
     "setup_self": "Or let the agent set itself up: paste this into it:",
     "setup_self_text": "Add the MCP server \"heattransplan\" with the address {{url}} (transport: HTTP, also called streamable HTTP; no command to run, nothing to install) to your MCP settings. Then call its tool guide to check that it works.",
-    "setup_permissions": "Agents may ask before every tool they use. To allow all HeatTransPlan tools at once: in Claude Code, /permissions and allow mcp__heattransplan; in other agents, allow the heattransplan server in their tool settings."
+    "setup_permissions": "Agents may ask before every tool they use. To allow all HeatTransPlan tools at once: in Claude Code, /permissions and allow mcp__heattransplan; in other agents, allow the heattransplan server in their tool settings.",
+    "pause": "Pause the AI: it can do nothing until you resume",
+    "resume": "Resume the AI",
+    "paused": "AI paused",
+    "activity": "What the AI changed",
+    "activity_empty": "Nothing yet.",
+    "confirm_title": "The AI asks for your permission",
+    "allow": "Allow",
+    "deny": "Don't allow",
+    "confirm_replace_project": "Replace the whole project on this page with “{{name}}”? What it shows now is replaced.",
+    "confirm_delete_process": "Delete the process “{{name}}” and its subprocesses?",
+    "confirm_delete_subprocess": "Delete the subprocess “{{name}}”?",
+    "confirm_delete_stream": "Delete the stream “{{name}}”?",
+    "confirm_import_csv": "Import “{{name}}”? It replaces the processes on this page.",
+    "confirm_remove_site_plan": "Remove the site plan?",
+    "confirm_set_project": "Replace the whole project on this page? What it shows now is replaced.",
+    "confirm_remove_subprocess_plan": "Remove a diagram's background plan?",
+    "confirm_delete_scenario": "Delete a saved scenario?",
+    "confirm_other": "Allow the AI to do this: {{name}}?"
   }
 }

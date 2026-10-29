@@ -19,18 +19,33 @@ import { buildView } from './view';
 
 type Status = 'off' | 'connecting' | 'on' | 'error';
 
+/** One thing the AI changed, as the server noted it. */
+export interface AiLogEntry {
+  time: number;
+  tool: string;
+  detail: string;
+}
+
 interface LiveState {
   status: Status;
   sessionId: string | null;
   projectId: string | null;
   error: string | null;
+  /** The user paused the AI: it can do nothing until resumed. */
+  paused: boolean;
+  /** What the AI changed, newest last. */
+  log: AiLogEntry[];
 }
+
+const LOG_LENGTH = 50;
 
 export const useLiveStore = create<LiveState>(() => ({
   status: 'off',
   sessionId: null,
   projectId: null,
   error: null,
+  paused: false,
+  log: [],
 }));
 
 const SAVED = 'heattransplan_live_session';
@@ -52,7 +67,11 @@ function debounce(fn: () => void, ms: number) {
   };
 }
 
-async function openSession(): Promise<{ session_id: string; project_id: string }> {
+async function openSession(): Promise<{
+  session_id: string;
+  project_id: string;
+  paused?: boolean;
+}> {
   const state = useProjectStore.getState().state;
   // A reload of the same tab keeps its session, and with it the AI's link.
   const saved = sessionStorage.getItem(SAVED);
@@ -81,7 +100,10 @@ async function answer(sessionId: string, id: string, body: Record<string, unknow
 
 function handleEvent(sessionId: string, type: string, data: Record<string, unknown>) {
   if (type === 'hello') set({ status: 'on', error: null });
-  else if (type === 'project') {
+  else if (type === 'ai_log') {
+    const entry = data as unknown as AiLogEntry;
+    set({ log: [...useLiveStore.getState().log, entry].slice(-LOG_LENGTH) });
+  } else if (type === 'project') {
     applyingRemote = true;
     try {
       useProjectStore.getState().setState(data.state as ProjectState);
@@ -172,9 +194,9 @@ export async function connectLive() {
     return;
   set({ status: 'connecting', error: null });
   try {
-    const { session_id, project_id } = await openSession();
+    const { session_id, project_id, paused } = await openSession();
     sessionStorage.setItem(SAVED, session_id);
-    set({ sessionId: session_id, projectId: project_id });
+    set({ sessionId: session_id, projectId: project_id, paused: Boolean(paused) });
     abort = new AbortController();
     startSync(session_id, project_id);
     void listen(session_id, abort.signal);
@@ -191,8 +213,16 @@ export async function disconnectLive() {
   unsubscribers = [];
   liveViewChanged = () => {};
   sessionStorage.removeItem(SAVED);
-  set({ status: 'off', sessionId: null, projectId: null, error: null });
+  set({ status: 'off', sessionId: null, projectId: null, error: null, paused: false, log: [] });
   if (sessionId) await client.delete(`/api/live/sessions/${sessionId}`).catch(() => {});
+}
+
+/** Pause or resume the AI on this page; the server refuses it while paused. */
+export async function setAiPaused(paused: boolean) {
+  const { sessionId } = useLiveStore.getState();
+  if (!sessionId) return;
+  const { data } = await client.put(`/api/live/sessions/${sessionId}/pause`, { paused });
+  set({ paused: Boolean(data.paused) });
 }
 
 /** After a reload, reconnect a tab that was connected. */

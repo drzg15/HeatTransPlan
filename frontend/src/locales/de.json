@@ -995,6 +995,24 @@
     "setup_other": "Andere Agenten: einen entfernten MCP-Server vom Typ HTTP (auch „Streamable HTTP“) mit der Adresse oben hinzufügen.",
     "setup_self": "Oder den Agenten sich selbst einrichten lassen: dies einfügen:",
     "setup_self_text": "Füge den MCP-Server „heattransplan“ mit der Adresse {{url}} (Transport: HTTP, auch „Streamable HTTP“; kein Befehl auszuführen, nichts zu installieren) zu deinen MCP-Einstellungen hinzu. Rufe danach sein Werkzeug guide auf, um zu prüfen, dass er funktioniert.",
-    "setup_permissions": "Agenten fragen eventuell vor jedem Werkzeug nach. Alle HeatTransPlan-Werkzeuge auf einmal erlauben: in Claude Code mit /permissions und mcp__heattransplan erlauben; in anderen Agenten den Server heattransplan in den Werkzeug-Einstellungen erlauben."
+    "setup_permissions": "Agenten fragen eventuell vor jedem Werkzeug nach. Alle HeatTransPlan-Werkzeuge auf einmal erlauben: in Claude Code mit /permissions und mcp__heattransplan erlauben; in anderen Agenten den Server heattransplan in den Werkzeug-Einstellungen erlauben.",
+    "pause": "KI pausieren: Sie kann nichts tun, bis Sie fortsetzen",
+    "resume": "KI fortsetzen",
+    "paused": "KI pausiert",
+    "activity": "Was die KI geändert hat",
+    "activity_empty": "Noch nichts.",
+    "confirm_title": "Die KI bittet um Erlaubnis",
+    "allow": "Erlauben",
+    "deny": "Nicht erlauben",
+    "confirm_replace_project": "Das ganze Projekt auf dieser Seite durch „{{name}}“ ersetzen? Was sie jetzt zeigt, wird ersetzt.",
+    "confirm_delete_process": "Den Prozess „{{name}}“ mit seinen Teilprozessen löschen?",
+    "confirm_delete_subprocess": "Den Teilprozess „{{name}}“ löschen?",
+    "confirm_delete_stream": "Den Strom „{{name}}“ löschen?",
+    "confirm_import_csv": "„{{name}}“ importieren? Das ersetzt die Prozesse auf dieser Seite.",
+    "confirm_remove_site_plan": "Den Lageplan entfernen?",
+    "confirm_set_project": "Das ganze Projekt auf dieser Seite ersetzen? Was sie jetzt zeigt, wird ersetzt.",
+    "confirm_remove_subprocess_plan": "Den Hintergrundplan eines Diagramms entfernen?",
+    "confirm_delete_scenario": "Ein gespeichertes Szenario löschen?",
+    "confirm_other": "Der KI das erlauben: {{name}}?"
   }
 }

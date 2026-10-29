@@ -22,6 +22,14 @@ ENV HEATTRANSPLAN_DOCS=/opt/docs
 # Use uv pip to install into the system site-packages (Note: uv pip is a Rust implementation, NOT legacy pip)
 RUN uv pip install --system . /opt/mcp_server --no-cache-dir
 
+# An ordinary user, never root. Only /tmp is writable (docker-compose.yml
+# mounts it): the projects and matplotlib's font cache live there.
+RUN useradd --system --uid 10001 --no-create-home app
+ENV HOME=/tmp MPLCONFIGDIR=/tmp/matplotlib XDG_CACHE_HOME=/tmp/cache
+USER app
+
 EXPOSE 8000
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Behind Caddy: the visitor's address comes from X-Forwarded-For, which Caddy
+# sets. Trusted from anyone, as only Caddy reaches this port (not published).
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]

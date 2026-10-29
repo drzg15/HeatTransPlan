@@ -9,6 +9,7 @@ import { Bot, CircleHelp, Copy, LoaderCircle, X } from 'lucide-react';
 import { CommandError, useLiveCommand } from './commands';
 import { setCurrentPage } from './view';
 import LiveSetup from './LiveSetup';
+import AiControls from './AiControls';
 import {
   connectLive,
   disconnectLive,
@@ -66,52 +67,53 @@ export default function LiveButton() {
   if (status === 'on' || status === 'connecting') {
     return (
       <>
-      <span className="live-badge" title={t('live.code')}>
-        {status === 'connecting' ? (
-          <LoaderCircle size={14} className="pa-spin" />
-        ) : (
-          <span className="live-dot" />
-        )}
-        <Bot size={14} />
-        <code className="notranslate">{sessionId ?? '…'}</code>
-        {sessionId && (
+        <span className="live-badge" title={t('live.code')}>
+          {status === 'connecting' ? (
+            <LoaderCircle size={14} className="pa-spin" />
+          ) : (
+            <span className="live-dot" />
+          )}
+          <Bot size={14} />
+          <code className="notranslate">{sessionId ?? '…'}</code>
+          {sessionId && (
+            <button
+              type="button"
+              className="live-icon"
+              onClick={() => navigator.clipboard?.writeText(sessionId)}
+              title={t('live.copy')}
+              aria-label={t('live.copy')}
+            >
+              <Copy size={13} />
+            </button>
+          )}
+          {status === 'on' && <AiControls />}
           <button
             type="button"
             className="live-icon"
-            onClick={() => navigator.clipboard?.writeText(sessionId)}
-            title={t('live.copy')}
-            aria-label={t('live.copy')}
+            onClick={() => void disconnectLive()}
+            title={t('live.disconnect')}
+            aria-label={t('live.disconnect')}
           >
-            <Copy size={13} />
+            <X size={13} />
           </button>
-        )}
-        <button
-          type="button"
-          className="live-icon"
-          onClick={() => void disconnectLive()}
-          title={t('live.disconnect')}
-          aria-label={t('live.disconnect')}
-        >
-          <X size={13} />
-        </button>
-      </span>
-      {help}
+        </span>
+        {help}
       </>
     );
   }
 
   return (
     <>
-    <button
-      type="button"
-      className="btn btn-sm"
-      style={{ marginRight: '8px' }}
-      onClick={() => void connectLive()}
-      title={status === 'error' ? t('live.error', { msg: error }) : t('live.connect_hint')}
-    >
-      <Bot size={14} /> {t('live.connect')}
-    </button>
-    {help}
+      <button
+        type="button"
+        className="btn btn-sm"
+        style={{ marginRight: '8px' }}
+        onClick={() => void connectLive()}
+        title={status === 'error' ? t('live.error', { msg: error }) : t('live.connect_hint')}
+      >
+        <Bot size={14} /> {t('live.connect')}
+      </button>
+      {help}
     </>
   );
 }

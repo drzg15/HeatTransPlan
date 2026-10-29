@@ -147,3 +147,15 @@ def test_a_report_made_by_an_ai_says_so():
     req.created_by_ai = True
     html = generate_html_report(req)
     assert I18N["de"]["ai_note"] in html and "AI assistant via MCP" in html
+
+
+def test_typed_text_is_shown_never_run():
+    """Names and notes are typed by users or an AI: the report shows them as
+    text, so a name cannot carry a script into the file."""
+    req = _request()
+    req.project_notes = "<script>alert(1)</script> & more"
+    req.scenarios[0].name = "<img src=x onerror=alert(2)>"
+    req.selected_streams = [ReportStream(name="<b>Hot</b>", Tin=90, Tout=40, CP=2, Q=100, type="HOT")]
+    html = generate_html_report(req)
+    assert "<script>alert(1)" not in html and "&lt;script&gt;alert(1)&lt;/script&gt; &amp; more" in html
+    assert "<img src=x" not in html and "&lt;img src=x onerror=alert(2)&gt;" in html

@@ -16,6 +16,7 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 import uuid
 from datetime import datetime
 from pathlib import Path
@@ -28,6 +29,10 @@ from app.services import live
 STATE_DIR = Path(
     os.getenv("HEATTRANSPLAN_STATE_DIR", Path(tempfile.gettempdir()) / "heattransplan_projects")
 )
+# Projects hold a site's process data: one nobody has changed for this long,
+# and no open session uses, is deleted. The page keeps its own copy.
+RETENTION_SECONDS = float(os.getenv("PROJECT_RETENTION_HOURS", "24")) * 3600
+_last_cleanup = 0.0
 
 
 def _ensure_dir() -> Path:
@@ -60,6 +65,7 @@ def _write(project_id: str, state: ProjectState) -> None:
 
 def create_project(state: Optional[ProjectState] = None) -> tuple[str, ProjectState]:
     """Create a new project, optionally initialized from an existing state."""
+    forget_old_projects()
     project_id = str(uuid.uuid4())
     if state is None:
         state = ProjectState()
@@ -107,3 +113,20 @@ def delete_project(project_id: str) -> bool:
         return False
     path.unlink()
     return True
+
+
+def forget_old_projects() -> None:
+    """Delete projects untouched for RETENTION_SECONDS that no session uses.
+    Runs at most once a minute, when a project is created."""
+    global _last_cleanup
+    now = time.time()
+    if now - _last_cleanup < 60:
+        return
+    _last_cleanup = now
+    in_use = live.project_ids()
+    for path in _ensure_dir().glob("*.json"):
+        try:
+            if path.stem not in in_use and now - path.stat().st_mtime > RETENTION_SECONDS:
+                path.unlink()
+        except FileNotFoundError:
+            pass  # another request removed it first

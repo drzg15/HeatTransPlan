@@ -234,6 +234,63 @@
   opacity: 1;
 }
 
+/* While an AI is connected: pause, what it changed, its questions. */
+.live-icon-on {
+  opacity: 1;
+  color: #b45309;
+}
+.live-paused {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #b45309;
+}
+.live-activity-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.live-count {
+  margin-left: 2px;
+  font-size: 0.7rem;
+  font-weight: 600;
+}
+.live-activity {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  z-index: 3000;
+  width: min(360px, calc(100vw - 32px));
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  font-size: 0.78rem;
+}
+.live-activity ol {
+  margin: 6px 0 0;
+  padding-left: 0;
+  list-style: none;
+}
+.live-activity li {
+  padding: 4px 0;
+  border-top: 1px solid var(--border);
+  overflow-wrap: anywhere;
+}
+.live-activity time {
+  opacity: 0.6;
+}
+.live-confirm {
+  max-width: 440px;
+}
+.live-confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 12px;
+}
+
 /* The AI setup steps. */
 .live-setup ol {
   padding-left: 1.2rem;

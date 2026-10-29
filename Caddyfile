@@ -2,6 +2,23 @@
 # gets its TLS certificate automatically. Unset: plain http on port 80, any
 # address (http://localhost, http://127.0.0.1).
 {$SITE_ADDRESS::80} {
+    # Browser protections. HSTS only counts over https (ignored on http).
+    # No script policy (CSP) on purpose: maps, charts and docs load from
+    # several origins; these parts block framing, plugins and form tricks.
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+        Permissions-Policy "camera=(), microphone=(), geolocation=(), payment=(), usb=()"
+        Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'"
+        -Server
+    }
+    # Largest upload: a project with its site plan images, or a data file.
+    request_body {
+        max_size 50MB
+    }
+
     handle /api/* {
         reverse_proxy backend:8000
     }

@@ -1,6 +1,7 @@
 """The whole report: data collection page, scenario pages, comparison page."""
 
 from datetime import datetime
+from html import escape
 from typing import Dict, List, Optional
 
 import plotly.graph_objects as go
@@ -75,9 +76,10 @@ def generate_html_report(req: ReportRequest) -> str:
             localized_type = texts['hot'] if s_type == 'HOT' else (texts['cold'] if s_type == 'COLD' else s_type)
             
             data_rows.append(
-                f"<tr><td>{process_name}</td><td>{sp.name}</td><td>{s.get('name')}</td>"
-                f"<td>{localized_type}</td><td>{tin}</td><td>{tout}</td><td>{mdot}</td>"
-                f"<td>{cp}</td><td>{CP}</td><td>{Q}</td></tr>"
+                # Names and values are typed by users (or an AI): text, never markup.
+                f"<tr><td>{escape(str(process_name))}</td><td>{escape(str(sp.name))}</td><td>{escape(str(s.get('name')))}</td>"
+                f"<td>{escape(str(localized_type))}</td><td>{escape(str(tin))}</td><td>{escape(str(tout))}</td><td>{escape(str(mdot))}</td>"
+                f"<td>{escape(str(cp))}</td><td>{escape(str(CP))}</td><td>{Q}</td></tr>"
             )
     data_rows_html = "".join(data_rows)
 
@@ -89,7 +91,7 @@ def generate_html_report(req: ReportRequest) -> str:
     for i, sc in enumerate(req.scenarios):
         sc_id = f"scenario-{i}"
         sc_disp_name = texts['all_streams'] if sc.name.lower() == 'all streams' else sc.name
-        nav_links_html += f'<li class="nav-tab" onclick="showPage(\'{sc_id}\')">📑 {sc_disp_name}</li>'
+        nav_links_html += f'<li class="nav-tab" onclick="showPage(\'{sc_id}\')">📑 {escape(sc_disp_name)}</li>'
         
         # Regenerate map for this specific scenario
         old_streams = req.selected_streams
@@ -157,7 +159,7 @@ def generate_html_report(req: ReportRequest) -> str:
                 sc_npv.append(None)
                 econ_cells = "<td style='background:#fef3c7'>—</td>" * 4
 
-            sc_rows += f"<tr><td><strong>{sc_disp_name}</strong></td><td>{sc.t_min}K</td><td>{tot_heat:.1f}</td><td>{phu:.1f}</td><td>{tot_cool:.1f}</td><td>{pcu:.1f}</td><td style='background:#e8f5e9'>{sh:.1f}</td><td style='background:#e8f5e9'>{sh_pct:.1f}%</td><td style='background:#f3e5f5'>{_fmt(best_cop)}</td><td style='background:#f3e5f5'>{coverage:.1f}%</td>{econ_cells}</tr>"
+            sc_rows += f"<tr><td><strong>{escape(sc_disp_name)}</strong></td><td>{sc.t_min}K</td><td>{tot_heat:.1f}</td><td>{phu:.1f}</td><td>{tot_cool:.1f}</td><td>{pcu:.1f}</td><td style='background:#e8f5e9'>{sh:.1f}</td><td style='background:#e8f5e9'>{sh_pct:.1f}%</td><td style='background:#f3e5f5'>{_fmt(best_cop)}</td><td style='background:#f3e5f5'>{coverage:.1f}%</td>{econ_cells}</tr>"
         
         fig = go.Figure([go.Bar(x=sc_names, y=sc_tot_heat, name='Status Quo (Hot)', marker_color='#ef4444', opacity=0.3, showlegend=False), 
                          go.Bar(x=sc_names, y=sc_hot, name=texts['hot'], marker_color='#ef4444'), 
@@ -293,7 +295,7 @@ def generate_html_report(req: ReportRequest) -> str:
             <thead><tr><th>{texts['process']}</th><th>{texts['subprocess']}</th><th>{texts['stream']}</th><th>{texts['type']}</th><th>Tin (°C)</th><th>Tout (°C)</th><th>ṁ</th><th>cp</th><th>CP</th><th>Q (kW)</th></tr></thead>
             <tbody>{data_rows_html}</tbody>
         </table>
-        <h3>📝 {texts['notes']}</h3><div style="background:#f9f9f9; padding:15px; border-left:4px solid #3498db; white-space: pre-wrap;">{req.project_notes or texts['no_notes']}</div>
+        <h3>📝 {texts['notes']}</h3><div style="background:#f9f9f9; padding:15px; border-left:4px solid #3498db; white-space: pre-wrap;">{escape(req.project_notes) if req.project_notes else texts['no_notes']}</div>
     </div>
 
     {scenario_pages_html}
