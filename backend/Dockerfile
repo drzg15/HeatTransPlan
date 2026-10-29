@@ -26,6 +26,10 @@ RUN uv pip install --system . /opt/mcp_server --no-cache-dir
 # mounts it): the projects and matplotlib's font cache live there.
 RUN useradd --system --uid 10001 --no-create-home app
 ENV HOME=/tmp MPLCONFIGDIR=/tmp/matplotlib XDG_CACHE_HOME=/tmp/cache
+# The activity log (app/services/activity_log.py): docker-compose.yml mounts a
+# volume here, which takes this folder's owner, so it survives a rebuild.
+RUN mkdir /app/logs && chown app /app/logs
+ENV ACTIVITY_LOG=/app/logs/activity.sqlite
 # The COP model's many small matrix products lose more to thread start-up than
 # they gain from all cores: 2 BLAS threads per request are ~4x faster than the
 # default (one per core), and parallel requests do not fight over the cores.
@@ -36,4 +40,6 @@ EXPOSE 8000
 
 # Behind Caddy: the visitor's address comes from X-Forwarded-For, which Caddy
 # sets. Trusted from anyone, as only Caddy reaches this port (not published).
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*"]
+# No access log: it would keep every visitor's address and project ids; the
+# anonymous activity log (app/services/activity_log.py) records use instead.
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-access-log"]

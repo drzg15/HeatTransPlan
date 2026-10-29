@@ -16,12 +16,13 @@ from __future__ import annotations
 
 import asyncio
 import json
-import logging
 import time
 import uuid
 from collections import deque
 from dataclasses import dataclass, field
 from typing import Any, AsyncIterator, Dict, List, Optional
+
+from app.services import activity_log
 
 # A session nobody has listened to for this long is dropped.
 IDLE_SECONDS = 3600
@@ -35,15 +36,6 @@ class SessionNotConnected(Exception):
 
 class SessionPaused(Exception):
     """The user paused the AI on the page: nothing runs until they resume."""
-
-
-# What AIs did on pages, for the server's log (not the repository).
-ai_log = logging.getLogger("heattransplan.ai")
-if not ai_log.handlers:
-    _handler = logging.StreamHandler()
-    _handler.setFormatter(logging.Formatter("%(asctime)s %(name)s %(message)s"))
-    ai_log.addHandler(_handler)
-    ai_log.setLevel(logging.INFO)
 
 
 @dataclass
@@ -105,12 +97,15 @@ def connected_session(key: str) -> Optional[Session]:
     return None
 
 
-def record(session: Session, tool: str, detail: str) -> Dict[str, Any]:
-    """Note what the AI did: in the page's activity list and the server's log."""
+def record(session: Session, tool: str, detail: str, fields: Optional[List[str]] = None) -> Dict[str, Any]:
+    """Note what the AI did: in full on the page's activity list (its user sees
+    it), anonymously in the activity log (the tool and the names of the fields
+    it set, never their values)."""
     entry = {"time": time.time(), "tool": tool, "detail": detail}
     session.log.append(entry)
     _publish(session, {"type": "ai_log", **entry})
-    ai_log.info("AI on page %s: %s %s", session.id, tool, detail)
+    names = [f for f in fields or [] if f.isidentifier()]
+    activity_log.write("ai", tool, ", ".join(names))
     return entry
 
 

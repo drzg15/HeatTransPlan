@@ -232,8 +232,9 @@ def test_driving_a_connected_page(tmp_path):
 
         # Notes are the page's own command, not a new project.
         await S.set_notes(pid, project_notes="Edited by the AI")
-        assert seen[-1]["name"] == "set_project_notes"
-        assert seen[-1]["args"] == {"notes": "Edited by the AI"}
+        last = [e for e in seen if e.get("type") == "command"][-1]
+        assert last["name"] == "set_project_notes"
+        assert last["args"] == {"notes": "Edited by the AI"}
         task.cancel()
 
     run(body)

@@ -35,6 +35,8 @@ class Pause(BaseModel):
 class LogEntry(BaseModel):
     tool: str = Field(max_length=64)
     detail: str = Field("", max_length=500)
+    # The argument names alone, for the anonymous activity log.
+    fields: list[str] = Field(default_factory=list, max_length=40)
 
 
 class CommandResult(BaseModel):
@@ -84,7 +86,7 @@ async def connected_page(key: str):
 @router.post("/pages/{key}/log")
 async def log_ai_action(key: str, entry: LogEntry):
     """What the AI did, for the page's activity list and the server's log."""
-    return live.record(_page(key), entry.tool, entry.detail)
+    return live.record(_page(key), entry.tool, entry.detail, entry.fields)
 
 
 @router.put("/sessions/{session_id}/pause")

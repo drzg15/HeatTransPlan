@@ -52,6 +52,7 @@ ENV HEATTRANSPLAN_STATE_DIR=/app/state
 ENV OPENBLAS_NUM_THREADS=2
 RUN mkdir -p /app/state
 
-# Run uvicorn server
+# Run uvicorn server. No access log: it would keep every visitor's address;
+# the anonymous activity log records use instead.
 WORKDIR /app/backend
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860", "--proxy-headers", "--forwarded-allow-ips", "*"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-access-log"]

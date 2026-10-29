@@ -75,7 +75,7 @@ endpoint = McpEndpoint()
 async def lifespan(app):
     """Run the MCP session manager and point the tools at this app."""
     # The agent's request to /mcp is what the rate limit counts, not these.
-    headers = {"X-HeatTransPlan-Internal": INTERNAL_TOKEN}
+    headers = {"X-HeatTransPlan-Internal": INTERNAL_TOKEN, "X-Actor": "ai"}
     if API_KEYS:
         headers["X-API-Key"] = API_KEYS[0]
     client = httpx.AsyncClient(

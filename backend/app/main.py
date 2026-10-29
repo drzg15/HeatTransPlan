@@ -1,11 +1,14 @@
 import logging
+import re
+import time
 
-from fastapi import FastAPI, Depends
+from fastapi import FastAPI, Depends, Request
+from fastapi.concurrency import run_in_threadpool
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import AI_ENABLED, CORS_ORIGINS
 from app.routers import projects, processes, streams, analysis, io_routes, assets, live
-from app.services import cop_training
+from app.services import activity_log, cop_training
 from app.dependencies import API_KEYS, verify_api_key
 from app.rate_limit import RateLimit
 
@@ -29,6 +32,42 @@ app = FastAPI(
     redoc_url="/api/redoc",
     openapi_url="/api/openapi.json",
 )
+
+# What the log leaves out: reads, the page reporting its view, the AI's page
+# commands and their answers, and its activity notes (live.record writes one
+# row per tool instead), and /mcp (each tool's calls to the API are logged as
+# the AI's).
+_QUIET = re.compile(r"^/api/live/(sessions/[^/]+/(view|commands(/.*)?)|pages/[^/]+/log)$|^/mcp")
+
+
+@app.middleware("http")
+async def activity(request: Request, call_next):
+    """One anonymous row per change (and per failure): which feature, human or AI."""
+    start = time.perf_counter()
+    log = request.method not in ("GET", "HEAD", "OPTIONS") and not _QUIET.match(request.url.path)
+    actor = activity_log.actor_of(request.headers.get("x-actor"))
+    def action():
+        # The route's pattern, not the path: a path carries project ids and page codes.
+        if "route" not in request.scope:
+            return f"{request.method} (no route)"
+        path = request.url.path
+        for name, value in request.scope.get("path_params", {}).items():
+            path = path.replace(str(value), "{" + name + "}")
+        return f"{request.method} {path}"
+
+    try:
+        response = await call_next(request)
+    except Exception as exc:
+        await run_in_threadpool(activity_log.write, "system", action(),
+                                f"{actor}'s request failed: {activity_log.where_it_failed(exc)}", 500)
+        raise
+    if log or response.status_code >= 500:
+        await run_in_threadpool(
+            activity_log.write, actor if response.status_code < 500 else "system", action(),
+            getattr(request.state, "log_detail", ""), response.status_code,
+            round((time.perf_counter() - start) * 1000))
+    return response
+
 
 # Requests per visitor (app/rate_limit.py); added first so CORS wraps its answers.
 app.add_middleware(RateLimit)
