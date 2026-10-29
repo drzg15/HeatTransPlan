@@ -119,7 +119,7 @@ export default function HomePage() {
               </div>
               <div style={{ flex: '1 1 45%' }}>
                 <a
-                  href="https://drzg15.github.io/HeatTransPlan/"
+                  href="/docs/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className={`${styles['action-card']} ${styles['action-card-secondary']}`}

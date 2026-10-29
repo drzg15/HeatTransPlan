@@ -76,9 +76,14 @@ READING RESULTS
 - Results depend on ΔTmin, the stream selection and profile_mode: say which
   you used.
 
-STEPS
-Without a page (project files):
-1. create_project (empty, an example from list_examples, or a JSON file).
+STEPS (always on the page the user has open)
+1. The user opens HeatTransPlan, clicks "Connect AI" and tells you the code
+   shown there. You work only on that open page: without the code (or once
+   the page closes) you can explain the method (explain, guide) and read
+   documents, but not create, change or analyse anything. Every project
+   tool takes the code as project_id; live_view shows what the page shows.
+   replace_project loads an example (list_examples) or a saved file onto
+   the page: ask first, it replaces what the page shows.
 2. Data: add_process (a plant area: a box on the map, lat/lon) ->
    add_subprocess (a machine or step; streams live here) -> add_stream
    (t_in, t_out and mass_flow + cp, or CP). update_* sets positions,
@@ -88,15 +93,13 @@ Without a page (project files):
    economics of the best pump, for the streams chosen (selected_streams).
 4. list_heat_pumps; economic_analysis to price another pump or change
    inputs (economics_defaults lists them).
-5. generate_report; save_project_file (the user opens it in the app).
-   Keep the project_id: projects are not listed.
-With the open page (live): the user clicks "Connect AI" and tells you the
-code shown there, the session_id (sessions are not listed, the code is the
-user's key to their page); live_view shows what the page shows. Navigate,
-then select streams, set the analysis, pick pumps, set economics, save
-scenarios, make the report: the live_* tools and live_command. The
-session's project_id works with every project tool and edits appear on the
-page at once. Prefer live when the user has the page open: they see it.
+5. generate_report; save_project_file (a file the user opens in the app).
+Project edits appear on the page at once. To work the page itself, as the
+user would: navigate, select streams, set the analysis, pick pumps, set
+economics, save scenarios, make the full report (economics included):
+the live_* tools and live_command, with the same code as session_id. The
+code is the user's key to their page: sessions and projects are never
+listed.
 
 WORKING WITH THE USER
 - Documents (Word, PowerPoint, Excel, CSV): read them yourself when they
@@ -120,6 +123,8 @@ FILES
   CSV) return a download link instead: give it to the user.
 
 CONVENTIONS
+- project_id and session_id: the Connect AI code of the open page (a
+  project tool also takes the page's project id).
 - process: index of a process; subprocess: index into the project's
   subprocess list (get_project shows both); stream key
   stream_<subprocess>_<stream>. All 0-based.
@@ -145,11 +150,26 @@ def set_api(new: Api) -> None:
     _models.clear()
 
 
+async def _page(key: str) -> str:
+    """The project of the page that is open and connected, by its Connect AI
+    code or project id. The AI works only on such a page: every project tool
+    comes through here."""
+    try:
+        return (await api.get(f"/api/live/pages/{key}"))["project_id"]
+    except ApiError as exc:
+        if "(404)" not in str(exc):
+            raise
+        raise ApiError("No open page is connected with this code. You work only on the page the "
+                       "user has open: ask them to open HeatTransPlan, click Connect AI and tell "
+                       "you the code.") from exc
+
+
 async def _load(project_id: str) -> Dict[str, Any]:
-    return await api.get(f"/api/projects/{project_id}")
+    return await api.get(f"/api/projects/{await _page(project_id)}")
 
 
 async def _save(project_id: str, state: Dict[str, Any]) -> Dict[str, Any]:
+    project_id = await _page(project_id)
     _analysis.pop(project_id, None)
     return await api.put(f"/api/projects/{project_id}", json=state)
 
@@ -278,8 +298,8 @@ Before any data:
   replace a boiler, use a waste heat source)? Where is it (address for
   search_address and the map)?
 - Which documents or measurements exist? Ask for them (read_document).
-- Is the app open? Then ask the user to click "Connect AI" and tell you
-  the code, and work live; otherwise work on a project.
+- Ask the user to open HeatTransPlan, click "Connect AI" and tell you the
+  code: you can only work on the open page.
 Next: guide("data").""",
     "data": """\
 Data Collection page: processes (plant areas) -> subprocesses (machines or
@@ -375,25 +395,6 @@ async def list_examples() -> List[str]:
 
 
 @mcp.tool()
-async def create_project(example: Optional[str] = None, file_path: Optional[str] = None,
-                         content: Optional[str | Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Create a project on the backend: empty, from an example (see
-    list_examples) or from a saved project JSON file (file_path, or its
-    content). Returns its project_id and an overview. Keep the project_id:
-    projects are not listed, it is the only way back to one."""
-    from_file = file_path is not None or content is not None
-    if example and from_file:
-        raise ApiError("Give either example or a file, not both.")
-    state = None
-    if example:
-        state = await api.get(f"/api/assets/examples/{example}")
-    elif from_file:
-        state = json.loads(_read_input(file_path, content)[1].decode("utf-8"))
-    created = await api.post("/api/projects", json=state)
-    return {"project_id": created["project_id"], "project": edit.overview(created["state"])}
-
-
-@mcp.tool()
 async def get_project(project_id: str, full: bool = False) -> Dict[str, Any]:
     """A project as an overview (processes, subprocesses, streams with their
     keys and values) or, with full=True, its complete JSON."""
@@ -411,17 +412,21 @@ async def save_project_file(project_id: str, file_path: Optional[str] = None) ->
 
 
 @mcp.tool()
-async def replace_project(project_id: str, state: Dict[str, Any]) -> Dict[str, Any]:
-    """Replace a project's whole JSON (as loading a file on the page)."""
+async def replace_project(project_id: str, state: Optional[Dict[str, Any]] = None,
+                          example: Optional[str] = None, file_path: Optional[str] = None,
+                          content: Optional[str | Dict[str, Any]] = None) -> Dict[str, Any]:
+    """Replace the open page's whole project, as loading a file on the page:
+    with a project JSON (state), an example (see list_examples) or a saved
+    project file (file_path, or its content). Ask the user first: what the
+    page shows is replaced."""
+    given = [x for x in (state, example, file_path or content) if x is not None]
+    if len(given) != 1:
+        raise ApiError("Give one of state, example or a file (file_path or content).")
+    if example:
+        state = await api.get(f"/api/assets/examples/{example}")
+    elif state is None:
+        state = json.loads(_read_input(file_path, content)[1].decode("utf-8"))
     return edit.overview(await _save(project_id, state))
-
-
-@mcp.tool()
-async def delete_project(project_id: str) -> str:
-    """Delete a project from the backend."""
-    await api.delete(f"/api/projects/{project_id}")
-    _analysis.pop(project_id, None)
-    return "Deleted"
 
 
 @mcp.tool()
@@ -601,6 +606,7 @@ async def set_site_plan(project_id: str, image_path: Optional[str] = None,
 async def export_csv(project_id: str, file_path: Optional[str] = None) -> str:
     """Write the project's streams as CSV (the backend's export). Online: a
     download link for the user."""
+    project_id = await _page(project_id)
     text = await api.get(f"/api/io/export-csv/{project_id}")
     return _deliver(file_path, "streams.csv", text.encode("utf-8"), "text/csv")
 
@@ -610,6 +616,7 @@ async def import_csv(project_id: str, file_path: Optional[str] = None,
                      content: Optional[str] = None) -> Dict[str, Any]:
     """Load streams from a CSV file (file_path, or its text as content) into
     the project (the backend's import)."""
+    project_id = await _page(project_id)
     name, data = _read_input(file_path, content)
     await api.request("POST", f"/api/io/import-csv/{project_id}",
                       files={"file": (name, data, "text/csv")})
@@ -716,6 +723,7 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
     (default the project's). The streams, ΔTmin and demands given are saved
     to the project, as the page does. Results are kept for list_heat_pumps,
     economic_analysis and generate_report."""
+    project_id = await _page(project_id)
     state = await _load(project_id)
     sel = {k: True for k in selected_streams} if selected_streams is not None else None
     changed = {k: v for k, v in {"selected_streams": sel, "t_min": t_min,
@@ -823,6 +831,7 @@ async def list_heat_pumps(project_id: str, real_only: bool = False, refrigerant:
     """The heat pumps the optimization found for the last analysis, best duty
     first (COP breaks ties). Source- and demand-limited points (off the
     profiles, hidden on the page by default) only with include_limited."""
+    project_id = await _page(project_id)
     pts = _cached(project_id)["optimization"]["feasible_points"]
     pts = [p for p in pts if (include_limited or not (p.get("source_limited") or p.get("demand_limited")))
            and (not real_only or not p.get("theoretical"))
@@ -848,6 +857,7 @@ async def economic_analysis(project_id: str, inputs: Optional[Dict[str, float]] 
     to pick (the best of them is analysed); default the optimization's best.
     Inputs not given keep their last value; a new reference_heater brings its
     own efficiency, fuel price and CO2 factor, as on the page."""
+    project_id = await _page(project_id)
     cache = _cached(project_id)
     opt = cache["optimization"]
     if reference_heater and reference_heater != cache["reference_heater"]:
@@ -887,6 +897,7 @@ async def generate_report(project_id: str, file_path: Optional[str] = None,
     pinch, heat pumps); online, a download link for the user. The page's
     report also carries the economic charts: for that, use
     live_generate_report on a connected page."""
+    project_id = await _page(project_id)
     cache = _cached(project_id)
     state = await _load(project_id)
     streams = [{k: s[k] for k in ("name", "Tin", "Tout", "CP", "Q", "type")} for s in cache["streams"]]

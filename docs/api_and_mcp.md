@@ -139,7 +139,7 @@ Add a remote MCP server of type HTTP ("streamable HTTP") with the address `<the 
 
 If the backend sets `API_KEYS`, the agent sends one as `X-API-Key` or `Authorization: Bearer <key>`. `AI_ENABLED=0` (in `.env`) switches all of this off and hides Connect AI; the rest of the app stays as it is. Reports made by an AI say so on their first page.
 
-Online the server never opens files on its own disk for a caller: files come in as their content (base64, or text for CSV and JSON), and what the tools write (report, project, CSV) comes back as a download link, valid for an hour. Sessions and projects are not listed: the session code and the project id are what give access to them.
+Online the server never opens files on its own disk for a caller: files come in as their content (base64, or text for CSV and JSON), and what the tools write (report, project, CSV) comes back as a download link, valid for an hour. Sessions and projects are not listed: the Connect AI code is what gives access to a page, and only while it is open.
 
 **Locally (stdio)**, for an agent on your own computer that should read and write your files by path: `pip install -e mcp_server`, then run `heattransplan-mcp` with these variables:
 
@@ -148,13 +148,9 @@ Online the server never opens files on its own disk for a caller: files come in 
 | `HEATTRANSPLAN_URL` | `http://localhost:8000` | the backend |
 | `HEATTRANSPLAN_API_KEY` | – | only if the backend sets `API_KEYS` |
 
-### Two ways of working
+### Only on the open page
 
-**Project files.** The assistant creates a project (empty, from an example or from a saved file), adds processes, subprocesses and streams, runs the analysis, compares heat pumps, runs the economic analysis with its own inputs, writes the report and saves the project file (online: download links), which you then open in the app. No page needs to be open.
-
-**On the open page.** Click **Connect AI** and give the assistant the code. It sees what you see and works the page with you; the session's project id works with every project tool, so its edits show up on your screen.
-
-Both can be mixed, e.g. build a project from files, open it, connect, and have the assistant walk through the analysis on the page.
+The assistant works only on a page you have open: click **Connect AI** and give it the code. It sees what you see and works the page with you; every project tool takes the code, and its edits show up on your screen at once. Without the code, or once the page closes or you disconnect, it can only explain the method and read documents: it cannot create, change or analyse anything. Nothing it does happens out of your sight.
 
 ### Tools
 
@@ -162,7 +158,7 @@ Both can be mixed, e.g. build a project from files, open it, connect, and have t
 |---|---|
 | The method | `explain` (overview, pinch, heat pump integration, optimization, economics, refrigerants, api: these pages, without the code) |
 | Guided study | `guide` (the questions to ask at each step: start, data, analysis, economics, report), `read_document` (text and tables of Word, PowerPoint, Excel and CSV files), the prompt `guided_study` |
-| Projects | `list_examples`, `create_project`, `get_project`, `save_project_file`, `replace_project`, `delete_project` |
+| Projects | `list_examples`, `get_project`, `save_project_file`, `replace_project` (loads an example or a saved file onto the page) |
 | Processes & streams | `add_process`, `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`, `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`, `set_notes`, `set_map`, `search_address`, `set_site_plan`, `export_csv`, `import_csv` |
 | Analysis | `analyse_project` (with today's energy demands: status quo), `list_heat_pumps`, `economics_defaults`, `economic_analysis`, `validate_cop_formula`, `inspect_cop_data`, `train_cop_model`, `generate_report` |
 | Live | `live_view`, `live_results`, `live_command`, `live_navigate`, `live_wait`, `live_select_streams`, `live_set_analysis`, `live_select_heat_pumps`, `live_filter_heat_pumps`, `live_set_economics`, `live_use_cop_model`, `live_save_scenario`, `live_generate_report`, `live_load_site_plan` |
@@ -177,7 +173,7 @@ Edits follow the page's rules: a new process comes with one subprocess, deleting
 
 > *"Load example 1, analyse it with ΔTmin 15 K, and tell me which real heat pump pays back fastest at a gas price of 8 ct/kWh."*
 
-The assistant calls `create_project(example=…)`, `analyse_project(t_min=15)`, `list_heat_pumps(real_only=True)`, then `economic_analysis(inputs={"pFuel": 8}, pumps=[…])` for the candidates and compares the payback times.
+With the page connected, the assistant calls `replace_project(code, example=…)`, `analyse_project(code, t_min=15)`, `list_heat_pumps(real_only=True)`, then `economic_analysis(inputs={"pFuel": 8}, pumps=[…])` for the candidates and compares the payback times.
 
 <details>
 <summary><b>Source code:</b> <code>mcp_server/heattransplan_mcp/server.py</code></summary>

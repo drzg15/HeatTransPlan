@@ -47,4 +47,5 @@ copybutton_prompt_text = r">>> |\.\.\. "
 copybutton_prompt_is_regexp = True
 
 # Don't complain about missing includes from backend source
-exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
+# _generated/ is not a page of the site (no page links or includes it).
+exclude_patterns = ["_build", "_generated", "Thumbs.db", ".DS_Store"]

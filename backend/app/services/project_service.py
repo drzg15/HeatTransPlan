@@ -19,7 +19,7 @@ import tempfile
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 
 from app.models.project import ProjectState
 from app.services import live
@@ -107,13 +107,3 @@ def delete_project(project_id: str) -> bool:
         return False
     path.unlink()
     return True
-
-
-def list_projects() -> Dict[str, str]:
-    """Return dict of project_id → timestamp for all projects."""
-    projects: Dict[str, str] = {}
-    for path in _ensure_dir().glob("*.json"):
-        state = get_project(path.stem)
-        if state is not None:
-            projects[path.stem] = state.timestamp or ""
-    return projects

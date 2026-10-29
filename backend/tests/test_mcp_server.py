@@ -32,11 +32,32 @@ def run(coro_fn):
     return asyncio.run(main())
 
 
+_pages = []  # the stand-in pages' listeners, to close one
+
+
+async def open_page(example=None):
+    """A page the user has open and connected, with an empty project or an
+    example: returns its Connect AI code, all the AI works with."""
+    state = await S.api.get(f"/api/assets/examples/{example}") if example else None
+    created = await S.api.post("/api/projects", json=state)
+    session = live.create(created["project_id"])
+
+    async def listen():
+        async for chunk in live.events(session):
+            if chunk.startswith("event: "):
+                event = json.loads(chunk.split("data: ", 1)[1])
+                if event.get("type") == "command":
+                    live.resolve(session, event["id"], True, {"ran": event["name"]})
+
+    _pages.append(asyncio.create_task(listen()))
+    await asyncio.sleep(0.01)
+    return session.id
+
+
 def test_building_and_analysing_a_project(tmp_path):
     async def body():
-        p = await S.create_project()
-        pid = p["project_id"]
-        assert p["project"]["processes"] == []
+        pid = await open_page()
+        assert (await S.get_project(pid))["processes"] == []
 
         r = await S.add_process(pid, name="Dryer", lat=51.7, lon=8.7)
         assert r["result"] == {"process": 0}
@@ -78,8 +99,8 @@ def test_building_and_analysing_a_project(tmp_path):
 
         saved = tmp_path / "project.json"
         await S.save_project_file(pid, str(saved))
-        again = await S.create_project(file_path=str(saved))
-        assert again["project"]["processes"][0]["name"] == "Dryer"
+        again = await S.replace_project(await open_page(), file_path=str(saved))
+        assert again["processes"][0]["name"] == "Dryer"
 
         # Deleting moves later indices and the selection, as the page does.
         await S.replace_project(pid, {**full, "selected_streams": {"stream_0_2": True, "stream_1_0": True}})
@@ -103,9 +124,9 @@ def test_building_and_analysing_a_project(tmp_path):
 def test_examples_site_plan_and_formula(tmp_path):
     async def body():
         examples = await S.list_examples()
-        p = await S.create_project(example=examples[0])
-        pid = p["project_id"]
-        assert sum(len(g["subprocesses"]) for g in p["project"]["processes"]) == 4
+        pid = await open_page()
+        p = await S.replace_project(pid, example=examples[0])
+        assert sum(len(g["subprocesses"]) for g in p["processes"]) == 4
         png = tmp_path / "plan.png"
         png.write_bytes(bytes.fromhex(
             "89504e470d0a1a0a0000000d4948445200000001000000010806000000"
@@ -127,8 +148,8 @@ def test_examples_site_plan_and_formula(tmp_path):
 
 def test_driving_a_connected_page(tmp_path):
     async def body():
-        created = await S.create_project(example=(await S.list_examples())[0])
-        pid = created["project_id"]
+        example = await S.api.get(f"/api/assets/examples/{(await S.list_examples())[0]}")
+        pid = (await S.api.post("/api/projects", json=example))["project_id"]
         session = live.create(pid)
         seen = []
 
@@ -183,7 +204,7 @@ def test_training_a_cop_model_and_using_it(tmp_path):
     async def body():
         trained = await S.train_cop_model(str(data), MAP4, name="Plant")
         assert trained["test_metrics"]["r2"] > 0.95 and trained["heat_pumps_added"] == 4
-        pid = (await S.create_project(example=(await S.list_examples())[0]))["project_id"]
+        pid = await open_page((await S.list_examples())[0])
         await S.analyse_project(pid, custom_model="Plant")
         pumps = await S.list_heat_pumps(pid, refrigerant="Plant", limit=50)
         assert pumps and all(p["type"] == "Custom model" for p in pumps)
@@ -200,7 +221,7 @@ def test_page_parity_edits_and_inputs(tmp_path):
     from tests.test_cop_training import german_csv, synthetic
 
     async def body():
-        pid = (await S.create_project())["project_id"]
+        pid = await open_page()
         await S.add_process(pid, name="Dryer", lat=51.0, lon=8.0)
         await S.update_subprocess(pid, 0, lat=51.001, lon=8.002, box_scale=2, density="1.2 kg/m³")
         await S.update_process(pid, 0, lat=51.5)
@@ -220,16 +241,17 @@ def test_page_parity_edits_and_inputs(tmp_path):
         with pytest.raises(ApiError, match="Unknown stream variable"):
             await S.update_stream(pid, 0, 0, show=["Colour"])
 
-        ex = (await S.create_project(example=(await S.list_examples())[0]))["project_id"]
+        ex = await open_page((await S.list_examples())[0])
         demands = [{"heat_demand": 900, "cooling_demand": 400,
                     "selected_heat_streams": [], "selected_cooling_streams": []}]
         out = await S.analyse_project(ex, t_min=12, energy_demands=demands, reference_heater="oil")
         assert out["status_quo"]["total_current_heating"] == 900
         saved = await S.get_project(ex, full=True)
         assert saved["t_min"] == 12 and saved["energy_demands"] == demands
-        assert S._analysis[ex]["economics_inputs"]["pFuel"] == 8  # the oil preset
+        cached = S._analysis[await S._page(ex)]
+        assert cached["economics_inputs"]["pFuel"] == 8  # the oil preset
         await S.economic_analysis(ex, reference_heater="eboiler")
-        assert S._analysis[ex]["economics_inputs"]["eta"] == 99
+        assert S._analysis[await S._page(ex)]["economics_inputs"]["eta"] == 99
 
         data = tmp_path / "plant.csv"
         data.write_bytes(german_csv(synthetic()))
@@ -284,6 +306,26 @@ def test_reading_documents_and_the_guide(tmp_path):
     run(body)
 
 
+def test_only_on_an_open_page():
+    """The AI works only on a page that is open and connected: without one,
+    or once it closes, every project tool refuses."""
+    async def body():
+        stored = (await S.api.post("/api/projects", json=None))["project_id"]
+        for call in (lambda: S.get_project(stored), lambda: S.add_process(stored),
+                     lambda: S.analyse_project(stored), lambda: S.export_csv(stored, "x.csv"),
+                     lambda: S.list_heat_pumps("nocode12")):
+            with pytest.raises(ApiError, match="Connect AI"):
+                await call()
+        code = await open_page()
+        await S.add_process(code, name="Kiln")
+        _pages[-1].cancel()  # the user closes the page
+        await asyncio.sleep(0.01)
+        with pytest.raises(ApiError, match="Connect AI"):
+            await S.get_project(code)
+
+    run(body)
+
+
 def test_served_online_at_mcp(monkeypatch):
     """The backend's /mcp: an agent connects with the URL alone. Files come in
     as content and go out as links; the server's own disk stays out of reach."""
@@ -304,11 +346,16 @@ def test_served_online_at_mcp(monkeypatch):
         assert c.post("/mcp", json={}).status_code == 401  # no key
         r = c.post("/mcp", headers=headers, json={"jsonrpc": "2.0", "id": 1, "method": "tools/list"})
         names = {t["name"] for t in r.json()["result"]["tools"]}
-        assert "analyse_project" in names and not names & {"live_sessions", "list_projects"}
+        assert "analyse_project" in names
+        assert not names & {"live_sessions", "list_projects", "create_project", "delete_project"}
 
-        _, text = call(c, "create_project", {"content": json.dumps({"project_notes": "from a file"})})
-        pid = json.loads(text)["project_id"]
-        _, text = call(c, "save_project_file", {"project_id": pid, "file_path": "/etc/evil.json"})
+        # A page connects (its event stream stands in here), and the AI loads a file onto it.
+        code = c.post("/api/live/sessions", json={}, headers={"X-API-Key": "k1"}).json()["session_id"]
+        monkeypatch.setattr(live.Session, "connected", property(lambda s: s.id == code))
+        err, text = call(c, "replace_project", {"project_id": code,
+                                                "content": json.dumps({"project_notes": "from a file"})})
+        assert not err, text
+        _, text = call(c, "save_project_file", {"project_id": code, "file_path": "/etc/evil.json"})
         url = text.split(": ", 1)[1]
         assert url.startswith("http://testserver/api/mcp/files/") and url.endswith("/evil.json")
         got = c.get(url.split("testserver", 1)[1])

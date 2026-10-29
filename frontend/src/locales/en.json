@@ -987,7 +987,7 @@
     "setup_add": "Add HeatTransPlan to your agent as an MCP server with this address:",
     "setup_key": "This server needs an API key: give it to the agent as the header X-API-Key (or Authorization: Bearer <key>).",
     "setup_connect": "Click Connect AI and tell the agent the session code, e.g. \"Use HeatTransPlan session AB12CD\". It then sees and controls this page until you disconnect.",
-    "setup_files": "Without connecting, the agent can still create projects, enter data, run the analysis and write the report; it gives you download links to open here. It cannot see or change this page.",
+    "setup_files": "Without Connect AI the agent can only explain the method and read your documents; it cannot see, create or change anything. Once you disconnect or close the page, that is so again.",
     "setup_guided": "Then ask the agent, for example: \"Guide me through a HeatTransPlan study.\" It goes page by page, asks for what it needs, and reads the Word, PowerPoint and Excel files you attach or numbers you paste.",
     "setup_claude_connector": "Claude (web, desktop, mobile): Settings → Connectors → Add custom connector, and paste the address.",
     "setup_local": "This app runs on this computer (http), so agents that connect over the internet, such as Claude's connectors, cannot reach it. Use an agent that runs on this computer.",

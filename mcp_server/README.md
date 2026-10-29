@@ -4,23 +4,20 @@ Lets any AI agent that supports MCP do
 what the HeatTransPlan pages do. It talks to the HeatTransPlan backend over
 HTTP, so it works with a local app and with the deployed one.
 
-## Two ways of working
+## Only on the open page
 
-**Project files.** The AI creates a project (empty, from an example or from
-a saved JSON file), adds processes, subprocesses and streams, runs the
-potential analysis (pinch, heat pump integration, optimization, economics),
-lists heat pumps, writes the report and saves the project file. Nothing has
-to be open in a browser; open the saved file in the app to see it.
-
-**Live, on the open page.** Click **Connect AI** in the app's header. It
+The AI works only on a page someone has open. Click **Connect AI** in the
+app's header. It
 shows a session code; give it to the AI. The AI then sees what the page
 shows and drives it: navigate, tick streams, set ΔTmin and the heat recovery
 slider, pick heat pumps on the chart, change the economics inputs, save
 scenarios, make the full report (economics included), load a site plan
-(PNG, JPG or PDF). The session's `project_id` works with every project tool:
+(PNG, JPG or PDF). Every project tool takes the code as `project_id`:
 edits appear on the page at once, and your own edits reach the AI.
 Disconnect with the × next to the code. While connected, the project is
-also stored on the server.
+also stored on the server. Without a connected page (or once it closes) the
+project tools refuse; only `explain`, `guide`, `read_document` and the
+other tools that touch no project still answer.
 
 ## Setup
 
@@ -49,8 +46,8 @@ the published docs on GitHub.
 
 ## Tools
 
-Projects: `list_examples`, `create_project`, `get_project`,
-`save_project_file`, `replace_project`, `delete_project`, `add_process`,
+Projects: `list_examples`, `get_project`, `save_project_file`,
+`replace_project` (an example or a saved file onto the page), `add_process`,
 `update_process`, `delete_process`, `add_subprocess`, `update_subprocess`,
 `delete_subprocess`, `add_stream`, `update_stream`, `delete_stream`,
 `set_notes`, `set_map`, `search_address`, `set_site_plan`, `export_csv`,
