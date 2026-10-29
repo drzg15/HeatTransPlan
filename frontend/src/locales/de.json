@@ -91,7 +91,7 @@
   "stream_table": {
     "title": "Stromdaten",
     "sort_hint": "— Zum Sortieren auf Überschrift klicken",
-    "export_csv": "📄 CSV mit erfassten Daten exportieren",
+    "export_csv": "CSV mit erfassten Daten exportieren",
     "further_exports": "Weitere Exporte ▼",
     "export_manhattan": "Distanzen zwischen Strömen exportieren (Manhattan)",
     "export_euclidean": "Distanzen zwischen Strömen exportieren (Euklidisch)",
@@ -939,7 +939,13 @@
     "resize_panel": "Prozessbereich in der Größe ändern",
     "unlock_map": "Karte entsperren, um die Auswahl zu verschieben",
     "search_address": "Adresse suchen",
-    "base_layer": "Kartenhintergrund"
+    "base_layer": "Kartenhintergrund",
+    "confirm_delete": "Löschen",
+    "cancel": "Abbrechen",
+    "pane_processes": "Prozesse",
+    "pane_map": "Karte & Daten",
+    "fullscreen": "Vollbild",
+    "exit_fullscreen": "Vollbild beenden"
   },
   "scenario_cmp": {
     "title": "Szenarienvergleich",

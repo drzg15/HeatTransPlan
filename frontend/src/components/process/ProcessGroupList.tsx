@@ -1,3 +1,4 @@
+import { Check, ChevronUp, Map as MapIcon, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
@@ -215,11 +216,19 @@ export default function ProcessGroupList({
 
               {confirmDelete === gIdx ? (
                 <span className="pgl-confirm">
-                  <button className="btn btn-sm btn-danger" onClick={() => deleteGroup(gIdx)}>
-                    ✅
+                  <button
+                    className="btn btn-sm btn-danger"
+                    onClick={() => deleteGroup(gIdx)}
+                    aria-label={t('ui.confirm_delete')}
+                  >
+                    <Check size={14} />
                   </button>
-                  <button className="btn btn-sm" onClick={() => setConfirmDelete(null)}>
-                    ❌
+                  <button
+                    className="btn btn-sm"
+                    onClick={() => setConfirmDelete(null)}
+                    aria-label={t('ui.cancel')}
+                  >
+                    <X size={14} />
                   </button>
                 </span>
               ) : (
@@ -227,8 +236,9 @@ export default function ProcessGroupList({
                   className="btn btn-sm"
                   onClick={() => setConfirmDelete(gIdx)}
                   title={t('ui.delete_group')}
+                  aria-label={t('ui.delete_group')}
                 >
-                  ✕
+                  <Trash2 size={14} />
                 </button>
               )}
             </div>
@@ -297,15 +307,20 @@ export default function ProcessGroupList({
                         ↕
                       </button>
                       <button className="btn btn-sm" onClick={() => onSubprocessMapToggle(gIdx)}>
+                        {subprocessMapExpanded[gIdx] ? (
+                          <ChevronUp size={14} />
+                        ) : (
+                          <MapIcon size={14} />
+                        )}{' '}
                         {subprocessMapExpanded[gIdx]
-                          ? `🔽 ${t('process.hide_map')}`
-                          : `🗺️ ${t('process.show_map')}`}
+                          ? t('process.hide_map')
+                          : t('process.show_map')}
                       </button>
                       <button
                         className="btn btn-sm btn-primary"
                         onClick={() => addSubprocess(gIdx)}
                       >
-                        ➕ {t('process.add')}
+                        <Plus size={14} /> {t('process.add')}
                       </button>
                     </div>
                   </div>

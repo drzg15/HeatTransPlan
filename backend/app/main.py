@@ -89,9 +89,10 @@ if os.path.isdir(frontend_dist):
     
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
-        # Serve specific files from root if they exist
-        target_file = os.path.join(frontend_dist, full_path)
-        if os.path.isfile(target_file):
+        # Serve specific files from root if they exist — only inside dist:
+        # "/%2e%2e/…" must not reach the source, .env or /proc.
+        target_file = os.path.realpath(os.path.join(frontend_dist, full_path))
+        if target_file.startswith(os.path.realpath(frontend_dist) + os.sep) and os.path.isfile(target_file):
             return FileResponse(target_file)
         # Otherwise fallback to index.html for SPA routing
         return FileResponse(os.path.join(frontend_dist, "index.html"))

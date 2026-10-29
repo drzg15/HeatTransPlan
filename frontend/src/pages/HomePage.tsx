@@ -13,7 +13,7 @@ import { useProjectStore } from '../store/projectStore';
 import { useFeatures } from '../hooks/useFeatures';
 import LiveSetup from '../live/LiveSetup';
 import { CHAPTERS, PARTS, startTour, type PartNumber } from '../tour/guidedTour';
-import styles from './HomePreviewPage.module.css';
+import styles from './HomePage.module.css';
 
 const EXAMPLE = 'heat_integration_example_1.json';
 const PROJECT_URL = 'https://www.heattransplan.de/';
@@ -54,7 +54,7 @@ const GROUPS: Array<{ label: string; cards: Card[] }> = [
   },
 ];
 
-export default function HomePreviewPage() {
+export default function HomePage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const features = useFeatures();

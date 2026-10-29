@@ -8,7 +8,7 @@
 
 import { LoaderCircle, Upload, X } from 'lucide-react';
 import { useState } from 'react';
-import Plot from 'react-plotly.js';
+import Plot from './Plot';
 import { useTranslation } from 'react-i18next';
 import { inspectCopData, trainCopModel } from '../../api/copTraining';
 import type {

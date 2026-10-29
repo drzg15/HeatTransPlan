@@ -159,3 +159,16 @@ def test_typed_text_is_shown_never_run():
     html = generate_html_report(req)
     assert "<script>alert(1)" not in html and "&lt;script&gt;alert(1)&lt;/script&gt; &amp; more" in html
     assert "<img src=x" not in html and "&lt;img src=x onerror=alert(2)&gt;" in html
+
+
+def test_report_follows_the_apps_steps_in_both_languages():
+    """Numbered like the app (1 Data collection … 4 Cost analysis), and a German
+    report has no English labels left over on its comparison page."""
+    req = _request("de")
+    req.scenarios.append(req.scenarios[0].model_copy(update={"name": "B"}))
+    html = generate_html_report(req)
+    for n in (1, 2, 3):
+        assert f"<span class='part-num'>{n}</span><h2>{I18N['de'][f'part_{n}']}</h2>" in html
+    for english in ("HEATING", "COOLING", "STATUS QUO", "BEST COP", "Performance Metrics",
+                    "Combined Status Quo", "Best HP COP", "Status Quo (Hot)"):
+        assert english not in html, english

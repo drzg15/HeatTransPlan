@@ -285,6 +285,11 @@ label {
   text-transform: uppercase;
   letter-spacing: 0.3px;
 }
+/* A button that is a label (to open a file picker) looks like the others. */
+label.btn {
+  text-transform: none;
+  letter-spacing: normal;
+}
 
 /* ── Tables ───────────────────────────────────────────── */
 table {
@@ -377,6 +382,9 @@ tr:hover td {
 .leaflet-container {
   border-radius: var(--radius);
   border: 1px solid var(--border);
+  /* Leaflet's own layers (controls at z-index 1000) stay inside the map
+     instead of sliding over the sticky page header. */
+  isolation: isolate;
 }
 
 /* ── Plotly overrides ─────────────────────────────────── */

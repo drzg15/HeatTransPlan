@@ -1,8 +1,11 @@
 """The optimization chart of the Potential Analysis page, rebuilt for the report."""
 
+import re
+from html import escape
 from typing import Any, Dict, List
 
 import plotly.graph_objects as go
+import plotly.io as pio
 
 from app.services.report.points import (
     _active_points, _headline_point, _on_profile, _q_source, _thin_points,
@@ -168,3 +171,48 @@ def _optimization_figure(opt: Any, pinch_temperature: float, texts: Dict[str, st
         shapes=shapes, annotations=annotations,
     )
     return fig
+
+
+# One look for every chart in the report: the app's type, quiet grid lines,
+# the title on the card rather than inside the plot.
+_FONT = "system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+_STYLE = dict(
+    template='plotly_white',
+    font=dict(family=_FONT, size=12, color='#334155'),
+    paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+    legend=dict(orientation='h', x=0, y=1.0, xanchor='left', yanchor='bottom', bgcolor='rgba(0,0,0,0)'),
+    hoverlabel=dict(font=dict(family=_FONT)),
+)
+_AXIS = dict(gridcolor='#eef2f6', zerolinecolor='#cbd5e1', linecolor='#cbd5e1', automargin=True)
+_CONFIG = {'displaylogo': False, 'responsive': True}
+
+
+def _card(title: str, plot_html: str, wide: bool = False) -> str:
+    cls = 'chart wide' if wide else 'chart'
+    return f"<figure class='{cls}'><figcaption>{escape(title)}</figcaption>{plot_html}</figure>"
+
+
+def _chart(fig: go.Figure, title: str, include_plotlyjs: Any = False, wide: bool = False) -> str:
+    """A Plotly figure drawn in the report's style, as a titled card."""
+    fig.update_layout(title=None, margin=dict(l=56, r=16, t=28, b=48), **_STYLE)
+    fig.update_xaxes(**_AXIS)
+    fig.update_yaxes(**_AXIS)
+    return _card(title, fig.to_html(full_html=False, include_plotlyjs=include_plotlyjs, config=_CONFIG), wide)
+
+
+def _spec_chart(spec: Dict[str, Any], wide: bool = False) -> str:
+    """The same for a chart the page sent as a plotly.js spec (economics).
+    Its title moves to the card; the rest of its layout is the page's."""
+    layout = dict(spec.get("layout") or {})
+    title = layout.pop("title", None)
+    title = title.get("text", "") if isinstance(title, dict) else (title or "")
+    title = re.sub(r"<[^>]+>", " ", title)  # Plotly markup such as <br>
+    layout.update(font=_STYLE['font'], paper_bgcolor=_STYLE['paper_bgcolor'],
+                  plot_bgcolor=_STYLE['plot_bgcolor'], hoverlabel=_STYLE['hoverlabel'])
+    margin = dict(layout.get("margin") or {})
+    margin["t"] = min(margin.get("t", 28), 28)
+    layout["margin"] = margin
+    # Specs come from plotly.js, so skip the Python-side validation.
+    plot = pio.to_html({**spec, "layout": layout}, full_html=False, include_plotlyjs=False,
+                       validate=False, config=_CONFIG)
+    return _card(title, plot, wide)

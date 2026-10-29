@@ -1,3 +1,4 @@
+import { Check, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
@@ -124,16 +125,28 @@ export default function SubprocessCard({
 
         {confirmDel ? (
           <span className="pgl-confirm">
-            <button className="btn btn-sm btn-danger" onClick={onDelete}>
-              ✅
+            <button
+              className="btn btn-sm btn-danger"
+              onClick={onDelete}
+              aria-label={t('ui.confirm_delete')}
+            >
+              <Check size={14} />
             </button>
-            <button className="btn btn-sm" onClick={() => setConfirmDel(false)}>
-              ❌
+            <button
+              className="btn btn-sm"
+              onClick={() => setConfirmDel(false)}
+              aria-label={t('ui.cancel')}
+            >
+              <X size={14} />
             </button>
           </span>
         ) : (
-          <button className="btn btn-sm" onClick={() => setConfirmDel(true)}>
-            ✕
+          <button
+            className="btn btn-sm"
+            onClick={() => setConfirmDel(true)}
+            aria-label={t('ui.confirm_delete')}
+          >
+            <Trash2 size={14} />
           </button>
         )}
       </div>
@@ -206,7 +219,7 @@ export default function SubprocessCard({
                   {t('data_collection.streams')} ({subprocess.streams?.length || 0})
                 </span>
                 <button className="btn btn-sm btn-primary" onClick={addStream}>
-                  ➕ {t('subprocess.add_stream')}
+                  <Plus size={14} /> {t('subprocess.add_stream')}
                 </button>
               </div>
               {(subprocess.streams || []).map((stream, sIdx) => (

@@ -42,11 +42,12 @@ COPY models/ ./backend/models/
 # Expose Hugging Face Space port
 EXPOSE 7860
 
-# One worker per CPU. Project state is shared through the filesystem
-# (see app/services/project_service.py), so any worker can serve any request.
+# One process: projects are shared through the filesystem, but the live
+# sessions behind Connect AI, the MCP download links and the rate limiter live
+# in memory. The computing endpoints run in uvicorn's thread pool.
 ENV HEATTRANSPLAN_STATE_DIR=/app/state
 RUN mkdir -p /app/state
 
 # Run uvicorn server
 WORKDIR /app/backend
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 7860 --workers $(python -c 'import os; print(getattr(os, \"process_cpu_count\", os.cpu_count)() or 1)')"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860", "--proxy-headers", "--forwarded-allow-ips", "*"]

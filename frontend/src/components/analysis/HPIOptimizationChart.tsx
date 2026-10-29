@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import Plot from 'react-plotly.js';
+import Plot from './Plot';
 import { useUIStore } from '../../store/uiStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';

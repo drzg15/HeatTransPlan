@@ -1,4 +1,6 @@
+import { Maximize2, Minimize2 } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapContainer, TileLayer, ImageOverlay, Marker, Pane } from 'react-leaflet';
 import L from 'leaflet';
 // After leaflet: patches the global L so the map can rotate.
@@ -106,6 +108,7 @@ export default function MapViewer({
   canvasPlans = {},
   onCanvasPlansChange,
 }: Props) {
+  const { t } = useTranslation();
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [mapObj, setMapObj] = useState<L.Map | null>(null);
 
@@ -335,10 +338,11 @@ export default function MapViewer({
         <button
           className="pa-btn"
           onClick={() => setIsFullscreen(!isFullscreen)}
-          title={isFullscreen ? 'Exit Fullscreen' : 'Fullscreen'}
+          title={isFullscreen ? t('ui.exit_fullscreen') : t('ui.fullscreen')}
+          aria-label={isFullscreen ? t('ui.exit_fullscreen') : t('ui.fullscreen')}
           style={{ padding: '6px 10px' }}
         >
-          {isFullscreen ? '✕' : '⛶'}
+          {isFullscreen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
         </button>
       </div>
 

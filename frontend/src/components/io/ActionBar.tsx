@@ -1,5 +1,17 @@
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  FileSpreadsheet,
+  FolderOpen,
+  Lightbulb,
+  Lock,
+  LockOpen,
+  Plus,
+  RotateCcw,
+  Ruler,
+  Save,
+  Search,
+} from 'lucide-react';
 import { useProjectStore } from '../../store/projectStore';
 import { exportProjectToCsv } from '../../utils/csvExport';
 import { projectStateSchema } from '../../schemas/projectSchema';
@@ -141,7 +153,7 @@ export default function ActionBar({
                   )
                 }
               >
-                🔒 {t('action_bar.lock_map')}
+                <Lock size={14} /> {t('action_bar.lock_map')}
               </button>
               <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px' }} />
             </>
@@ -151,25 +163,25 @@ export default function ActionBar({
           {uiMode === 'analyze' && (
             <>
               <button className="btn btn-sm" onClick={onUnlockMap} title={t('ui.unlock_map')}>
-                🔓 {t('action_bar.unlock_map')}
+                <LockOpen size={14} /> {t('action_bar.unlock_map')}
               </button>
               <button
                 className="btn btn-sm btn-primary"
                 onClick={onAddProcess}
                 title="Add a new process group"
               >
-                ➕ {t('action_bar.add_process')}
+                <Plus size={14} /> {t('action_bar.add_process')}
               </button>
               <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px' }} />
             </>
           )}
 
           <button className="btn btn-sm" onClick={handleSave} title={t('ui.save_json')}>
-            💾 {t('action_bar.save')}
+            <Save size={14} /> {t('action_bar.save')}
           </button>
 
           <label className="btn btn-sm ab-load-label" title={t('ui.load_json')}>
-            📂 {t('action_bar.load')}
+            <FolderOpen size={14} /> {t('action_bar.load')}
             <input
               ref={fileRef}
               type="file"
@@ -188,11 +200,12 @@ export default function ActionBar({
                 className={`btn btn-sm ${measureActive ? 'btn-primary' : ''}`}
                 onClick={onMeasureToggle}
               >
-                {measureActive ? `🔄 ${t('action_bar.reset')}` : `📏 ${t('action_bar.measure')}`}
+                {measureActive ? <RotateCcw size={14} /> : <Ruler size={14} />}{' '}
+                {measureActive ? t('action_bar.reset') : t('action_bar.measure')}
               </button>
 
               <button className="btn btn-sm" onClick={handleExportCsv}>
-                📄 {t('action_bar.export_csv')}
+                <FileSpreadsheet size={14} /> {t('action_bar.export_csv')}
               </button>
             </>
           )}
@@ -216,7 +229,7 @@ export default function ActionBar({
                 onClick={onAddressSearchSubmit}
                 aria-label={t('ui.search_address')}
               >
-                🔍
+                <Search size={14} />
               </button>
             </div>
           )}
@@ -248,7 +261,7 @@ export default function ActionBar({
             title={t('ui.toggle_help')}
             aria-label={t('ui.toggle_help')}
           >
-            💡
+            <Lightbulb size={16} />
           </button>
         </div>
       </div>

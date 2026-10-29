@@ -29,11 +29,6 @@ export function exportCsvUrl(projectId: string): string {
   return `${base}/api/io/export-csv/${projectId}`;
 }
 
-export function exportReportUrl(projectId: string): string {
-  const base = import.meta.env.VITE_API_BASE || '';
-  return `${base}/api/io/export-report/${projectId}`;
-}
-
 export async function importCsv(projectId: string, file: File) {
   const form = new FormData();
   form.append('file', file);

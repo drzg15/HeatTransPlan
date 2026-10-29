@@ -6,7 +6,7 @@
  *  which is cheap, so its COP is high. Pushing coverage towards 100 % forces
  *  the sink temperature up and the COP down. This chart is that trade-off. */
 
-import Plot from 'react-plotly.js';
+import Plot from './Plot';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';

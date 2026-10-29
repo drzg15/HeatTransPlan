@@ -23,6 +23,17 @@
   box-shadow: var(--shadow-sm);
 }
 
+/* Title, scenarios and Save/Load/Report stay in reach while scrolling: just
+   under the top bar (and its menus), over the page. On phones the row wraps
+   to several lines, too tall to keep on screen. */
+@media (min-width: 769px) {
+  .pa-header-row {
+    position: sticky;
+    top: var(--header-height);
+    z-index: 999;
+  }
+}
+
 .pa-scenario-bar {
   display: flex;
   align-items: center;

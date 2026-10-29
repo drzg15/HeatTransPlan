@@ -4,7 +4,6 @@
  */
 
 import type { ProjectState } from '../types/project';
-import html2canvas from 'html2canvas';
 import { extractStreamInfo } from './streamInfo';
 import { haversineDistance, manhattanSphericalDistance } from './geoUtils';
 
@@ -275,6 +274,8 @@ export async function exportLiveMapSnapshot() {
       }
     });
 
+    // Loaded on first use: 200 kB nobody needs until they export the map.
+    const { default: html2canvas } = await import('html2canvas');
     const canvas = await html2canvas(mapEl as HTMLElement, {
       useCORS: true,
       allowTaint: false,

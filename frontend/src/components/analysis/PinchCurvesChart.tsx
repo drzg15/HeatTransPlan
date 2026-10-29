@@ -3,7 +3,7 @@
  *  legend, and the hovered temperature drawn through both. */
 
 import { useRef } from 'react';
-import Plot from 'react-plotly.js';
+import Plot from './Plot';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';

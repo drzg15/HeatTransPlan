@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import Plot from 'react-plotly.js';
+import Plot from './Plot';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useProjectStore } from '../../store/projectStore';
 import MapViewer from '../map/MapViewer';

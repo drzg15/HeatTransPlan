@@ -7,8 +7,8 @@ import plotly.graph_objects as go
 
 from app.models.report import ReportStream
 from app.services.report.economics import _render_economics
-from app.services.report.figures import _optimization_figure
-from app.services.report.formatting import _fmt
+from app.services.report.figures import _chart, _optimization_figure
+from app.services.report.formatting import _fmt, _part
 from app.services.report.points import _headline_point, _q_source, _same_point, _table_points
 from app.services.report.texts import I18N
 
@@ -35,7 +35,6 @@ def _render_pinch_content(
     energy_demands: List[Any],
     map_streams_img_html: str,
     lang: str = "en",
-    include_plotly_js: bool = False,
     economics: Optional[Dict[str, Any]] = None,
 ) -> str:
     """Helper to render the detailed analysis content for a single scenario."""
@@ -45,10 +44,10 @@ def _render_pinch_content(
     
     if not pinch_result or len(selected_streams) < 2:
         return f"""
-        <div id="{id_slug}" class="page-content">
-            <h2>📊 {texts['analysis']}: {display_name}</h2>
-            <p><em>{texts['not_enough_streams']}</em></p>
-        </div>
+        <section id="{id_slug}" class="report-section">
+            <h1 class="section-title">{display_name}</h1>
+            <p class="muted"><em>{texts['not_enough_streams']}</em></p>
+        </section>
         """
 
     pr = pinch_result
@@ -108,14 +107,16 @@ def _render_pinch_content(
             hc_h_s = hc_c_s = hc_h_p = hc_c_p = "N/A"
 
         comparison_html = f"""
-        <h3>📊 {texts['comparison']}: {texts['status_quo']} vs {display_name}</h3>
+        <div class="card table-wrap">
+        <h4>{texts['comparison']}: {texts['status_quo']} vs {display_name}</h4>
         <table class='data-table'>
           <thead><tr><th>{texts['type']}</th><th>{texts['status_quo']} (kW)</th><th>{texts['min_after_hr']} (kW)</th><th>{texts['savings']} (kW)</th><th>{texts['savings']} (%)</th><th>{hp_hdr}</th><th>{texts['hp_hdr']} (%)</th></tr></thead>
           <tbody>
             <tr><td>{texts['hot']}</td><td>{tot_heat:.1f}</td><td>{pr.hot_utility:.1f}</td><td>{sh:.1f}</td><td>{sh_pct}</td><td>{hc_h_s}</td><td>{hc_h_p}</td></tr>
             <tr><td>{texts['cold']}</td><td>{tot_cool:.1f}</td><td>{pr.cold_utility:.1f}</td><td>{sc:.1f}</td><td>{sc_pct}</td><td>{hc_c_s}</td><td>{hc_c_p}</td></tr>
           </tbody>
-        </table>"""
+        </table>
+        </div>"""
 
     # The same table the Potential Analysis page shows above its chart: same
     # columns, same column tints, same Real/Theoretical badge. Wide, so it gets
@@ -179,71 +180,63 @@ def _render_pinch_content(
           </table>
         </div>"""
 
-    # Charts
-    chart_layout_base = dict(
-        height=400, margin=dict(l=60, r=20, t=40, b=50),
-        font=dict(size=11), hovermode='closest', template='plotly_white'
-    )
-    
-    comp_html = gcc_html = ""
-    include_js = 'cdn' if include_plotly_js else False
+    # Charts, in the report's style (figures._chart). Plotly itself is loaded
+    # once in the page's head.
+    comp_html = gcc_html = opt_chart_html = ""
+    size = dict(height=380, hovermode='closest')
 
-    # Composite
     if pr.composite_diagram.hot.get("H"):
         fig = go.Figure()
-        fig.add_trace(go.Scatter(x=pr.composite_diagram.hot["H"], y=pr.composite_diagram.hot["T"], mode='lines+markers', name=texts['hot'], line=dict(color='red')))
-        fig.add_trace(go.Scatter(x=pr.composite_diagram.cold["H"], y=pr.composite_diagram.cold["T"], mode='lines+markers', name=texts['cold'], line=dict(color='blue')))
-        fig.add_hline(y=pr.pinch_temperature, line_dash='dash', line_color='gray', annotation_text="Pinch")
-        fig.update_layout(**chart_layout_base, title=texts['composite_title'], xaxis_title='H (kW)', yaxis_title='T (°C)')
-        comp_html = fig.to_html(full_html=False, include_plotlyjs=include_js)
+        fig.add_trace(go.Scatter(x=pr.composite_diagram.hot["H"], y=pr.composite_diagram.hot["T"], mode='lines+markers', name=texts['hot'], line=dict(color='#dc2626')))
+        fig.add_trace(go.Scatter(x=pr.composite_diagram.cold["H"], y=pr.composite_diagram.cold["T"], mode='lines+markers', name=texts['cold'], line=dict(color='#2563eb')))
+        fig.add_hline(y=pr.pinch_temperature, line_dash='dash', line_color='#94a3b8', annotation_text="Pinch")
+        fig.update_layout(**size, xaxis_title='H (kW)', yaxis_title='T (°C)')
+        comp_html = _chart(fig, texts['composite_title'])
 
-    # Optimization Chart — the same figure the Potential Analysis page draws.
-    opt_chart_html = ""
+    # The same figure the Potential Analysis page draws.
     if hpi_optimization_result and getattr(hpi_optimization_result, "pocketless_sink", None):
         opt_fig = _optimization_figure(hpi_optimization_result, pr.pinch_temperature, texts,
                                        selected_hp_points)
-        opt_chart_html = opt_fig.to_html(full_html=False, include_plotlyjs=False)
+        opt_chart_html = _chart(opt_fig, texts['opt_hp_title'], wide=True)
 
-    # GCC
     if pr.grand_composite_curve.get("H"):
         gcc_H = pr.grand_composite_curve["H"]
         gcc_T = pr.grand_composite_curve["T"]
         hc = pr.heat_cascade
         fig = go.Figure()
         for i in range(len(gcc_H) - 1):
-            seg_color = 'red' if i < len(hc) and hc[i].get('deltaH', 0) > 0 else ('blue' if i < len(hc) and hc[i].get('deltaH', 0) < 0 else 'gray')
+            seg_color = '#dc2626' if i < len(hc) and hc[i].get('deltaH', 0) > 0 else ('#2563eb' if i < len(hc) and hc[i].get('deltaH', 0) < 0 else '#94a3b8')
             fig.add_trace(go.Scatter(
-                x=[gcc_H[i], gcc_H[i+1]], 
-                y=[gcc_T[i], gcc_T[i+1]], 
-                mode='lines+markers', 
-                line=dict(color=seg_color, width=2), 
-                marker=dict(size=6, color=seg_color), 
+                x=[gcc_H[i], gcc_H[i+1]],
+                y=[gcc_T[i], gcc_T[i+1]],
+                mode='lines+markers',
+                line=dict(color=seg_color, width=2),
+                marker=dict(size=6, color=seg_color),
                 showlegend=False
             ))
-        fig.add_hline(y=pr.pinch_temperature, line_dash='dash', annotation_text="Pinch")
-        fig.add_vline(x=0, line_color='black', line_width=1, opacity=0.3)
-        fig.update_layout(**chart_layout_base, title=texts['gcc_title'], xaxis_title=texts['net_delta_h'], yaxis_title=texts['shifted_t'])
-        gcc_html = fig.to_html(full_html=False, include_plotlyjs=False)
+        fig.add_hline(y=pr.pinch_temperature, line_dash='dash', line_color='#94a3b8', annotation_text="Pinch")
+        fig.add_vline(x=0, line_color='#0f172a', line_width=1, opacity=0.3)
+        fig.update_layout(**size, xaxis_title=texts['net_delta_h'], yaxis_title=texts['shifted_t'])
+        gcc_html = _chart(fig, texts['gcc_title'])
 
     return f"""
-    <div id="{id_slug}" class="page-content">
-        <h2>📊 {texts['analysis']}: {display_name} (ΔTmin = {t_min}°C)</h2>
-        
-        <div class="stream-map-layout">
-            <div class="stream-list-section"><h4>{texts['selected_streams']}</h4>{streams_table}</div>
-            <div class="map-display-section"><h4>{texts['process_layout']}</h4>{map_streams_img_html}</div>
+    <section id="{id_slug}" class="report-section">
+        <h1 class="section-title">{display_name} <span class="section-sub">ΔTmin = {t_min} K</span></h1>
+
+        {_part(2, texts, anchor=f'{id_slug}-p2')}
+        <div class="grid-2">
+            <div class="card"><h4>{texts['selected_streams']}</h4><div class="table-wrap">{streams_table}</div></div>
+            <div class="card map-card"><h4>{texts['process_layout']}</h4>{map_streams_img_html}</div>
         </div>
 
         {metrics_html}
         {comparison_html}
 
-        <h3>{texts['diagrams']}</h3>
-        <div class="plots-container">
-            <div class="plot-section">{comp_html}</div>
-            <div class="plot-section">{gcc_html}</div>
-        </div>
+        <div class="grid-2">{comp_html}{gcc_html}</div>
+
+        {_part(3, texts, anchor=f'{id_slug}-p3') if opt_table_html or opt_chart_html else ''}
         {opt_table_html}
-        <div class="plot-section" style="width:100%">{opt_chart_html}</div>
-        {_render_economics(economics)}
-    </div>
+        {opt_chart_html}
+        {_render_economics(economics, texts, f'{id_slug}-p4')}
+    </section>
     """

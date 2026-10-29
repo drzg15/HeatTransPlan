@@ -186,8 +186,9 @@ class GeoQuery(BaseModel):
 
 
 @router.post("/geo/search")
-async def geo_search(body: GeoQuery):
-    """Proxy to Nominatim geocoding."""
+def geo_search(body: GeoQuery):
+    """Proxy to Nominatim geocoding. Plain `def`: the lookup blocks for up to
+    10 s, and in the thread pool it blocks no one else."""
     try:
         results = geocode_address(body.query)
         return {"results": results}

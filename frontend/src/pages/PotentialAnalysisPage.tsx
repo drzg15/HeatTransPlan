@@ -3,7 +3,6 @@
  */
 
 import {
-  BookOpen,
   CircleCheck,
   FileText,
   FolderOpen,
@@ -56,7 +55,6 @@ const DEFAULT_HP_TYPES = [
   'SHP and HTHPs (R717)',
   'Carnot',
 ];
-import AnalysisHelp from '../components/ui/AnalysisHelp';
 import ChartHelpButton from '../components/ui/ChartHelpButton';
 
 export default function PotentialAnalysisPage() {
@@ -335,10 +333,15 @@ export default function PotentialAnalysisPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [copFormula, customCopModel, copModel, recoveryPct]);
 
+  // The newest request of each kind. The server answers them in parallel, so an
+  // older one can come back last; only the newest may change the page.
+  const latest = useRef({ hpi: 0, opt: 0 });
+
   // Run HPI analysis
   const runHPIAnalysis = useCallback(
     async (pinch: typeof pinchResult) => {
       if (!pinch) return;
+      const run = ++latest.current.hpi;
       setHPILoading(true);
       setHPIError(null);
       try {
@@ -347,6 +350,7 @@ export default function PotentialAnalysisPage() {
           hp_types: DEFAULT_HP_TYPES,
           profile_mode: profileMode,
         });
+        if (run !== latest.current.hpi) return;
         setHPIResult(result);
         // Auto-select first available HP if current selection is invalid or empty
         const currentSelection = useAnalysisStore.getState().selectedHPTypes;
@@ -361,11 +365,12 @@ export default function PotentialAnalysisPage() {
           setSelectedHPTypes(validSelection);
         }
       } catch (err: unknown) {
+        if (run !== latest.current.hpi) return;
         const msg = err instanceof Error ? err.message : 'HPI analysis failed';
         setHPIError(msg);
         setHPIResult(null);
       } finally {
-        setHPILoading(false);
+        if (run === latest.current.hpi) setHPILoading(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -376,6 +381,7 @@ export default function PotentialAnalysisPage() {
   const runHPIOptimizationAnalysis = useCallback(
     async (pinch: typeof pinchResult) => {
       if (!pinch) return;
+      const run = ++latest.current.opt;
       setHPIOptimizationLoading(true);
       try {
         const result = await runHPIOptimization({
@@ -387,12 +393,12 @@ export default function PotentialAnalysisPage() {
           recovery_pct: recoveryPct,
           lang: i18n.language,
         });
-        setHPIOptimizationResult(result);
+        if (run === latest.current.opt) setHPIOptimizationResult(result);
       } catch (err: unknown) {
         console.error('HPI Optimization failed:', err);
-        setHPIOptimizationResult(null);
+        if (run === latest.current.opt) setHPIOptimizationResult(null);
       } finally {
-        setHPIOptimizationLoading(false);
+        if (run === latest.current.opt) setHPIOptimizationLoading(false);
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -543,7 +549,6 @@ export default function PotentialAnalysisPage() {
   const [scenarioName, setScenarioName] = useState('');
   const [editingScenarioIdx, setEditingScenarioIdx] = useState<number | null>(null);
   const [selectionActive] = useState(true);
-  const [showHelp, setShowHelp] = useState(false);
   const isMobile = useIsMobile();
 
   // Auto-calculated default scenario name
@@ -702,14 +707,6 @@ export default function PotentialAnalysisPage() {
               </>
             )}
           </button>
-          <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px' }} />
-          <button
-            className={`btn btn-sm icon-btn ${showHelp ? 'btn-primary' : ''}`}
-            onClick={() => setShowHelp(!showHelp)}
-            title={t('ui.toggle_guide')}
-          >
-            <BookOpen size={16} />
-          </button>
         </div>
       </div>
 
@@ -717,6 +714,17 @@ export default function PotentialAnalysisPage() {
         n={2}
         title={t('analysis.parts.integration')}
         input={t('analysis.parts.integration_in')}
+        actions={
+          <ResetButton
+            hint={t('analysis.controls.reset_pinch_hint')}
+            onClick={() => {
+              setTMin(10);
+              setProfileMode('net_load');
+              setShowShifted(true);
+              setExplain(true);
+            }}
+          />
+        }
       >
         {/* Top row: Streams | Energy Demands | Map */}
         <div className="pa-top-row">
@@ -727,7 +735,6 @@ export default function PotentialAnalysisPage() {
             <EnergyDemands />
           </div>
           <div className="pa-top-col pa-col-map" style={{ position: 'relative' }}>
-            <AnalysisHelp isOpen={showHelp} onClose={() => setShowHelp(false)} />
             <MapViewer
               key="pa-mini-map"
               height={isMobile ? 'clamp(260px, 45vh, 400px)' : '420px'}
@@ -820,67 +827,50 @@ export default function PotentialAnalysisPage() {
             {pinchResult && (
               <>
                 {/* Pinch analysis: status quo, controls, metrics, curves, summary */}
-                <Section
-                  title={
-                    <h3 className="pa-section-title" style={{ flex: 1 }}>
-                      {t('analysis.sections.pinch')}
-                      <ResetButton
-                        hint={t('analysis.controls.reset_pinch_hint')}
-                        onClick={() => {
-                          setTMin(10);
-                          setProfileMode('net_load');
-                          setShowShifted(true);
-                          setExplain(true);
-                        }}
-                      />
-                    </h3>
-                  }
-                >
-                  <StatusQuoComparison />
+                <StatusQuoComparison />
 
-                  {/* Controls row: toggle + ΔTmin + metrics */}
-                  <div className="pa-controls-row">
-                    <label className="pa-toggle-label">
-                      <input
-                        type="checkbox"
-                        checked={showShifted}
-                        onChange={(e) => setShowShifted(e.target.checked)}
-                      />
-                      {t('analysis.controls.show_shifted')}
-                    </label>
-                    <label className="pa-toggle-label">
-                      <input
-                        type="checkbox"
-                        checked={explain}
-                        onChange={(e) => setExplain(e.target.checked)}
-                      />
-                      {t('analysis.controls.show_explanations')}
-                    </label>
+                {/* Controls row: toggle + ΔTmin + metrics */}
+                <div className="pa-controls-row">
+                  <label className="pa-toggle-label">
+                    <input
+                      type="checkbox"
+                      checked={showShifted}
+                      onChange={(e) => setShowShifted(e.target.checked)}
+                    />
+                    {t('analysis.controls.show_shifted')}
+                  </label>
+                  <label className="pa-toggle-label">
+                    <input
+                      type="checkbox"
+                      checked={explain}
+                      onChange={(e) => setExplain(e.target.checked)}
+                    />
+                    {t('analysis.controls.show_explanations')}
+                  </label>
 
-                    <label className="pa-input-label pa-tmin-label">
-                      ΔTmin
-                      <input
-                        type="number"
-                        min={1}
-                        max={50}
-                        step={1}
-                        value={tMin}
-                        onChange={(e) => setTMin(parseFloat(e.target.value) || 10)}
-                        className="pa-number-input pa-tmin-input"
-                      />
-                    </label>
-                  </div>
+                  <label className="pa-input-label pa-tmin-label">
+                    ΔTmin
+                    <input
+                      type="number"
+                      min={1}
+                      max={50}
+                      step={1}
+                      value={tMin}
+                      onChange={(e) => setTMin(parseFloat(e.target.value) || 10)}
+                      className="pa-number-input pa-tmin-input"
+                    />
+                  </label>
+                </div>
 
-                  <PinchMetrics />
+                <PinchMetrics />
 
-                  {/* With or without heat recovery: the right plot below and the
+                {/* With or without heat recovery: the right plot below and the
                       heat pump integration in part 2 follow it. */}
-                  <HeatRecoveryToggle />
+                <HeatRecoveryToggle />
 
-                  {/* Composite curves and GCC as one figure on one temperature axis */}
-                  <PinchCurvesChart />
-                  <PinchSummary />
-                </Section>
+                {/* Composite curves and GCC as one figure on one temperature axis */}
+                <PinchCurvesChart />
+                <PinchSummary />
               </>
             )}
           </>
@@ -898,7 +888,15 @@ export default function PotentialAnalysisPage() {
                 <ChartHelpButton
                   inline
                   title={t('analysis.charts.hpi_title')}
-                  description={t('optimization.desc_hp_simulates')}
+                  description={
+                    <>
+                      {t('optimization.desc_hp_simulates')}
+                      <br />
+                      <br />
+                      <strong>{t('optimization.title_model_information')}:</strong>{' '}
+                      {t('optimization.desc_model_information')}
+                    </>
+                  }
                 />
                 <ResetButton
                   hint={t('analysis.controls.reset_hpi_hint')}

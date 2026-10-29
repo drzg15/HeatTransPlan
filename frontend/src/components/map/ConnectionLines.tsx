@@ -357,7 +357,17 @@ export function ConnectionLines({
     });
 
     return result;
-  }, [processes, groups, subprocessMapExpanded, childMapExpanded, map, bearing]);
+  }, [
+    processes,
+    groups,
+    groupCoordinates,
+    groupNames,
+    onElementDoubleClick,
+    subprocessMapExpanded,
+    childMapExpanded,
+    map,
+    bearing,
+  ]);
 
   return <>{connections}</>;
 }

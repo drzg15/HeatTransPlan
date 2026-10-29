@@ -194,6 +194,15 @@ _analysis: Dict[str, Dict[str, Any]] = {}
 _models: Dict[str, Dict[str, Any]] = {}
 
 
+def _keep(cache: Dict[str, Any], key: str, value: Any, limit: int = 50) -> None:
+    """Store, forgetting the oldest beyond `limit`: hosted, every connected
+    page is a new project, so an unbounded cache only ever grows."""
+    cache.pop(key, None)
+    cache[key] = value
+    while len(cache) > limit:
+        cache.pop(next(iter(cache)))
+
+
 def set_api(new: Api) -> None:
     """Point the tools at another backend (tests)."""
     global api
@@ -835,8 +844,8 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
         "custom_cop_model": _model(custom_model) if custom_model else None,
         "economics_form": economics_inputs, "ref_type": reference_heater,
     })
-    _analysis[project_id] = {**out, "economics_inputs": economics_inputs, "reference_heater": reference_heater,
-                             "selected_points": []}
+    _keep(_analysis, project_id, {**out, "economics_inputs": economics_inputs,
+                                  "reference_heater": reference_heater, "selected_points": []})
     summary = _summary(out)
     demands = state.get("energy_demands") or []
     if "pinch" in out and any(d.get("heat_demand") or d.get("cooling_demand") for d in demands):
@@ -906,7 +915,7 @@ async def train_cop_model(file_path: str, mapping: Dict[str, str], name: str = "
     spec = out["spec"]
     if valid_range:
         spec["envelope"] = {**spec["envelope"], **valid_range}
-    _models[spec["name"]] = spec
+    _keep(_models, spec["name"], spec)
     return {
         "name": spec["name"], "type": spec["kind"], "formula": spec.get("formula") or None,
         "test_metrics": spec["metrics"], "rows_used": out["rows_used"],
