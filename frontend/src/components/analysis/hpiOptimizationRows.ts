@@ -80,8 +80,8 @@ export function chartView(
   // Two kinds of point sit off a profile and turn the chart into a cloud when
   // plotted by default. Source-limited ones deliver less than the demand above
   // T_sink, so they miss the sink profile; demand-limited ones leave waste heat
-  // unused at T_source, so they miss the source profile. Both stay in the table
-  // and can be switched on explicitly.
+  // unused at T_source, so they miss the source profile. Both can be switched
+  // on explicitly, in the chart and the table together.
   const onProfilePoints = filteredPoints.filter((p) => !p.source_limited && !p.demand_limited);
   const sourceLimitedCount = filteredPoints.filter((p) => p.source_limited).length;
   const demandLimitedCount = filteredPoints.filter((p) => p.demand_limited).length;
