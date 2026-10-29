@@ -30,21 +30,25 @@ from app.services.report import generate_html_report
 
 router = APIRouter()
 
+# The endpoints that compute are plain `def`: FastAPI runs them in its thread
+# pool, so a one-second optimisation does not hold up every other request
+# (live sessions, the MCP server, other users) the way `async def` would.
+
 
 @router.post("/pinch", response_model=PinchResult)
-async def pinch_analysis(request: PinchRequest):
+def pinch_analysis(request: PinchRequest):
     """Run pinch analysis on provided streams."""
     return run_pinch(request)
 
 
 @router.post("/hpi", response_model=HPIResult)
-async def heat_pump_integration(request: HPIRequest):
+def heat_pump_integration(request: HPIRequest):
     """Run heat pump integration analysis."""
     return run_hpi(request)
 
 
 @router.post("/hpi-optimization", response_model=HPIOptimizationResult)
-async def heat_pump_integration_optimization(request: HPIOptimizationRequest):
+def heat_pump_integration_optimization(request: HPIOptimizationRequest):
     """Run data-driven heat pump integration optimization."""
     try:
         return run_hpi_optimization(request)
@@ -81,7 +85,7 @@ async def validate_cop_formula(request: CopFormulaValidateRequest):
 
 
 @router.post("/project")
-async def project_analysis(request: ProjectAnalysisRequest):
+def project_analysis(request: ProjectAnalysisRequest):
     """The Potential Analysis page's whole chain on a project: selected
     streams, pinch, heat pump integration, optimization and (with
     economics_form) the economic analysis."""
@@ -102,7 +106,7 @@ async def economics_defaults():
 
 
 @router.post("/economics")
-async def economic_analysis(request: EconomicsRequest):
+def economic_analysis(request: EconomicsRequest):
     """Economic analysis of the analysed heat pump against the reference
     heater: results, price sensitivity, economic size, NPV over time.
     null when there is no pump to analyse."""
@@ -119,7 +123,7 @@ async def status_quo_comparison(request: StatusQuoRequest):
 
 
 @router.post("/report")
-async def generate_report(request: ReportRequest):
+def generate_report(request: ReportRequest):
     """Generate an HTML report and return it as a downloadable file."""
     html = generate_html_report(request)
     return HTMLResponse(
@@ -131,7 +135,7 @@ async def generate_report(request: ReportRequest):
 
 
 @router.post("/map-preview")
-async def get_map_preview(request: ReportRequest):
+def get_map_preview(request: ReportRequest):
     """Generate process map with drawn streams."""
     from app.services.map_service import generate_process_map_b64
     b64 = generate_process_map_b64(request)

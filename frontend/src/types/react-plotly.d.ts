@@ -27,3 +27,21 @@ declare module 'react-plotly.js' {
   const Plot: React.FC<PlotProps>;
   export default Plot;
 }
+
+// The partial bundle in components/analysis/Plot.ts.
+declare module 'react-plotly.js/factory' {
+  import type Plot from 'react-plotly.js';
+  export default function createPlotlyComponent(plotly: object): typeof Plot;
+}
+declare module 'plotly.js/lib/core' {
+  const Plotly: { register(modules: object[]): void };
+  export default Plotly;
+}
+declare module 'plotly.js/lib/bar' {
+  const trace: object;
+  export default trace;
+}
+declare module 'plotly.js/lib/heatmap' {
+  const trace: object;
+  export default trace;
+}

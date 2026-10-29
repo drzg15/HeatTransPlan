@@ -145,33 +145,8 @@ export default function HPIOptimizationTable({
     <div className="pa-hp-table-wrap" style={{ maxHeight: '440px', overflowY: 'auto' }}>
       {rows.length > 0 ? (
         <>
-          <div
-            className="pa-hp-section-label"
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem',
-              position: 'sticky',
-              top: 0,
-              background: isDark ? '#0F172A' : '#FFF',
-              zIndex: 2,
-              margin: 0,
-              paddingBottom: '0.5rem',
-              color: isDark ? '#60A5FA' : '#2563EB',
-              fontWeight: 600,
-            }}
-          >
-            {t('optimization.panel.title')}
-            <span onClick={(e) => e.stopPropagation()}>
-              <ChartHelpButton
-                title={t('optimization.title_model_information')}
-                description={t('optimization.desc_model_information')}
-                inline={true}
-              />
-            </span>
-          </div>
           <table className="pa-table pa-hp-table">
-            <thead style={{ position: 'sticky', top: '30px', zIndex: 2 }}>
+            <thead style={{ position: 'sticky', top: 0, zIndex: 2 }}>
               <tr>
                 {header(
                   'theoretical',

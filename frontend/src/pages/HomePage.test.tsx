@@ -7,7 +7,7 @@ import { render, cleanup } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import i18n from '../i18n';
 import en from '../locales/en.json';
-import HomePreviewPage from './HomePreviewPage';
+import HomePage from './HomePage';
 
 afterEach(cleanup);
 
@@ -15,7 +15,7 @@ function page(lng: string) {
   void i18n.changeLanguage(lng);
   const { container } = render(
     <MemoryRouter>
-      <HomePreviewPage />
+      <HomePage />
     </MemoryRouter>
   );
   return container;

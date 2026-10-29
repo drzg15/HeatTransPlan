@@ -1,6 +1,16 @@
-"""Number formatting shared by the report sections."""
+"""Number formatting and markup shared by the report sections."""
 
-from typing import Any
+from html import escape
+from typing import Any, Dict
+
+
+def _part(n: int, texts: Dict[str, str], note: str = "", anchor: str = "") -> str:
+    """The banner of one of the app's numbered steps, as the page shows it:
+    number, title, and what it takes as input (or a note, e.g. the pump)."""
+    sub = escape(note) if note else texts[f'part_{n}_in']
+    id_attr = f" id='{anchor}'" if anchor else ""
+    return (f"<div class='part'{id_attr}><span class='part-num'>{n}</span>"
+            f"<h2>{texts[f'part_{n}']}</h2><span class='part-in'>{sub}</span></div>")
 
 
 def _fmt(val: Any, decimals: int = 2) -> str:

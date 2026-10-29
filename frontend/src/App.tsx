@@ -2,7 +2,7 @@ import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AppShell from './components/layout/AppShell';
 // The landing page, loaded at once: the method in four steps and the guided tour.
-import HomePage from './pages/HomePreviewPage';
+import HomePage from './pages/HomePage';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
 // Plotly and Leaflet are ~90% of the bundle. Loading them eagerly meant a

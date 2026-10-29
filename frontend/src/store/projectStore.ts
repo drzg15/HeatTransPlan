@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { persist, type PersistStorage } from 'zustand/middleware';
 import type { ProjectState, SitePlan } from '../types/project';
 import type { ProcessNode } from '../types/process';
 
@@ -53,6 +53,41 @@ const defaultState: ProjectState = {
   t_min: 10.0,
 };
 
+/** localStorage, written once typing or dragging pauses. The project can hold
+ *  site plans of several MB as base64, and serialising it on every keystroke
+ *  made typing lag. The last change is written when the page is left. */
+function deferredStorage<S>(delay = 400): PersistStorage<S> {
+  let pending: { name: string; value: unknown } | null = null;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const flush = () => {
+    clearTimeout(timer);
+    if (!pending) return;
+    try {
+      localStorage.setItem(pending.name, JSON.stringify(pending.value));
+    } catch {
+      // Full or blocked storage: the project still lives in the page.
+    }
+    pending = null;
+  };
+  if (typeof window !== 'undefined') window.addEventListener('pagehide', flush);
+  return {
+    getItem: (name) => {
+      const raw = localStorage.getItem(name);
+      return raw ? JSON.parse(raw) : null;
+    },
+    setItem: (name, value) => {
+      pending = { name, value };
+      clearTimeout(timer);
+      timer = setTimeout(flush, delay);
+    },
+    removeItem: (name) => {
+      pending = null;
+      clearTimeout(timer);
+      localStorage.removeItem(name);
+    },
+  };
+}
+
 export const useProjectStore = create<ProjectStore>()(
   persist(
     (set) => ({
@@ -94,6 +129,7 @@ export const useProjectStore = create<ProjectStore>()(
     }),
     {
       name: 'heattransplan-storage', // name of the item in the storage (must be unique)
+      storage: deferredStorage(),
     }
   )
 );

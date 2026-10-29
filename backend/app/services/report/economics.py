@@ -3,10 +3,11 @@
 from html import escape
 from typing import Any, Dict, Optional
 
-import plotly.io as pio
+from app.services.report.figures import _spec_chart
+from app.services.report.formatting import _part
 
 
-def _render_economics(econ: Optional[Dict[str, Any]]) -> str:
+def _render_economics(econ: Optional[Dict[str, Any]], texts: Dict[str, str], anchor: str = "") -> str:
     """The Economic analysis section of a scenario page.
 
     The frontend sends it ready to draw (econReportData in econModel.ts):
@@ -48,17 +49,14 @@ def _render_economics(econ: Optional[Dict[str, Any]]) -> str:
 
     results = "".join(result_table(tbl) for tbl in econ.get("results", []))
 
-    # Specs come from plotly.js, so skip the Python-side validation.
-    figs = [pio.to_html(f, full_html=False, include_plotlyjs=False, validate=False,
-                        config={"responsive": True})
-            for f in econ.get("figures", [])]
-    bar, price, npv, sens, size = (figs + [""] * 5)[:5]
+    figs = econ.get("figures", [])
+    bar, price, npv, sens, size = ([_spec_chart(f, wide=i >= 2) for i, f in enumerate(figs)] + [""] * 5)[:5]
 
     summary = econ.get("summary") or {}
     border = "#2E7D32" if summary.get("good") else "#C62828"
 
     return f"""
-    <h2>💶 {escape(econ.get('title', ''))} · {escape(econ.get('pump', ''))}</h2>
+    {_part(4, texts, econ.get('pump', ''), anchor)}
     <h3>{escape(lab.get('key', ''))}</h3>
     <div class="metrics-row">{kpis}</div>
     <h3>{escape(lab.get('inputs', ''))}</h3>
@@ -66,19 +64,16 @@ def _render_economics(econ: Optional[Dict[str, Any]]) -> str:
     <h3>{escape(lab.get('results', ''))}</h3>
     <div class="econ-grid">{results}</div>
     <h3>{escape(lab.get('charts', ''))}</h3>
-    <div class="plots-container">
-        <div class="plot-section">{bar}</div>
-        <div class="plot-section">{price}</div>
-    </div>
-    <div class="plot-section" style="width:100%">{npv}</div>
+    <div class="grid-2">{bar}{price}</div>
+    {npv}
     <h3>{escape(lab.get('sensitivity', ''))}</h3>
-    <p>{escape(econ.get('sens_explain', ''))}</p>
-    <div class="plot-section" style="width:100%">{sens}</div>
+    <p class="muted">{escape(econ.get('sens_explain', ''))}</p>
+    {sens}
     <h3>{escape(lab.get('size', ''))}</h3>
-    <p>{escape(econ.get('size_explain', ''))}</p>
-    <div class="plot-section" style="width:100%">{size}</div>
+    <p class="muted">{escape(econ.get('size_explain', ''))}</p>
+    {size}
     <h3>{escape(lab.get('summary', ''))}</h3>
-    <p style="border-left:4px solid {border};padding-left:10px;line-height:1.5">
+    <p class="callout" style="border-left-color:{border}">
         <b>{escape(summary.get('name', ''))}:</b> {escape(summary.get('text', ''))}
     </p>
     """

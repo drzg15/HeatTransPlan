@@ -50,7 +50,7 @@ The backend is a FastAPI application. Its interactive reference, with every endp
 | Method | Path | What it does |
 |---|---|---|
 | POST | `/api/io/import-json`, `/api/io/import-json-body` | Load a project file |
-| GET | `/api/io/export-json/{id}`, `/api/io/export-csv/{id}`, `/api/io/export-report/{id}` | Export a project |
+| GET | `/api/io/export-json/{id}`, `/api/io/export-csv/{id}` | Export a project |
 | POST | `/api/io/import-csv/{id}` | Load streams from CSV |
 | GET | `/api/assets/examples[/{name}]` | The example projects |
 | GET | `/api/assets/models` | The process model hierarchy |

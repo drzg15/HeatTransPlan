@@ -1,3 +1,4 @@
+import { TriangleAlert } from 'lucide-react';
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
 import { useProjectStore } from '../../store/projectStore';
@@ -54,7 +55,11 @@ class ErrorBoundaryClass extends Component<Props, State> {
               boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
             }}
           >
-            <h2 style={{ margin: 0, color: '#d32f2f' }}>⚠️ Application Error</h2>
+            <h2
+              style={{ margin: 0, color: '#d32f2f', display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <TriangleAlert size={22} /> Application Error
+            </h2>
             <p style={{ margin: 0, lineHeight: 1.6 }}>
               A critical error occurred while rendering the application. This could be due to
               corrupted local data or an unexpected state.

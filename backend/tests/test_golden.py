@@ -186,7 +186,6 @@ def test_project_editing(client, example):
     csv = client.get(f"/api/io/export-csv/{pid}")
     rec("export_csv", csv)
     rec("import_csv", client.post(f"/api/io/import-csv/{pid}", files={"file": ("data.csv", csv.content, "text/csv")}))
-    rec("export_report", client.get(f"/api/io/export-report/{pid}"))
     rec("delete_proc", client.delete(f"/api/procs/{pid}/1"))
     rec("delete_group", client.delete(f"/api/projects/{pid}/groups/1"))
     rec("after_edits", client.get(f"/api/projects/{pid}"))

@@ -165,7 +165,19 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
             T_quelle_model = T_quelle_flat - alt["deltaT_evap"]
             T_senke_model = T_senke_flat + alt["deltaT_cond"]
 
-            cop_preds = np.asarray(alt["cop_fn"](T_quelle_model, T_senke_model), dtype=float)
+            # Only where this machine can run: the loop below rejects every other
+            # point before it looks at the COP, and the model is most of the
+            # request's time. Every COP source is row-wise, so the values
+            # predicted are the same as over the whole grid.
+            usable = (
+                (T_senke_model >= alt["T_sink_min"]) & (T_senke_model <= alt["T_sink_max"])
+                & (T_quelle_model >= alt["T_src_min"]) & (T_quelle_model <= alt["T_src_max"])
+                & (T_quelle_flat <= T_senke_flat - 10.0)
+            )
+            cop_preds = np.full(T_quelle_flat.shape, -1.0)
+            if usable.any():
+                cop_preds[usable] = np.asarray(
+                    alt["cop_fn"](T_quelle_model[usable], T_senke_model[usable]), dtype=float)
 
             # A formula can return NaN/inf where it is undefined (zero lift, a
             # log of a negative number). Those must never look feasible.

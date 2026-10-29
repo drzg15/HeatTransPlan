@@ -14,6 +14,16 @@
         Content-Security-Policy "frame-ancestors 'self'; base-uri 'self'; object-src 'none'; form-action 'self'"
         -Server
     }
+    # An optimisation answers with ~1 MB of JSON; compressed it is a tenth.
+    # Only JSON and HTML: the live event stream must not be buffered.
+    encode {
+        zstd
+        gzip
+        match {
+            header Content-Type application/json*
+            header Content-Type text/html*
+        }
+    }
     # Largest upload: a project with its site plan images, or a data file.
     request_body {
         max_size 50MB

@@ -1,6 +1,6 @@
 /** TemperatureIntervalDiagram — shifted temperature interval diagram via Plotly. */
 
-import Plot from 'react-plotly.js';
+import Plot from './Plot';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 

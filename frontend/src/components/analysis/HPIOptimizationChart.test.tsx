@@ -11,7 +11,7 @@ import { dump } from '../../test/dump';
 import HPIOptimizationChart from './HPIOptimizationChart';
 
 const plots: Array<{ data: unknown; layout: unknown; onClick?: (e: unknown) => void }> = [];
-vi.mock('react-plotly.js', () => ({
+vi.mock('./Plot', () => ({
   default: (props: { data: unknown; layout: unknown; onClick?: (e: unknown) => void }) => {
     plots.push(props);
     return <div data-testid="plot" />;

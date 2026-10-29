@@ -91,7 +91,7 @@
   "stream_table": {
     "title": "Stream Data",
     "sort_hint": "— Click header to sort",
-    "export_csv": "📄 Export CSV with collected data",
+    "export_csv": "Export CSV with collected data",
     "further_exports": "Further exports ▼",
     "export_manhattan": "Export distances between streams (Manhattan)",
     "export_euclidean": "Export distances between streams (Euclidean)",
@@ -939,7 +939,13 @@
     "resize_panel": "Resize process panel",
     "unlock_map": "Unlock map to move selection",
     "search_address": "Search for address",
-    "base_layer": "Map base layer"
+    "base_layer": "Map base layer",
+    "confirm_delete": "Delete",
+    "cancel": "Cancel",
+    "pane_processes": "Processes",
+    "pane_map": "Map & data",
+    "fullscreen": "Fullscreen",
+    "exit_fullscreen": "Exit fullscreen"
   },
   "scenario_cmp": {
     "title": "Scenario comparison",

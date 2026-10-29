@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FileSpreadsheet } from 'lucide-react';
 import type { ProcessNode } from '../../types/process';
 import { extractStreamInfo } from '../../utils/streamInfo';
 import { useProjectStore } from '../../store/projectStore';
@@ -217,9 +218,9 @@ export default function StreamDataTable({
                 proc_group_coordinates: groupCoordinates as any,
               } as any)
             }
-            style={{ fontSize: '10px', padding: '2px 8px' }}
+            style={{ fontSize: '10px', padding: '2px 8px', display: 'inline-flex', gap: 4 }}
           >
-            {t('stream_table.export_csv')}
+            <FileSpreadsheet size={12} /> {t('stream_table.export_csv')}
           </button>
           <div
             style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 4px' }}

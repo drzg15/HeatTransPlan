@@ -1,3 +1,4 @@
+import { ListTree, Map as MapIcon } from 'lucide-react';
 import { useState, useCallback, useEffect } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { useProjectStore } from '../store/projectStore';
@@ -416,7 +417,7 @@ export default function DataCollectionPage() {
             className={mobilePane === 'editor' ? 'active' : ''}
             onClick={() => setMobilePane('editor')}
           >
-            📋 Processes
+            <ListTree size={14} /> {t('ui.pane_processes')}
           </button>
           <button
             role="tab"
@@ -424,7 +425,7 @@ export default function DataCollectionPage() {
             className={mobilePane === 'map' ? 'active' : ''}
             onClick={() => setMobilePane('map')}
           >
-            🗺️ Map &amp; Data
+            <MapIcon size={14} /> {t('ui.pane_map')}
           </button>
         </div>
       )}

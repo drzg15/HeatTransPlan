@@ -11,7 +11,7 @@ import type { CopTrainResult } from '../../types/copTraining';
 const features = { cop_training: true };
 vi.mock('../../hooks/useFeatures', () => ({ useFeatures: () => features }));
 vi.mock('./HPIOptimizationChart', () => ({ default: () => <div /> }));
-vi.mock('react-plotly.js', () => ({ default: () => <div data-testid="parity" /> }));
+vi.mock('./Plot', () => ({ default: () => <div data-testid="parity" /> }));
 
 const trained: CopTrainResult = {
   spec: {
