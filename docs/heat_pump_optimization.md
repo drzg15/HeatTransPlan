@@ -155,7 +155,7 @@ $$
 Archetype points carry `theoretical = true` in the output, which is what separates them from measured machines in the results table and gives them their own marker on the chart.
 
 > [!IMPORTANT]
-> The Carnot archetype is the formula $\frac{T_{sink} + 273.15}{\Delta T} \times 0.5$ evaluated at the point's own temperatures — **not** a regression. Because it is deliberately **half** the thermodynamic ceiling rather than the ceiling itself, a real refrigerant scoring above it is expected and is not a physics violation. The same COP cap of **15.0** used by the integration module applies here.
+> The Carnot archetype is the formula $COP = 0.5 \times \frac{T_{sink,out}}{T_{sink,out} - T_{source,in}}$ (temperatures in K) — **not** a regression. $T_{sink,out}$ is the point's sink temperature on the shifted scale, the value the COP models see; $T_{source,in}$ is the heat source inlet the 4-temperature model is given, pinch − ΔTmin/2. Example 1 (pinch 73 °C, ΔTmin 10 K, sink 113 °C): $0.5 \times \frac{113 + 273.15}{113 - 68} = 0.5 \times 8.58 = 4.29$. Because it is deliberately **half** the thermodynamic ceiling rather than the ceiling itself, a real refrigerant scoring above it is expected and is not a physics violation. The same COP cap of **15.0** used by the integration module applies here.
 
 <details>
 <summary><b>Source code:</b> <code>backend/app/services/optimization/alternatives.py</code> (<code>_theoretical_alternatives</code>)</summary>

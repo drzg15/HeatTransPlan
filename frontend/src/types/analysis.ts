@@ -205,9 +205,44 @@ export interface CopFormulaValidateResult {
   functions: string[];
 }
 
+/** A heat pump the trained models know: refrigerant with its stage count
+ *  (name, e.g. Butane_2), sink medium and the range it was trained on. */
+export interface CopPointOption {
+  name: string;
+  medium_sink: string;
+  refrigerant_type: string;
+  hp_level: string;
+  T_src_min: number;
+  T_src_max: number;
+  T_sink_min: number;
+  T_sink_max: number;
+}
+
+/** One trained heat pump at four chosen temperatures (°C, shifted scale). */
+export interface CopPointRequest {
+  refrigerant: string;
+  medium_sink: string;
+  T_source_in: number;
+  T_source_out: number;
+  T_sink_in: number;
+  T_sink_out: number;
+}
+
+export interface CopPointResult {
+  cop_4t: number;
+  cop_2t: number;
+  carnot_50: number | null;
+  carnot_ideal: number | null;
+  /** What falls outside the training data or flows the wrong way. */
+  checks: Array<{ code: string; value?: number | null; min?: number | null; max?: number | null }>;
+}
+
 /** Which trained COP model scores the refrigerants: source return + sink supply
  *  only ('2t'), or all four temperatures with the other two taken from the pinch. */
 export type CopModel = '2t' | '4t';
+
+/** A heat pump temperature the optimization can search along its profile. */
+export type SearchTemp = 'source_in' | 'source_out' | 'sink_in' | 'sink_out';
 
 export interface HPIOptimizationRequest {
   pinch_result: PinchResult;
@@ -219,6 +254,8 @@ export interface HPIOptimizationRequest {
   recovery_pct?: number;
   /** Language of the diagnostic messages. */
   lang?: string;
+  /** The temperatures searched along the profiles; the rest sit at the pinch. */
+  search_temps?: SearchTemp[];
 }
 
 export interface HPIOptimizationResult {

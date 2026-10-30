@@ -46,6 +46,8 @@ interface Props {
   customModel: CustomCopModelSpec | null;
   onOpenTraining: () => void;
   onToggleCustomModel: (enabled: boolean) => void;
+  /** Opens the heat pump view: its four temperatures and the COP of each model. */
+  onOpenHeatPump: () => void;
 }
 
 /** A dropdown of checkboxes; nothing ticked means all. Closes on a click
@@ -429,6 +431,11 @@ export default function HPIOptimizationFilters(p: Props) {
           <option value="4t">{t('optimization.panel.filters.cop_model_4t')}</option>
           <option value="2t">{t('optimization.panel.filters.cop_model_2t')}</option>
         </select>
+        <div className="cf-trigger-row" style={{ marginTop: '0.5rem' }}>
+          <button className="cf-trigger" onClick={p.onOpenHeatPump} title={t('hp_view.open_hint')}>
+            {t('hp_view.open')}
+          </button>
+        </div>
       </div>
       <div className="cf-trigger-block">
         <div className="cf-trigger-head">

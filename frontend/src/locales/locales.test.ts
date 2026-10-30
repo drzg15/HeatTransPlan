@@ -30,6 +30,8 @@ const SAME_IN_BOTH = new Set([
   'optimization.train.rmse', // abbreviation
   'optimization.train.optional_title', // same word in both
   'tour.tmin_title', // symbol
+  'hp_view.case_carnot', // proper noun
+  'hp_view.ideal', // same word in both
 ]);
 
 type Tree = { [k: string]: string | Tree };

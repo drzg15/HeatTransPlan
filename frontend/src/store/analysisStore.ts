@@ -4,6 +4,7 @@ import { create } from 'zustand';
 import type {
   CopFormulaSpec,
   CopModel,
+  SearchTemp,
   EnergyDemandLocal,
   OptimizedIntegrationPoint,
   HPIOptimizationResult,
@@ -53,6 +54,8 @@ interface AnalysisStore {
   // A COP network trained on the user's data (COP training module).
   customCopModel: CustomCopModelSpec | null;
   copModel: CopModel;
+  /** The heat pump temperatures the optimization searches (heat pump view). */
+  searchTemps: SearchTemp[];
 
   // Results from backend
   pinchResult: PinchResult | null;
@@ -103,6 +106,7 @@ interface AnalysisStore {
   setCopFormula: (formula: CopFormulaSpec | null) => void;
   setCustomCopModel: (model: CustomCopModelSpec | null) => void;
   setCopModel: (model: CopModel) => void;
+  setSearchTemps: (temps: SearchTemp[]) => void;
   setPinchResult: (result: PinchResult | null) => void;
   setHPIResult: (result: HPIResult | null) => void;
   setHPIOptimizationResult: (result: HPIOptimizationResult | null) => void;
@@ -170,6 +174,8 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   customCopModel: null,
   // The 4-temperature model is the standard: about four times as accurate.
   copModel: '4t',
+  // Source out and sink out follow the search; source in and sink in sit at the pinch.
+  searchTemps: ['source_out', 'sink_out'],
   pinchResult: null,
   hpiResult: null,
   hpiOptimizationResult: null,
@@ -264,6 +270,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   setCopFormula: (formula) => set({ copFormula: formula }),
   setCustomCopModel: (model) => set({ customCopModel: model }),
   setCopModel: (model) => set({ copModel: model }),
+  setSearchTemps: (temps) => set({ searchTemps: temps }),
 
   setPinchResult: (result) => {
     set((s) => {

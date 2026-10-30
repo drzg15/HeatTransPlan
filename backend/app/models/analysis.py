@@ -251,6 +251,35 @@ class CopFormulaValidateRequest(BaseModel):
     T_sink: float = 110.0
 
 
+class CopPointRequest(BaseModel):
+    """One operating point to rate: a trained heat pump and its four
+    temperatures (°C, on the shifted scale the optimization uses)."""
+    refrigerant: str = Field(max_length=64)
+    medium_sink: str = Field(max_length=32)
+    T_source_in: float
+    T_source_out: float
+    T_sink_in: float
+    T_sink_out: float
+
+
+class CopPointCheck(BaseModel):
+    #: source_spread / sink_spread (outside the training data), source_reversed /
+    #: sink_reversed (flows the wrong way), source_range / sink_range (outside
+    #: the heat pump's envelope).
+    code: str
+    value: Optional[float] = None
+    min: Optional[float] = None
+    max: Optional[float] = None
+
+
+class CopPointResult(BaseModel):
+    cop_4t: float
+    cop_2t: float
+    carnot_50: Optional[float] = None
+    carnot_ideal: Optional[float] = None
+    checks: List[CopPointCheck] = Field(default_factory=list)
+
+
 class CopFormulaValidateResult(BaseModel):
     valid: bool
     cop: Optional[float] = None
@@ -279,6 +308,11 @@ class HPIOptimizationRequest(BaseModel):
     # A network the user trained on their own data (COP training module);
     # offered next to the shipped model like cop_formula.
     custom_cop_model: Optional[CustomCopModelSpec] = None
+    # Which of the heat pump's four temperatures follow the search along the
+    # profiles; the others stay at the pinch (source side pinch − ΔTmin/2, sink
+    # side pinch + ΔTmin/2). Each model reads the ones it uses.
+    search_temps: List[Literal["source_in", "source_out", "sink_in", "sink_out"]] = Field(
+        default_factory=lambda: ["source_out", "sink_out"], max_length=4)
 
 
 class HPIOptimizationResult(BaseModel):

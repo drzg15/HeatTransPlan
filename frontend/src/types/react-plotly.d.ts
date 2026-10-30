@@ -15,6 +15,7 @@ declare module 'react-plotly.js' {
     onUnhover?: (event: any) => void;
     onSelected?: (event: any) => void;
     onRelayout?: (event: any) => void;
+    onClickAnnotation?: (event: { annotation?: { text?: string } }) => void;
     // Returning false stops Plotly's own show/hide on a legend click.
     onLegendClick?: (event: any) => boolean;
     onLegendDoubleClick?: (event: any) => boolean;
