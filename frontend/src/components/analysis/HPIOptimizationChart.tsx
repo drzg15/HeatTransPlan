@@ -23,6 +23,8 @@ interface Props {
   onSelectPoints: (points: OptimizedIntegrationPoint[]) => void;
   pinchTemperature: number;
   profileMode?: string;
+  /** Clicking the heat pump's 💡 opens the heat pump view. */
+  onOpenHeatPump?: () => void;
 }
 
 export default function HPIOptimizationChart({
@@ -35,6 +37,7 @@ export default function HPIOptimizationChart({
   onSelectPoints,
   pinchTemperature,
   profileMode = 'net_load',
+  onOpenHeatPump,
 }: Props) {
   const { t } = useTranslation();
   const theme = useUIStore((s) => s.theme);
@@ -382,6 +385,9 @@ export default function HPIOptimizationChart({
         layout={layout}
         config={{ responsive: true }}
         style={{ width: '100%' }}
+        onClickAnnotation={(e) => {
+          if (e.annotation?.text === '💡') onOpenHeatPump?.();
+        }}
         onClick={(data) => {
           if (data.points && data.points.length > 0) {
             const pt = data.points[0];

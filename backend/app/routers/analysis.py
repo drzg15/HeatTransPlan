@@ -13,7 +13,9 @@ from app.models.analysis import (
     StatusQuoRequest, StatusQuoResult,
     HPIOptimizationRequest, HPIOptimizationResult,
     CopFormulaValidateRequest, CopFormulaValidateResult,
+    CopPointRequest, CopPointResult,
 )
+from app.services.optimization.alternatives import _load_model_and_data, cop_at
 from app.models.economics import EconomicsRequest, ProjectAnalysisRequest
 from app.services.project_analysis import analyse_project
 from app.models.report import ReportRequest
@@ -55,6 +57,28 @@ def heat_pump_integration_optimization(request: HPIOptimizationRequest):
     except FormulaError as exc:
         # A bad formula is the caller's mistake, not a server fault.
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/cop-point/options")
+def cop_point_options():
+    """Every heat pump the trained models know, with its range: the choices of
+    the COP model page."""
+    _, alts = _load_model_and_data()
+    keys = ("name", "medium_sink", "refrigerant_type", "hp_level", "T_src_min", "T_src_max",
+            "T_sink_min", "T_sink_max")
+    return [{k: a[k] for k in keys} for a in alts]
+
+
+@router.post("/cop-point", response_model=CopPointResult)
+def cop_point(request: CopPointRequest):
+    """The COP of one heat pump at four chosen temperatures, every way the
+    optimization rates it (4- and 2-temperature model, Carnot). For the heat
+    pump view, where the temperatures are tried out by hand."""
+    try:
+        return cop_at(request.refrigerant, request.medium_sink, request.T_source_in,
+                      request.T_source_out, request.T_sink_in, request.T_sink_out)
+    except KeyError as exc:
+        raise HTTPException(404, str(exc.args[0]))
 
 
 @router.post("/cop-formula/validate", response_model=CopFormulaValidateResult)

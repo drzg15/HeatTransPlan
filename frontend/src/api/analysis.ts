@@ -3,6 +3,9 @@
 import client from './client';
 import type {
   CopFormulaValidateResult,
+  CopPointOption,
+  CopPointRequest,
+  CopPointResult,
   HPIOptimizationRequest,
   HPIOptimizationResult,
   HPIRequest,
@@ -43,6 +46,19 @@ export async function validateCopFormula(
     '/api/analysis/cop-formula/validate',
     { expression, T_source, T_sink }
   );
+  return data;
+}
+
+/** Every heat pump the trained models know (the COP model page). */
+export async function getCopPointOptions(): Promise<CopPointOption[]> {
+  const { data } = await client.get<CopPointOption[]>('/api/analysis/cop-point/options');
+  return data;
+}
+
+/** One heat pump at four chosen temperatures, rated by both trained models
+ *  and the Carnot reference (the heat pump view). */
+export async function rateCopPoint(req: CopPointRequest): Promise<CopPointResult> {
+  const { data } = await client.post<CopPointResult>('/api/analysis/cop-point', req);
   return data;
 }
 

@@ -19,10 +19,13 @@ from app.modules.pinch.streams import write_streams_csv
 from app.services.optimization.alternatives import (
     _calculation_details,
     _formula_alternative,
+    SEARCH_DEFAULT,
+    _carnot_reference,
     _four_temperature_alternatives,
     _load_model_and_data,
-    _pin_carnot,
     _theoretical_alternatives,
+    _two_temperature_alternatives,
+    model_inputs,
 )
 from app.services.optimization.diagnostics import MIN_COVERAGE, _diagnostic_messages
 from app.services.optimization.profiles import (
@@ -40,6 +43,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
     cop_model = "4t"
     recovery_pct = 100.0
     lang = "en"
+    search = SEARCH_DEFAULT
     if isinstance(request, HPIOptimizationRequest):
         pinch = request.pinch_result
         profile_mode = request.profile_mode
@@ -48,6 +52,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         cop_model = request.cop_model
         recovery_pct = request.recovery_pct
         lang = request.lang
+        search = tuple(request.search_temps)
     else:
         pinch = request
         profile_mode = "net_load"
@@ -58,20 +63,25 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
     )
 
     _, alternatives = _load_model_and_data()
+    # Which of the four temperatures follow the search (search_temps); the rest
+    # sit at the pinch. Each model reads the ones it uses from here.
+    inputs = model_inputs(pinch, search)
     if cop_model == "4t":
-        alternatives = _four_temperature_alternatives(alternatives, pinch)
-        half = float(pinch.T_min) / 2.0
-        extra_temps = {
-            "T_vorlauf_quelle": float(pinch.pinch_temperature) - half,
-            "T_ruecklauf_senke": float(pinch.pinch_temperature) + half,
-        }
+        alternatives = _four_temperature_alternatives(alternatives, pinch, search)
     else:
-        extra_temps = {}
+        alternatives = _two_temperature_alternatives(alternatives, pinch, search)
+
+    def extra_temps(alt, t_src, t_snk):
+        # The two inlet temperatures the 4-temperature model saw at this point.
+        if not alt.get("four_t"):
+            return {}
+        e = inputs([t_src], [t_snk])
+        return {"T_vorlauf_quelle": float(e["source_in"][0]), "T_ruecklauf_senke": float(e["sink_in"][0])}
 
     # The technology archetypes ride through the same grid as the trained
     # refrigerants so both end up in one table and one chart.
     alternatives = list(alternatives) + _theoretical_alternatives()
-    alternatives = _pin_carnot(alternatives, pinch)
+    alternatives = _carnot_reference(alternatives, pinch, search)
 
     # A user formula is appended as one more alternative rather than replacing
     # the model, so it lands in the same table and chart and can be compared
@@ -253,7 +263,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                         hp_level=alt["hp_level"],
                         theoretical=alt.get("theoretical", False),
                         calculation_details=_calculation_details(alt, t_src_exact, t_snk),
-                        **(extra_temps if alt.get("four_t") else {}),
+                        **extra_temps(alt, t_src_exact, t_snk),
                     )
                     feasible_points.append(pt)
                     found_full = True
@@ -312,7 +322,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                     calculation_details=_calculation_details(
                         alt, float(t_src_valid[idx]), t_snk
                     ),
-                    **(extra_temps if alt.get("four_t") else {}),
+                    **extra_temps(alt, float(t_src_valid[idx]), t_snk),
                 )
                 feasible_points.append(pt)
                 if limited:

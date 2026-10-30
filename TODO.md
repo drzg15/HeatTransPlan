@@ -23,18 +23,7 @@ rejections (sink too hot, lift too large, no source heat).
 - Turn the counts into one sentence: what rules the real machines out.
 - Add what would change it: a lower supply temperature, two stages, steam.
 
-## 3. Carnot reference COP
-
-The Carnot reference is calculated with the source fixed at the pinch
-(pinch − ΔTmin/2), while the chart draws it at the point's own source
-temperature. At those drawn temperatures the shown COP can exceed what physics
-allows (above 100 % Carnot).
-
-- Decide: calculate from the drawn source temperature, or draw the source at
-  the pinch and say so.
-- `backend/app/services/optimization/alternatives.py` (`_pin_carnot`).
-
-## 4. Which streams to connect
+## 3. Which streams to connect
 
 The app gives targets (minimum heating and cooling, the pinch) but not which
 hot stream should heat which cold one.
