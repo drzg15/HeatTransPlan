@@ -5,6 +5,7 @@ import type {
   CopFormulaSpec,
   CopModel,
   SearchTemp,
+  TempScale,
   EnergyDemandLocal,
   OptimizedIntegrationPoint,
   HPIOptimizationResult,
@@ -56,6 +57,8 @@ interface AnalysisStore {
   copModel: CopModel;
   /** The heat pump temperatures the optimization searches (heat pump view). */
   searchTemps: SearchTemp[];
+  /** Temperature scale the heat pump models see (TempScale). */
+  tempScale: TempScale;
 
   // Results from backend
   pinchResult: PinchResult | null;
@@ -107,6 +110,7 @@ interface AnalysisStore {
   setCustomCopModel: (model: CustomCopModelSpec | null) => void;
   setCopModel: (model: CopModel) => void;
   setSearchTemps: (temps: SearchTemp[]) => void;
+  setTempScale: (scale: TempScale) => void;
   setPinchResult: (result: PinchResult | null) => void;
   setHPIResult: (result: HPIResult | null) => void;
   setHPIOptimizationResult: (result: HPIOptimizationResult | null) => void;
@@ -172,10 +176,12 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   recoveryPct: 100,
   copFormula: null,
   customCopModel: null,
-  // The 4-temperature model is the standard: about four times as accurate.
-  copModel: '4t',
+  // The 2-temperature model is the standard; the 4-temperature one is offered next to it.
+  copModel: '2t',
   // Source out and sink out follow the search; source in and sink in sit at the pinch.
   searchTemps: ['source_out', 'sink_out'],
+  // Shifted once, the literature's convention for utilities on the GCC.
+  tempScale: 'shifted',
   pinchResult: null,
   hpiResult: null,
   hpiOptimizationResult: null,
@@ -271,6 +277,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   setCustomCopModel: (model) => set({ customCopModel: model }),
   setCopModel: (model) => set({ copModel: model }),
   setSearchTemps: (temps) => set({ searchTemps: temps }),
+  setTempScale: (scale) => set({ tempScale: scale }),
 
   setPinchResult: (result) => {
     set((s) => {

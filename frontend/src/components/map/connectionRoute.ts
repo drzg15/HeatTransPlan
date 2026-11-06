@@ -59,3 +59,46 @@ export function routeConnection(p1: Pt, p2: Pt, src: Half, tgt: Half) {
     ? (horizontal() ?? vertical())
     : (vertical() ?? horizontal());
 }
+
+type Route = NonNullable<ReturnType<typeof routeConnection>>;
+const LABEL_GAP = 6;
+
+/** Top-left corner of a w × h px label for a route: just above the bend, or,
+ *  when the gap between the boxes is narrower than the label, clear of both
+ *  boxes (above them, or right of them for a vertical route). */
+export function labelSpot(
+  route: Route,
+  p1: Pt,
+  p2: Pt,
+  src: Half,
+  tgt: Half,
+  w: number,
+  h: number
+) {
+  if (route.horizontal) {
+    const room = Math.abs(route.arrow.x - route.start.x);
+    const lineTop = Math.min(route.mid1.y, route.mid2.y);
+    const boxTop = Math.min(p1.y - src.h, p2.y - tgt.h);
+    const bottom = (w + 2 * LABEL_GAP <= room ? lineTop : Math.min(lineTop, boxTop)) - LABEL_GAP;
+    return { x: route.mid1.x - w / 2, y: bottom - h };
+  }
+  const room = Math.abs(route.arrow.y - route.start.y);
+  const lineRight = Math.max(route.mid1.x, route.mid2.x);
+  const boxRight = Math.max(p1.x + src.w, p2.x + tgt.w);
+  const left = (h + 2 * LABEL_GAP <= room ? lineRight : Math.max(lineRight, boxRight)) + LABEL_GAP;
+  return { x: left, y: route.mid1.y - h / 2 };
+}
+
+/** Share of the map the white canvas of an open diagram covers, centred. */
+export const CANVAS_SHARE = 0.9;
+
+/** Where a box centred at p sits wholly on that canvas, in a map of the given
+ *  size: p itself when it already does, else the nearest point just inside. */
+export function onCanvas(p: Pt, size: Pt, half: Half): Pt {
+  const edge = (1 - CANVAS_SHARE) / 2;
+  const mx = size.x * edge + half.w + 4;
+  const my = size.y * edge + half.h + 4;
+  const clamp = (v: number, lo: number, hi: number) =>
+    lo > hi ? (lo + hi) / 2 : Math.min(Math.max(v, lo), hi);
+  return { x: clamp(p.x, mx, size.x - mx), y: clamp(p.y, my, size.y - my) };
+}

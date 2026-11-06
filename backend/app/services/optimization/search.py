@@ -25,6 +25,7 @@ from app.services.optimization.alternatives import (
     _load_model_and_data,
     _theoretical_alternatives,
     _two_temperature_alternatives,
+    grid_offset,
     model_inputs,
 )
 from app.services.optimization.diagnostics import MIN_COVERAGE, _diagnostic_messages
@@ -44,6 +45,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
     recovery_pct = 100.0
     lang = "en"
     search = SEARCH_DEFAULT
+    scale = "double"
     if isinstance(request, HPIOptimizationRequest):
         pinch = request.pinch_result
         profile_mode = request.profile_mode
@@ -53,6 +55,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         recovery_pct = request.recovery_pct
         lang = request.lang
         search = tuple(request.search_temps)
+        scale = request.temp_scale
     else:
         pinch = request
         profile_mode = "net_load"
@@ -65,23 +68,26 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
     _, alternatives = _load_model_and_data()
     # Which of the four temperatures follow the search (search_temps); the rest
     # sit at the pinch. Each model reads the ones it uses from here.
-    inputs = model_inputs(pinch, search)
+    inputs = model_inputs(pinch, search, scale)
+    # On the "real" scale the grid (shifted, like the profiles) is moved to the
+    # process temperatures before any model or operating window sees it.
+    gs = grid_offset(pinch, scale)
     if cop_model == "4t":
-        alternatives = _four_temperature_alternatives(alternatives, pinch, search)
+        alternatives = _four_temperature_alternatives(alternatives, pinch, search, scale)
     else:
-        alternatives = _two_temperature_alternatives(alternatives, pinch, search)
+        alternatives = _two_temperature_alternatives(alternatives, pinch, search, scale)
 
     def extra_temps(alt, t_src, t_snk):
         # The two inlet temperatures the 4-temperature model saw at this point.
         if not alt.get("four_t"):
             return {}
-        e = inputs([t_src], [t_snk])
+        e = inputs([t_src + gs], [t_snk - gs])
         return {"T_vorlauf_quelle": float(e["source_in"][0]), "T_ruecklauf_senke": float(e["sink_in"][0])}
 
     # The technology archetypes ride through the same grid as the trained
     # refrigerants so both end up in one table and one chart.
     alternatives = list(alternatives) + _theoretical_alternatives()
-    alternatives = _carnot_reference(alternatives, pinch, search)
+    alternatives = _carnot_reference(alternatives, pinch, search, scale)
 
     # A user formula is appended as one more alternative rather than replacing
     # the model, so it lands in the same table and chart and can be compared
@@ -95,7 +101,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
     if custom_model is not None and custom_model.enabled and cop_training.ENABLED:
         alternatives = list(alternatives) + trained.alternatives(
             custom_model, pinch, OPTIMIZATION_CONFIG["deltaT_evap"], OPTIMIZATION_CONFIG["deltaT_cond"],
-            trained.describe,
+            trained.describe, scale,
         )
 
     # Reconstruct Pinch for HPI
@@ -170,8 +176,8 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
         for alt in alternatives:
             # COP over the entire grid, from the model or from a user formula —
             # both expose the same (t_source, t_sink) -> array signature.
-            T_quelle_model = T_quelle_flat - alt["deltaT_evap"]
-            T_senke_model = T_senke_flat + alt["deltaT_cond"]
+            T_quelle_model = T_quelle_flat - alt["deltaT_evap"] + gs
+            T_senke_model = T_senke_flat + alt["deltaT_cond"] - gs
 
             # Only where this machine can run: the loop below rejects every other
             # point before it looks at the COP, and the model is most of the
@@ -197,7 +203,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
             
             for t_snk in unique_t_sinks:
                 diag.candidates_total += 1
-                t_senke_model = t_snk + alt["deltaT_cond"]
+                t_senke_model = t_snk + alt["deltaT_cond"] - gs
                 if t_senke_model < alt["T_sink_min"] or t_senke_model > alt["T_sink_max"]:
                     diag.rejected_sink_range += 1
                     continue
@@ -215,7 +221,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
 
                 # We need q_src_req = q_dem * (cop - 1) / cop
                 # We find where q_avail_slice - q_src_req crosses 0
-                t_src_model_slice = t_src_slice - alt["deltaT_evap"]
+                t_src_model_slice = t_src_slice - alt["deltaT_evap"] + gs
                 valid_mask = (cop_slice > 1.0) & (cop_slice >= alt["cop_min"]) & (cop_slice <= alt["cop_max"]) & (t_src_slice <= t_snk - 10.0) & (t_src_model_slice >= alt["T_src_min"]) & (t_src_model_slice <= alt["T_src_max"])
                 if not np.any(valid_mask):
                     diag.rejected_source_range += 1
@@ -262,7 +268,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                         refrigerant_type=alt["refrigerant_type"],
                         hp_level=alt["hp_level"],
                         theoretical=alt.get("theoretical", False),
-                        calculation_details=_calculation_details(alt, t_src_exact, t_snk),
+                        calculation_details=_calculation_details(alt, t_src_exact + gs, t_snk - gs),
                         **extra_temps(alt, t_src_exact, t_snk),
                     )
                     feasible_points.append(pt)
@@ -320,7 +326,7 @@ def run_hpi_optimization(request: HPIOptimizationRequest | PinchResult) -> HPIOp
                     hp_level=alt["hp_level"],
                     theoretical=alt.get("theoretical", False),
                     calculation_details=_calculation_details(
-                        alt, float(t_src_valid[idx]), t_snk
+                        alt, float(t_src_valid[idx]) + gs, t_snk - gs
                     ),
                     **extra_temps(alt, float(t_src_valid[idx]), t_snk),
                 )

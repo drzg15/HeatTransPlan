@@ -45,16 +45,16 @@ exports[`HPIOptimizationChart > draws German the same 1`] = `
    "l": 80,
    "r": 20,
    "t": 40,
-   "b": 80
+   "b": 150
   },
   "hovermode": "closest",
   "showlegend": true,
   "legend": {
    "orientation": "h",
-   "x": 1,
-   "y": 1.02,
-   "xanchor": "right",
-   "yanchor": "bottom",
+   "x": 0.5,
+   "y": -0.12,
+   "xanchor": "center",
+   "yanchor": "top",
    "font": {
     "color": "#1A1C1E"
    }
@@ -292,16 +292,16 @@ exports[`HPIOptimizationChart > draws a selection the same 1`] = `
    "l": 80,
    "r": 20,
    "t": 40,
-   "b": 80
+   "b": 150
   },
   "hovermode": "closest",
   "showlegend": true,
   "legend": {
    "orientation": "h",
-   "x": 1,
-   "y": 1.02,
-   "xanchor": "right",
-   "yanchor": "bottom",
+   "x": 0.5,
+   "y": -0.12,
+   "xanchor": "center",
+   "yanchor": "top",
    "font": {
     "color": "#1A1C1E"
    }
@@ -539,16 +539,16 @@ exports[`HPIOptimizationChart > draws dark the same 1`] = `
    "l": 80,
    "r": 20,
    "t": 40,
-   "b": 80
+   "b": 150
   },
   "hovermode": "closest",
   "showlegend": true,
   "legend": {
    "orientation": "h",
-   "x": 1,
-   "y": 1.02,
-   "xanchor": "right",
-   "yanchor": "bottom",
+   "x": 0.5,
+   "y": -0.12,
+   "xanchor": "center",
+   "yanchor": "top",
    "font": {
     "color": "#F8FAFC"
    }
@@ -786,16 +786,16 @@ exports[`HPIOptimizationChart > draws the composite mode the same 1`] = `
    "l": 80,
    "r": 20,
    "t": 40,
-   "b": 80
+   "b": 150
   },
   "hovermode": "closest",
   "showlegend": true,
   "legend": {
    "orientation": "h",
-   "x": 1,
-   "y": 1.02,
-   "xanchor": "right",
-   "yanchor": "bottom",
+   "x": 0.5,
+   "y": -0.12,
+   "xanchor": "center",
+   "yanchor": "top",
    "font": {
     "color": "#1A1C1E"
    }
@@ -1007,16 +1007,16 @@ exports[`HPIOptimizationChart > draws the same 1`] = `
    "l": 80,
    "r": 20,
    "t": 40,
-   "b": 80
+   "b": 150
   },
   "hovermode": "closest",
   "showlegend": true,
   "legend": {
    "orientation": "h",
-   "x": 1,
-   "y": 1.02,
-   "xanchor": "right",
-   "yanchor": "bottom",
+   "x": 0.5,
+   "y": -0.12,
+   "xanchor": "center",
+   "yanchor": "top",
    "font": {
     "color": "#1A1C1E"
    }

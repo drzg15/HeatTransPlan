@@ -12,6 +12,7 @@ import type {
   CopPointResult,
   OptimizedIntegrationPoint,
   SearchTemp,
+  TempScale,
 } from '../../types/analysis';
 import CopModelDebug from './CopModelDebug';
 import { balance, profileAt, type Profile } from './heatPumpBalance';
@@ -58,6 +59,8 @@ interface Props {
   point: OptimizedIntegrationPoint;
   pinchTemperature: number;
   tMin: number;
+  /** Temperature scale the models see; the optimization uses the same. */
+  tempScale: TempScale;
   pumps: PumpOption[];
   /** The profiles the optimization searched along (shifted scale, ascending T). */
   sourceProfile: Profile;
@@ -79,6 +82,7 @@ export default function HeatPumpView({
   point,
   pinchTemperature,
   tMin,
+  tempScale,
   pumps,
   sourceProfile,
   sinkProfile,
@@ -91,10 +95,15 @@ export default function HeatPumpView({
   const half = tMin / 2;
   // Where the search stands on each profile (shifted scale): a searched
   // temperature follows its side, a fixed one keeps its own value, which starts
-  // at the pinch (source side pinch − ΔTmin/2, sink side pinch + ΔTmin/2).
+  // at the pinch, as the optimization's TEMP_SCALES place it: double at
+  // pinch ∓ ΔTmin/2, shifted at the pinch, real at pinch ± ΔTmin/2. On the real
+  // scale a searched value is also read ΔTmin/2 off the shifted grid.
+  const fixedOff = { double: -half, shifted: 0, real: half }[tempScale];
+  const gridOff = tempScale === 'real' ? half : 0;
+  const shown: Record<Side, number> = { source: gridOff, sink: -gridOff };
   const pinchAt: Record<Side, number> = {
-    source: pinchTemperature - half,
-    sink: pinchTemperature + half,
+    source: pinchTemperature + fixedOff,
+    sink: pinchTemperature - fixedOff,
   };
   const startGrid = { source: point.T_source, sink: point.T_sink };
   const startFixed: Record<Temp, number> = {
@@ -108,7 +117,7 @@ export default function HeatPumpView({
   // The text of the field being typed in, so "6" on the way to "66" stays put.
   const [editing, setEditing] = useState<{ k: Temp; raw: string } | null>(null);
   const searched = (k: Temp) => searchTemps.includes(API[k]);
-  const value = (k: Temp) => (searched(k) ? grid[SIDE[k]] : fixed[k]);
+  const value = (k: Temp) => (searched(k) ? grid[SIDE[k]] + shown[SIDE[k]] : fixed[k]);
   const temps: Record<Temp, number> = {
     sourceIn: value('sourceIn'),
     sourceOut: value('sourceOut'),
@@ -161,7 +170,7 @@ export default function HeatPumpView({
     setEditing({ k, raw });
     const v = parseFloat(raw.replace(',', '.'));
     if (!Number.isFinite(v)) return;
-    if (searched(k)) setGrid((g) => ({ ...g, [SIDE[k]]: v }));
+    if (searched(k)) setGrid((g) => ({ ...g, [SIDE[k]]: v - shown[SIDE[k]] }));
     else setFixed((f) => ({ ...f, [k]: v }));
   };
   const toggle = (k: Temp) =>
@@ -320,7 +329,7 @@ export default function HeatPumpView({
                   ))}
                 </select>
               </label>
-              <span className="cf-muted">{t('hp_view.scale', { half: half.toFixed(1) })}</span>
+              <span className="cf-muted">{t(tempScale === 'real' ? 'hp_view.scale_real' : 'hp_view.scale', { half: half.toFixed(1) })}</span>
             </div>
 
             <svg

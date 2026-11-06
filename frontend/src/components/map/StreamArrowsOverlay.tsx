@@ -163,70 +163,45 @@ export function StreamArrowsOverlay({
           const match = s.name.match(/\d+/);
           const num = match ? match[0] : s.si + 1;
           const streamTypeStr = i18n.t(isHotStream ? 'map.heat_source' : 'map.heat_sink');
-
-          const tColor = isHotStream ? '#e74c3c' : '#3498db';
-
+          const tColor = isHotStream ? '#c0392b' : '#2471a3';
           const text = streamSvgText(s);
-          const toutText = text.tout;
-          // One line each: name, inlet temperature, mass flow, heat capacity.
-          const feedSVG = `
-            <tspan x="${cx}" dy="-6">${streamTypeStr} ${num}</tspan>
-            ${[text.tin, text.mdot, text.cp]
-              .filter(Boolean)
-              .map((line) => `<tspan x="${cx}" dy="12">${line}</tspan>`)
-              .join('')}
-          `;
-
-          const prodSVG = toutText ? `<tspan x="${cx}" dy="0">${toutText}</tspan>` : '';
-
           const strokeWidth = isSelected ? 3 : 2;
           const opacity = isSelected ? 1 : 0.5;
+          const textStyle = `font-size="11" fill="${tColor}" paint-order="stroke" style="stroke: var(--surface, #fff)" stroke-width="3" stroke-linejoin="round" opacity="${opacity}"`;
 
-          const textStyle = `font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3" opacity="${opacity}"`;
+          // Labels stack away from their arrow: below it from its end, or above
+          // it ending at its start, 15 px a line (room for the subscripts).
+          const LH = 15;
+          const label = (lines: string[], y: number, below: boolean) => {
+            if (lines.length === 0) return '';
+            const first = below ? y + 12 : y - 6 - (lines.length - 1) * LH;
+            const spans = lines
+              .map(
+                (l, i) =>
+                  `<tspan x="${cx}" ${i === 0 ? `y="${first}" font-weight="700"` : `dy="${LH}"`}>${l}</tspan>`
+              )
+              .join('');
+            return `<text text-anchor="middle" ${textStyle}>${spans}</text>`;
+          };
+          const feed = [`${streamTypeStr} ${num}`, text.tin, text.mdot, text.cp].filter(Boolean);
+          const product = [text.tout].filter(Boolean);
+          const arrow = (y1: number, y2: number, color: string) => {
+            const dir = y2 > y1 ? 1 : -1;
+            return `<line x1="${cx}" y1="${y1}" x2="${cx}" y2="${y2 - dir * 8}" stroke="${color}" stroke-width="${strokeWidth}" opacity="${opacity}" />
+              <polygon points="${cx - 5},${y2 - dir * 10} ${cx + 5},${y2 - dir * 10} ${cx},${y2}" fill="${color}" opacity="${opacity}" />`;
+          };
 
-          // Stagger Y positions for adjacent streams
-          const staggerOffset = sidx % 2 === 0 ? 0 : 15;
-
-          let inArrow = '';
-          let outArrow = '';
-
-          if (isHotStream) {
-            // Hot stream: UPWARDS
-            // Feed (inColor) enters from bottom (y=245 to 180)
-            const inTextY = 260 + staggerOffset;
-            inArrow = `
-              <text x="${cx}" y="${inTextY}" text-anchor="middle" ${textStyle}>${feedSVG}</text>
-              <line x1="${cx}" y1="245" x2="${cx}" y2="180" stroke="${inColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-              <polygon points="${cx - 5},190 ${cx + 5},190 ${cx},180" fill="${inColor.stroke}" opacity="${opacity}" />
-            `;
-            // Product (outColor) leaves from top (y=120 to 55)
-            const outTextY = 45 - staggerOffset;
-            outArrow = `
-              ${prodSVG ? `<text x="${cx}" y="${outTextY}" text-anchor="middle" ${textStyle}>${prodSVG}</text>` : ''}
-              <line x1="${cx}" y1="120" x2="${cx}" y2="55" stroke="${outColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-              <polygon points="${cx - 5},65 ${cx + 5},65 ${cx},55" fill="${outColor.stroke}" opacity="${opacity}" />
-            `;
-          } else {
-            // Cold stream: DOWNWARDS
-            // Feed (inColor) enters from top (y=55 to 120)
-            const inTextY = 20 - staggerOffset;
-            inArrow = `
-              <text x="${cx}" y="${inTextY}" text-anchor="middle" ${textStyle}>${feedSVG}</text>
-              <line x1="${cx}" y1="55" x2="${cx}" y2="120" stroke="${inColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-              <polygon points="${cx - 5},110 ${cx + 5},110 ${cx},120" fill="${inColor.stroke}" opacity="${opacity}" />
-            `;
-            // Product (outColor) leaves from bottom (y=180 to 245)
-            const outTextY = 260 + staggerOffset;
-            outArrow = `
-              ${prodSVG ? `<text x="${cx}" y="${outTextY}" text-anchor="middle" ${textStyle}>${prodSVG}</text>` : ''}
-              <line x1="${cx}" y1="180" x2="${cx}" y2="245" stroke="${outColor.stroke}" stroke-width="${strokeWidth}" opacity="${opacity}" />
-              <polygon points="${cx - 5},235 ${cx + 5},235 ${cx},245" fill="${outColor.stroke}" opacity="${opacity}" />
-            `;
-          }
+          // Hot streams run upwards through the box, cold ones downwards.
+          const inArrow = isHotStream
+            ? arrow(245, 180, inColor.stroke) + label(feed, 245, true)
+            : arrow(55, 120, inColor.stroke) + label(feed, 55, false);
+          const outArrow = isHotStream
+            ? arrow(120, 55, outColor.stroke) + label(product, 55, false)
+            : arrow(180, 245, outColor.stroke) + label(product, 245, true);
 
           arrowParts.push(
             `<g class="stream-arrow" data-pidx="${s.pIdx}" ${s.ci !== undefined ? `data-cidx="${s.ci}"` : ''} data-si="${s.si}" style="cursor:pointer; transition:all 0.2s">
-               <title>${s.name} (${isSelected ? 'Selected' : 'Deselected'}) - In: ${s.tin}°C, Out: ${s.tout}°C</title>
+               <title>${s.name}: ${s.tin ?? '–'} → ${s.tout ?? '–'} °C</title>
                ${inArrow}
                ${outArrow}
              </g>`
@@ -235,7 +210,7 @@ export function StreamArrowsOverlay({
 
         const icon = L.divIcon({
           className: 'stream-arrows-icon',
-          html: `<style>.stream-arrows-icon { background: none; border: none; pointer-events: none !important; } .stream-arrows-icon .stream-arrow { pointer-events: auto !important; }</style><svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">${arrowParts.join('')}</svg>`,
+          html: `<style>.stream-arrows-icon { background: none; border: none; pointer-events: none !important; } .stream-arrows-icon .stream-arrow { pointer-events: auto !important; }</style><svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}" style="overflow:visible">${arrowParts.join('')}</svg>`,
           iconSize: [svgW, svgH],
           iconAnchor: [svgW / 2, svgH / 2],
         });

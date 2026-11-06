@@ -1,4 +1,4 @@
-import { Check, Plus, Trash2, X } from 'lucide-react';
+import { Check, MapPin, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
@@ -97,57 +97,72 @@ export default function SubprocessCard({
           <span className={`collapsible-arrow ${expanded ? 'open' : ''}`}>▶</span>
         </button>
 
-        <input
-          type="text"
-          className="sp-name-input"
-          value={subprocess.name}
-          onChange={(e) => update({ name: e.target.value })}
-        />
-
-        <div className="pgl-scale">
+        <div className="pgl-title">
+          <span className="pgl-level sp-level">{t('stream_table.headers.subprocess')}</span>
           <input
-            type="range"
-            min={0.5}
-            max={2.5}
-            step={0.1}
-            value={subprocess.box_scale || 1.5}
-            onChange={(e) => update({ box_scale: parseFloat(e.target.value) })}
+            type="text"
+            className="sp-name-input"
+            value={subprocess.name}
+            onChange={(e) => update({ name: e.target.value })}
           />
         </div>
 
-        <button
-          className={`btn btn-sm ${isPlacing ? 'btn-primary' : ''}`}
-          onClick={() => onPlaceRequest(isPlacing ? '' : `sub_${subIdx}`)}
-        >
-          {isPlacing ? t('process.done') : t('process.place')}
-        </button>
+        <div className="pgl-controls">
+          <div className="pgl-scale">
+            <input
+              type="range"
+              min={0.5}
+              max={2.5}
+              step={0.1}
+              value={subprocess.box_scale || 1.5}
+              onChange={(e) => update({ box_scale: parseFloat(e.target.value) })}
+            />
+          </div>
 
-        {confirmDel ? (
-          <span className="pgl-confirm">
+          {/* An icon while idle, to keep the row short; spelled out while placing. */}
+          <button
+            className={`btn btn-sm ${isPlacing ? 'btn-primary' : 'icon-btn'}`}
+            onClick={() => onPlaceRequest(isPlacing ? '' : `sub_${subIdx}`)}
+            title={t('process.place')}
+            aria-label={isPlacing ? t('process.done') : t('process.place')}
+          >
+            {isPlacing ? (
+              <>
+                <Check size={14} /> {t('process.done')}
+              </>
+            ) : (
+              <MapPin size={14} />
+            )}
+          </button>
+
+          {confirmDel ? (
+            <span className="pgl-confirm">
+              <button
+                className="btn btn-sm btn-danger icon-btn"
+                onClick={onDelete}
+                aria-label={t('ui.confirm_delete')}
+              >
+                <Check size={14} />
+              </button>
+              <button
+                className="btn btn-sm icon-btn"
+                onClick={() => setConfirmDel(false)}
+                aria-label={t('ui.cancel')}
+              >
+                <X size={14} />
+              </button>
+            </span>
+          ) : (
             <button
-              className="btn btn-sm btn-danger"
-              onClick={onDelete}
+              className="btn btn-sm icon-btn"
+              onClick={() => setConfirmDel(true)}
+              title={t('ui.confirm_delete')}
               aria-label={t('ui.confirm_delete')}
             >
-              <Check size={14} />
+              <Trash2 size={14} />
             </button>
-            <button
-              className="btn btn-sm"
-              onClick={() => setConfirmDel(false)}
-              aria-label={t('ui.cancel')}
-            >
-              <X size={14} />
-            </button>
-          </span>
-        ) : (
-          <button
-            className="btn btn-sm"
-            onClick={() => setConfirmDel(true)}
-            aria-label={t('ui.confirm_delete')}
-          >
-            <Trash2 size={14} />
-          </button>
-        )}
+          )}
+        </div>
       </div>
 
       {/* Expanded body */}
@@ -156,14 +171,13 @@ export default function SubprocessCard({
           {/* Section tabs */}
           <div className="sp-tabs">
             {[
-              { key: 'relationships', label: t('subprocess.next_processes'), color: '#2980b9' },
-              { key: 'streams', label: t('data_collection.streams'), color: '#e74c3c' },
-              { key: 'notes', label: t('analysis.sections.notes'), color: '#f39c12' },
+              { key: 'relationships', label: t('subprocess.next_processes') },
+              { key: 'streams', label: t('data_collection.streams') },
+              { key: 'notes', label: t('analysis.sections.notes') },
             ].map((tab) => (
               <button
                 key={tab.key}
                 className={`sp-tab ${activeSection === tab.key ? 'active' : ''}`}
-                style={activeSection === tab.key ? { borderBottomColor: tab.color } : {}}
                 onClick={() => setActiveSection(tab.key)}
               >
                 {tab.label}
@@ -187,13 +201,7 @@ export default function SubprocessCard({
                   return (
                     <button
                       key={opt}
-                      className={`btn btn-sm ${isSelected ? 'btn-primary' : ''}`}
-                      style={{
-                        padding: '2px 8px',
-                        fontSize: '11px',
-                        borderRadius: '12px',
-                        border: isSelected ? 'none' : '1px solid var(--border-strong)',
-                      }}
+                      className={`se-var-pill ${isSelected ? 'active' : ''}`}
                       onClick={() => {
                         if (isSelected) {
                           update({ next: selectedNext.filter((n) => n !== opt).join(', ') });

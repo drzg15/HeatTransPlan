@@ -244,13 +244,15 @@ def predict(spec: CustomCopModelSpec, temps: Dict[str, np.ndarray], cats: Dict[s
 
 
 def alternatives(spec: CustomCopModelSpec, pinch: Any, deltaT_evap: float, deltaT_cond: float,
-                 details: Callable[[CustomCopModelSpec, Dict[str, str]], Callable]) -> List[Dict[str, Any]]:
+                 details: Callable[[CustomCopModelSpec, Dict[str, str]], Callable],
+                 scale: str = "double") -> List[Dict[str, Any]]:
     """One heat pump per medium/refrigerant/stages combination in the data.
     With four temperatures, source supply and sink return come from the
     pinch, exactly as for the shipped 4-temperature model."""
-    half = float(pinch.T_min) / 2.0
-    fixed = {"T_source_in": float(pinch.pinch_temperature) - half,
-             "T_sink_in": float(pinch.pinch_temperature) + half}
+    from app.services.optimization.alternatives import TEMP_SCALES
+    k = TEMP_SCALES[scale][0] * float(pinch.T_min) / 2.0
+    fixed = {"T_source_in": float(pinch.pinch_temperature) + k,
+             "T_sink_in": float(pinch.pinch_temperature) - k}
     env = spec.envelope
     out = []
     for combo in spec.combos or [{}]:

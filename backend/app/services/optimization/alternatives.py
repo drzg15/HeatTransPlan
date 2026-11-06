@@ -123,16 +123,32 @@ def _four_t_frame(alt, source_in, source_out, sink_in, sink_out):
 TEMPERATURES = ("source_in", "source_out", "sink_in", "sink_out")
 SEARCH_DEFAULT = ("source_out", "sink_out")
 
+#: Temperature scale the models see, as (fixed, grid) offsets in ΔTmin/2 on the
+#: source side; the sink side mirrors them.
+#:   double   fixed at pinch − ΔTmin/2 / pinch + ΔTmin/2 on top of the shifted
+#:            grid: the ΔTmin/2 counted twice (the original behaviour)
+#:   shifted  fixed at the pinch itself, grid as is: shifted once, the
+#:            literature's convention for utilities on the GCC
+#:   real     the process streams' own temperatures: source + ΔTmin/2,
+#:            sink − ΔTmin/2, fixed and grid alike
+TEMP_SCALES = {"double": (-1.0, 0.0), "shifted": (0.0, 0.0), "real": (1.0, 1.0)}
 
-def model_inputs(pinch, search=SEARCH_DEFAULT):
+
+def grid_offset(pinch, scale="double"):
+    """What the optimizer adds to a grid source temperature (and subtracts from
+    a sink one) before any model sees it."""
+    return TEMP_SCALES[scale][1] * float(pinch.T_min) / 2.0
+
+
+def model_inputs(pinch, search=SEARCH_DEFAULT, scale="double"):
     """(grid source T, grid sink T) -> the four temperatures the models see.
 
-    A searched temperature takes the grid value of its side (source or sink); a
-    fixed one sits at the pinch: pinch − ΔTmin/2 on the source side, pinch +
-    ΔTmin/2 on the sink side. The default searches source out and sink out.
+    A searched temperature takes the grid value of its side (source or sink),
+    already on `scale`; a fixed one sits at the pinch, moved by the scale's
+    fixed offset (TEMP_SCALES). The default searches source out and sink out.
     """
-    half = float(pinch.T_min) / 2.0
-    fixed = {"source": float(pinch.pinch_temperature) - half, "sink": float(pinch.pinch_temperature) + half}
+    k = TEMP_SCALES[scale][0] * float(pinch.T_min) / 2.0
+    fixed = {"source": float(pinch.pinch_temperature) + k, "sink": float(pinch.pinch_temperature) - k}
 
     def inputs(t_src, t_snk):
         grid = {"source": np.asarray(t_src, dtype=float), "sink": np.asarray(t_snk, dtype=float)}
@@ -142,9 +158,9 @@ def model_inputs(pinch, search=SEARCH_DEFAULT):
     return inputs
 
 
-def _two_temperature_alternatives(alternatives, pinch, search=SEARCH_DEFAULT):
+def _two_temperature_alternatives(alternatives, pinch, search=SEARCH_DEFAULT, scale="double"):
     """The 2-temperature model reads source out and sink out, as selected."""
-    inputs = model_inputs(pinch, search)
+    inputs = model_inputs(pinch, search, scale)
 
     def wrap(fn):
         def predict(t_src, t_snk):
@@ -155,7 +171,7 @@ def _two_temperature_alternatives(alternatives, pinch, search=SEARCH_DEFAULT):
     return [dict(alt, cop_fn=wrap(alt["cop_fn"])) for alt in alternatives]
 
 
-def _four_temperature_alternatives(alternatives, pinch, search=SEARCH_DEFAULT):
+def _four_temperature_alternatives(alternatives, pinch, search=SEARCH_DEFAULT, scale="double"):
     """The same refrigerants, scored by the model that sees all four temperatures.
 
     By default the grid varies two of them (source return, sink supply) and the
@@ -165,7 +181,7 @@ def _four_temperature_alternatives(alternatives, pinch, search=SEARCH_DEFAULT):
     was fitted on the same data.
     """
     model = _model_4t()
-    inputs = model_inputs(pinch, search)
+    inputs = model_inputs(pinch, search, scale)
 
     def make_fn(alt):
         def predict(t_source_model, t_sink_model):
@@ -316,7 +332,7 @@ def _theoretical_alternatives():
     return alts
 
 
-def _carnot_reference(alternatives, pinch, search=SEARCH_DEFAULT):
+def _carnot_reference(alternatives, pinch, search=SEARCH_DEFAULT, scale="double"):
     """The Carnot reference: 50 % of T_sink,out / (T_sink,out − T_source,in).
 
     Both as the 4-temperature model sees them (model_inputs). By default
@@ -329,7 +345,7 @@ def _carnot_reference(alternatives, pinch, search=SEARCH_DEFAULT):
         HP_COP_FORMULAS, carnot_cop,
     )
 
-    inputs = model_inputs(pinch, search)
+    inputs = model_inputs(pinch, search, scale)
 
     def carnot(t_src, t_snk):
         e = inputs(t_src, t_snk)

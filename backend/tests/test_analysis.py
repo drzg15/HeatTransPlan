@@ -164,7 +164,7 @@ def test_search_temps_choose_what_follows_the_search():
     import numpy as np
     from types import SimpleNamespace
     from app.services.optimization.alternatives import (
-        _carnot_reference, _theoretical_alternatives, model_inputs,
+        _carnot_reference, _theoretical_alternatives, grid_offset, model_inputs,
     )
 
     pinch = SimpleNamespace(pinch_temperature=73.0, T_min=10.0)
@@ -172,6 +172,13 @@ def test_search_temps_choose_what_follows_the_search():
     assert [float(e[k][0]) for k in ("source_in", "source_out", "sink_in", "sink_out")] == [68.0, 58.2, 78.0, 113.0]
     e = model_inputs(pinch, ("source_in", "sink_in"))([58.2], [113.0])
     assert [float(e[k][0]) for k in ("source_in", "source_out", "sink_in", "sink_out")] == [58.2, 68.0, 113.0, 78.0]
+    # Shifted once: the fixed ones sit at the pinch itself. Real: at the process
+    # streams' pinch temperatures, and the grid moves the same way.
+    e = model_inputs(pinch, scale="shifted")([58.2], [113.0])
+    assert [float(e[k][0]) for k in ("source_in", "source_out", "sink_in", "sink_out")] == [73.0, 58.2, 73.0, 113.0]
+    e = model_inputs(pinch, scale="real")([58.2], [113.0])
+    assert [float(e[k][0]) for k in ("source_in", "sink_in")] == [78.0, 68.0]
+    assert [grid_offset(pinch, s) for s in ("double", "shifted", "real")] == [0.0, 0.0, 5.0]
 
     carnot = {a["name"]: a for a in _carnot_reference(_theoretical_alternatives(), pinch, ("source_in", "sink_out"))}
     cop = carnot["Carnot"]["cop_fn"](np.array([58.2]), np.array([113.0]))[0]

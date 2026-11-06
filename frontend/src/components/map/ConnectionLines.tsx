@@ -3,9 +3,16 @@ import { Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { ProcessNode } from '../../types/process';
 import i18n from '../../i18n';
-import { extractStreamInfo, streamSvgText } from '../../utils/streamInfo';
+import { extractStreamInfo, streamSvgText, svgTextWidth } from '../../utils/streamInfo';
 import type { GroupCoords } from './types';
-import { boxHalf, routeConnection } from './connectionRoute';
+import { boxHalf, labelSpot, routeConnection } from './connectionRoute';
+
+const LINE = '#64748b';
+// Product tag: line height (room for subscripts) and inner padding.
+const LH = 15;
+const PAD = 8;
+
+type Pt = { x: number; y: number };
 
 export function ConnectionLines({
   processes,
@@ -25,334 +32,200 @@ export function ConnectionLines({
   onElementDoubleClick?: (type: 'group' | 'sub' | 'child' | 'stream', id: any, subId?: any) => void;
 }) {
   const map = useMap();
-  // The lines are laid out in screen pixels: a turn of the map re-renders them.
-  const [, setBearing] = useState(0);
+  // The lines are laid out in screen pixels, between boxes that keep their
+  // pixel size: any change of view lays them out again, or they drift apart.
+  const [, setView] = useState(0);
   useEffect(() => {
-    const turned = () => setBearing(map.getBearing());
-    map.on('rotate', turned);
+    const redraw = () => setView((n) => n + 1);
+    const events = 'zoomend moveend resize viewreset rotate';
+    map.on(events, redraw);
     return () => {
-      map.off('rotate', turned);
+      map.off(events, redraw);
     };
   }, [map]);
 
-  // Built on every render (a turn re-renders through setBearing): a handful of
-  // lines, cheaper than tracking what they depend on.
-  const connections = (() => {
-    const result: React.ReactElement[] = [];
+  // A screen-space drawing pinned at its top-left corner.
+  const pinned = (key: string, at: Pt, w: number, h: number, html: string, onClick?: any) => (
+    <Marker
+      key={key}
+      position={map.containerPointToLatLng(L.point(at.x, at.y))}
+      icon={L.divIcon({
+        className: 'conn-drawing',
+        html,
+        iconSize: [w, h],
+        iconAnchor: [0, 0],
+      })}
+      interactive={!!onClick}
+      eventHandlers={onClick ? { click: onClick } : undefined}
+    />
+  );
 
-    // Determine which nodes are currently visible
-    const visibleSubIdxs = new Set<number>();
-    const visibleChildIdxs = new Map<number, Set<number>>(); // subIdx -> childIdxs
-    const expandedGroups = new Set<number>();
-
-    groups.forEach((subIdxs, gIdx) => {
-      if (subprocessMapExpanded[gIdx]) {
-        expandedGroups.add(gIdx);
-        subIdxs.forEach((si) => {
-          if (childMapExpanded[si]) {
-            const cSet = new Set<number>();
-            (processes[si].children || []).forEach((_, ci) => cSet.add(ci));
-            visibleChildIdxs.set(si, cSet);
-          } else {
-            visibleSubIdxs.add(si);
-          }
-        });
-      }
+  // The tag with a source's product streams, as SVG lines.
+  const productTag = (p: ProcessNode) => {
+    const products = (p.streams || []).filter((s: any) => s.type?.toLowerCase() === 'product');
+    if (products.length === 0) return null;
+    const lines: { svg: string; color: string; bold: boolean }[] = [];
+    products.forEach((s: any, i) => {
+      const info = extractStreamInfo(s);
+      const color = (info.tin || 0) > (info.tout || 0) ? '#c0392b' : '#2471a3';
+      const num = products.length > 1 ? ` ${i + 1}` : '';
+      const text = streamSvgText(info);
+      lines.push({ svg: `${i18n.t('map.product')}${num}`, color, bold: true });
+      const temps = [text.tin, text.tout].filter(Boolean).join(', ');
+      const flow = [text.mdot, text.cp].filter(Boolean).join(', ');
+      if (temps) lines.push({ svg: temps, color, bold: false });
+      if (flow) lines.push({ svg: flow, color, bold: false });
     });
+    const w = Math.ceil(Math.max(...lines.map((l) => svgTextWidth(l.svg))) + PAD * 2);
+    const h = lines.length * LH + PAD;
+    const body = lines
+      .map(
+        (l, i) =>
+          `<text x="${w / 2}" y="${PAD / 2 + 11 + i * LH}" text-anchor="middle" font-size="11" ${l.bold ? 'font-weight="700"' : ''} fill="${l.color}">${l.svg}</text>`
+      )
+      .join('');
+    const sidxs = products.map((s) => p.streams!.indexOf(s)).join(',');
+    return { w, h, body, sidxs };
+  };
 
-    // Helper to draw a single connection
-    const drawConn = (p: ProcessNode, tgt: ProcessNode) => {
-      const srcLat = parseFloat(String(p.lat));
-      const srcLon = parseFloat(String(p.lon));
-      const tLat = parseFloat(String(tgt.lat));
-      const tLon = parseFloat(String(tgt.lon));
-      if (isNaN(srcLat) || isNaN(srcLon) || isNaN(tLat) || isNaN(tLon)) return null;
+  const drawConn = (p: ProcessNode, tgt: ProcessNode, pIdx: number) => {
+    const srcLat = parseFloat(String(p.lat));
+    const srcLon = parseFloat(String(p.lon));
+    const tLat = parseFloat(String(tgt.lat));
+    const tLon = parseFloat(String(tgt.lon));
+    if (isNaN(srcLat) || isNaN(srcLon) || isNaN(tLat) || isNaN(tLon)) return null;
 
-      const p1 = map.latLngToContainerPoint([srcLat, srcLon]);
-      const p2 = map.latLngToContainerPoint([tLat, tLon]);
-      // Edge to edge, so no part of the line hides under a box.
-      const route = routeConnection(
-        p1,
-        p2,
-        boxHalf(p.name, p.box_scale),
-        boxHalf(tgt.name, tgt.box_scale)
-      );
-      if (!route) return null;
-      const pStart = L.point(route.start.x, route.start.y);
-      const pMid1 = L.point(route.mid1.x, route.mid1.y);
-      const pMid2 = L.point(route.mid2.x, route.mid2.y);
-      const pArrow = L.point(route.arrow.x, route.arrow.y);
-      const angleDeg = route.angle;
-      const isHorizontalLayout = route.horizontal;
+    const p1 = map.latLngToContainerPoint([srcLat, srcLon]);
+    const p2 = map.latLngToContainerPoint([tLat, tLon]);
+    const src = boxHalf(p.name, p.box_scale);
+    const dst = boxHalf(tgt.name, tgt.box_scale);
+    // Edge to edge, so no part of the line hides under a box.
+    const route = routeConnection(p1, p2, src, dst);
+    if (!route) return null;
 
-      const lArrow = map.containerPointToLatLng(pArrow);
-
-      const arrowIcon = L.divIcon({
-        className: 'custom-arrow',
-        html: `<div style="transform: rotate(${angleDeg}deg); display: flex; align-items: center; justify-content: center; width: 20px; height: 20px;">
-          <svg width="20" height="20" viewBox="0 0 20 20" overflow="visible" style="display: block;">
-            <path d="M2,4 L18,10 L2,16 L6,10 Z" fill="#475569" />
-          </svg>
-        </div>`,
-        iconSize: [20, 20],
-        iconAnchor: [10, 10],
-      });
-
-      const createLineMarker = (pA: L.Point, pB: L.Point, suffix: string) => {
-        const dx = pB.x - pA.x;
-        const dy = pB.y - pA.y;
-        const len = Math.sqrt(dx * dx + dy * dy);
-        const ang = Math.atan2(dy, dx) * (180 / Math.PI);
-        const lA = map.containerPointToLatLng(pA);
-
-        const lineIcon = L.divIcon({
-          className: 'custom-line-icon',
-          html: `<div style="width: ${len}px; height: 2px; background: #475569; transform: rotate(${ang}deg); transform-origin: left center; margin-top: -1px;"></div>`,
-          iconSize: [0, 0],
-          iconAnchor: [0, 0],
-        });
-        return (
-          <Marker
-            key={`conn-${p.name}-${tgt.name}-${suffix}`}
-            position={lA}
-            icon={lineIcon}
-            interactive={false}
-          />
-        );
-      };
-
-      // Draw product streams of the SOURCE process on its OUTGOING connection line
-      const productStreams = (p.streams || []).filter(
-        (s: any) => s.type && s.type.toLowerCase() === 'product'
-      );
-      let productTextMarker = null;
-      if (productStreams.length > 0) {
-        let midP: L.Point;
-        let htmlContent = '';
-
-        let pIdx = processes.findIndex((proc) => proc === p);
-        let cIdx: number | undefined = undefined;
-        if (pIdx === -1) {
-          processes.forEach((proc, i) => {
-            if (proc.children) {
-              const childIndex = proc.children.findIndex((c: any) => c === p);
-              if (childIndex !== -1) {
-                pIdx = i;
-                cIdx = childIndex;
-              }
-            }
-          });
-        }
-
-        let iconAnchorX, iconAnchorY;
-        const svgW = 190; // room for the values with their units
-        const svgH = 80;
-
-        let svgContent = '';
-        const sidxsStr = productStreams
-          .map((s: any) => p.streams!.findIndex((orig) => orig === s))
-          .join(',');
-
-        if (isHorizontalLayout) {
-          midP = L.point((pStart.x + pMid1.x) / 2, p1.y);
-          iconAnchorX = svgW / 2;
-          iconAnchorY = svgH; // Bottom-center anchor
-
-          let currentY = 20; // Start near the top of the SVG box
-
-          productStreams.forEach((s: any, pIdx: number) => {
-            const info = extractStreamInfo(s);
-            const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
-            const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
-            const text = streamSvgText(info);
-            const parts = [text.tin, text.tout].filter(Boolean);
-            const extraProps = [text.mdot, text.cp].filter(Boolean);
-
-            svgContent += `<text x="${svgW / 2}" y="${currentY}" text-anchor="middle" font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${i18n.t('map.product')}${numStr}</text>`;
-            currentY += 12;
-
-            if (parts.length > 0) {
-              svgContent += `<text x="${svgW / 2}" y="${currentY}" text-anchor="middle" font-size="11" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${parts.join(', ')}</text>`;
-              currentY += 12;
-            }
-            if (extraProps.length > 0) {
-              svgContent += `<text x="${svgW / 2}" y="${currentY}" text-anchor="middle" font-size="11" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${extraProps.join(', ')}</text>`;
-              currentY += 12;
-            }
-            currentY += 4; // Spacing between multiple products
-          });
-        } else {
-          midP = L.point(p1.x, (pStart.y + pMid1.y) / 2);
-          iconAnchorX = 0;
-          iconAnchorY = svgH / 2; // Left-center anchor
-
-          let currentY = 30; // Start vertically centered-ish
-
-          productStreams.forEach((s: any, pIdx: number) => {
-            const info = extractStreamInfo(s);
-            const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
-            const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
-            const text = streamSvgText(info);
-            const parts = [text.tin, text.tout].filter(Boolean);
-            const extraProps = [text.mdot, text.cp].filter(Boolean);
-
-            svgContent += `<text x="6" y="${currentY}" text-anchor="start" font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${i18n.t('map.product')}${numStr}</text>`;
-            currentY += 12;
-
-            if (parts.length > 0) {
-              svgContent += `<text x="6" y="${currentY}" text-anchor="start" font-size="11" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${parts.join(', ')}</text>`;
-              currentY += 12;
-            }
-            if (extraProps.length > 0) {
-              svgContent += `<text x="6" y="${currentY}" text-anchor="start" font-size="11" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${extraProps.join(', ')}</text>`;
-              currentY += 12;
-            }
-            currentY += 4;
-          });
-        }
-
-        // Wrap the SVG content in a <g> tag with the class "stream-arrow" so it shares the identical CSS/Event rules as the normal streams.
-        htmlContent = `<svg width="${svgW}" height="${svgH}" viewBox="0 0 ${svgW} ${svgH}">
-          <g class="stream-arrow" data-pidx="${pIdx}" data-cidx="${cIdx ?? ''}" data-sidxs="${sidxsStr}" style="cursor:pointer; transition:all 0.2s;">
-            ${svgContent}
-          </g>
-        </svg>`;
-
-        const lText = map.containerPointToLatLng(midP);
-
-        const textIcon = L.divIcon({
-          className: 'custom-product-text',
-          html:
-            `<style>.custom-product-text { background: none; border: none; pointer-events: none !important; } .custom-product-text .stream-arrow { pointer-events: auto !important; }</style>` +
-            htmlContent,
-          iconSize: [svgW, svgH],
-          iconAnchor: [iconAnchorX, iconAnchorY],
-        });
-
-        const handleMarkerClick = (e: any) => {
-          const target = e.originalEvent.target as HTMLElement;
-          const g = target.closest('g.stream-arrow');
-          if (g && onElementDoubleClick && pIdx !== -1) {
-            const sidxs = (g.getAttribute('data-sidxs') || '')
-              .split(',')
-              .filter(Boolean)
-              .map(Number);
-            if (sidxs.length > 0) onElementDoubleClick('stream', pIdx, sidxs[0]);
-          }
-        };
-
-        productTextMarker = (
-          <Marker
-            key={`conn-prod-${p.name}-${tgt.name}`}
-            position={lText}
-            icon={textIcon}
-            interactive={true}
-            eventHandlers={{ click: handleMarkerClick }}
-          />
-        );
-      }
-
-      return (
-        <React.Fragment key={`conn-${p.name}-${tgt.name}`}>
-          {createLineMarker(pStart, pMid1, 'line1')}
-          {createLineMarker(pMid1, pMid2, 'line2')}
-          {createLineMarker(pMid2, pArrow, 'line3')}
-          <Marker position={lArrow} icon={arrowIcon} interactive={false} />
-          {productTextMarker}
-        </React.Fragment>
-      );
+    // Line and arrowhead in one drawing: the tip touches the target box.
+    const rad = (route.angle * Math.PI) / 180;
+    const d = { x: Math.cos(rad), y: Math.sin(rad) };
+    const tip = { x: route.arrow.x + d.x * 10, y: route.arrow.y + d.y * 10 };
+    const base = { x: route.arrow.x - d.x * 2, y: route.arrow.y - d.y * 2 };
+    const wing = { x: -d.y * 6, y: d.x * 6 };
+    const path = [route.start, route.mid1, route.mid2, base];
+    const head = [
+      tip,
+      { x: base.x + wing.x, y: base.y + wing.y },
+      { x: base.x - wing.x, y: base.y - wing.y },
+    ];
+    const all = [...path, ...head];
+    const o = {
+      x: Math.min(...all.map((q) => q.x)) - 4,
+      y: Math.min(...all.map((q) => q.y)) - 4,
     };
+    const w = Math.max(...all.map((q) => q.x)) - o.x + 4;
+    const h = Math.max(...all.map((q) => q.y)) - o.y + 4;
+    const pts = (qs: Pt[]) =>
+      qs.map((q) => `${(q.x - o.x).toFixed(1)},${(q.y - o.y).toFixed(1)}`).join(' ');
+    const key = `conn-${p.name}-${tgt.name}`;
+    const line = pinned(
+      key,
+      o,
+      w,
+      h,
+      `<svg width="${w}" height="${h}" style="display:block;overflow:visible">` +
+        `<polyline points="${pts(path)}" fill="none" stroke="${LINE}" stroke-width="2" stroke-linejoin="round" />` +
+        `<polygon points="${pts(head)}" fill="${LINE}" /></svg>`
+    );
 
-    // 1. Level 0 connections (between Groups)
-    if (expandedGroups.size === 0) {
-      const groupConns = new Set<string>();
-      groups.forEach((subIdxs, gIdx) => {
-        subIdxs.forEach((si) => {
-          const p = processes[si];
-          if (!p.next) return;
-          const targets = p.next
-            .split(',')
-            .map((n) => n.trim())
-            .filter(Boolean);
-          targets.forEach((tName) => {
-            let targetGIdx = -1;
-            groups.forEach((tSubIdxs, tgIdx) => {
-              if (tSubIdxs.some((tsi) => processes[tsi].name === tName)) {
-                targetGIdx = tgIdx;
-              }
-            });
+    const tag = productTag(p);
+    if (!tag) return line;
+    const at = labelSpot(route, p1, p2, src, dst, tag.w, tag.h);
+    const onClick = (e: any) => {
+      const g = (e.originalEvent.target as HTMLElement).closest('g.stream-arrow');
+      const first = Number((g?.getAttribute('data-sidxs') || '').split(',')[0]);
+      if (g && onElementDoubleClick && pIdx !== -1 && !isNaN(first)) {
+        onElementDoubleClick('stream', pIdx, first);
+      }
+    };
+    return (
+      <React.Fragment key={key}>
+        {line}
+        {pinned(
+          `${key}-tag`,
+          at,
+          tag.w,
+          tag.h,
+          `<svg width="${tag.w}" height="${tag.h}" style="display:block;overflow:visible">` +
+            `<g class="stream-arrow" data-sidxs="${tag.sidxs}" style="cursor:pointer">` +
+            `<rect x="0.5" y="0.5" width="${tag.w - 1}" height="${tag.h - 1}" rx="6" style="fill:var(--surface,#fff);stroke:var(--border,#e2e8f0)" />` +
+            `${tag.body}</g></svg>`,
+          onClick
+        )}
+      </React.Fragment>
+    );
+  };
 
-            if (targetGIdx !== -1 && targetGIdx !== gIdx) {
-              const pairId = `${gIdx}-${targetGIdx}`;
-              if (!groupConns.has(pairId)) {
-                groupConns.add(pairId);
-                const srcGC = groupCoordinates[gIdx];
-                const tgtGC = groupCoordinates[targetGIdx];
-                if (srcGC && tgtGC) {
-                  const srcNode = {
-                    name: groupNames[gIdx] || `Process ${gIdx + 1}`,
-                    lat: srcGC.lat,
-                    lon: srcGC.lon,
-                    box_scale: srcGC.box_scale || 1.5,
-                  } as any;
-                  const tgtNode = {
-                    name: groupNames[targetGIdx] || `Process ${targetGIdx + 1}`,
-                    lat: tgtGC.lat,
-                    lon: tgtGC.lon,
-                    box_scale: tgtGC.box_scale || 1.5,
-                  } as any;
-                  const el = drawConn(srcNode, tgtNode);
-                  if (el) result.push(el);
-                }
-              }
-            }
-          });
-        });
-      });
-    }
+  const connections: React.ReactElement[] = [];
+  const targetsOf = (p: ProcessNode) =>
+    (p.next || '')
+      .split(',')
+      .map((n) => n.trim())
+      .filter(Boolean);
 
-    // 2. Connections within Level 1 (expanded groups)
-    visibleSubIdxs.forEach((si) => {
-      const p = processes[si];
-      if (!p.next) return;
-      const targets = p.next
-        .split(',')
-        .map((n) => n.trim())
-        .filter(Boolean);
-      targets.forEach((tName) => {
-        // Find target among visible siblings
-        const tgt = Array.from(visibleSubIdxs)
-          .map((idx) => processes[idx])
-          .find((pp) => pp.name === tName);
-        if (tgt) {
-          const el = drawConn(p, tgt);
-          if (el) result.push(el);
-        }
-      });
-    });
+  const expandedGroups = groups.map((_, g) => g).filter((g) => subprocessMapExpanded[g]);
 
-    // 3. Connections within Level 2 (expanded children)
-    visibleChildIdxs.forEach((cIdxs, si) => {
-      const sub = processes[si];
-      cIdxs.forEach((ci) => {
-        const p = sub.children![ci];
-        if (!p.next) return;
-        const targets = p.next
-          .split(',')
-          .map((n) => n.trim())
-          .filter(Boolean);
-        targets.forEach((tName) => {
-          const tgt = sub.children!.find((pp) => pp.name === tName);
-          if (tgt) {
-            const el = drawConn(p, tgt);
-            if (el) result.push(el);
-          }
+  // 1. Between processes, when no process is opened.
+  if (expandedGroups.length === 0) {
+    const seen = new Set<string>();
+    groups.forEach((subIdxs, gIdx) => {
+      subIdxs.forEach((si) => {
+        targetsOf(processes[si]).forEach((tName) => {
+          const tg = groups.findIndex((t) => t.some((tsi) => processes[tsi].name === tName));
+          const pair = `${gIdx}-${tg}`;
+          if (tg === -1 || tg === gIdx || seen.has(pair)) return;
+          seen.add(pair);
+          const a = groupCoordinates[gIdx];
+          const b = groupCoordinates[tg];
+          if (!a || !b) return;
+          const node = (g: number, c: GroupCoords) =>
+            ({
+              name: groupNames[g] || `Process ${g + 1}`,
+              lat: c.lat,
+              lon: c.lon,
+              box_scale: c.box_scale || 1.5,
+            }) as ProcessNode;
+          const el = drawConn(node(gIdx, a), node(tg, b), -1);
+          if (el) connections.push(el);
         });
       });
     });
+  }
 
-    return result;
-  })();
+  // 2. Between the subprocesses of an opened process (those not opened themselves).
+  expandedGroups.forEach((g) => {
+    const visible = groups[g].filter((si) => !childMapExpanded[si]);
+    visible.forEach((si) => {
+      targetsOf(processes[si]).forEach((tName) => {
+        const ti = visible.find((idx) => processes[idx].name === tName);
+        if (ti === undefined) return;
+        const el = drawConn(processes[si], processes[ti], si);
+        if (el) connections.push(el);
+      });
+    });
+  });
+
+  // 3. Between the children of an opened subprocess.
+  expandedGroups.forEach((g) => {
+    groups[g].forEach((si) => {
+      if (!childMapExpanded[si]) return;
+      const children = processes[si].children || [];
+      children.forEach((c) => {
+        targetsOf(c).forEach((tName) => {
+          const tgt = children.find((pp) => pp.name === tName);
+          const el = tgt && drawConn(c, tgt, -1);
+          if (el) connections.push(el);
+        });
+      });
+    });
+  });
 
   return <>{connections}</>;
 }

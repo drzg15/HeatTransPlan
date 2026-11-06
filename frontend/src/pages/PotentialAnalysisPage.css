@@ -105,43 +105,40 @@
   white-space: nowrap;
 }
 
+/* The app's button look (index.css .btn), here as the main action. */
 .pa-btn-save {
-  padding: 8px 16px;
-  background: #27ae60;
-  color: #fff;
-  border: none;
-  border-radius: 6px;
+  min-height: 32px;
+  padding: 0 14px;
+  background: var(--primary);
+  color: var(--text-on-primary);
+  border: 1px solid transparent;
+  border-radius: 8px;
   font-size: 0.8rem;
   font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s;
+  transition: background-color 0.15s;
 }
 .pa-btn-save:hover {
-  background: #219150;
+  background: var(--primary-hover);
 }
 .pa-btn-saving {
-  background: #16a085;
+  background: var(--primary-hover);
 }
 
 .pa-btn-report {
-  padding: 8px 18px;
-  background: var(--surface-active);
+  min-height: 32px;
+  padding: 0 14px;
+  background: var(--well);
   color: var(--text-main) !important;
-  border: 1px solid var(--border-strong);
-  border-radius: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
   font-size: 0.85rem;
-  font-weight: 700;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.2s ease;
-  box-shadow: var(--shadow-sm);
+  transition: background-color 0.15s;
 }
 .pa-btn-report:hover {
-  background: var(--surface-hover);
-  border-color: var(--primary);
-  transform: translateY(-1px);
-}
-.pa-btn-report:active {
-  transform: translateY(0);
+  background: var(--well-hover);
 }
 .pa-btn-report:disabled {
   background: var(--border);
@@ -312,16 +309,18 @@
 
 /* ---------- Buttons ---------- */
 .pa-btn {
-  padding: 4px 12px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--surface-active);
+  min-height: 28px;
+  padding: 0 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: var(--well);
   color: var(--text-main);
   cursor: pointer;
   font-size: 0.75rem;
+  font-weight: 500;
 }
 .pa-btn:hover {
-  background: var(--surface-hover);
+  background: var(--well-hover);
 }
 .pa-btn-icon {
   background: none;
@@ -666,9 +665,10 @@
   padding: 6px 8px;
   text-align: left;
 }
+/* A light tint of the main colour: a header, not a block of colour. */
 .pa-table th {
-  background: var(--primary);
-  color: var(--text-on-primary);
+  background: color-mix(in srgb, var(--primary) 12%, var(--surface));
+  color: var(--text-main);
   font-weight: 600;
 }
 .pa-table tr:nth-child(even) {

@@ -6,6 +6,7 @@ import { createPortal } from 'react-dom';
 import { Marker, useMap, useMapEvents } from 'react-leaflet';
 import L from 'leaflet';
 import { useTranslation } from 'react-i18next';
+import { CANVAS_SHARE } from './connectionRoute';
 
 export function MapController({
   center,
@@ -20,9 +21,14 @@ export function MapController({
   frozen: boolean;
 }) {
   const map = useMap();
+  // Back to the saved view when the lock or the saved view changes. Not when a
+  // diagram opens: it is drawn in its saved layout wherever the map is, so the
+  // map does not jump in the background.
+  useEffect(() => {
+    if (locked) map.setView(center, zoom, { animate: false });
+  }, [center, zoom, locked, map]);
   useEffect(() => {
     if (locked) {
-      map.setView(center, zoom, { animate: false });
       map.dragging.disable();
       // Zooming stays: locking is about placing things, not about the view.
       // Around the centre, so a locked map cannot drift sideways.
@@ -47,7 +53,7 @@ export function MapController({
       if ((map as any).touchZoom) (map as any).touchZoom.enable();
       if ((map as any).tap) (map as any).tap.enable();
     }
-  }, [center, zoom, locked, frozen, map]);
+  }, [locked, frozen, map]);
   return null;
 }
 
@@ -151,6 +157,17 @@ export function MapCenterSync({ center, zoom }: { center: [number, number]; zoom
 export function SubprocessMapFreeze({ active, locked }: { active: boolean; locked: boolean }) {
   const map = useMap();
 
+  // The zoom buttons go too, locked or not: a zoom spreads the boxes (pinned to
+  // coordinates) while the canvas keeps its size, and they leave it.
+  useEffect(() => {
+    const buttons = active ? map.zoomControl?.getContainer() : undefined;
+    if (!buttons) return;
+    buttons.style.display = 'none';
+    return () => {
+      buttons.style.display = '';
+    };
+  }, [active, map]);
+
   useEffect(() => {
     // A locked map has already disabled all of this; leave it alone so that
     // unfreezing here cannot re-enable interaction it deliberately turned off.
@@ -172,32 +189,27 @@ export function SubprocessMapFreeze({ active, locked }: { active: boolean; locke
   return null;
 }
 
-export function SubprocessCanvasOverlay({
-  active,
-  deps,
-  image,
-}: {
-  active: boolean;
-  deps?: any;
-  image?: string;
-}) {
+export function SubprocessCanvasOverlay({ active, image }: { active: boolean; image?: string }) {
   const map = useMap();
-  // The map's center and size, taken again whenever deps change, so the canvas
-  // follows the map. Taken while rendering, not in an effect: no empty frame.
-  const key = JSON.stringify(deps ?? null);
-  const [view, setView] = useState<{ key: string; center: L.LatLng; size: L.Point } | null>(null);
-  if (active && view?.key !== key) {
-    setView({ key, center: map.getCenter(), size: map.getSize() });
-  } else if (!active && view) {
-    setView(null);
-  }
+  // Always the map's middle 90 %, taken while rendering (no empty frame) and
+  // again on any change of view or size: it is exactly the area the diagram's
+  // boxes are kept inside (onCanvas).
+  const [, setView] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    const redraw = () => setView((n) => n + 1);
+    const events = 'resize moveend zoomend viewreset';
+    map.on(events, redraw);
+    return () => {
+      map.off(events, redraw);
+    };
+  }, [active, map]);
 
-  if (!active || !view) return null;
-  const { center, size } = view;
-
-  // Use 90% of the viewport dimensions
-  const width = size.x * 0.9;
-  const height = size.y * 0.9;
+  if (!active) return null;
+  const center = map.getCenter();
+  const size = map.getSize();
+  const width = size.x * CANVAS_SHARE;
+  const height = size.y * CANVAS_SHARE;
 
   // By using a DOM-based Marker instead of a vector Rectangle, we completely bypass
   // Leaflet's SVG renderer limitations with custom panes.
@@ -324,7 +336,12 @@ export function RotateControls({ hidden }: { hidden: boolean }) {
       {button(
         t('map.rotate'),
         () => map.setBearing(0),
-        <svg width="16" height="16" viewBox="0 0 16 16" style={{ transform: `rotate(${bearing}deg)` }}>
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 16 16"
+          style={{ transform: `rotate(${bearing}deg)` }}
+        >
           <path d="M8 1 L11 8 H5 Z" fill="#dc2626" />
           <path d="M8 15 L11 8 H5 Z" fill="currentColor" opacity="0.45" />
         </svg>

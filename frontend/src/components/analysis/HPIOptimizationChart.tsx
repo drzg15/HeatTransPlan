@@ -333,16 +333,18 @@ export default function HPIOptimizationChart({
     paper_bgcolor: 'rgba(0,0,0,0)',
     plot_bgcolor: 'rgba(0,0,0,0)',
     // Plain axis margin.
-    margin: { l: 80, r: 20, t: 40, b: 80 },
+    // Room below the axis title for the legend.
+    margin: { l: 80, r: 20, t: 40, b: 150 },
     hovermode: 'closest' as const,
-    // Same placement as the composite and GCC charts above.
+    // Below the plot, as in the composite and GCC chart above: on top it ran
+    // into the title and the toolbar.
     showlegend: true,
     legend: {
       orientation: 'h' as const,
-      x: 1,
-      y: 1.02,
-      xanchor: 'right' as const,
-      yanchor: 'bottom' as const,
+      x: 0.5,
+      y: -0.12,
+      xanchor: 'center' as const,
+      yanchor: 'top' as const,
       font: { color: isDark ? '#F8FAFC' : '#1A1C1E' },
     },
     shapes: [

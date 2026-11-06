@@ -267,7 +267,8 @@ export default function PotentialAnalysisPage() {
   });
   useLiveCommand('reset_heat_pumps', () => {
     const s = useAnalysisStore.getState();
-    s.setCopModel('4t');
+    s.setCopModel('2t');
+    s.setTempScale('shifted');
     s.setCopFormula(null);
     s.setSelectedHPPoints([]);
     setHpiReset((n) => n + 1);
@@ -639,7 +640,8 @@ export default function PotentialAnalysisPage() {
                   hint={t('analysis.controls.reset_hpi_hint')}
                   onClick={() => {
                     const s = useAnalysisStore.getState();
-                    s.setCopModel('4t');
+                    s.setCopModel('2t');
+                    s.setTempScale('shifted');
                     s.setCopFormula(null);
                     s.setSelectedHPPoints([]);
                     // Remounts the panel, so its filters and sorting start over.

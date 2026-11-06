@@ -296,10 +296,10 @@ class HPIOptimizationRequest(BaseModel):
     # Optional user-supplied correlation, evaluated alongside the trained model
     # so the two can be compared in the same chart and table.
     cop_formula: Optional[CopFormulaSpec] = None
-    # "4t" (standard): all four temperatures, source supply and sink return
-    # taken from the pinch (see _four_temperature_alternatives). "2t": source
-    # return + sink supply only.
-    cop_model: Literal["2t", "4t"] = "4t"
+    # "2t" (standard): source return + sink supply only. "4t": all four
+    # temperatures, source supply and sink return taken from the pinch as
+    # temp_scale places them (see _four_temperature_alternatives).
+    cop_model: Literal["2t", "4t"] = "2t"
     # Share of the maximum heat recovery credited, %. Below 100 (net_load only)
     # the heat not recovered flows through the pinch: GCC and profiles shift.
     recovery_pct: float = Field(100.0, ge=0, le=100)
@@ -313,6 +313,11 @@ class HPIOptimizationRequest(BaseModel):
     # side pinch + ΔTmin/2). Each model reads the ones it uses.
     search_temps: List[Literal["source_in", "source_out", "sink_in", "sink_out"]] = Field(
         default_factory=lambda: ["source_out", "sink_out"], max_length=4)
+    # Temperature scale the heat pump models see (TEMP_SCALES in
+    # optimization/alternatives.py): "double" fixed at pinch ∓ ΔTmin/2 on the
+    # shifted grid (ΔTmin/2 counted twice), "shifted" fixed at the pinch (the
+    # literature's convention), "real" the process streams' own temperatures.
+    temp_scale: Literal["double", "shifted", "real"] = "shifted"
 
 
 class HPIOptimizationResult(BaseModel):

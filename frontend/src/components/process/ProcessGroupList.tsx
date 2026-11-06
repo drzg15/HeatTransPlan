@@ -1,4 +1,4 @@
-import { Check, ChevronUp, Map as MapIcon, Plus, Trash2, X } from 'lucide-react';
+import { Check, ChevronUp, Map as MapIcon, MapPin, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
@@ -184,63 +184,79 @@ export default function ProcessGroupList({
                 <span className={`collapsible-arrow ${expanded ? 'open' : ''}`}>▶</span>
               </button>
 
-              <input
-                type="text"
-                className="pgl-name-input"
-                value={groupNames[gIdx] || ''}
-                onChange={(e) => updateGroupName(gIdx, e.target.value)}
-              />
-
-              <div className="pgl-scale">
+              <div className="pgl-title">
+                <span className="pgl-level">{t('stream_table.headers.process')}</span>
                 <input
-                  type="range"
-                  min={0.5}
-                  max={2.5}
-                  step={0.1}
-                  value={gCoords.box_scale ?? 1.5}
-                  onChange={(e) => updateGroupCoord(gIdx, 'box_scale', parseFloat(e.target.value))}
-                  title={t('ui.box_size', { v: gCoords.box_scale ?? 1.5 })}
+                  type="text"
+                  className="pgl-name-input"
+                  value={groupNames[gIdx] || ''}
+                  onChange={(e) => updateGroupName(gIdx, e.target.value)}
                 />
               </div>
 
-              <button
-                className={`btn btn-sm ${isPlacing ? 'btn-primary' : ''}`}
-                onClick={() => onPlaceRequest(isPlacing ? '' : `group_${gIdx}`)}
-              >
-                {isPlacing ? t('process.done') : t('process.place')}
-              </button>
+              <div className="pgl-controls">
+                <div className="pgl-scale">
+                  <input
+                    type="range"
+                    min={0.5}
+                    max={2.5}
+                    step={0.1}
+                    value={gCoords.box_scale ?? 1.5}
+                    onChange={(e) =>
+                      updateGroupCoord(gIdx, 'box_scale', parseFloat(e.target.value))
+                    }
+                    title={t('ui.box_size', { v: gCoords.box_scale ?? 1.5 })}
+                  />
+                </div>
 
-              <span className="pgl-badge">
-                {subIdxs.length} {t('data_collection.sub_short')}
-              </span>
-
-              {confirmDelete === gIdx ? (
-                <span className="pgl-confirm">
-                  <button
-                    className="btn btn-sm btn-danger"
-                    onClick={() => deleteGroup(gIdx)}
-                    aria-label={t('ui.confirm_delete')}
-                  >
-                    <Check size={14} />
-                  </button>
-                  <button
-                    className="btn btn-sm"
-                    onClick={() => setConfirmDelete(null)}
-                    aria-label={t('ui.cancel')}
-                  >
-                    <X size={14} />
-                  </button>
-                </span>
-              ) : (
+                {/* An icon while idle, to keep the row short; spelled out while placing. */}
                 <button
-                  className="btn btn-sm"
-                  onClick={() => setConfirmDelete(gIdx)}
-                  title={t('ui.delete_group')}
-                  aria-label={t('ui.delete_group')}
+                  className={`btn btn-sm ${isPlacing ? 'btn-primary' : 'icon-btn'}`}
+                  onClick={() => onPlaceRequest(isPlacing ? '' : `group_${gIdx}`)}
+                  title={t('process.place')}
+                  aria-label={isPlacing ? t('process.done') : t('process.place')}
                 >
-                  <Trash2 size={14} />
+                  {isPlacing ? (
+                    <>
+                      <Check size={14} /> {t('process.done')}
+                    </>
+                  ) : (
+                    <MapPin size={14} />
+                  )}
                 </button>
-              )}
+
+                <span className="pgl-badge">
+                  {subIdxs.length} {t('data_collection.sub_short')}
+                </span>
+
+                {confirmDelete === gIdx ? (
+                  <span className="pgl-confirm">
+                    <button
+                      className="btn btn-sm btn-danger icon-btn"
+                      onClick={() => deleteGroup(gIdx)}
+                      aria-label={t('ui.confirm_delete')}
+                    >
+                      <Check size={14} />
+                    </button>
+                    <button
+                      className="btn btn-sm icon-btn"
+                      onClick={() => setConfirmDelete(null)}
+                      aria-label={t('ui.cancel')}
+                    >
+                      <X size={14} />
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    className="btn btn-sm icon-btn"
+                    onClick={() => setConfirmDelete(gIdx)}
+                    title={t('ui.delete_group')}
+                    aria-label={t('ui.delete_group')}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Expanded content */}
@@ -288,13 +304,14 @@ export default function ProcessGroupList({
 
                 {/* Subprocesses */}
                 <div className="pgl-section">
-                  <div className="pgl-section-header flex justify-between items-center">
+                  <div className="pgl-section-header pgl-sub-header">
                     <span>
                       {t('process.subprocesses')} ({subIdxs.length})
                     </span>
                     <div className="flex gap-xs">
                       <button
-                        className="btn btn-sm"
+                        className="btn btn-sm icon-btn"
+                        aria-label={t('process.toggle_all')}
                         onClick={() => {
                           const state = useUIStore.getState();
                           const anyExpanded = subIdxs.some((si) =>
@@ -306,15 +323,25 @@ export default function ProcessGroupList({
                       >
                         ↕
                       </button>
-                      <button className="btn btn-sm" onClick={() => onSubprocessMapToggle(gIdx)}>
+                      <button
+                        className={`btn btn-sm icon-btn ${subprocessMapExpanded[gIdx] ? 'btn-primary' : ''}`}
+                        onClick={() => onSubprocessMapToggle(gIdx)}
+                        title={
+                          subprocessMapExpanded[gIdx]
+                            ? t('process.hide_map')
+                            : t('process.show_map')
+                        }
+                        aria-label={
+                          subprocessMapExpanded[gIdx]
+                            ? t('process.hide_map')
+                            : t('process.show_map')
+                        }
+                      >
                         {subprocessMapExpanded[gIdx] ? (
                           <ChevronUp size={14} />
                         ) : (
                           <MapIcon size={14} />
-                        )}{' '}
-                        {subprocessMapExpanded[gIdx]
-                          ? t('process.hide_map')
-                          : t('process.show_map')}
+                        )}
                       </button>
                       <button
                         className="btn btn-sm btn-primary"

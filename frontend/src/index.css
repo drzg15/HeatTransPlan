@@ -20,13 +20,29 @@
   --main-pad-y: 16px;
   --main-pad-x: 24px;
 
-  /* HeatTransPlan Signature Brand Colors */
-  --primary: #2b589c;
-  --primary-hover: #1b3d73;
-  --primary-light: #f4f6fb;
-  --primary-gradient: linear-gradient(90deg, #2b589c 0%, #b4396e 50%, #e13945 100%);
-  --brand-red: #e13945;
+  /* HeatTransPlan brand colours: the logo runs blue → magenta → red. */
+  --brand-blue: #2b589c;
   --brand-magenta: #b4396e;
+  --brand-red: #e13945;
+  --primary-gradient: linear-gradient(
+    90deg,
+    var(--brand-blue) 0%,
+    var(--brand-magenta) 50%,
+    var(--brand-red) 100%
+  );
+  /* The app's main colour: the violet between our blue and our magenta. */
+  --violet: color-mix(in srgb, var(--brand-blue) 62%, var(--brand-magenta));
+  --primary: var(--violet);
+  --primary-hover: color-mix(in srgb, var(--violet) 82%, #000);
+  --primary-light: color-mix(in srgb, var(--violet) 10%, var(--surface));
+
+  /* Controls embedded in the surface: their lines and wells are the text
+     colour, see-through, so they tint whatever they sit on (light or dark)
+     instead of standing on it with a solid grey outline. */
+  --line: color-mix(in srgb, var(--text-main) 8%, transparent);
+  --line-strong: color-mix(in srgb, var(--text-main) 16%, transparent);
+  --well: color-mix(in srgb, var(--text-main) 5%, var(--surface));
+  --well-hover: color-mix(in srgb, var(--text-main) 9%, var(--surface));
 
   --danger: #ef4444;
   --success: #10b981;
@@ -61,10 +77,8 @@
 }
 
 .dark {
-  --primary: #60a5fa; /* Brighter blue for navy backgrounds */
-  --primary-hover: #93c5fd;
-  --primary-light: rgba(96, 165, 250, 0.1);
-  --primary-gradient: linear-gradient(90deg, #60a5fa 0%, #b4396e 50%, #e13945 100%);
+  --brand-blue: #60a5fa; /* Brighter blue for navy backgrounds */
+  --primary-hover: color-mix(in srgb, var(--violet) 80%, #fff);
 
   --bg: #0f172a; /* Deep Navy Slate */
   --surface: #1e293b; /* Lighter Slate Blue */
@@ -74,7 +88,8 @@
 
   --text-main: #f8fafc;
   --text-muted: #94a3b8;
-  --text-on-primary: #ffffff;
+  /* The dark theme's violet is light: dark text reads on it, white does not. */
+  --text-on-primary: #0f172a;
 
   --border: #334155;
   --border-strong: #475569;
@@ -161,19 +176,13 @@ button {
 }
 
 /* ── Card ──────────────────────────────────────────────── */
+/* Cards hold controls, so they stay put on hover. */
 .card {
   background: var(--surface);
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow);
   padding: 12px;
-  transition:
-    box-shadow 0.3s ease,
-    transform 0.3s ease;
-}
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
 }
 
 /* ── Buttons ──────────────────────────────────────────── */
@@ -196,54 +205,55 @@ body {
 .goog-te-combo {
   display: none !important;
 }
+/* Buttons sit in the surface: flat, a tinted well, one height. The main
+   action is solid violet; a dangerous one is a red tint. */
 .btn {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 16px;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-  background: var(--surface);
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 12px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background: var(--well);
   color: var(--text-main);
-  font-size: 14px;
-  font-weight: 500;
-  transition: all 0.1s ease-out;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
 }
-.btn:hover {
-  background: var(--surface-hover);
-  border-color: var(--border-strong);
-}
+.btn:hover,
 .btn:active {
-  background: var(--border);
-  transform: none;
+  background: var(--well-hover);
 }
 
+.btn-primary,
+.btn-primary:hover {
+  border-color: transparent;
+  color: var(--text-on-primary);
+}
 .btn-primary {
-  background: var(--primary-gradient);
-  color: #fff;
-  border: none;
-  box-shadow: 0 2px 4px rgba(43, 88, 156, 0.2);
+  background: var(--primary);
 }
 .btn-primary:hover {
-  background: linear-gradient(90deg, #1b3d73 0%, #902956 50%, #c42634 100%);
-  color: #fff;
-  box-shadow: 0 4px 8px rgba(43, 88, 156, 0.3);
+  background: var(--primary-hover);
 }
 
-.btn-danger {
-  background: var(--danger);
-  color: #fff;
-  border: none;
-}
+.btn-danger,
 .btn-danger:hover {
-  background: #dc2626;
-  color: #fff;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  border-color: color-mix(in srgb, var(--danger) 35%, transparent);
+  color: var(--danger);
 }
 
 .btn-sm {
-  padding: 4px 10px;
+  min-height: 28px;
+  padding: 0 10px;
   font-size: 12px;
-  border-radius: var(--radius-sm);
+  font-weight: 500;
 }
 
 /* Square, icon-only button. Kept as a class rather than an inline width so the
@@ -254,6 +264,9 @@ body {
   font-size: 14px;
   justify-content: center;
 }
+.btn-sm.icon-btn {
+  width: 28px;
+}
 
 /* ── Form controls ────────────────────────────────────── */
 input[type='text'],
@@ -262,11 +275,11 @@ input[type='search'],
 select,
 textarea {
   padding: 6px 10px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
   font-size: 12px;
   font-family: inherit;
-  background: var(--surface);
+  background-color: var(--well);
   color: var(--text-main);
   transition: border-color 0.15s;
 }
@@ -355,6 +368,8 @@ tr:hover td {
   background: var(--surface-hover);
 }
 .collapsible-arrow {
+  /* A transform is ignored on an inline box: without this it never turned. */
+  display: inline-block;
   transition: transform 0.2s;
   font-size: 10px;
 }
@@ -568,7 +583,8 @@ canvas {
     padding: 6px 12px;
     font-size: 13px;
   }
-  .icon-btn {
+  .icon-btn,
+  .btn-sm.icon-btn {
     width: 40px;
     padding: 0;
   }

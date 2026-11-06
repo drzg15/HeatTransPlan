@@ -15,6 +15,7 @@ import markerIcon from 'leaflet/dist/images/marker-icon.png';
 import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 import { BoxSelector } from './BoxSelector';
 import { ConnectionLines } from './ConnectionLines';
+import { boxHalf, onCanvas } from './connectionRoute';
 import {
   MapCenterSync,
   MapClickHandler,
@@ -171,9 +172,31 @@ export default function MapViewer({
     }
   }, [isFullscreen]);
 
+  // A box of an open diagram belongs on its white canvas: the point just inside
+  // the edge when it is outside, else null.
+  const toCanvas = (lat: number, lon: number, node: ProcessNode): L.LatLng | null => {
+    if (!mapObj || isNaN(lat) || isNaN(lon)) return null;
+    const p = mapObj.latLngToContainerPoint([lat, lon]);
+    const q = onCanvas(p, mapObj.getSize(), boxHalf(node.name, node.box_scale));
+    return q.x === p.x && q.y === p.y ? null : mapObj.containerPointToLatLng(L.point(q.x, q.y));
+  };
+
   const handleDragEnd = (e: L.LeafletEvent, type: 'group' | 'sub' | 'child', id: string) => {
     const marker = e.target as L.Marker;
-    const { lat, lng } = marker.getLatLng();
+    let { lat, lng } = marker.getLatLng();
+
+    // Dropped off the canvas: back to just inside its edge.
+    if (isCanvasActive && type !== 'group') {
+      const [si, ci] = id.split('-').map(Number);
+      const node = type === 'sub' ? processes[si] : processes[si]?.children?.[ci];
+      const inside = node && toCanvas(lat, lng, node);
+      if (inside) {
+        ({ lat, lng } = inside);
+        marker.setLatLng(inside);
+      }
+      // Saved in the diagram's own layout, not where it is drawn now.
+      if (remap) ({ lat, lng } = fromView(L.latLng(lat, lng)));
+    }
 
     // 1. Calculate delta if part of a multi-selection
     const markerKey = `${type}-${id}`;
@@ -311,6 +334,63 @@ export default function MapViewer({
     return c !== undefined ? `s${c}` : null;
   }, [subprocessMapExpanded, childMapExpanded]);
 
+  // An open diagram keeps the layout it was given at the locked view (the
+  // saved centre and zoom): its boxes are drawn through that view, in the
+  // middle of wherever the map is now. So opening one never moves the map
+  // back, and a zoom made after locking does not spread the boxes apart.
+  const remap = isCanvasActive && locked && !!mapObj;
+  const toView = (lat: number, lon: number) => {
+    const m = mapObj!;
+    const z = m.getZoom();
+    const offset = m.project([lat, lon], zoom).subtract(m.project(center, zoom));
+    return m.unproject(m.project(m.getCenter(), z).add(offset), z);
+  };
+  const fromView = (ll: L.LatLng) => {
+    const m = mapObj!;
+    const z = m.getZoom();
+    const offset = m.project(ll, z).subtract(m.project(m.getCenter(), z));
+    return m.unproject(m.project(center, zoom).add(offset), zoom);
+  };
+  const shown = useMemo(() => {
+    if (!remap) return processes;
+    const move = (n: ProcessNode): ProcessNode => {
+      const lat = parseFloat(String(n.lat));
+      const lon = parseFloat(String(n.lon));
+      const v = isNaN(lat) || isNaN(lon) ? null : toView(lat, lon);
+      return {
+        ...n,
+        ...(v && { lat: v.lat.toString(), lon: v.lng.toString() }),
+        children: n.children?.map(move),
+      };
+    };
+    return processes.map(move);
+    // toView reads the map, which stands still while a diagram is open.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [processes, remap, center, zoom]);
+
+  // When a diagram opens, subprocesses left off its canvas (placed at another
+  // zoom, or in a larger window) are brought just inside the edge. After that
+  // the drag keeps them there, and the map cannot zoom while it is open.
+  useEffect(() => {
+    if (!canvasKey || !onProcessesChange) return;
+    let moved = false;
+    const next = rawProcesses.map((raw, si) => {
+      const inDiagram =
+        !childMapExpanded[si] &&
+        groups.some((g, gi) => subprocessMapExpanded[gi] && g.includes(si));
+      const p = shown[si];
+      const off =
+        inDiagram && p && toCanvas(parseFloat(String(p.lat)), parseFloat(String(p.lon)), p);
+      if (!off) return raw;
+      moved = true;
+      const saved = remap ? fromView(off) : off;
+      return { ...raw, lat: saved.lat.toString(), lon: saved.lng.toString() };
+    });
+    if (moved) onProcessesChange(next);
+    // Only on opening: the view is pinned by then (MapController runs first).
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [canvasKey, mapObj]);
+
   return (
     <div
       className={`map-viewer-container ${className || ''} ${isFullscreen ? 'fullscreen' : ''} ${selectionActive ? 'pa-selection-active' : ''} ${isCanvasActive ? 'map-frozen' : ''} ${sitePlan ? 'map-plan-only' : ''}`}
@@ -395,19 +475,22 @@ export default function MapViewer({
         <SubprocessMapFreeze active={isCanvasActive} locked={locked} />
         <MapRotation bearing={bearing} frozen={isCanvasActive} onRotateEnd={onRotateEnd} />
 
-        {/* 1. Base Site Bubbles — Hidden by canvas if active */}
+        {/* 1. Base Site Bubbles — not drawn while a diagram is open: they
+            showed through its canvas as faint circles. */}
         <Pane name="streamBubblesPane" style={{ zIndex: 450 }}>
-          <StreamCirclesOverlay
-            processes={processes}
-            groups={groups}
-            groupNames={groupNames}
-            groupCoordinates={groupCoordinates}
-            selectedStreams={selectedStreams}
-            onSelectionToggle={onSelectionToggle}
-            onElementDoubleClick={onElementDoubleClick}
-            locked={locked}
-            onDragEnd={handleDragEnd}
-          />
+          {!isCanvasActive && (
+            <StreamCirclesOverlay
+              processes={processes}
+              groups={groups}
+              groupNames={groupNames}
+              groupCoordinates={groupCoordinates}
+              selectedStreams={selectedStreams}
+              onSelectionToggle={onSelectionToggle}
+              onElementDoubleClick={onElementDoubleClick}
+              locked={locked}
+              onDragEnd={handleDragEnd}
+            />
+          )}
         </Pane>
 
         {/* 2. Focused Workshop Background — Above site markers, below expanded content */}
@@ -415,9 +498,6 @@ export default function MapViewer({
           <SubprocessCanvasOverlay
             active={isCanvasActive}
             image={canvasKey ? canvasPlans[canvasKey] : undefined}
-            deps={
-              isCanvasActive ? JSON.stringify({ subprocessMapExpanded, childMapExpanded }) : null
-            }
           />
         </Pane>
 
@@ -475,7 +555,7 @@ export default function MapViewer({
         {/* 3.5 Connection Lines — Below markers but above canvas */}
         <Pane name="connectionLinesPane" style={{ zIndex: 655 }}>
           <ConnectionLines
-            processes={processes}
+            processes={shown}
             groups={groups}
             groupNames={groupNames}
             groupCoordinates={groupCoordinates}
@@ -491,7 +571,7 @@ export default function MapViewer({
           {groups.map((subIdxs, gIdx) => {
             if (!subprocessMapExpanded[gIdx]) return null;
             return subIdxs.map((si) => {
-              const p = processes[si];
+              const p = shown[si];
               if (!p) return null;
               const lat = parseFloat(String(p.lat));
               const lon = parseFloat(String(p.lon));
@@ -535,7 +615,7 @@ export default function MapViewer({
           })}
 
           {/* Children (if subprocess expanded) */}
-          {processes.map((p, si) => {
+          {shown.map((p, si) => {
             if (!childMapExpanded[si]) return null;
             return (p.children || []).map((child, ci) => {
               const lat = parseFloat(String(child.lat));
@@ -580,7 +660,7 @@ export default function MapViewer({
         {/* 5. Hierarchical Expanded Bubbles — Top-most interaction */}
         <Pane name="expandedBubblesPane" style={{ zIndex: 750 }}>
           <StreamArrowsOverlay
-            processes={processes}
+            processes={shown}
             groups={groups}
             subprocessMapExpanded={subprocessMapExpanded}
             childMapExpanded={childMapExpanded}
@@ -612,8 +692,8 @@ export default function MapViewer({
               }
             });
 
-            // 2. Check independent processes
-            processes.forEach((p, pi) => {
+            // 2. Check independent processes (where they are drawn)
+            shown.forEach((p, pi) => {
               if (p.lat && p.lon) {
                 const lat = parseFloat(String(p.lat));
                 const lon = parseFloat(String(p.lon));

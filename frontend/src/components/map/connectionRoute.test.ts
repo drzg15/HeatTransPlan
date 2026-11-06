@@ -1,7 +1,7 @@
 /** Process flow arrows run edge to edge, never hidden under a box. */
 
 import { describe, it, expect } from 'vitest';
-import { routeConnection } from './connectionRoute';
+import { labelSpot, onCanvas, routeConnection } from './connectionRoute';
 
 const box = { w: 50, h: 15 };
 
@@ -29,5 +29,36 @@ describe('routeConnection', () => {
 
   it('draws nothing when the boxes touch', () => {
     expect(routeConnection({ x: 0, y: 0 }, { x: 60, y: 20 }, box, box)).toBeNull();
+  });
+});
+
+describe('labelSpot', () => {
+  const p1 = { x: 0, y: 0 };
+  it('sits just above the bend when the gap holds it', () => {
+    const p2 = { x: 400, y: 40 };
+    const r = routeConnection(p1, p2, box, box)!;
+    // Gap from 50 to 338: a 100 px label fits.
+    expect(labelSpot(r, p1, p2, box, box, 100, 30)).toEqual({ x: r.mid1.x - 50, y: -6 - 30 });
+  });
+
+  it('moves above both boxes when the gap is too narrow, so no box hides it', () => {
+    const p2 = { x: 200, y: 40 };
+    const r = routeConnection(p1, p2, box, box)!;
+    // Gap from 50 to 138: a 160 px label does not fit; box tops are at -15 and 25.
+    expect(labelSpot(r, p1, p2, box, box, 160, 30)).toEqual({ x: r.mid1.x - 80, y: -15 - 6 - 30 });
+  });
+});
+
+describe('onCanvas', () => {
+  const size = { x: 1000, y: 600 };
+  it('leaves a box that is on the canvas where it is', () => {
+    expect(onCanvas({ x: 500, y: 300 }, size, box)).toEqual({ x: 500, y: 300 });
+  });
+
+  it('brings a box from outside to just inside the edge', () => {
+    // Canvas from 50 to 950 across, 30 to 570 down; the box needs 50 / 15 px plus 4.
+    const q = onCanvas({ x: 1200, y: -40 }, size, box);
+    expect(q.x).toBeCloseTo(950 - 54);
+    expect(q.y).toBeCloseTo(30 + 19);
   });
 });

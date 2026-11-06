@@ -1,9 +1,11 @@
 .se-card {
-  border: 1px solid var(--border);
+  border: 1px solid var(--line);
+  border-left: 3px solid color-mix(in srgb, var(--brand-magenta) 65%, var(--surface));
   border-radius: var(--radius);
-  padding: 6px 8px;
+  padding: 8px;
   margin-bottom: 6px;
-  background: var(--surface-active);
+  background: var(--surface);
+  box-shadow: var(--shadow-sm);
 }
 
 .se-header {
@@ -13,21 +15,27 @@
   margin-bottom: 4px;
 }
 
-.se-name {
-  flex: 1;
-  min-width: 0;
-  font-size: 11px;
-  font-weight: 500;
+/* Fields sit in a tinted well, all one height (as the buttons). Scoped to the
+   card so it outranks the global input[type='text'] rule. */
+.se-card :is(.se-name, .se-type, .se-value-field input) {
+  height: 28px;
+  border-radius: 8px;
+  border: 1px solid var(--line-strong);
+  background-color: var(--well);
   color: var(--text-main);
 }
 
+.se-name {
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .se-type {
-  width: 70px;
-  font-size: 9px;
-  padding: 2px 4px;
-  background: var(--surface);
-  color: var(--text-main);
-  border: 1px solid var(--border);
+  width: 84px;
+  font-size: 11px;
+  padding: 0 4px;
 }
 
 .se-var-selector {
@@ -37,27 +45,33 @@
   margin-bottom: 6px;
 }
 
+/* Toggle chips: white pills; on = filled blue with a soft ring. */
 .se-var-pill {
-  font-size: 10px;
-  padding: 2px 8px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
+  height: 24px;
+  padding: 0 10px;
+  font-size: 11px;
+  border: 1px solid var(--line-strong);
+  border-radius: 20px;
   background: var(--surface);
+  box-shadow: var(--shadow-sm);
   cursor: pointer;
-  transition: all 0.2s;
+  transition:
+    background 0.1s,
+    color 0.1s,
+    box-shadow 0.1s;
   color: var(--text-muted);
 }
 
 .se-var-pill:hover {
-  background: var(--surface-hover);
-  border-color: var(--primary);
+  color: var(--text-main);
 }
 
 .se-var-pill.active {
   background: var(--primary);
   color: var(--text-on-primary);
-  border-color: var(--primary);
-  font-weight: 500;
+  border-color: transparent;
+  font-weight: 600;
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary) 18%, transparent);
 }
 
 .se-values {
@@ -93,11 +107,8 @@
 
 .se-value-field input {
   width: 100%;
-  font-size: 11px;
-  padding: 3px 5px;
-  background: var(--surface);
-  color: var(--text-main);
-  border: 1px solid var(--border);
+  font-size: 12px;
+  padding: 0 8px;
 }
 
 /* ── Responsive ───────────────────────────────────────── */
