@@ -203,7 +203,7 @@ async def explain(topic: Literal["overview", "pinch", "heat_pump_integration", "
     composite curves, GCC), heat_pump_integration (technology windows, COP
     regressions, the integration walk), optimization (COP models, archetypes,
     grid search, source/demand-limited points, trained models), economics
-    (inputs, NPV, payback, break-even price, VDI 4646), refrigerants
+    (inputs, NPV, payback, break-even price, VDI 4646:2026), refrigerants
     (operating limits), api (REST API and these tools), architecture (how
     the app is built, what you may do on the page, security). Read it before
     explaining a result to the user or when a result surprises you."""
@@ -788,7 +788,7 @@ async def economics_defaults() -> Dict[str, Any]:
 async def economic_analysis(project_id: str, inputs: Optional[Dict[str, float]] = None,
                             reference_heater: Optional[Literal["gas", "oil", "eboiler"]] = None,
                             pumps: Optional[List[Dict[str, Any]]] = None) -> Dict[str, Any]:
-    """Economic analysis (VDI 4646 / VDI 2067) of a pump from the last
+    """Economic analysis (VDI 4646:2026 / VDI 2067-1:2012) of a pump from the last
     analysis against the reference heater. pumps: [{"refrigerant", "T_sink"}]
     to pick (the best of them is analysed); default the optimization's best.
     Inputs not given keep their last value; a new reference_heater brings its

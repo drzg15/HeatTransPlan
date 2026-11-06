@@ -1,7 +1,7 @@
 /** EconomicAnalysis — Kapitalwert, payback and sensitivity of the selected heat
- *  pump against the heater (and cooling) it replaces. Layout follows the [case]
- *  presentation (Randbedingungen table, cost bars, Barwertverlauf, Strom-/
- *  Gaspreis sensitivity); the numbers and charts come from econModel.ts, the
+ *  pump against the heater (and cooling) it replaces: Randbedingungen table,
+ *  cost bars, Barwertverlauf, Strom-/Gaspreis sensitivity. The numbers and
+ *  charts come from econModel.ts, the
  *  formulas in backend/app/services/economics/formulas.py. */
 
 import { LoaderCircle, RotateCcw } from 'lucide-react';

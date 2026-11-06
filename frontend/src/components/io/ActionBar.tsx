@@ -122,7 +122,7 @@ export default function ActionBar({
         // If it succeeds, parsed.data is heavily typed and guaranteed to be clean
         loadProject({ ...data, map_locked: true });
       } catch {
-        alert('Could not parse the file. It is not a valid JSON document.');
+        alert(t('action_bar.invalid_file'));
       }
     };
     reader.readAsText(file);
@@ -165,11 +165,7 @@ export default function ActionBar({
               <button className="btn btn-sm" onClick={onUnlockMap} title={t('ui.unlock_map')}>
                 <LockOpen size={14} /> {t('action_bar.unlock_map')}
               </button>
-              <button
-                className="btn btn-sm btn-primary"
-                onClick={onAddProcess}
-                title="Add a new process group"
-              >
+              <button className="btn btn-sm btn-primary" onClick={onAddProcess}>
                 <Plus size={14} /> {t('action_bar.add_process')}
               </button>
               <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px' }} />

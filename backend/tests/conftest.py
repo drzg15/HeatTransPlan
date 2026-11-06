@@ -4,6 +4,8 @@ import os
 os.environ.setdefault("MPLBACKEND", "Agg")
 # Tests call the API far faster than any visitor; the limiter has its own test.
 os.environ.setdefault("RATE_LIMIT", "0")
+# The AI access is off by default; its tests need it on.
+os.environ.setdefault("AI_ENABLED", "1")
 
 import pytest
 from fastapi.testclient import TestClient

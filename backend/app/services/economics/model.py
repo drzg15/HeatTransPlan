@@ -52,7 +52,7 @@ DEFAULTS: Dict[str, float] = {
     "pEl": 13,
     "rEl": 3,  # as rFuel
     "co2El": 0.352,  # UBA 2025, location-based
-    "co2ElPriced": 0,  # 1 = add CO₂ cost on electricity (lecture slide 19)
+    "co2ElPriced": 0,  # 1 = add CO₂ cost on electricity
     "pDemand": 0,  # only if not already in the electricity price
     # Price of the heat pump itself per kW (machine only): SPH offers for large
     # industrial high-temperature heat pumps up to ~150 °C (≈ 1.000–1.200 €/kW).
@@ -63,7 +63,7 @@ DEFAULTS: Dict[str, float] = {
     "fPer": 1.25,
     "fMaint": 2.5,  # VDI 2067 Tabelle A2: f_Inst 1 % + f_W+Insp 1,5 %
     "opHours": 5,  # VDI 2067 Tabelle A2: 5 h/a operation
-    "wage": 100,  # lecture slide 18: 100 €/h
+    "wage": 100,  # €/h; VDI 4646 and VDI 2067 give no value
     "reinvestShare": 0,
     "reinvestYear": 10,
     "life": 20,  # VDI 2067 Tabelle A2: water/water heat pump 20 years

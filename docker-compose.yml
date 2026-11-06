@@ -8,8 +8,8 @@ services:
     container_name: heattransplan-backend
     restart: unless-stopped
     environment:
-      # AI_ENABLED=0 in .env hides Connect AI and turns off the MCP server.
-      AI_ENABLED: ${AI_ENABLED:-1}
+      # Off by default; AI_ENABLED=1 in .env shows Connect AI and turns on the MCP server.
+      AI_ENABLED: ${AI_ENABLED:-0}
     # Hardened: read-only except /tmp, no special rights, no way to gain any.
     read_only: true
     tmpfs:

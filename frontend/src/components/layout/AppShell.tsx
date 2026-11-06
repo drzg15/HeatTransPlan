@@ -143,7 +143,7 @@ export default function AppShell({ children }: Props) {
           <button
             className="theme-toggle nav-burger"
             onClick={() => setMenuOpen((open) => !open)}
-            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-label={menuOpen ? t('ui.menu_close') : t('ui.menu_open')}
             aria-expanded={menuOpen}
             aria-controls="app-nav"
           >

@@ -13,8 +13,7 @@
     "lang": {
       "en": "English",
       "de": "Deutsch"
-    },
-    "lang_select": "Select Language"
+    }
   },
   "tutorial": {
     "header": "How HeatTransPlan Works",
@@ -63,7 +62,8 @@
     "reset_modal_desc": "Are you sure you want to completely clear the local data? All unsaved progress will be permanently lost.",
     "reset_modal_recommend": "We highly recommend downloading your current project file first!",
     "download_project": "Download Project",
-    "clear_anyway": "Clear Anyway"
+    "clear_anyway": "Clear Anyway",
+    "invalid_file": "Could not read the file. It is not a valid project file (JSON)."
   },
   "process": {
     "done": "Done",
@@ -76,7 +76,8 @@
     "hide_map": "Hide Map",
     "show_map": "Show on Map",
     "add": "Add",
-    "empty_hint": "No processes yet. Click Add Process to begin."
+    "empty_hint": "No processes yet. Click Add Process to begin.",
+    "toggle_all": "Collapse / expand all"
   },
   "subprocess": {
     "next_processes": "Next Processes (Click to link)",
@@ -108,7 +109,9 @@
       "density": "Density",
       "pressure": "Pressure",
       "notes": "Notes"
-    }
+    },
+    "actual_temp": "Actual temp. [°C]",
+    "thermal_data": "Thermal & physical data"
   },
   "home": {
     "title": "Home Page",
@@ -148,7 +151,8 @@
       "no_processes": "No processes found. Please add processes in the Data Collection page first.",
       "need_more_streams": "Select at least 2 streams with complete data (Tin, Tout, and either CP or ṁ+cp) to run pinch analysis.",
       "running": "Running pinch analysis…",
-      "error": "Error:"
+      "error": "Error:",
+      "report_failed": "The report could not be created. Details are in the browser console."
     },
     "controls": {
       "show_shifted": "Show Shifted Composite Curves",
@@ -577,7 +581,9 @@
     "remove": "Remove",
     "cancel": "Cancel",
     "apply": "Apply",
-    "fix_formula_first": "Fix the formula first"
+    "fix_formula_first": "Fix the formula first",
+    "interval_example": "Interval example",
+    "interval_example_title": "Conditional logic for intervals (formatted for readability)"
   },
   "help": {
     "title": "Analysis Guide",
@@ -622,7 +628,7 @@
   "economics": {
     "title": "Economic analysis",
     "empty": "Select one or more heat pumps in the table above to compare them economically.",
-    "help_1": "Net present value method (VDI 2067-1): NPV = −(1 − funding)·I + Σ (CF(t) − R(t))/(1 + i)^t + RV/(1 + i)^T, with CF(t) = reference cost(t) − heat pump cost(t). Fuel, CO₂ and electricity prices rise each year by their own rate.",
+    "help_1": "Net present value method (VDI 2067-1:2012): NPV = −(1 − funding)·I + Σ (CF(t) − R(t))/(1 + i)^t + RV/(1 + i)^T, with CF(t) = reference cost(t) − heat pump cost(t). Fuel, CO₂ and electricity prices rise each year by their own rate.",
     "help_2": "Reference (current situation): the chosen heater supplying the largest demand of the selected pumps, plus the cooling that removes the source waste heat today (actively cooled share). Heat or cooling a pump does not take over stays on the old systems. Heat pump electricity = Q / COP × full-load hours.",
     "help_3": "Payback is the first year the net present value turns positive (searched up to 40 years).",
     "payback_never": "after {{year}}",
@@ -687,7 +693,7 @@
       "lcoh_hp": "Heat cost of the heat pump (LCOH)",
       "lcoh_ref": "Heat cost of the {{ref}} (LCOH)",
       "alpha": "Allocation factor (Finnish method)",
-      "capex_vdi": "VDI 4646 cost function (reference only)",
+      "capex_vdi": "VDI 4646:2026 cost function (reference only)",
       "spec_total": "Installed price per kW"
     },
     "charts": {
@@ -753,8 +759,8 @@
       "c_CO2_el": "CO₂ factor of grid electricity [t/MWh]; its CO₂ cost only counts if switched on",
       "p_CO2": "CO₂ price in the base year [€/t]; not added for the electric boiler",
       "p_L": "capacity charge on the heat pump's electrical power [€/kW per year]",
-      "R": "replacements at the end of each service life (VDI 2067) plus the manual reinvestment [€]",
-      "RW": "residual value after T years: the last purchase, depreciated linearly over its service life (VDI 2067 eq. 3) [€]",
+      "R": "replacements at the end of each service life (VDI 2067-1:2012) plus the manual reinvestment [€]",
+      "RW": "residual value after T years: the last purchase, depreciated linearly over its service life (VDI 2067-1:2012 eq. 3) [€]",
       "L": "service life [years]",
       "f_B": "operating funding per kWh of heat from the heat pump [€/kWh]",
       "t_B": "years the operating funding is paid [years]",
@@ -801,38 +807,38 @@
     "input_help": {
       "refType": "The system the heat pump replaces, today supplying the heat demand.\nGas boiler: η 87 %, 6 ct/kWh, 0,201 t CO₂/MWh. Oil boiler: η 85 %, 8 ct/kWh, 0,266 t/MWh. Electric boiler: η 99 %, 13 ct/kWh, no extra CO₂ cost (it is in the electricity price).\nPicking one fills in efficiency, price and CO₂ factor; all stay editable.",
       "year": "Year the heat pump starts operating. Year 0 of the net present value: the investment is paid here, savings start the year after.\nIt only labels the time axis; it does not change the result.",
-      "hours": "Full-load hours per year: how long the heat pump runs at its full heat output.\nVDI 4646 (Tabelle 8, p. 62) uses 6.000 h for three-shift operation. 8.760 h = all year; one or two shifts: 3.000–4.500 h.\nEnters every energy amount: E = Q · h.",
-      "i": "Discount rate: the minimum return the investment has to earn. Future cash flows are divided by (1 + i)^t.\nVDI 4646 (p. 58): companies mostly use 8–12 %; its nomogram uses 12 % (Tabelle 8). The [case] slides used 6 %. Higher i → future savings count less.",
-      "T": "Period of the analysis in years.\nVDI 4646 (p. 58) and VDI 2067 Tabelle 1 (p. 11): 20 years for heat pumps and gas boilers. The net present value counts cash flows up to T; the payback chart looks further, up to 40 years.",
-      "eta": "Efficiency of the reference heater on the gross calorific value Hs (Brennwert), as gas is billed: heat delivered per kWh_Hs of fuel.\nVDI 4646 (Tabelle 8, p. 62) uses 0,87 for a 300 kW gas condensing boiler. On Hs a condensing boiler reaches about 0,85–0,95; on Hi the same boiler shows ~5–10 % more.\nFuel use = Q · h / η.",
+      "hours": "Full-load hours per year: how long the heat pump runs at its full heat output.\nVDI 4646:2026 (Tabelle 8, p. 62) uses 6.000 h for three-shift operation. 8.760 h = all year; one or two shifts: 3.000–4.500 h.\nEnters every energy amount: E = Q · h.",
+      "i": "Discount rate: the minimum return the investment has to earn. Future cash flows are divided by (1 + i)^t.\nVDI 4646:2026 (p. 58): companies mostly use 8–12 %; its nomogram uses 12 % (Tabelle 8). Higher i → future savings count less.",
+      "T": "Period of the analysis in years.\nVDI 4646:2026 (p. 58) and VDI 2067-1:2012 Tabelle 1 (p. 11): 20 years for heat pumps and gas boilers. The net present value counts cash flows up to T; the payback chart looks further, up to 40 years.",
+      "eta": "Efficiency of the reference heater on the gross calorific value Hs (Brennwert), as gas is billed: heat delivered per kWh_Hs of fuel.\nVDI 4646:2026 (Tabelle 8, p. 62) uses 0,87 for a 300 kW gas condensing boiler. On Hs a condensing boiler reaches about 0,85–0,95; on Hi the same boiler shows ~5–10 % more.\nFuel use = Q · h / η.",
       "pFuel": "Price of {{fuel}} today, per kWh of gross calorific value (Hs) as on gas bills, without the CO₂ cost, in ct/kWh.\nThe CO₂ cost is added separately (CO₂ factor ÷ Hs/Hi × CO₂ price), so do not count it twice. Example: 6 ct + 0,201 / 1,11 t/MWh × 55 €/t ≈ 7,0 ct/kWh in total.",
-      "rFuel": "How much the {{fuel}} price (without CO₂) changes per year, in %.\n3 %/year by default, as in the [case] study: a deliberate deviation from VDI 4646 (p. 57), which assumes constant prices because long-term forecasts are hardly possible. Set 0 % for the VDI case.",
-      "co2Fuel": "CO₂ emitted per MWh of {{fuel}} on the net calorific value Hi, in t/MWh.\nNatural gas 0,201 (UBA; VDI 4646 p. 64: 202 g/kWh), heating oil 0,266. Used for the CO₂ cost and the CO₂ rows, converted to Hs with Hs/Hi.",
+      "rFuel": "How much the {{fuel}} price (without CO₂) changes per year, in %.\n3 %/year by default: a deliberate deviation from VDI 4646:2026 (p. 57), which assumes constant prices because long-term forecasts are hardly possible. Set 0 % for the VDI case.",
+      "co2Fuel": "CO₂ emitted per MWh of {{fuel}} on the net calorific value Hi, in t/MWh.\nNatural gas 0,201 (UBA; VDI 4646:2026 p. 64: 202 g/kWh), heating oil 0,266. Used for the CO₂ cost and the CO₂ rows, converted to Hs with Hs/Hi.",
       "co2Price": "CO₂ price in the base year, in €/t, added on top of the fuel price.\nGermany: national CO₂ price (BEHG) 55 €/t in 2025, 55–65 €/t corridor in 2026; from 2027/28 EU ETS 2. Set 0 if your fuel price already includes it.\nCO₂ cost per kWh = CO₂ factor / 1000 × CO₂ price.",
-      "rCo2": "How much the CO₂ price rises per year, in %.\nVDI 4646 (p. 57): constant prices (0 %). A rising CO₂ price (e.g. 5 %/year) favours the heat pump; use it as a scenario.",
+      "rCo2": "How much the CO₂ price rises per year, in %.\nVDI 4646:2026 (p. 57): constant prices (0 %). A rising CO₂ price (e.g. 5 %/year) favours the heat pump; use it as a scenario.",
       "pEl": "Electricity price in the base year, in ct/kWh, as paid by the site (energy, grid fees, levies, taxes).\nUsed for the heat pump and for the cooling electricity it saves. The sensitivity heatmap varies this price.",
-      "rEl": "How much the electricity price changes per year, in %.\n3 %/year by default, the same as the fuel, so neither side is favoured; VDI 4646 (p. 57) assumes constant prices (0 %).",
-      "co2El": "CO₂ emitted per MWh of grid electricity, in t/MWh. Used for the CO₂ rows, and for a CO₂ cost only if \"Add CO₂ cost on electricity\" is on.\n0,352 = German grid mix (UBA 2025, location-based). VDI 4646 used 0,401 (2019, p. 74). 0 for a green power contract (PPA).",
+      "rEl": "How much the electricity price changes per year, in %.\n3 %/year by default, the same as the fuel, so neither side is favoured; VDI 4646:2026 (p. 57) assumes constant prices (0 %).",
+      "co2El": "CO₂ emitted per MWh of grid electricity, in t/MWh. Used for the CO₂ rows, and for a CO₂ cost only if \"Add CO₂ cost on electricity\" is on.\n0,352 = German grid mix (UBA 2025, location-based). VDI 4646:2026 used 0,401 (2019, p. 74). 0 for a green power contract (PPA).",
       "pDemand": "Capacity charge on the heat pump's electrical power, in € per kW and year.\nOnly set it if your electricity price does not already include it. Industrial grid capacity charges are often 50–150 €/kW per year.\nCost = p_L · Q / COP.",
       "specCost": "Price of the heat pump itself (the machine) per kW of heat output, in €/kW, without planning, installation and integration.\nThe investment is this price × the planning & installation factor × the integration factor × the heat output: I = c · F_PI · F_Per · Q. The factors (1,25 and 1,25) can be changed under \"More assumptions\".",
-      "fMaint": "Maintenance per year as a share of the investment, in %: repair (f_Inst) plus servicing and inspection (f_W+Insp).\nVDI 2067 Tabelle A2 (p. 22) for an electric heat pump: 1 % + 1,5 % = 2,5 %; VDI 4646 Tabelle 7/8 uses the same 2,5 %. The [case] slides used 5 %.",
+      "fMaint": "Maintenance per year as a share of the investment, in %: repair (f_Inst) plus servicing and inspection (f_W+Insp).\nVDI 2067-1:2012 Tabelle A2 (p. 22) for an electric heat pump: 1 % + 1,5 % = 2,5 %; VDI 4646:2026 Tabelle 7/8 uses the same 2,5 %.",
       "reinvestShare": "A reinvestment during the period, as a share of the investment, in %, e.g. a compressor overhaul. 0 = none.\nIt is paid once, in the year below, and discounted like any cash flow.",
       "reinvestYear": "Year of operation in which the reinvestment above is paid.\nOnly used if the reinvestment share is above 0.",
-      "life": "Service life of the heat pump, in years (VDI 2067 Tabelle A2, p. 22: water/water 20, air/water 18).\nIf the period T is longer, the pump is bought again at the end of each service life (VDI 2067 eq. 2, p. 17). At the end of T the last purchase is still worth its undepreciated share (eq. 3), counted in the net present value. 0 = no replacements, no residual value.",
-      "funding": "Share of the investment paid by a funding programme, in %. A one-off grant on the investment: (1 − φ) · I.\nEEW Module 4 (premium funding) can fund industrial heat pumps; 35 % is the example on the slides.",
-      "coolShare": "Share of the heat source that is actively cooled today, in %.\nThe heat pump takes heat out of the source, so that part no longer needs cooling. 0 % if the waste heat just leaves (e.g. exhaust air up the stack, as at [case]); 100 % if a chiller or cooling tower removes all of it today.",
+      "life": "Service life of the heat pump, in years (VDI 2067-1:2012 Tabelle A2, p. 22: water/water 20, air/water 18).\nIf the period T is longer, the pump is bought again at the end of each service life (VDI 2067-1:2012 eq. 2, p. 17). At the end of T the last purchase is still worth its undepreciated share (eq. 3), counted in the net present value. 0 = no replacements, no residual value.",
+      "funding": "Share of the investment paid by a funding programme, in %. A one-off grant on the investment: (1 − φ) · I.\nEEW Module 4 (premium funding) can fund industrial heat pumps.",
+      "coolShare": "Share of the heat source that is actively cooled today, in %.\nThe heat pump takes heat out of the source, so that part no longer needs cooling. 0 % if the waste heat just leaves (e.g. exhaust air up the stack); 100 % if a chiller or cooling tower removes all of it today.",
       "eer": "Cooling COP (also called EER) of the cooling that removes the source heat today: heat removed [kW] / electricity [kW]. It is the cooling counterpart of the heat pump COP; for the same machine, heating COP = cooling COP + 1.\nCompression chiller 3–5, dry cooler 10–30, wet cooling tower 15–40 (only fans and pumps). Datasheets in BTU/Wh: divide by 3,41. Only used if the cooled share is above 0 %.\nSaved electricity = Q_source · h · share / COP_cooling. Example: 296 kW, 100 %, COP 4 → 74 kW → about 648 MWh/year → about 84.000 €/year at 13 ct.",
       "opFunding": "Operating funding: paid per MWh of heat the heat pump delivers, lowering its yearly operating costs.\nBEW Module 4 pays this for heat pumps feeding heat networks, up to about 92 €/MWh depending on electricity price and SCOP. 0 = none.\nPer year: f_B · Q · h, for the years below.",
       "opFundingYears": "Number of years the operating funding is paid, counted from the first year of operation. BEW Module 4: 10 years.",
-      "hsHi": "Ratio of the gross (Hs) to the net (Hi) calorific value of the fuel. Prices are per kWh_Hs, CO₂ factors per kWh_Hi; this ratio links the two (VDI 4646 eq. 23, p. 57, and p. 60).\nNatural gas H ≈ 1,11, heating oil ≈ 1,06, electricity 1.",
-      "co2ElPriced": "Adds the CO₂ cost on electricity: c_CO2,el × CO₂ price, also for the old cooling and an electric boiler.\nOff by default: in Germany electricity CO₂ is priced in the EU ETS and already in the electricity price. VDI 4646 (p. 60) says to check whether it is included; the lecture example (slide 19) adds it.",
-      "opHours": "Hours per year spent operating the heat pump (Bedienen), in h/year, costed at the hourly rate below.\nVDI 2067 Tabelle A2 (p. 22): 5 h/year for an electric heat pump (a gas condensing boiler > 200 kW: 20 h/year).",
-      "wage": "Hourly rate for the operation effort above, in €/h.\n100 €/h as in the lecture example (slide 18); VDI 4646 and VDI 2067 give no value.",
-      "rInv": "Price change of the investment per year, in %, for replacements and the residual value (VDI 2067 eq. 2/3, factor r).\n0 % = constant prices, as for energy.",
-      "boilerInvest": "Replacement case: the old boiler would have to be replaced anyway, so buying the heat pump saves that boiler investment, in € per kW of heat pump output.\nVDI 4646 (p. 74) uses 131 €/kW for a gas condensing boiler. 0 = efficiency case: the boiler exists and stays (VDI 4646 Tabelle 8, p. 62), the default.",
-      "fMaintRef": "Maintenance of the avoided boiler per year as a share of its investment, saved every year in the replacement case.\nVDI 4646 Tabelle 8 (p. 62): 3 % for the gas condensing boiler.",
-      "fPI": "Factor for planning and installation of the heat pump: the investment is the heat pump price × this factor × the integration factor.\nVDI 4646 Tabelle 6 (p. 59): 1,25. 1 = no planning or installation cost.",
-      "fPer": "Factor for integrating the heat pump into the plant (periphery: pipes, hydraulics, storage, electrical connection, control).\nDefault 1,25. VDI 4646 Tabelle 6 (p. 59) has 1,8, but that is fitted to cheap machines; with a machine price of 1,000 €/kW it would give 2,250 €/kW installed, far above current data. It depends strongly on the site; 1 = no integration cost."
+      "hsHi": "Ratio of the gross (Hs) to the net (Hi) calorific value of the fuel. Prices are per kWh_Hs, CO₂ factors per kWh_Hi; this ratio links the two (VDI 4646:2026 eq. 23, p. 57, and p. 60).\nNatural gas H ≈ 1,11, heating oil ≈ 1,06, electricity 1.",
+      "co2ElPriced": "Adds the CO₂ cost on electricity: c_CO2,el × CO₂ price, also for the old cooling and an electric boiler.\nOff by default: in Germany electricity CO₂ is priced in the EU ETS and already in the electricity price. VDI 4646:2026 (p. 60) says to check whether it is included.",
+      "opHours": "Hours per year spent operating the heat pump (Bedienen), in h/year, costed at the hourly rate below.\nVDI 2067-1:2012 Tabelle A2 (p. 22): 5 h/year for an electric heat pump (a gas condensing boiler > 200 kW: 20 h/year).",
+      "wage": "Hourly rate for the operation effort above, in €/h.\n100 €/h by default; VDI 4646:2026 and VDI 2067-1:2012 give no value.",
+      "rInv": "Price change of the investment per year, in %, for replacements and the residual value (VDI 2067-1:2012 eq. 2/3, factor r).\n0 % = constant prices, as for energy.",
+      "boilerInvest": "Replacement case: the old boiler would have to be replaced anyway, so buying the heat pump saves that boiler investment, in € per kW of heat pump output.\nVDI 4646:2026 (p. 74) uses 131 €/kW for a gas condensing boiler. 0 = efficiency case: the boiler exists and stays (VDI 4646:2026 Tabelle 8, p. 62), the default.",
+      "fMaintRef": "Maintenance of the avoided boiler per year as a share of its investment, saved every year in the replacement case.\nVDI 4646:2026 Tabelle 8 (p. 62): 3 % for the gas condensing boiler.",
+      "fPI": "Factor for planning and installation of the heat pump: the investment is the heat pump price × this factor × the integration factor.\nVDI 4646:2026 Tabelle 6 (p. 59): 1,25. 1 = no planning or installation cost.",
+      "fPer": "Factor for integrating the heat pump into the plant (periphery: pipes, hydraulics, storage, electrical connection, control).\nDefault 1,25. VDI 4646:2026 Tabelle 6 (p. 59) has 1,8, but that is fitted to cheap machines; with a machine price of 1,000 €/kW it would give 2,250 €/kW installed, far above current data. It depends strongly on the site; 1 = no integration cost."
     },
     "reset": "Reset",
     "reset_hint": "Restore all inputs and investments to their starting values",
@@ -855,7 +861,7 @@
       "npv_neg": "Over {{T}} years it loses {{eur}} in today's money (net present value, incl. {{rv}} residual value).",
       "be": "At {{pf}} ct/kWh for {{fuel}}, it stays profitable as long as electricity costs less than {{pe}} ct/kWh.",
       "be_never": "It cannot beat the {{ref}} at any electricity price with today's fuel price.",
-      "lcoh": "Per kWh of heat the heat pump costs {{hp}} ct against {{refv}} ct from the {{ref}} (LCOH, annuity method, VDI 4646); static payback {{pp}}, internal rate of return {{irr}}."
+      "lcoh": "Per kWh of heat the heat pump costs {{hp}} ct against {{refv}} ct from the {{ref}} (LCOH, annuity method, VDI 4646:2026); static payback {{pp}}, internal rate of return {{irr}}."
     },
     "more_inputs": "More assumptions (efficiency, price changes, CO₂, maintenance, cooling …)",
     "more_results": "Detailed results (energy, CO₂, costs per year)",
@@ -930,7 +936,7 @@
     "toggle_explanation": "Show explanation",
     "close_tutorial": "Close tutorial",
     "language": "Language",
-    "choose_language": "Choose language",
+    "switch_language": "Switch to {{lang}}",
     "box_size": "Box size: {{v}}",
     "delete_group": "Delete group",
     "found": "Found: {{name}}",
@@ -945,7 +951,13 @@
     "pane_processes": "Processes",
     "pane_map": "Map & data",
     "fullscreen": "Fullscreen",
-    "exit_fullscreen": "Exit fullscreen"
+    "exit_fullscreen": "Exit fullscreen",
+    "app_error": "Application error",
+    "app_error_text": "A critical error occurred while rendering the application. This could be due to corrupted local data or an unexpected state.",
+    "reload_page": "Reload page",
+    "reset_local_data": "Reset all local data",
+    "menu_open": "Open navigation menu",
+    "menu_close": "Close navigation menu"
   },
   "scenario_cmp": {
     "title": "Scenario comparison",
@@ -978,7 +990,9 @@
     "plan_canvas": "Insert a background for this process diagram (PNG, JPG or PDF), e.g. a hall plan.",
     "plan_place": "Fit the plan to the current view again.",
     "plan_remove": "Remove plan",
-    "plan_error": "Could not read the file."
+    "plan_error": "Could not read the file.",
+    "not_on_screen": "The map is not on screen. Open the map view first.",
+    "capture_failed": "Could not capture the map image."
   },
   "live": {
     "connect": "Connect AI",
@@ -1048,12 +1062,11 @@
     "docs_title": "Documentation",
     "docs_text": "The full method with every equation, and how the app is built.",
     "good_title": "Good to know",
-    "good_screening": "The results are a screening: they show the potential worth a detailed study, not a design. Timing of the streams, piping and equipment are not checked.",
-    "good_data": "Your data stays in your browser. It is saved only when you save a project file, or on the server while you have an AI connected.",
-    "integration_text": "Finds how much heat the site could exchange itself (pinch analysis), and what is still left to buy.",
+    "good_data": "Your data stays in your browser. It is saved only when you save a project file.",
+    "integration_text": "Finds how much heat the site could exchange itself (pinch analysis), and what the heat pump should supply.",
     "integration_need_label": "You choose:",
     "integration_need": "which streams to include, today's demand, ΔTmin.",
-    "heat_pump_text": "Matches real heat pumps to the waste heat left below the pinch and the demand above it.",
+    "heat_pump_text": "Matches heat pumps to the process needs and finds the heat pumps with the best COP for that case.",
     "heat_pump_need_label": "You choose:",
     "heat_pump_need": "the heat pump, from the points on the chart.",
     "costs_text": "Compares the chosen heat pump with the heater it replaces: investment, payback, cost of heat, CO₂ savings.",
@@ -1072,8 +1085,7 @@
     "project_text": "HeatTransPlan is a joint research project with industrial partners. Besides this tool, it develops a high-temperature phase-change heat storage and tests its results in case studies at industrial sites.",
     "project_link": "Visit the project website",
     "project_img_alt": "The HeatTransPlan research project",
-    "qr_alt": "QR code: {{name}}",
-    "project_title": "The project"
+    "qr_alt": "QR code: {{name}}"
   },
   "tour": {
     "progress": "{{current}} of {{total}}",

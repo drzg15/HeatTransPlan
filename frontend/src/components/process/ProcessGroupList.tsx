@@ -302,7 +302,7 @@ export default function ProcessGroupList({
                           );
                           subIdxs.forEach((si) => state.setSubprocessExpanded(si, !anyExpanded));
                         }}
-                        title="Collapse / Expand All"
+                        title={t('process.toggle_all')}
                       >
                         ↕
                       </button>

@@ -167,12 +167,12 @@ export default function PotentialAnalysisPage() {
         const data = JSON.parse(reader.result as string);
         loadProject({ ...data, map_locked: true });
       } catch {
-        alert('Invalid JSON file');
+        alert(t('action_bar.invalid_file'));
       }
     };
     reader.readAsText(file);
     if (fileRef.current) fileRef.current.value = '';
-  }, []);
+  }, [t]);
 
   const { streamsData, pinchError, getStreamsFromSelection } = useAnalysisPipeline();
 
@@ -254,11 +254,11 @@ export default function PotentialAnalysisPage() {
       URL.revokeObjectURL(url);
     } catch (err) {
       console.error('Report generation failed:', err);
-      alert('Report generation failed. Check console for details.');
+      alert(t('analysis.messages.report_failed'));
     } finally {
       setReportLoading(false);
     }
-  }, [buildReportPayload]);
+  }, [buildReportPayload, t]);
 
   // The AI gets the report as HTML instead of a download; the report says an AI made it.
   useLiveCommand('generate_report', async () => {

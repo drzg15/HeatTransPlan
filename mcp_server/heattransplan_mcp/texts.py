@@ -58,7 +58,7 @@ THE PHYSICS IN SHORT (explain(topic) has the full method)
   T_source, T_sink, Q_sink, Q_source. "source_limited": too little waste heat
   to cover the demand; "demand_limited": less demand than the pump could
   serve. Both lie off the profiles and are hidden by default.
-- Economics (VDI 4646 / VDI 2067): the heat pump plus the old heater for the
+- Economics (VDI 4646:2026 / VDI 2067-1:2012): the heat pump plus the old heater for the
   rest, against the reference heater (gas, oil or electric boiler), over the
   years: investment, energy costs, NPV, dynamic payback, IRR, cost of heat,
   CO2 saving, and the electricity price up to which the pump wins.

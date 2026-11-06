@@ -1,7 +1,7 @@
 /** The home page: the app's own structure (1 Data Collection, 2–4 the parts
  *  of Potential Analysis, the results), each card opening the guided tour at
- *  its place, and the ways to start. The titles and inputs are the banners'
- *  own labels (PARTS in tour/guidedTour.ts). */
+ *  its place, and the ways to start. The titles are the banners' own labels
+ *  (PARTS in tour/guidedTour.ts). */
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -22,13 +22,13 @@ const PROJECT_IMG_URL =
   'https://www.heattransplan.de/fileadmin/_processed_/4/c/csm_AdobeStock_880898724_d3e9ed3e63.jpeg';
 
 /** A QR code image for a link (the service the current home page uses). */
-const qr = (url: string, size = 150) =>
+const qr = (url: string, size = 260) =>
   `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(url)}&margin=4`;
 
 interface Card {
   key: string;
   chapter: number;
-  /** One of the app's numbered steps: number, title and input as its banner shows them. */
+  /** One of the app's numbered steps: number and title as its banner shows them. */
   part?: PartNumber;
   icon?: LucideIcon;
   /** Bullets for "more about it", folded away: home_preview.<key>_more_<n>. */
@@ -95,19 +95,50 @@ export default function HomePage() {
 
   return (
     <div className={styles.page}>
+      {/* The name between the project's picture and the QR codes. */}
       <header className={styles.hero}>
-        <h1 className="notranslate">HeatTransPlan</h1>
-        <p className={styles.lead}>{t('home_preview.lead')}</p>
-        <div className={styles.heroActions}>
-          <button className="btn btn-primary" onClick={() => void tour(0)} disabled={busy}>
-            <CirclePlay size={16} /> {t('home_preview.start_tour')}
-          </button>
-          <button className="btn" onClick={() => void tryExample()} disabled={busy}>
-            <FolderOpen size={16} /> {t('home_preview.try_example')}
-          </button>
+        <a href={PROJECT_URL} target="_blank" rel="noopener noreferrer" className={styles.heroImg}>
+          <img src={PROJECT_IMG_URL} alt={t('home_preview.project_img_alt')} />
+        </a>
+        <div className={styles.heroMain}>
+          <h1 className="notranslate">HeatTransPlan</h1>
+          <p className={styles.lead}>{t('home_preview.lead')}</p>
+          <p className={styles.project}>
+            {t('home_preview.project_text')}{' '}
+            <a href={PROJECT_URL} target="_blank" rel="noopener noreferrer">
+              {t('home_preview.project_link')} ↗
+            </a>
+          </p>
+          <div className={styles.heroActions}>
+            <button className="btn btn-primary" onClick={() => void tour(0)} disabled={busy}>
+              <CirclePlay size={16} /> {t('home_preview.start_tour')}
+            </button>
+            <button className="btn" onClick={() => void tryExample()} disabled={busy}>
+              <FolderOpen size={16} /> {t('home_preview.try_example')}
+            </button>
+          </div>
+          <p className={styles.heroHint}>{t('home_preview.tour_hint')}</p>
+          {error && <p className={styles.error}>{error}</p>}
         </div>
-        <p className={styles.heroHint}>{t('home_preview.tour_hint')}</p>
-        {error && <p className={styles.error}>{error}</p>}
+        <div className={styles.qrs}>
+          {[
+            { url: PROJECT_URL, label: t('home.project_website') },
+            // This app's own address: right on a laptop and on the server alike.
+            { url: `${window.location.origin}/`, label: t('home.app') },
+          ].map(({ url, label }) => (
+            <figure key={label}>
+              <a href={url} target="_blank" rel="noopener noreferrer">
+                <img
+                  src={qr(url)}
+                  alt={t('home_preview.qr_alt', { name: label })}
+                  width={200}
+                  height={200}
+                />
+              </a>
+              <figcaption>{label}</figcaption>
+            </figure>
+          ))}
+        </div>
       </header>
 
       <section aria-labelledby="hp-how">
@@ -132,9 +163,8 @@ export default function HomePage() {
                           Icon && <Icon size={20} aria-hidden="true" />
                         )}
                       </div>
-                      {/* A step keeps its banner's own title and input. */}
+                      {/* A step keeps its banner's own title. */}
                       <h3>{part ? t(PARTS[part].title) : t(`home_preview.${key}_title`)}</h3>
-                      {part && <p className={styles.input}>{t(PARTS[part].input)}</p>}
                       <p>{t(`home_preview.${key}_text`)}</p>
                       <p className={styles.need}>
                         <strong>{t(`home_preview.${key}_need_label`)}</strong>{' '}
@@ -191,48 +221,8 @@ export default function HomePage() {
       <section aria-labelledby="hp-good" className={styles.good}>
         <h2 id="hp-good">{t('home_preview.good_title')}</h2>
         <ul>
-          <li>{t('home_preview.good_screening')}</li>
           <li>{t('home_preview.good_data')}</li>
         </ul>
-      </section>
-
-      <section aria-labelledby="hp-about" className={styles.about}>
-        <h2 id="hp-about">{t('home_preview.project_title')}</h2>
-        <div className={styles.aboutRow}>
-          <a
-            href={PROJECT_URL}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.aboutImg}
-          >
-            <img src={PROJECT_IMG_URL} alt={t('home_preview.project_img_alt')} />
-          </a>
-          <div className={styles.aboutText}>
-            <p>{t('home_preview.project_text')}</p>
-            <a href={PROJECT_URL} target="_blank" rel="noopener noreferrer">
-              {t('home_preview.project_link')} ↗
-            </a>
-          </div>
-          <div className={styles.qrs}>
-            {[
-              { url: PROJECT_URL, label: t('home.project_website') },
-              // This app's own address: right on a laptop and on the server alike.
-              { url: `${window.location.origin}/`, label: t('home.app') },
-            ].map(({ url, label }) => (
-              <figure key={label}>
-                <a href={url} target="_blank" rel="noopener noreferrer">
-                  <img
-                    src={qr(url)}
-                    alt={t('home_preview.qr_alt', { name: label })}
-                    width={130}
-                    height={130}
-                  />
-                </a>
-                <figcaption>{label}</figcaption>
-              </figure>
-            ))}
-          </div>
-        </div>
       </section>
 
       {setupOpen && <LiveSetup onClose={() => setSetupOpen(false)} />}

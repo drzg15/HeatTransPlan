@@ -16,8 +16,8 @@ CORS_ORIGINS = os.getenv(
 ).split(",")
 
 # AI access (Connect AI on the page, the live endpoints, the MCP server at
-# /mcp). AI_ENABLED=0 switches all of it off; the rest of the app is unchanged.
-AI_ENABLED = os.getenv("AI_ENABLED", "1").lower() not in ("0", "false", "off", "no")
+# /mcp). Off unless AI_ENABLED=1; the rest of the app is unchanged.
+AI_ENABLED = os.getenv("AI_ENABLED", "0").lower() not in ("0", "false", "off", "no")
 
 # Server settings
 HOST = os.getenv("HOST", "0.0.0.0")

@@ -236,7 +236,7 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
             ))}
             <button
               className="cf-chip"
-              title="Conditional logic for intervals (formatted for readability)"
+              title={t('cop_modal.interval_example_title')}
               onClick={() =>
                 insert(`where(
   T_sink < 110, 
@@ -249,7 +249,7 @@ export default function CopFormulaModal({ initial, onCancel, onApply }: Props) {
 )`)
               }
             >
-              Interval Example
+              {t('cop_modal.interval_example')}
             </button>
           </div>
           {check?.functions?.length ? (

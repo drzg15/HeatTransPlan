@@ -222,7 +222,7 @@ export function sensitivityChart(c: ChartCtx): { sens: Fig; sensExplain: string 
       margin: { l: 90, r: 20, t: 110, b: 30 },
       title: { text: sensTitle, font: { size: 14, color: text }, y: 0.98 },
       // Fixed ranges so the line is clipped to the price window.
-      // Electricity runs top-down, as on the slides.
+      // Electricity runs top-down.
       xaxis: {
         title: { text: `${fuelAxis} [ct/kWh]`, standoff: 8 },
         side: 'top',

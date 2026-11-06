@@ -50,3 +50,6 @@ graphify-out/
 
 # Built by CI and the docs container
 docs/_build/
+
+# The PowerPoint master (university logo): local only.
+blank_presi.pptx

@@ -366,10 +366,10 @@ export default function StreamDataTable({
                   borderRight: '1px solid var(--border)',
                 }}
               >
-                Actual Temp. [°C]
+                {t('stream_table.actual_temp')}
               </th>
               <th colSpan={12} style={{ ...headStyle('' as SortKey), textAlign: 'center' }}>
-                Thermal & Physical Data
+                {t('stream_table.thermal_data')}
               </th>
             </tr>
             {/* Sub-headers for sorting */}

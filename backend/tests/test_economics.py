@@ -95,10 +95,10 @@ def near(a, b, digits):
     assert abs(a - b) < 10 ** -digits / 2, f"{a} != {b} to {digits} digits"
 
 
-# Checks against the [case] presentation (slide 22/24), whose numbers the
-# formulas reproduce to the euro. One hour at efficiency 1 turns the "power"
-# inputs into the slide's annual kWh directly; the extras the slides do not
-# have (CO₂ cost, cooling, capacity charge, reinvestment, residual value) are off.
+# Checks against a reference calculation, whose numbers the formulas
+# reproduce to the euro. One hour at efficiency 1 turns the "power" inputs into
+# its annual kWh directly; the extras it does not have (CO₂ cost, cooling,
+# capacity charge, reinvestment, residual value) are off.
 INP = EconInputs(
     hours=1, eta=1, hsHi=1, pFuel=0.07, rFuel=0.03, co2Fuel=0.201, co2Priced=False,
     co2Price=0, rCo2=0, pEl=0.13, rEl=0.03, co2El=0.352, co2ElPriced=False, i=0.06,
@@ -111,7 +111,7 @@ REF_IST = EconReference(Q=E_IST, Qsrc=0)
 
 
 def variant(el, capex):
-    # The pump covers the whole demand at the COP that yields the slide's kWh_el.
+    # The pump covers the whole demand at the COP that yields the reference's kWh_el.
     return EconVariant(Q=E_IST, Qsrc=0, cop=E_IST / el, capex=capex)
 
 
@@ -137,7 +137,7 @@ def test_reproduces_status_quo():
 
 
 def test_reproduces_max_wrg():
-    # Except the slide NPV, which is inconsistent.
+    # Except the reference's NPV, which is inconsistent.
     r = evaluate(INP, REF_IST, variant(4_923_200, 3_270_000))
     assert jround(r["opex1"]) == 822_716
     assert jround(r["saving1"]) == 98_583
@@ -187,8 +187,8 @@ def test_finds_the_electricity_price_where_the_kapitalwert_is_zero():
     assert p_el < 0.13  # Status Quo loses money at 13 ct
 
 
-# The worked examples in VDI 2067, VDI 4646 and the [course] lecture
-# (data/economic_calculation/). Page and slide numbers in the rationale file.
+# The worked examples in VDI 2067 and VDI 4646 (data/economic_calculation/).
+# Page numbers in the rationale file.
 NONE = _r(INP, hours=0, fMaint=0)  # no energy flows: only the capital side moves
 ZERO = EconReference(Q=0, Qsrc=0)
 
@@ -204,8 +204,7 @@ def test_vdi_2067_replacement_and_residual_value_example():
     assert residual_value(_r(NONE, T=15, life=20), 100_000) == 25_000
 
 
-def test_lecture_lcoh_of_a_250_kw_heat_pump():
-    # Slides 15–22.
+def test_lcoh_of_a_250_kw_heat_pump():
     near(annuity_factor(0.06, 20), 0.087185, 6)
     near(vdi_specific_cost(250), 483.74, 2)
     # 125.000 €, 3000 h, COP 4, 17,5 ct/kWh, CO₂ 50 €/t × 0,35 t/MWh on the

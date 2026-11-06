@@ -3,6 +3,7 @@
  * Synchronized with the StreamDataTable and ActionBar.
  */
 
+import i18n from '../i18n';
 import type { ProjectState } from '../types/project';
 import { extractStreamInfo } from './streamInfo';
 import { haversineDistance, manhattanSphericalDistance } from './geoUtils';
@@ -262,7 +263,7 @@ export function exportDistanceMatrixToCsv(state: ProjectState, metric: 'manhatta
 export async function exportLiveMapSnapshot() {
   const mapEl = document.querySelector('.leaflet-container');
   if (!mapEl) {
-    alert('Map not found on screen. Please open the map view first.');
+    alert(i18n.t('map.not_on_screen'));
     return;
   }
   try {
@@ -287,6 +288,6 @@ export async function exportLiveMapSnapshot() {
     a.click();
   } catch (err) {
     console.error('Error capturing map:', err);
-    alert('Could not capture map image.');
+    alert(i18n.t('map.capture_failed'));
   }
 }

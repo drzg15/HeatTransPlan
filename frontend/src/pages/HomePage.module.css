@@ -13,12 +13,49 @@
   margin: 0 0 14px;
 }
 
+/* Picture, then the name and its text, then the QR codes, as one centred row. */
 .hero {
+  display: grid;
+  grid-template-columns: minmax(0, 440px) minmax(0, 720px) auto;
+  justify-content: center;
+  gap: 32px;
+  align-items: center;
+}
+@media (max-width: 860px) {
+  .hero {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+  }
+  .heroMain {
+    order: -1;
+  }
+  .heroImg {
+    max-width: 480px;
+  }
+}
+.heroMain {
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 10px;
+}
+.heroImg img {
+  display: block;
+  width: 100%;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+.project {
+  max-width: 680px;
+  margin: 0;
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--text-muted);
+}
+.project a {
+  font-weight: 600;
+  color: var(--primary);
 }
 .hero h1 {
   margin: 0;
@@ -152,11 +189,6 @@
 .need {
   color: var(--text-muted);
 }
-.step .input {
-  font-size: 0.78rem;
-  font-style: italic;
-  color: var(--text-muted);
-}
 .showMe {
   margin-top: auto;
   align-self: flex-start;
@@ -236,33 +268,6 @@
   margin-top: 4px;
 }
 
-/* About the project: picture, text, QR codes. */
-.aboutRow {
-  display: grid;
-  grid-template-columns: minmax(0, 260px) minmax(0, 1fr) auto;
-  gap: 20px;
-  align-items: center;
-}
-@media (max-width: 860px) {
-  .aboutRow {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
-.aboutImg img {
-  display: block;
-  width: 100%;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-}
-.aboutText p {
-  margin: 0 0 8px;
-  font-size: 0.9rem;
-  line-height: 1.5;
-}
-.aboutText a {
-  font-weight: 600;
-  color: var(--primary);
-}
 .qrs {
   display: flex;
   gap: 16px;

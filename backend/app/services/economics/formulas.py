@@ -76,7 +76,7 @@ class EconVariant:
     capex: float  # €
 
 
-# Payback is searched past T up to this horizon ("nach 2067" on the slides).
+# Payback is searched past T up to this horizon.
 PAYBACK_HORIZON = 40
 
 

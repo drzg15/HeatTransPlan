@@ -78,11 +78,12 @@ def test_a_command_without_a_page_fails_fast(client):
 
 
 def test_ai_switched_off_leaves_the_rest():
-    """AI_ENABLED=0: no Connect AI, no live endpoints, no /mcp; projects still work."""
+    """AI off, as it is without AI_ENABLED: no Connect AI, no live endpoints,
+    no /mcp; projects still work."""
     import subprocess
     import sys
     code = (
-        "import os; os.environ['AI_ENABLED']='0'\n"
+        "import os; os.environ.pop('AI_ENABLED', None)\n"
         "from fastapi.testclient import TestClient\nfrom app.main import app\n"
         "with TestClient(app) as c:\n"
         "    f = c.get('/api/features').json()\n"

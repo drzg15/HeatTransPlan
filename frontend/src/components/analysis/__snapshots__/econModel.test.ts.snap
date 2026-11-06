@@ -477,7 +477,7 @@ exports[`economic model > German report data 1`] = `
     },
     {
      "cells": [
-      "Kostenfunktion VDI 4646 (nur zum Vergleich)",
+      "Kostenfunktion VDI 4646:2026 (nur zum Vergleich)",
       "€/kW",
       "–",
       "632"
@@ -492,7 +492,7 @@ exports[`economic model > German report data 1`] = `
  "summary": {
   "name": "Butane_2 84 °C",
   "good": true,
-  "text": "Diese Wärmepumpe liefert 105 kW des Bedarfs von 375 kW (28 %) bei einem COP von 7,48 und entzieht der Wärmequelle 91 kW. Der restliche Bedarf bleibt beim Erdgaskessel. Sie ersetzt 724.138 kWh/Jahr Erdgas durch 84.269 kWh/Jahr Strom, spart 639.868 kWh/Jahr Endenergie und 101,5 t CO₂ pro Jahr. Im ersten Jahr senkt sie die Betriebskosten um 36.078 €. Die Investition beträgt 164.063 € (0 % Förderung). Sie amortisiert sich nach 7 Jahren (2034). Über 20 Jahre erwirtschaftet sie 157.677 € in heutigem Geld (Kapitalwert, inkl. 0 € Restwert). Je kWh Wärme kostet die Wärmepumpe 6,38 ct gegenüber 9,73 ct beim Erdgaskessel (Wärmegestehungskosten, Annuitätenmethode, VDI 4646); statische Amortisation 4,5 Jahre, interner Zinsfuß 24,3 %. Bei 6 ct/kWh für Erdgas bleibt sie wirtschaftlich, solange Strom weniger als 33,12 ct/kWh kostet."
+  "text": "Diese Wärmepumpe liefert 105 kW des Bedarfs von 375 kW (28 %) bei einem COP von 7,48 und entzieht der Wärmequelle 91 kW. Der restliche Bedarf bleibt beim Erdgaskessel. Sie ersetzt 724.138 kWh/Jahr Erdgas durch 84.269 kWh/Jahr Strom, spart 639.868 kWh/Jahr Endenergie und 101,5 t CO₂ pro Jahr. Im ersten Jahr senkt sie die Betriebskosten um 36.078 €. Die Investition beträgt 164.063 € (0 % Förderung). Sie amortisiert sich nach 7 Jahren (2034). Über 20 Jahre erwirtschaftet sie 157.677 € in heutigem Geld (Kapitalwert, inkl. 0 € Restwert). Je kWh Wärme kostet die Wärmepumpe 6,38 ct gegenüber 9,73 ct beim Erdgaskessel (Wärmegestehungskosten, Annuitätenmethode, VDI 4646:2026); statische Amortisation 4,5 Jahre, interner Zinsfuß 24,3 %. Bei 6 ct/kWh für Erdgas bleibt sie wirtschaftlich, solange Strom weniger als 33,12 ct/kWh kostet."
  },
  "figures": [
   {
@@ -1884,7 +1884,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -1943,7 +1943,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
   {
    "name": "Carnot 113 °C",
    "good": true,
-   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Electricity (boiler) with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 81.444 €. The investment is 585.938 € (0 % funding). It pays back after 12 years (2039). Over 20 years it earns 173.214 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646); static payback 7,2 years, internal rate of return 16 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 16,94 ct/kWh."
+   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Electricity (boiler) with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 81.444 €. The investment is 585.938 € (0 % funding). It pays back after 12 years (2039). Over 20 years it earns 173.214 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 7,2 years, internal rate of return 16 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 16,94 ct/kWh."
   }
  ],
  "sensExplain": "At a Electricity (boiler) price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 16,94 ct/kWh. That is the dashed line.",
@@ -3332,7 +3332,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -3391,7 +3391,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
   {
    "name": "Butane_1 102 °C",
    "good": true,
-   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 1.396.552 kWh/year of Electricity (boiler) with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 49.201 €. The investment is 316.406 € (0 % funding). It pays back after 11 years (2038). Over 20 years it earns 141.047 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646); static payback 6,4 years, internal rate of return 17,8 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 20,08 ct/kWh."
+   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 1.396.552 kWh/year of Electricity (boiler) with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 49.201 €. The investment is 316.406 € (0 % funding). It pays back after 11 years (2038). Over 20 years it earns 141.047 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 6,4 years, internal rate of return 17,8 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 20,08 ct/kWh."
   }
  ],
  "sensExplain": "At a Electricity (boiler) price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 20,08 ct/kWh. That is the dashed line.",
@@ -4780,7 +4780,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -4839,7 +4839,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
   {
    "name": "Butane_2 84 °C",
    "good": true,
-   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 724.138 kWh/year of Electricity (boiler) with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 28.866 €. The investment is 164.063 € (0 % funding). It pays back after 9 years (2036). Over 20 years it earns 103.807 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646); static payback 5,7 years, internal rate of return 20,1 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 26,24 ct/kWh."
+   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 724.138 kWh/year of Electricity (boiler) with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 28.866 €. The investment is 164.063 € (0 % funding). It pays back after 9 years (2036). Over 20 years it earns 103.807 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 5,7 years, internal rate of return 20,1 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 26,24 ct/kWh."
   }
  ],
  "sensExplain": "At a Electricity (boiler) price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 26,24 ct/kWh. That is the dashed line.",
@@ -6228,7 +6228,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -6287,7 +6287,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
   {
    "name": "Carnot 113 °C",
    "good": true,
-   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Natural gas with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 107.201 €. The investment is 585.938 € (0 % funding). It pays back after 9 years (2036). Over 20 years it earns 365.606 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646); static payback 5,5 years, internal rate of return 20,2 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 21,32 ct/kWh."
+   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Natural gas with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 107.201 €. The investment is 585.938 € (0 % funding). It pays back after 9 years (2036). Over 20 years it earns 365.606 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 5,5 years, internal rate of return 20,2 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 21,32 ct/kWh."
   }
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 21,32 ct/kWh. That is the dashed line.",
@@ -7676,7 +7676,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -7735,7 +7735,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
   {
    "name": "Butane_1 102 °C",
    "good": true,
-   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 1.396.552 kWh/year of Natural gas with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
+   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 1.396.552 kWh/year of Natural gas with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
   }
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 25,29 ct/kWh. That is the dashed line.",
@@ -9124,7 +9124,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -9183,7 +9183,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
   {
    "name": "Butane_2 84 °C",
    "good": true,
-   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 724.138 kWh/year of Natural gas with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 36.078 €. The investment is 164.063 € (0 % funding). It pays back after 7 years (2034). Over 20 years it earns 157.677 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646); static payback 4,5 years, internal rate of return 24,3 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 33,12 ct/kWh."
+   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 724.138 kWh/year of Natural gas with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 36.078 €. The investment is 164.063 € (0 % funding). It pays back after 7 years (2034). Over 20 years it earns 157.677 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 4,5 years, internal rate of return 24,3 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 33,12 ct/kWh."
   }
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 33,12 ct/kWh. That is the dashed line.",
@@ -10572,7 +10572,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -10631,7 +10631,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
   {
    "name": "Carnot 113 °C",
    "good": true,
-   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Heating oil with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 107.201 €. The investment is 585.938 € (0 % funding). It pays back after 9 years (2036). Over 20 years it earns 365.606 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646); static payback 5,5 years, internal rate of return 20,2 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 21,32 ct/kWh."
+   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Heating oil with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 107.201 €. The investment is 585.938 € (0 % funding). It pays back after 9 years (2036). Over 20 years it earns 365.606 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 5,5 years, internal rate of return 20,2 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 21,32 ct/kWh."
   }
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 21,32 ct/kWh. That is the dashed line.",
@@ -12020,7 +12020,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -12079,7 +12079,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
   {
    "name": "Butane_1 102 °C",
    "good": true,
-   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 1.396.552 kWh/year of Heating oil with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
+   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 1.396.552 kWh/year of Heating oil with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
   }
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 25,29 ct/kWh. That is the dashed line.",
@@ -13468,7 +13468,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -13527,7 +13527,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
   {
    "name": "Butane_2 84 °C",
    "good": true,
-   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 724.138 kWh/year of Heating oil with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 36.078 €. The investment is 164.063 € (0 % funding). It pays back after 7 years (2034). Over 20 years it earns 157.677 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646); static payback 4,5 years, internal rate of return 24,3 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 33,12 ct/kWh."
+   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 724.138 kWh/year of Heating oil with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 36.078 €. The investment is 164.063 € (0 % funding). It pays back after 7 years (2034). Over 20 years it earns 157.677 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 4,5 years, internal rate of return 24,3 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 33,12 ct/kWh."
   }
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 33,12 ct/kWh. That is the dashed line.",
@@ -14911,7 +14911,7 @@ exports[`economic model > changed inputs 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -14970,7 +14970,7 @@ exports[`economic model > changed inputs 1`] = `
   {
    "name": "Butane_2 84 °C",
    "good": true,
-   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 724.138 kWh/year of Heating oil with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 32.396 €. The investment is 246.094 € (40 % funding). It pays back after 7 years (2034). Over 15 years it earns 122.305 € in today's money (net present value, incl. 61.524 € residual value). Per kWh of heat the heat pump costs 6,58 ct against 9,43 ct from the Oil boiler (LCOH, annuity method, VDI 4646); static payback 4,6 years, internal rate of return 24 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 30,73 ct/kWh."
+   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 724.138 kWh/year of Heating oil with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 32.396 €. The investment is 246.094 € (40 % funding). It pays back after 7 years (2034). Over 15 years it earns 122.305 € in today's money (net present value, incl. 61.524 € residual value). Per kWh of heat the heat pump costs 6,58 ct against 9,43 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 4,6 years, internal rate of return 24 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 30,73 ct/kWh."
   }
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 30,73 ct/kWh. That is the dashed line.",
@@ -16324,7 +16324,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
   ],
   [
    "capex_vdi",
-   "VDI 4646 cost function (reference only)",
+   "VDI 4646:2026 cost function (reference only)",
    "€/kW",
    "–",
    [
@@ -16383,7 +16383,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
   {
    "name": "Butane_1 102 °C",
    "good": true,
-   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 1.396.552 kWh/year of Natural gas with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
+   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 1.396.552 kWh/year of Natural gas with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
   }
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 25,29 ct/kWh. That is the dashed line.",
@@ -17835,7 +17835,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
     },
     {
      "cells": [
-      "VDI 4646 cost function (reference only)",
+      "VDI 4646:2026 cost function (reference only)",
       "€/kW",
       "–",
       "498"
@@ -17850,7 +17850,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
  "summary": {
   "name": "Butane_1 102 °C",
   "good": true,
-  "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 1.396.552 kWh/year of Electricity (boiler) with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 49.201 €. The investment is 316.406 € (0 % funding). It pays back after 11 years (2038). Over 20 years it earns 141.047 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646); static payback 6,4 years, internal rate of return 17,8 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 20,08 ct/kWh."
+  "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 1.396.552 kWh/year of Electricity (boiler) with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 49.201 €. The investment is 316.406 € (0 % funding). It pays back after 11 years (2038). Over 20 years it earns 141.047 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 6,4 years, internal rate of return 17,8 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 20,08 ct/kWh."
  },
  "figures": [
   {
