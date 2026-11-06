@@ -31,8 +31,18 @@ interface Props {
   addressSearch?: string;
   onAddressSearchChange?: (val: string) => void;
   onAddressSearchSubmit?: () => void;
+  /** All matches of the last search; the map shows the first. */
+  addressMatches?: AddressMatch[];
+  onAddressPick?: (match: AddressMatch) => void;
   showHelp?: boolean;
   onHelpToggle?: () => void;
+}
+
+/** One result of the address search (Nominatim). */
+export interface AddressMatch {
+  display_name: string;
+  lat: string;
+  lon: string;
 }
 
 const BASE_OPTIONS = ['OpenStreetMap', 'Satellite'];
@@ -50,6 +60,8 @@ export default function ActionBar({
   addressSearch,
   onAddressSearchChange,
   onAddressSearchSubmit,
+  addressMatches = [],
+  onAddressPick,
   showHelp,
   onHelpToggle,
 }: Props) {
@@ -227,6 +239,22 @@ export default function ActionBar({
               >
                 <Search size={14} />
               </button>
+              {addressMatches.length > 1 && (
+                <select
+                  className="ab-search-matches"
+                  aria-label={t('ui.other_matches')}
+                  title={t('ui.other_matches')}
+                  defaultValue={0}
+                  key={addressMatches.map((m) => m.display_name).join('|')}
+                  onChange={(e) => onAddressPick?.(addressMatches[Number(e.target.value)])}
+                >
+                  {addressMatches.map((m, i) => (
+                    <option key={i} value={i}>
+                      {m.display_name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           )}
 

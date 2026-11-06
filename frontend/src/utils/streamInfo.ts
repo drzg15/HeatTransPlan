@@ -111,3 +111,17 @@ export function extractStreamInfo(stream: Record<string, any>): StreamInfo {
 
   return { tin, tout, mdot, cp: cpVal, CP, Q, type, density, pressure, water_in, water_out };
 }
+
+const sub = (s: string) => `<tspan baseline-shift="sub" font-size="75%">${s}</tspan>`;
+const known = (v: number | null | undefined): v is number => v !== null && v !== undefined;
+
+/** A stream's values as SVG text for the map labels, with subscripts and units
+ *  (the values are already in °C, kg/s and kJ/(kg·K)); empty where unknown. */
+export function streamSvgText(info: Pick<StreamInfo, 'tin' | 'tout' | 'mdot' | 'cp'>) {
+  return {
+    tin: known(info.tin) ? `T${sub('in')}=${info.tin} °C` : '',
+    tout: known(info.tout) ? `T${sub('out')}=${info.tout} °C` : '',
+    mdot: known(info.mdot) ? `ṁ=${info.mdot} kg/s` : '',
+    cp: known(info.cp) ? `c${sub('p')}=${info.cp} kJ/(kg·K)` : '',
+  };
+}

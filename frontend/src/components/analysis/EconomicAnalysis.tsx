@@ -32,6 +32,7 @@ import {
   type RefType,
 } from './econConfig';
 import { formatDe, parseDe } from '../../utils/numberFormat';
+import { formulaHtml } from '../../utils/formulaHtml';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 
 // Specific investment cost references for industrial high-temperature heat
@@ -59,6 +60,9 @@ const CAPEX_SOURCES = [
     url: 'https://energy.nl/wp-content/uploads/industrial-high-temperature-heat-pump-2-7.pdf',
   },
 ];
+
+// Help text with its symbols written with real indices (P_el → P<sub>el</sub>).
+const html = (text: string) => ({ dangerouslySetInnerHTML: { __html: formulaHtml(text) } });
 
 const formulaStyle = {
   fontFamily: 'monospace',
@@ -301,10 +305,10 @@ export default function EconomicAnalysis() {
         inline
         description={
           <>
-            <p>{t('economics.help_1')}</p>
-            <p>{t('economics.help_2')}</p>
-            <p>{t('economics.help_3')}</p>
-            <p>{t('economics.help_4')}</p>
+            <p {...html(t('economics.help_1'))} />
+            <p {...html(t('economics.help_2'))} />
+            <p {...html(t('economics.help_3'))} />
+            <p {...html(t('economics.help_4'))} />
             <p>{t('economics.help_4_source')}</p>
             <ul>
               {CAPEX_SOURCES.map((s) => (
@@ -388,13 +392,14 @@ export default function EconomicAnalysis() {
           <>
             <div style={formulaStyle}>
               {FORMULAS[key].f.map((line) => (
-                <div key={line}>{sym(line)}</div>
+                <div key={line} {...html(sym(line))} />
               ))}
             </div>
             <ul style={{ margin: 0, paddingLeft: '1.1rem' }}>
               {FORMULAS[key].terms.map((s) => (
                 <li key={s}>
-                  <code>{sym(s)}</code> — {t(`economics.terms.${termKey(s)}`)}
+                  <code {...html(sym(s))} /> —{' '}
+                  <span {...html(t(`economics.terms.${termKey(s)}`))} />
                 </li>
               ))}
             </ul>
@@ -417,7 +422,7 @@ export default function EconomicAnalysis() {
             {t(`economics.input_help.${key}`, { fuel })
               .split('\n')
               .map((line) => (
-                <p key={line}>{line}</p>
+                <p key={line} {...html(line)} />
               ))}
           </>
         }
@@ -745,7 +750,7 @@ export default function EconomicAnalysis() {
                 {t('economics.sens_help', { fuel, ref: refName, T: inp.T })
                   .split('\n')
                   .map((line) => (
-                    <p key={line}>{line}</p>
+                    <p key={line} {...html(line)} />
                   ))}
               </>
             }
@@ -777,7 +782,7 @@ export default function EconomicAnalysis() {
                 {t('economics.size_help', { ref: refName })
                   .split('\n')
                   .map((line) => (
-                    <p key={line}>{line}</p>
+                    <p key={line} {...html(line)} />
                   ))}
               </>
             }

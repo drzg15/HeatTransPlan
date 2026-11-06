@@ -1,7 +1,8 @@
 import React from 'react';
 import { Marker } from 'react-leaflet';
 import L from 'leaflet';
-import { extractStreamInfo } from '../../utils/streamInfo';
+import i18n from '../../i18n';
+import { extractStreamInfo, streamSvgText } from '../../utils/streamInfo';
 import { streamColor } from './mapHelpers';
 
 export function StreamArrowsOverlay({
@@ -161,22 +162,19 @@ export function StreamArrowsOverlay({
 
           const match = s.name.match(/\d+/);
           const num = match ? match[0] : s.si + 1;
-          const streamTypeStr = isHotStream ? 'Source' : 'Sink';
+          const streamTypeStr = i18n.t(isHotStream ? 'map.heat_source' : 'map.heat_sink');
 
           const tColor = isHotStream ? '#e74c3c' : '#3498db';
 
-          const tinText = s.tin !== null && s.tin !== undefined ? `Tin=${s.tin}°C` : '';
-          const toutText = s.tout !== null && s.tout !== undefined ? `Tout=${s.tout}°C` : '';
-          const extraProps = [];
-          if (s.mdot !== null && s.mdot !== undefined) extraProps.push(`m=${s.mdot}`);
-          if (s.cp !== null && s.cp !== undefined) extraProps.push(`cp=${s.cp}`);
-          const extraText = extraProps.length > 0 ? extraProps.join(', ') : '';
-
+          const text = streamSvgText(s);
+          const toutText = text.tout;
+          // One line each: name, inlet temperature, mass flow, heat capacity.
           const feedSVG = `
-            <tspan x="${cx}" dy="-6">Heat</tspan>
-            <tspan x="${cx}" dy="12">${streamTypeStr} ${num}</tspan>
-            ${tinText ? `<tspan x="${cx}" dy="12">${tinText}</tspan>` : ''}
-            ${extraText ? `<tspan x="${cx}" dy="12">${extraText}</tspan>` : ''}
+            <tspan x="${cx}" dy="-6">${streamTypeStr} ${num}</tspan>
+            ${[text.tin, text.mdot, text.cp]
+              .filter(Boolean)
+              .map((line) => `<tspan x="${cx}" dy="12">${line}</tspan>`)
+              .join('')}
           `;
 
           const prodSVG = toutText ? `<tspan x="${cx}" dy="0">${toutText}</tspan>` : '';

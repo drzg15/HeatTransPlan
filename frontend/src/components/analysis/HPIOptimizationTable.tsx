@@ -2,9 +2,10 @@
  *  archetypes, sortable by every column. */
 
 import type { CSSProperties, ReactNode } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 import ChartHelpButton from '../ui/ChartHelpButton';
+import { formulaHtml } from '../../utils/formulaHtml';
 import { refBaseName, type SortConfig, type SortKey } from './hpiOptimizationRows';
 
 interface Props {
@@ -17,6 +18,21 @@ interface Props {
   feasibleCount: number;
   diagnosticMessages: string[];
 }
+
+/** A symbol label in scientific notation: "Q_sink (kW)" → Q<sub>sink</sub> (kW),
+ *  kept out of the header row's capitals. Anything else is returned as it is. */
+const symbol = (label: string) => {
+  const m = label.match(/^(\w)_(\S+)(.*)$/);
+  return m ? (
+    <span style={{ textTransform: 'none' }}>
+      {m[1]}
+      <sub>{m[2]}</sub>
+      {m[3]}
+    </span>
+  ) : (
+    label
+  );
+};
 
 const thStyle = {
   cursor: 'pointer',
@@ -96,7 +112,7 @@ export default function HPIOptimizationTable({
   feasibleCount,
   diagnosticMessages,
 }: Props) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // Tints matching the heat pump overlay in the chart, so a column can be read
   // back to the arrow it belongs to. Kept pale: these sit behind black text on
@@ -115,6 +131,9 @@ export default function HPIOptimizationTable({
   // Carnot is not a fitted correlation like the other archetypes — it is the
   // thermodynamic relation between the two temperatures — so it gets its own
   // explanation rather than the "published regressions" one.
+  const oneDecimal = (v: number) =>
+    v.toLocaleString(i18n.language, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+
   const entryHint = (pt: OptimizedIntegrationPoint) =>
     !pt.theoretical
       ? t('optimization.real_hint')
@@ -176,44 +195,44 @@ export default function HPIOptimizationTable({
                 )}
                 {header(
                   'Q_demand',
-                  t('optimization.panel.headers.q_sink'),
+                  symbol(t('optimization.panel.headers.q_sink')),
                   t('optimization.title_q_sink'),
                   t('optimization.tooltip_q_sink')
                 )}
                 {header(
                   'Q_source',
-                  t('optimization.panel.headers.q_source'),
+                  symbol(t('optimization.panel.headers.q_source')),
                   t('optimization.title_q_source'),
                   t('optimization.tooltip_q_source')
                 )}
                 {header(
                   'W_el',
-                  t('optimization.panel.headers.w_el'),
+                  symbol(t('optimization.panel.headers.w_el')),
                   t('optimization.title_w_el'),
                   t('optimization.tooltip_w_el')
                 )}
                 {header(
                   'T_sink',
-                  'Actual Sink Temp [°C]',
+                  `${t('optimization.title_actual_sink_temp')} [°C]`,
                   t('optimization.title_actual_sink_temp'),
                   t('optimization.desc_actual_sink_temp')
                 )}
                 {header(
                   'T_sink',
-                  <>Shifted Sink (T+{tMin / 2}K) [°C]</>,
+                  `${t('optimization.title_shifted_sink_temp')} (T + ${tMin / 2} K) [°C]`,
                   t('optimization.title_shifted_sink_temp'),
                   t('optimization.desc_shifted_sink_temp'),
                   { noIcon: true }
                 )}
                 {header(
                   'T_source',
-                  'Actual Source Temp [°C]',
+                  `${t('optimization.title_actual_source_temp')} [°C]`,
                   t('optimization.title_actual_source_temp'),
                   t('optimization.desc_actual_source_temp')
                 )}
                 {header(
                   'T_source',
-                  <>Shifted Source (T−{tMin / 2}K) [°C]</>,
+                  `${t('optimization.title_shifted_source_temp')} (T − ${tMin / 2} K) [°C]`,
                   t('optimization.title_shifted_source_temp'),
                   t('optimization.desc_shifted_source_temp'),
                   { noIcon: true }
@@ -309,16 +328,42 @@ export default function HPIOptimizationTable({
                             description={
                               <>
                                 <p>{entryHint(pt)}</p>
-                                <pre
-                                  style={{
-                                    margin: 0,
-                                    whiteSpace: 'pre-wrap',
-                                    fontFamily: 'monospace',
-                                    fontSize: '0.9em',
-                                  }}
-                                >
-                                  {pt.calculation_details}
-                                </pre>
+                                {pt.theoretical ? (
+                                  // An archetype's formula, with its temperatures filled in.
+                                  <pre
+                                    style={{
+                                      margin: 0,
+                                      whiteSpace: 'pre-wrap',
+                                      fontFamily: 'monospace',
+                                      fontSize: '0.9em',
+                                    }}
+                                    dangerouslySetInnerHTML={{
+                                      // The server's Carnot text opens with an English
+                                      // sentence that repeats the hint above: start at the formula.
+                                      __html: formulaHtml(
+                                        pt.calculation_details.slice(
+                                          Math.max(0, pt.calculation_details.indexOf('COP ='))
+                                        )
+                                      ),
+                                    }}
+                                  />
+                                ) : (
+                                  // A model row has no formula, only its operating
+                                  // point: written here in the page's language.
+                                  <p>
+                                    <Trans
+                                      i18nKey="optimization.real_point"
+                                      values={{
+                                        name: pt.refrigerant,
+                                        medium: t(`optimization.medium.${pt.medium_sink}`, pt.medium_sink),
+                                        stages: pt.hp_level,
+                                        source: oneDecimal(pt.T_source),
+                                        sink: oneDecimal(pt.T_sink),
+                                      }}
+                                      components={{ sub: <sub /> }}
+                                    />
+                                  </p>
+                                )}
                               </>
                             }
                           />

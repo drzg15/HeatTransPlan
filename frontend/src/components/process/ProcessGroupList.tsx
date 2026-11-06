@@ -125,7 +125,7 @@ export default function ProcessGroupList({
   const addSubprocess = (gIdx: number) => {
     const newProcesses = [...processes];
     const newSub: ProcessNode = {
-      name: `Subprocess ${newProcesses.length + 1}`,
+      name: t('data_collection.default_subprocess', { n: newProcesses.length + 1 }),
       lat: '',
       lon: '',
       box_scale: 1.5,

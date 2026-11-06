@@ -5,6 +5,7 @@ import ChartHelpButton from '../ui/ChartHelpButton';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
 import HPIOptimizationChartHelp from './HPIOptimizationChartHelp';
 import { heatPumpSchematic } from './hpSchematic';
+import { formulaHtml } from '../../utils/formulaHtml';
 import {
   activePointsOf,
   boxPointsOf,
@@ -108,8 +109,8 @@ export default function HPIOptimizationChart({
       mode: 'lines' as const,
       line: { color: SOURCE_BG, width: 3 },
       name: t('analysis.charts.source_profile'),
-      // The two profile curves carry the legend; the solution cloud and the
-      // heat pump schematic stay out of it to keep the key to two entries.
+      // The profile curves are in the legend; the solution cloud is explained by
+      // one entry per marker kind (below), not one per refrigerant.
       showlegend: true,
       hoverinfo: 'skip',
     });
@@ -230,6 +231,24 @@ export default function HPIOptimizationChart({
     });
   });
 
+  // Legend entries for the point symbols: one per kind, not per refrigerant,
+  // drawn empty so they only explain what the markers above mean.
+  const legendOnly = (name: string, marker: object) =>
+    traces.push({ x: [null], y: [null], mode: 'markers' as const, name, marker, hoverinfo: 'skip' });
+  if (filteredPoints.length > 0) {
+    legendOnly(t('analysis.charts.legend_sink_point'), { size: 7, color: SINK_SOFT, symbol: 'circle' });
+    legendOnly(t('analysis.charts.legend_source_point'), { size: 7, color: SOURCE_SOFT, symbol: 'circle' });
+    legendOnly(t('analysis.charts.legend_partial'), {
+      size: 7,
+      color: 'gray',
+      symbol: 'circle-open',
+      line: { width: 1.5, color: 'gray' },
+    });
+  }
+  if (theoreticalPoints.length > 0) {
+    legendOnly(t('analysis.charts.legend_theoretical'), { size: 7, color: 'gray', symbol: 'diamond' });
+  }
+
   // Trace 3: Selected Points (if any, otherwise maxQ point)
   const activePoints = activePointsOf(maxQPoint, selectedPoints);
 
@@ -248,7 +267,7 @@ export default function HPIOptimizationChart({
         line: { width: 2, color: isDark ? '#FFF' : '#000' },
       },
       text: [
-        `<b>${t('ui.active_sink')}</b><br>T: ${activePoint.T_sink.toFixed(1)}°C<br>Q_demand: ${activePoint.Q_demand.toFixed(1)} kW<br>COP: ${activePoint.COP.toFixed(2)}`,
+        `<b>${t('ui.active_sink')}</b><br>${formulaHtml(t('optimization.symbols.t_sink'))}: ${activePoint.T_sink.toFixed(1)} °C<br>${formulaHtml(t('optimization.symbols.q_sink'))}: ${activePoint.Q_demand.toFixed(1)} kW<br>COP: ${activePoint.COP.toFixed(2)}`,
       ],
       hoverinfo: 'text',
     });
@@ -270,7 +289,7 @@ export default function HPIOptimizationChart({
         line: { width: 2, color: isDark ? '#FFF' : '#000' },
       },
       text: [
-        `<b>${t('ui.active_source')}</b><br>T: ${activePoint.T_source.toFixed(1)}°C<br>Q_source: ${((activePoint.Q_demand * (activePoint.COP - 1)) / activePoint.COP).toFixed(1)} kW<br>COP: ${activePoint.COP.toFixed(2)}`,
+        `<b>${t('ui.active_source')}</b><br>${formulaHtml(t('optimization.symbols.t_source'))}: ${activePoint.T_source.toFixed(1)} °C<br>${formulaHtml(t('optimization.symbols.q_source'))}: ${((activePoint.Q_demand * (activePoint.COP - 1)) / activePoint.COP).toFixed(1)} kW<br>COP: ${activePoint.COP.toFixed(2)}`,
       ],
       hoverinfo: 'text',
     });
@@ -361,7 +380,8 @@ export default function HPIOptimizationChart({
               xref: 'paper',
               xanchor: 'right',
               y: pinchTemperature,
-              text: `${t('analysis.charts.pinch')}${pinchTemperature.toFixed(1)}°C`,
+              yanchor: 'bottom', // above the dashed line, not on it
+              text: `${t('analysis.charts.pinch')}${pinchTemperature.toFixed(1)} °C`,
               showarrow: false,
               font: { size: 11, color: isDark ? '#60A5FA' : 'gray' },
             },

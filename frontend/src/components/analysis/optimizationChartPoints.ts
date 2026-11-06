@@ -3,6 +3,7 @@
 
 import type { TFunction } from 'i18next';
 import type { OptimizedIntegrationPoint } from '../../types/analysis';
+import { formulaHtml } from '../../utils/formulaHtml';
 
 // On a steep stretch of the sink profile, tens of degrees of lift cost only
 // a few kW, so dozens of points stack into a near-vertical line at
@@ -128,17 +129,18 @@ export function stackedHoverText(
     const [best, ...rest] = group;
     const kind = best.theoretical ? t('optimization.theoretical') : t('optimization.real');
     const qSource = (x: OptimizedIntegrationPoint) => (x.Q_demand * (x.COP - 1)) / x.COP;
+    const sym = (key: string) => formulaHtml(t(`optimization.symbols.${key}`));
 
     const head =
       side === 'sink'
         ? `<b>${best.refrigerant} — ${kind}</b><br>` +
-          `T_sink: ${best.T_sink.toFixed(1)}°C<br>` +
-          `Q_sink: ${best.Q_demand.toFixed(1)} kW` +
-          `${best.source_limited && best.Q_demand_total ? ` of ${best.Q_demand_total.toFixed(1)} kW (source-limited)` : ''}<br>` +
+          `${sym('t_sink')}: ${best.T_sink.toFixed(1)} °C<br>` +
+          `${sym('q_sink')}: ${best.Q_demand.toFixed(1)} kW` +
+          `${best.source_limited && best.Q_demand_total ? ` ${t('optimization.hover_of_total', { total: best.Q_demand_total.toFixed(1) })}` : ''}<br>` +
           `COP: ${best.COP.toFixed(2)}`
         : `<b>${best.refrigerant} — ${kind}</b><br>` +
-          `T_source: ${best.T_source.toFixed(1)}°C<br>` +
-          `Q_source: ${qSource(best).toFixed(1)} kW<br>` +
+          `${sym('t_source')}: ${best.T_source.toFixed(1)} °C<br>` +
+          `${sym('q_source')}: ${qSource(best).toFixed(1)} kW<br>` +
           `COP: ${best.COP.toFixed(2)}` +
           `${best.demand_limited ? `<br>${t('optimization.hover_demand_limited')}` : ''}`;
 

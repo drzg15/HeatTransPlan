@@ -21,7 +21,6 @@ const SAME_IN_BOTH = new Set([
   'optimization.panel.headers.w_el', // symbol
   'optimization.desc_opt_panel_c5', // unit only
   'optimization.desc_opt_panel_c6', // formula only
-  'optimization.real', // loanword in this domain
   'optimization.carnot_50', // proper noun
   'cop_modal.name', // same word in both
   'cop_modal.cop_equals', // formula

@@ -541,7 +541,7 @@ export default function PinchCurvesChart() {
         y: pinchResult.pinch_temperature,
         yanchor: 'bottom',
         showarrow: false,
-        text: `${t('analysis.charts.pinch')}${pinchResult.pinch_temperature.toFixed(1)}°C`,
+        text: `${t('analysis.charts.pinch')}${pinchResult.pinch_temperature.toFixed(1)} °C`,
         font: { size: region === 'pinch' ? 13 : 11, color: pinchInk },
         bgcolor: isDark ? 'rgba(15,23,42,0.85)' : 'rgba(255,255,255,0.85)',
       },

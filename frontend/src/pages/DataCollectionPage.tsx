@@ -8,7 +8,7 @@ import { useAnalysisStore } from '../store/analysisStore';
 import MapViewer from '../components/map/MapViewer';
 import type { ProcessNode } from '../types/process';
 import ProcessGroupList from '../components/process/ProcessGroupList';
-import ActionBar from '../components/io/ActionBar';
+import ActionBar, { type AddressMatch } from '../components/io/ActionBar';
 import StreamDataTable from '../components/analysis/StreamDataTable';
 import './DataCollectionPage.css';
 import { PartBanner } from '../components/ui/Part';
@@ -40,6 +40,7 @@ export default function DataCollectionPage() {
   const [mobilePane, setMobilePane] = useState<'editor' | 'map'>('map');
 
   const [addressSearch, setAddressSearch] = useState('');
+  const [addressMatches, setAddressMatches] = useState<AddressMatch[]>([]);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
   // Auto-sync UI mode with map_locked state (e.g., when loading files), while
@@ -236,7 +237,7 @@ export default function DataCollectionPage() {
     const groupNames = [...state.proc_group_names];
     // Create a new empty subprocess (level 0 processes contain subprocesses)
     const newProcess = {
-      name: `Subprocess ${processes.length + 1}`,
+      name: t('data_collection.default_subprocess', { n: processes.length + 1 }),
       lat: '',
       lon: '',
       box_scale: 1.5,
@@ -249,36 +250,45 @@ export default function DataCollectionPage() {
     const newIdx = processes.length;
     processes.push(newProcess);
     groups.push([newIdx]);
-    groupNames.push(`Process ${groups.length}`);
+    groupNames.push(t('data_collection.default_process', { n: groups.length }));
 
     setProcesses(processes);
     setGroups(groups);
     setGroupNames(groupNames);
-    setStatusMsg(`Added Process ${groups.length}`);
-  }, [state, setProcesses, setGroups, setGroupNames]);
+    setStatusMsg(t('data_collection.added_process', { n: groups.length }));
+  }, [state, setProcesses, setGroups, setGroupNames, t]);
+
+  // The map goes to the first match; the others stay in a list to pick from,
+  // since a name like "Universität Kassel" can match several places.
+  const goTo = useCallback(
+    (match: AddressMatch) => {
+      setMapCenter([parseFloat(match.lat), parseFloat(match.lon)]);
+      setMapZoom(17);
+      setStatusMsg(t('ui.found', { name: match.display_name }));
+    },
+    [setMapCenter, setMapZoom, t]
+  );
 
   const handleAddressSearch = useCallback(async () => {
     if (!addressSearch.trim()) return;
     try {
       const resp = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(
           addressSearch
         )}`
       );
-      const data = await resp.json();
+      const data: AddressMatch[] = await resp.json();
+      setAddressMatches(data);
       if (data.length > 0) {
-        const lat = parseFloat(data[0].lat);
-        const lon = parseFloat(data[0].lon);
-        setMapCenter([lat, lon]);
-        setMapZoom(17);
-        setStatusMsg(t('ui.found', { name: data[0].display_name }));
+        goTo(data[0]);
       } else {
         setStatusMsg(t('ui.no_results'));
       }
     } catch {
-      setStatusMsg('Search failed');
+      setAddressMatches([]);
+      setStatusMsg(t('ui.search_failed'));
     }
-  }, [addressSearch, setMapCenter, setMapZoom, t]);
+  }, [addressSearch, goTo, t]);
 
   // Handle map click (for placement or measurement)
   const handleMapClick = useCallback(
@@ -408,6 +418,8 @@ export default function DataCollectionPage() {
         addressSearch={addressSearch}
         onAddressSearchChange={setAddressSearch}
         onAddressSearchSubmit={handleAddressSearch}
+        addressMatches={addressMatches}
+        onAddressPick={goTo}
         showHelp={showTutorial}
         onHelpToggle={() => setShowTutorial(!showTutorial)}
       />

@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { Marker, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import type { ProcessNode } from '../../types/process';
-import { extractStreamInfo } from '../../utils/streamInfo';
+import i18n from '../../i18n';
+import { extractStreamInfo, streamSvgText } from '../../utils/streamInfo';
 import type { GroupCoords } from './types';
 import { boxHalf, routeConnection } from './connectionRoute';
 
@@ -144,7 +145,7 @@ export function ConnectionLines({
         }
 
         let iconAnchorX, iconAnchorY;
-        const svgW = 140;
+        const svgW = 190; // room for the values with their units
         const svgH = 80;
 
         let svgContent = '';
@@ -163,15 +164,11 @@ export function ConnectionLines({
             const info = extractStreamInfo(s);
             const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
             const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
-            const parts = [];
-            if (info.tin !== null && info.tin !== undefined) parts.push(`Tin=${info.tin}°C`);
-            if (info.tout !== null && info.tout !== undefined) parts.push(`Tout=${info.tout}°C`);
+            const text = streamSvgText(info);
+            const parts = [text.tin, text.tout].filter(Boolean);
+            const extraProps = [text.mdot, text.cp].filter(Boolean);
 
-            const extraProps = [];
-            if (info.mdot !== null && info.mdot !== undefined) extraProps.push(`m=${info.mdot}`);
-            if (info.cp !== null && info.cp !== undefined) extraProps.push(`cp=${info.cp}`);
-
-            svgContent += `<text x="${svgW / 2}" y="${currentY}" text-anchor="middle" font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">Product${numStr}</text>`;
+            svgContent += `<text x="${svgW / 2}" y="${currentY}" text-anchor="middle" font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${i18n.t('map.product')}${numStr}</text>`;
             currentY += 12;
 
             if (parts.length > 0) {
@@ -195,15 +192,11 @@ export function ConnectionLines({
             const info = extractStreamInfo(s);
             const tColor = (info.tin || 0) > (info.tout || 0) ? '#e74c3c' : '#3498db';
             const numStr = productStreams.length > 1 ? ` ${pIdx + 1}` : '';
-            const parts = [];
-            if (info.tin !== null && info.tin !== undefined) parts.push(`Tin=${info.tin}°C`);
-            if (info.tout !== null && info.tout !== undefined) parts.push(`Tout=${info.tout}°C`);
+            const text = streamSvgText(info);
+            const parts = [text.tin, text.tout].filter(Boolean);
+            const extraProps = [text.mdot, text.cp].filter(Boolean);
 
-            const extraProps = [];
-            if (info.mdot !== null && info.mdot !== undefined) extraProps.push(`m=${info.mdot}`);
-            if (info.cp !== null && info.cp !== undefined) extraProps.push(`cp=${info.cp}`);
-
-            svgContent += `<text x="6" y="${currentY}" text-anchor="start" font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">Product${numStr}</text>`;
+            svgContent += `<text x="6" y="${currentY}" text-anchor="start" font-size="11" font-weight="bold" fill="${tColor}" paint-order="stroke" stroke="white" stroke-width="3">${i18n.t('map.product')}${numStr}</text>`;
             currentY += 12;
 
             if (parts.length > 0) {

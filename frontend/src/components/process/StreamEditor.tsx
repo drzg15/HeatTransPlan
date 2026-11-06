@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { Stream, StreamType } from '../../types/stream';
 import './StreamEditor.css';
@@ -42,8 +43,35 @@ const UNIT_OPTIONS: Record<string, string[]> = {
   Pressure: ['bar', 'Pa', 'atm'],
 };
 
+// The variables as written in thermodynamics; the key stays the stored name.
+// c_p and C_P look alike, so each also says what it is on hover.
+const SYMBOL: Record<string, ReactNode> = {
+  Tin: (
+    <>
+      T<sub>in</sub>
+    </>
+  ),
+  Tout: (
+    <>
+      T<sub>out</sub>
+    </>
+  ),
+  cp: (
+    <>
+      c<sub>p</sub>
+    </>
+  ),
+  CP: (
+    <>
+      C<sub>P</sub>
+    </>
+  ),
+};
+
 export default function StreamEditor({ id, stream, onChange, onDelete }: Props) {
   const { t } = useTranslation();
+  const varLabel = (v: string) => SYMBOL[v] ?? t(`stream.vars.${v}`, v);
+  const varHelp = (v: string) => t(`stream.var_help.${v}`, { defaultValue: '' }) || undefined;
 
   const displayVars = stream.display_vars?.length
     ? stream.display_vars
@@ -143,8 +171,9 @@ export default function StreamEditor({ id, stream, onChange, onDelete }: Props) 
               key={v}
               className={`se-var-pill ${isSelected ? 'active' : ''}`}
               onClick={() => toggleVar(v)}
+              title={varHelp(v)}
             >
-              {t(`stream.vars.${v}`, v)}
+              {varLabel(v)}
             </button>
           );
         })}
@@ -159,7 +188,7 @@ export default function StreamEditor({ id, stream, onChange, onDelete }: Props) 
           return (
             <div key={v} className="se-value-field">
               <div className="se-label-row">
-                <label>{t(`stream.vars.${v}`, v)}</label>
+                <label title={varHelp(v)}>{varLabel(v)}</label>
                 {hasUnits && (
                   <select
                     className="se-unit-select"

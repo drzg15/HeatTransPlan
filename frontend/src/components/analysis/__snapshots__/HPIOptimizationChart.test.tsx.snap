@@ -2,7 +2,7 @@
 
 exports[`HPIOptimizationChart > draws German the same 1`] = `
 "{
- "data": "[41 items 87b144aa]",
+ "data": "[45 items 2f02de02]",
  "layout": {
   "title": {
    "text": "Optimierung - Realisierbare Wärmepumpenlösungen",
@@ -112,7 +112,8 @@ exports[`HPIOptimizationChart > draws German the same 1`] = `
     "xref": "paper",
     "xanchor": "right",
     "y": 73,
-    "text": "Pinch: 73.0°C",
+    "yanchor": "bottom",
+    "text": "Pinch: 73.0 °C",
     "showarrow": false,
     "font": {
      "size": 11,
@@ -248,7 +249,7 @@ exports[`HPIOptimizationChart > draws German the same 1`] = `
 
 exports[`HPIOptimizationChart > draws a selection the same 1`] = `
 "{
- "data": "[47 items a7619089]",
+ "data": "[51 items 5adcc7e6]",
  "layout": {
   "title": {
    "text": "Optimization - Feasible Heat Pump Solutions",
@@ -358,7 +359,8 @@ exports[`HPIOptimizationChart > draws a selection the same 1`] = `
     "xref": "paper",
     "xanchor": "right",
     "y": 73,
-    "text": "Pinch: 73.0°C",
+    "yanchor": "bottom",
+    "text": "Pinch: 73.0 °C",
     "showarrow": false,
     "font": {
      "size": 11,
@@ -494,7 +496,7 @@ exports[`HPIOptimizationChart > draws a selection the same 1`] = `
 
 exports[`HPIOptimizationChart > draws dark the same 1`] = `
 "{
- "data": "[43 items 3a77c92]",
+ "data": "[47 items 3894b3bd]",
  "layout": {
   "title": {
    "text": "Optimization - Feasible Heat Pump Solutions",
@@ -604,7 +606,8 @@ exports[`HPIOptimizationChart > draws dark the same 1`] = `
     "xref": "paper",
     "xanchor": "right",
     "y": 73,
-    "text": "Pinch: 73.0°C",
+    "yanchor": "bottom",
+    "text": "Pinch: 73.0 °C",
     "showarrow": false,
     "font": {
      "size": 11,
@@ -740,7 +743,7 @@ exports[`HPIOptimizationChart > draws dark the same 1`] = `
 
 exports[`HPIOptimizationChart > draws the composite mode the same 1`] = `
 "{
- "data": "[41 items 37d2211b]",
+ "data": "[45 items 4631f24e]",
  "layout": {
   "title": {
    "text": "Optimization - Feasible Heat Pump Solutions",
@@ -961,7 +964,7 @@ exports[`HPIOptimizationChart > draws the composite mode the same 1`] = `
 
 exports[`HPIOptimizationChart > draws the same 1`] = `
 "{
- "data": "[41 items 73072a6f]",
+ "data": "[45 items d442e2fa]",
  "layout": {
   "title": {
    "text": "Optimization - Feasible Heat Pump Solutions",
@@ -1071,7 +1074,8 @@ exports[`HPIOptimizationChart > draws the same 1`] = `
     "xref": "paper",
     "xanchor": "right",
     "y": 73,
-    "text": "Pinch: 73.0°C",
+    "yanchor": "bottom",
+    "text": "Pinch: 73.0 °C",
     "showarrow": false,
     "font": {
      "size": 11,

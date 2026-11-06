@@ -76,6 +76,8 @@
 .se-value-field label {
   font-size: 11px;
   color: var(--text-muted);
+  /* Not in capitals: c_p and C_P are different quantities. */
+  text-transform: none;
 }
 
 .se-unit-select {
