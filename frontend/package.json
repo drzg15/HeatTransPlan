@@ -27,7 +27,7 @@
     "react-i18next": "^17.0.7",
     "react-leaflet": "^5.0.0",
     "react-plotly.js": "^2.6.0",
-    "react-router-dom": "^7.13.1",
+    "react-router-dom": "^7.18.5",
     "zod": "^4.5.4",
     "zustand": "^5.0.11"
   },
