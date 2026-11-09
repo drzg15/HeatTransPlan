@@ -66,8 +66,9 @@ def test_project_edits_reach_other_pages_but_not_their_origin():
 def test_a_command_without_a_page_fails_fast(client):
     pid = client.post("/api/projects", json=ProjectState().model_dump()).json()["project_id"]
     sid = client.post("/api/live/sessions", json={"project_id": pid}).json()["session_id"]
-    # Sessions are not listed: the code is the user's key to their page.
-    assert "json" not in client.get("/api/live/sessions").headers.get("content-type", "")
+    # Sessions are not listed: the code is the user's key to their page. (Without
+    # a built frontend the answer is a JSON 404, with one its page: neither lists it.)
+    assert sid not in client.get("/api/live/sessions").text
     r = client.post(f"/api/live/sessions/{sid}/commands", json={"name": "navigate", "args": {"page": "home"}})
     assert r.status_code == 409
     assert client.post("/api/live/sessions", json={"project_id": "nope"}).status_code == 404
