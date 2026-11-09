@@ -12,9 +12,17 @@
     border-left: 3px solid var(--pst-color-link);
 }
 
-/* Better math display spacing */
-.math {
+/* Better math display spacing. Display equations only: inline symbols in a
+   table cell would otherwise get the margin too and stretch every row. */
+div.math {
     margin: 1em 0;
+}
+
+/* Compact tables: the input and result tables are long. */
+.bd-article table.table td,
+.bd-article table.table th {
+    padding: 0.2rem 0.5rem;
+    vertical-align: top;
 }
 
 /* Callout for engineering notes */

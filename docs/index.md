@@ -15,25 +15,24 @@ The tool answers four questions in order:
 1. **How much energy is unavoidable?** Pinch analysis sets the thermodynamic floor — the minimum external heating and cooling the process needs once every feasible internal match has been made. No heat exchanger network can beat it.
 2. **Where is the bottleneck?** The pinch temperature divides the site into a region that needs heat and one that has heat to spare. Moving heat across that divide is what wastes utility.
 3. **What can bridge the gap?** A heat pump can lift waste heat from below the pinch to above it. The optimizer searches the feasible operating points for real refrigerants and published technology archetypes, and reports what each would deliver.
-4. **Does it pay off?** The economic analysis compares the heat pump with the heater and cooling it replaces, over a period of years, and reports its net present value, dynamic payback and the electricity price up to which it beats the boiler.
+4. **Does it pay off?** The economic analysis compares the heat pump with the heater and cooling it replaces, over a period of years, and reports its net present value, dynamic payback, heat cost (LCOH), CO₂ saving and the electricity price up to which it beats the boiler.
 
 ### The workflow
 
-A user works through five stages:
+The app works in four numbered steps, and this documentation follows them:
 
-| Stage | What happens |
-|---|---|
-| **Data collection** | Processes, subprocesses and their hot and cold streams are entered — mass flow, heat capacity, inlet and outlet temperatures — and placed on a map of the site. |
-| **Stream selection** | The streams to analyse are chosen, so scenarios can be compared without re-entering data. |
-| **Pinch analysis** | Composite curves, the grand composite curve, the pinch temperature and the minimum utility demands are computed. |
-| **Heat pump integration** | Feasible heat pump operating points are evaluated across the temperature range, with COP, duty and electrical input for each. |
-| **Economic analysis** | The chosen heat pump is costed against the current heater and cooling: investment, yearly costs, net present value, payback, CO₂ saving and the sensitivity to energy prices. |
+| Step | What happens | You choose |
+|---|---|---|
+| **1 Data collection** | Plant areas are placed on a map, their machines or steps added, and the streams entered: what is cooled (waste heat) and what is heated (demand). | temperatures in and out, mass flow and heat capacity (or the duty), operating hours |
+| **2 Streams & heat integration** | Pinch analysis: composite curves, grand composite curve, pinch temperature and the minimum heating and cooling demand. | which streams are included, today's demand, ΔTmin |
+| **3 Heat pump integration** | Heat pumps are matched to the grand composite curve: COP, duty and electrical input of every feasible operating point. | the heat pump, from the points on the chart |
+| **4 Cost analysis** | The chosen heat pump against the heater and cooling it replaces: investment, payback, net present value, cost of heat, CO₂ saving, sensitivity to energy prices. | today's heater, energy prices, operating hours |
 
-Saved scenarios are compared side by side, economics included, and everything can be exported as an HTML report.
+Saved scenarios are compared side by side, economics included, and everything can be exported as a report.
 
 ### What the numbers mean
 
-Three results carry most of the value:
+Four results carry most of the value:
 
 - **Minimum heating and cooling demand** — the external energy still required after maximum internal recovery. The gap between this and what the site buys today is the saving available from heat exchangers alone.
 - **Pinch temperature** — the temperature at which the process is most constrained. Heat transferred across it is energy wasted twice over.
@@ -60,13 +59,20 @@ Streams are placed on a real map rather than an abstract flowsheet, because a ma
 
 ```{toctree}
 :maxdepth: 2
-:caption: Modules
+:caption: The four steps
 
+data_collection
 pinch_analysis
 heat_pump_integration
 heat_pump_optimization
-economic_analysis
 refrigerant_limits
+economic_analysis
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: API and architecture
+
 api_and_mcp
 architecture_and_security
 ```

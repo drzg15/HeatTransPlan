@@ -762,7 +762,7 @@
       "paid_back": "Amortisiert",
       "period_line": "Ende Betrachtungszeitraum ({{T}} Jahre)"
     },
-    "help_4": "Investition = Preis Wärmepumpe je kW × Faktor Planung & Installation × Faktor Einbindung × Heizleistung; die Felder sind verknüpft. Die Faktoren sind unter „Weitere Annahmen“ änderbar. Vorgabe: 1.000 €/kW für die Maschine allein, nach Herstellerangeboten für große industrielle Hochtemperatur-Wärmepumpen bis etwa 150 °C (ca. 1.000–1.200 €/kW; 175 °C Dampf ca. 2.000 €/kW). Mit den Faktoren 1,25 × 1,25 sind das ca. 1.560 €/kW installiert, der Wert der Danish Energy Agency für Wärmepumpen bis 150 °C.",
+    "help_4": "Investition = Preis Wärmepumpe je kW × Faktor Planung & Installation × Faktor Einbindung × Heizleistung; die Felder sind verknüpft. Die Faktoren sind unter „Weitere Annahmen“ änderbar. Vorgabe: 1.000 €/kW für die Maschine allein, nach Herstellerangeboten für große industrielle Hochtemperatur-Wärmepumpen bis etwa 150 °C (ca. 1.000–1.200 €/kW; 175 °C Dampf ca. 2.000 €/kW). Mit den Faktoren 1,25 × 1,35 sind das ca. 1.690 €/kW installiert, zwischen den Werten der Danish Energy Agency für Wärmepumpen bis 150 °C (1.550 €/kW) und Dampf-Wärmepumpen bis 150 °C (1.750 €/kW).",
     "help_4_source": "Quellen:",
     "terms": {
       "I": "Investitionskosten [€]",
@@ -858,7 +858,7 @@
       "rEl": "Wie stark sich der Strompreis pro Jahr ändert, in %.\nStandardmäßig 3 %/Jahr wie beim Brennstoff, damit keine Seite bevorzugt wird; VDI 4646:2026 (S. 57) nimmt konstante Preise an (0 %).",
       "co2El": "CO₂-Ausstoß je MWh Netzstrom, in t/MWh. Für die CO₂-Zeilen und für CO₂-Kosten nur, wenn „CO₂-Kosten auf Strom aufschlagen“ an ist.\n0,352 = deutscher Strommix (UBA 2025, standortbasiert). VDI 4646:2026 nutzte 0,401 (2019, S. 74). 0 bei Ökostromvertrag (PPA).",
       "pDemand": "Leistungspreis auf die elektrische Leistung der Wärmepumpe in € pro kW und Jahr.\nNur anzusetzen, wenn der Strompreis ihn nicht schon enthält. Industrielle Leistungspreise liegen oft bei 50–150 €/kW pro Jahr.\nKosten = p_L · Q / COP.",
-      "specCost": "Preis der Wärmepumpe selbst (der Maschine) je kW Heizleistung, in €/kW, ohne Planung, Installation und Einbindung.\nDie Investition ist dieser Preis × Faktor Planung & Installation × Faktor Einbindung × Heizleistung: I = c · F_PI · F_Per · Q. Die Faktoren (1,25 und 1,25) sind unter „Weitere Annahmen“ änderbar.",
+      "specCost": "Preis der Wärmepumpe selbst (der Maschine) je kW Heizleistung, in €/kW, ohne Planung, Installation und Einbindung.\nDie Investition ist dieser Preis × Faktor Planung & Installation × Faktor Einbindung × Heizleistung: I = c · F_PI · F_Per · Q. Die Faktoren (1,25 und 1,35) sind unter „Weitere Annahmen“ änderbar.",
       "fMaint": "Instandhaltung pro Jahr als Anteil der Investition, in %: Instandsetzung (f_Inst) plus Wartung und Inspektion (f_{W+Insp}).\nVDI 2067-1:2012 Tabelle A2 (S. 22) für eine Elektro-Wärmepumpe: 1 % + 1,5 % = 2,5 %; VDI 4646:2026 Tabelle 7/8 nutzt dieselben 2,5 %.",
       "reinvestShare": "Eine Reinvestition im Betrachtungszeitraum als Anteil der Investition in %, z. B. eine Überholung des Verdichters. 0 = keine.\nSie fällt einmal an, im darunter eingestellten Jahr, und wird wie jede Zahlung abgezinst.",
       "reinvestYear": "Betriebsjahr, in dem die Reinvestition oben anfällt.\nNur relevant, wenn der Reinvestitionsanteil über 0 liegt.",

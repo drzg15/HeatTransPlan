@@ -762,7 +762,7 @@
       "paid_back": "Paid back",
       "period_line": "End of period ({{T}} years)"
     },
-    "help_4": "Investment = heat pump price per kW × planning & installation factor × integration factor × heat output; the fields are linked. The factors can be changed under \"More assumptions\". Default: 1,000 €/kW for the machine alone, from manufacturer offers for large industrial high-temperature heat pumps up to about 150 °C (about 1,000–1,200 €/kW; 175 °C steam about 2,000 €/kW). With the factors 1,25 × 1,25 that is about 1,560 €/kW installed, the Danish Energy Agency value for heat pumps up to 150 °C.",
+    "help_4": "Investment = heat pump price per kW × planning & installation factor × integration factor × heat output; the fields are linked. The factors can be changed under \"More assumptions\". Default: 1,000 €/kW for the machine alone, from manufacturer offers for large industrial high-temperature heat pumps up to about 150 °C (about 1,000–1,200 €/kW; 175 °C steam about 2,000 €/kW). With the factors 1,25 × 1,35 that is about 1,690 €/kW installed, between the Danish Energy Agency values for heat pumps up to 150 °C (1,550 €/kW) and steam heat pumps up to 150 °C (1,750 €/kW).",
     "help_4_source": "References:",
     "terms": {
       "I": "investment cost [€]",
@@ -858,7 +858,7 @@
       "rEl": "How much the electricity price changes per year, in %.\n3 %/year by default, the same as the fuel, so neither side is favoured; VDI 4646:2026 (p. 57) assumes constant prices (0 %).",
       "co2El": "CO₂ emitted per MWh of grid electricity, in t/MWh. Used for the CO₂ rows, and for a CO₂ cost only if \"Add CO₂ cost on electricity\" is on.\n0,352 = German grid mix (UBA 2025, location-based). VDI 4646:2026 used 0,401 (2019, p. 74). 0 for a green power contract (PPA).",
       "pDemand": "Capacity charge on the heat pump's electrical power, in € per kW and year.\nOnly to be set if the electricity price does not already include it. Industrial grid capacity charges are often 50–150 €/kW per year.\nCost = p_L · Q / COP.",
-      "specCost": "Price of the heat pump itself (the machine) per kW of heat output, in €/kW, without planning, installation and integration.\nThe investment is this price × the planning & installation factor × the integration factor × the heat output: I = c · F_PI · F_Per · Q. The factors (1,25 and 1,25) can be changed under \"More assumptions\".",
+      "specCost": "Price of the heat pump itself (the machine) per kW of heat output, in €/kW, without planning, installation and integration.\nThe investment is this price × the planning & installation factor × the integration factor × the heat output: I = c · F_PI · F_Per · Q. The factors (1,25 and 1,35) can be changed under \"More assumptions\".",
       "fMaint": "Maintenance per year as a share of the investment, in %: repair (f_Inst) plus servicing and inspection (f_{W+Insp}).\nVDI 2067-1:2012 Tabelle A2 (p. 22) for an electric heat pump: 1 % + 1,5 % = 2,5 %; VDI 4646:2026 Tabelle 7/8 uses the same 2,5 %.",
       "reinvestShare": "A reinvestment during the period, as a share of the investment, in %, e.g. a compressor overhaul. 0 = none.\nIt is paid once, in the year below, and discounted like any cash flow.",
       "reinvestYear": "Year of operation in which the reinvestment above is paid.\nOnly used if the reinvestment share is above 0.",

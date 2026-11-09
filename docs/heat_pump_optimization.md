@@ -1,4 +1,4 @@
-# Heat Pump Optimization — Predictive ML Model & Grid Search
+# Step 3 — Heat Pump Integration: Optimization (ML Model & Grid Search)
 
 While classic Heat Pump Integration uses empirical regressions of prototypical heat pumps, **Heat Pump Optimization** evaluates a wide spectrum of **refrigerants and multi-stage heat pump designs** using a **trained Machine Learning model** or custom COP mathematical expressions.
 
