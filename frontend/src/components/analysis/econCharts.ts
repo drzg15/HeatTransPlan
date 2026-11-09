@@ -51,30 +51,52 @@ export function chartTheme(isDark: boolean) {
   return { text, surface, layout };
 }
 
+/** The "WP"/"HP" box marking the analysed pump, as on the optimization chart. */
+const hpColors = (isDark: boolean) => ({
+  hpStroke: isDark ? '#A78BFA' : '#7C3AED',
+  hpFill: isDark ? 'rgba(49,46,129,0.75)' : 'rgba(237,233,254,0.95)',
+});
+
 /** Investment and cumulative cost, reference against the pump. */
 export function investmentChart(c: ChartCtx): Fig {
   const { t, inp, ref, variants, results, points, isDark, istName } = c;
   const { surface, layout } = chartTheme(isDark);
   const names = [istName, ...points.map(pointName)];
+  // Replacement case: the reference has to buy its boiler (sized as the
+  // largest pump compared, as in the net present value).
+  const invRef = inp.boilerInvest * Math.max(0, ...variants.map((v) => v.Q));
+  const totals = [ref.cumCost + invRef, ...variants.map((v, k) => v.capex + results[k].cumCost)];
 
   const bar: Fig = {
     data: [
-      {
-        type: 'bar',
-        name: t('economics.charts.invest'),
-        x: names,
-        y: [0, ...variants.map((v) => v.capex)],
-        // Gold / plum: hues no other chart here uses (blue and orange are the
-        // electricity and gas lines next to it) that stay apart for colour-blind
-        // readers. The surface-coloured outline leaves a gap between the parts.
-        marker: { color: isDark ? '#C98500' : '#E0A100', line: { color: surface, width: 2 } },
-      },
       {
         type: 'bar',
         name: t('economics.charts.cum_cost'),
         x: names,
         y: [ref.cumCost, ...results.map((r) => r.cumCost)],
         marker: { color: isDark ? '#B0558C' : '#8E3B6E', line: { color: surface, width: 2 } },
+      },
+      {
+        type: 'bar',
+        name: t('economics.charts.invest'),
+        x: names,
+        y: [invRef, ...variants.map((v) => v.capex)],
+        // Gold / plum: hues no other chart here uses (blue and orange are the
+        // electricity and gas lines next to it) that stay apart for colour-blind
+        // readers. The surface-coloured outline leaves a gap between the parts.
+        marker: { color: isDark ? '#C98500' : '#E0A100', line: { color: surface, width: 2 } },
+      },
+      // The total above each bar.
+      {
+        type: 'scatter',
+        mode: 'text',
+        x: names,
+        y: totals,
+        text: totals.map((v) => `${formatDe(v)} €`),
+        textposition: 'top center',
+        cliponaxis: false,
+        showlegend: false,
+        hoverinfo: 'skip',
       },
       // Legend-only line: how much of the pump's total cost is the investment.
       ...variants.map((v, k) => ({
@@ -92,7 +114,8 @@ export function investmentChart(c: ChartCtx): Fig {
     ],
     layout: layout(t('economics.charts.bar_title', { T: inp.T }), {
       barmode: 'stack',
-      yaxis: { title: { text: '€' }, tickformat: ',.0f' },
+      // Headroom for the totals above the bars.
+      yaxis: { title: { text: '€' }, tickformat: ',.0f', range: [0, 1.15 * Math.max(1, ...totals)] },
     }),
   };
   return bar;
@@ -126,7 +149,7 @@ export function priceChart(c: ChartCtx): Fig {
 /** Net present value over fuel × electricity price, with the break-even line. */
 export function sensitivityChart(c: ChartCtx): { sens: Fig; sensExplain: string } {
   const { t, form, breakEven, isDark, fuel, refName } = c;
-  const { text, surface, layout } = chartTheme(isDark);
+  const { text, layout } = chartTheme(isDark);
   // Sensitivity window: each price from 0 to twice today's (−100 % … +100 %),
   // so today's prices sit in the middle. The step is picked so each axis has at
   // most ~14 cells and every cell has room for its value.
@@ -135,7 +158,52 @@ export function sensitivityChart(c: ChartCtx): { sens: Fig; sensExplain: string 
   // and computes every cell and the break-even line: the electricity price at
   // which KW = 0, per gas price. On its cheaper-electricity side the heat pump
   // beats the boiler.
-  const { gasStep, gasCt, elStep, elCt, z, beX, beY } = c.n.sensitivity;
+  const { gasStep, gasCt, elStep, elCt, z } = c.n.sensitivity;
+  const pos = (i: number, j: number) => (z[i]?.[j] ?? 1) > 0;
+  // The break-even as a dashed edge along every side where a green cell meets a
+  // red one. One trace (pieces split by null) so it can be hovered: each piece
+  // carries the exact price pair where KW = 0 between its two cells (KW is
+  // linear, so the root between them is exact), which hover and click use.
+  const edgeX: Array<number | null> = [];
+  const edgeY: Array<number | null> = [];
+  const edgeAt: Array<[number, number] | null> = [];
+  z.forEach((row, i) =>
+    row.forEach((a, j) => {
+      if (!pos(i, j)) return;
+      const xl = gasCt[j] - gasStep / 2;
+      const xr = gasCt[j] + gasStep / 2;
+      const yt = elCt[i] - elStep / 2;
+      const yb = elCt[i] + elStep / 2;
+      const sides: Array<[number, number, number, number, number, number]> = [
+        [i, j - 1, xl, yt, xl, yb],
+        [i, j + 1, xr, yt, xr, yb],
+        [i - 1, j, xl, yt, xr, yt],
+        [i + 1, j, xl, yb, xr, yb],
+      ];
+      sides.forEach(([ni, nj, x0, y0, x1, y1]) => {
+        const b = z[ni]?.[nj];
+        if (b === undefined || b > 0) return;
+        const f = a / (a - b);
+        const root: [number, number] = [
+          gasCt[j] + (gasCt[nj] - gasCt[j]) * f,
+          elCt[i] + (elCt[ni] - elCt[i]) * f,
+        ];
+        // Five points per piece, so the hover catches anywhere along it.
+        for (let s = 0; s <= 4; s++) {
+          edgeX.push(x0 + ((x1 - x0) * s) / 4);
+          edgeY.push(y0 + ((y1 - y0) * s) / 4);
+          edgeAt.push(root);
+        }
+        edgeX.push(null);
+        edgeY.push(null);
+        edgeAt.push(null);
+      });
+    }),
+  );
+  // Today's prices as a "WP"/"HP" box like the pump on the optimization chart;
+  // hovering it names the selected pump.
+  const { hpStroke, hpFill } = hpColors(isDark);
+  const p = c.points[idx];
   const fuelAxis = t('economics.charts.fuel_price', { fuel });
   // The sentence above the heatmap, with today's numbers.
   const beNow = breakEven[idx];
@@ -154,8 +222,75 @@ export function sensitivityChart(c: ChartCtx): { sens: Fig; sensExplain: string 
   const xHi = gasCt[gasCt.length - 1] + gasStep / 2;
   const yLo = elCt[0] - elStep / 2; // cheapest electricity, top of the chart
   const yHi = elCt[elCt.length - 1] + elStep / 2;
-  const mid = isDark ? '#2a2f3a' : '#FAFAF8';
   const sensTitle = t('economics.charts.sens_title', { funding: form.funding, fuel });
+  // A hard break at 0: the smallest loss is still clearly red and the smallest
+  // gain clearly green, so the gap between them shows.
+  // Each side spans its own range: the biggest loss is the darkest red and the
+  // biggest gain the darkest green, with a hard break at 0 (position p0).
+  const zs = z.flat();
+  const zMin = Math.min(...zs);
+  const zMax = Math.max(...zs);
+  const p0 = zMax > zMin ? Math.min(1, Math.max(0, -zMin / (zMax - zMin))) : 0.5;
+  // Soft tones, so the black values stay easy to read.
+  const reds = ['#E57373', '#EF9A9A', '#FFCDD2', '#FDECEC']; // darkest → lightest
+  const greens = ['#E8F5E9', '#C8E6C9', '#A5D6A7', '#66BB6A']; // lightest → darkest
+  const colorscale = [
+    ...reds.map((col, k) => [(p0 * k) / (reds.length - 1), col]),
+    ...greens.map((col, k) => [p0 + ((1 - p0) * k) / (greens.length - 1), col]),
+  ];
+  const npvHover = `${fuelAxis}: %{x} ct/kWh<br>${t('economics.charts.el')}: %{y} ct/kWh<br>${t('economics.rows.npv')}: %{z:,.0f} €<extra></extra>`;
+  // Fixed ranges so the line is clipped to the price window.
+  // Electricity runs top-down.
+  const xaxis = {
+    title: { text: `${fuelAxis} [ct/kWh]`, standoff: 8 },
+    side: 'top',
+    dtick: gasStep,
+    ticksuffix: ' ct',
+    range: [xLo, xHi],
+    fixedrange: true,
+    showgrid: false,
+  };
+  const yaxis = {
+    title: { text: `${t('economics.charts.el')} [ct/kWh]` },
+    dtick: elStep,
+    ticksuffix: ' ct',
+    range: [yHi, yLo],
+    fixedrange: true,
+    showgrid: false,
+  };
+  const hpBox = {
+    x: form.pFuel,
+    y: form.pEl,
+    xref: 'x',
+    yref: 'y',
+    text: `<b>${t('economics.charts.hp_short')}</b>`,
+    showarrow: false,
+    // Right of the centred cell value instead of on top of it.
+    xanchor: 'left',
+    xshift: 28,
+    font: { size: 10, color: hpStroke },
+    bgcolor: hpFill,
+    bordercolor: hpStroke,
+    borderwidth: 2,
+    borderpad: 2,
+    hovertext: [
+      p ? `${pointName(p)} · COP ${formatDe(p.COP, 2)} · ${formatDe(p.Q_demand)} kW` : '',
+      `${fuelAxis}: ${formatDe(form.pFuel, 2)} ct/kWh`,
+      `${t('economics.charts.el')}: ${formatDe(form.pEl, 2)} ct/kWh`,
+    ]
+      .filter(Boolean)
+      .join('<br>'),
+  };
+  const hpLegend = {
+    type: 'scatter',
+    mode: 'markers',
+    x: [null],
+    y: [null],
+    name: t('economics.charts.today'),
+    marker: { symbol: 'square', size: 12, color: hpFill, line: { color: hpStroke, width: 2 } },
+    hoverinfo: 'skip',
+  };
+  const height = Math.max(520, 150 + 30 * elCt.length);
   const sens: Fig = {
     data: [
       {
@@ -163,47 +298,35 @@ export function sensitivityChart(c: ChartCtx): { sens: Fig; sensExplain: string 
         x: gasCt,
         y: elCt,
         z,
-        zmid: 0,
-        colorscale: [
-          [0, isDark ? '#c62828' : '#E57373'],
-          [0.35, isDark ? '#6d2b2b' : '#FFCDD2'],
-          [0.5, mid],
-          [0.65, isDark ? '#2e5a31' : '#C8E6C9'],
-          [1, isDark ? '#2e7d32' : '#66BB6A'],
-        ],
+        zmin: zMin,
+        zmax: zMax,
+        colorscale,
         // Thin gaps in the surface colour draw the cell borders.
         xgap: 1,
         ygap: 1,
         texttemplate: '%{z:,.0f}',
         textfont: { size: 10, color: text },
         colorbar: { title: { text: '€' }, tickformat: ',.0f', thickness: 12 },
-        hovertemplate: `${fuelAxis}: %{x} ct/kWh<br>${t('economics.charts.el')}: %{y} ct/kWh<br>${t('economics.rows.npv')}: %{z:,.0f} €<extra></extra>`,
+        hovertemplate: npvHover,
         showlegend: false,
       },
       {
         type: 'scatter',
         mode: 'lines',
-        x: beX,
-        y: beY,
+        x: edgeX,
+        y: edgeY,
+        customdata: edgeAt,
         name: t('economics.charts.breakeven'),
         line: { color: text, width: 3, dash: 'dash' },
-        hovertemplate: `${t('economics.charts.breakeven')}<br>${fuelAxis}: %{x:,.1f} ct/kWh<br>${t('economics.charts.el')}: %{y:,.2f} ct/kWh<extra></extra>`,
+        hovertemplate: `<b>${t('economics.charts.breakeven')}</b><br>${t('economics.rows.npv')}: 0 €<br>${fuelAxis}: %{customdata[0]:,.2f} ct/kWh<br>${t('economics.charts.el')}: %{customdata[1]:,.2f} ct/kWh<extra></extra>`,
       },
-      {
-        type: 'scatter',
-        mode: 'markers',
-        x: [form.pFuel],
-        y: [form.pEl],
-        name: t('economics.charts.today'),
-        marker: { size: 14, color: text, line: { color: surface, width: 2 } },
-        hovertemplate: `${t('economics.charts.today')}<br>${fuelAxis}: %{x:,.2f} ct/kWh<br>${t('economics.charts.el')}: %{y:,.2f} ct/kWh<extra></extra>`,
-      },
+      hpLegend,
       // Legend-only entries explaining the cell colours, in the map's order:
       // the reference wins on the left (cheap fuel), the heat pump on the right.
       ...(
         [
-          [isDark ? '#c62828' : '#E57373', t('economics.charts.side_ref', { ref: refName })],
-          [isDark ? '#2e7d32' : '#66BB6A', t('economics.charts.side_hp')],
+          [reds[1], t('economics.charts.side_ref', { ref: refName })],
+          [greens[2], t('economics.charts.side_hp')],
         ] as const
       ).map(([color, name]) => ({
         type: 'scatter',
@@ -217,30 +340,17 @@ export function sensitivityChart(c: ChartCtx): { sens: Fig; sensExplain: string 
     ],
     layout: layout(sensTitle, {
       // Taller when there are more rows, so written values stay readable.
-      height: Math.max(460, 150 + 24 * elCt.length),
+      height,
+      // ~95 px per column instead of stretching the cells across the card.
+      // ponytail: fixed width, may overflow on very narrow screens.
+      width: 230 + 95 * gasCt.length,
       // The top axis and its title need room below the chart title.
       margin: { l: 90, r: 20, t: 110, b: 30 },
       title: { text: sensTitle, font: { size: 14, color: text }, y: 0.98 },
-      // Fixed ranges so the line is clipped to the price window.
-      // Electricity runs top-down.
-      xaxis: {
-        title: { text: `${fuelAxis} [ct/kWh]`, standoff: 8 },
-        side: 'top',
-        dtick: gasStep,
-        ticksuffix: ' ct',
-        range: [xLo, xHi],
-        fixedrange: true,
-        showgrid: false,
-      },
-      yaxis: {
-        title: { text: `${t('economics.charts.el')} [ct/kWh]` },
-        dtick: elStep,
-        ticksuffix: ' ct',
-        range: [yHi, yLo],
-        fixedrange: true,
-        showgrid: false,
-      },
+      xaxis,
+      yaxis,
       legend: { orientation: 'h', y: -0.04, font: { color: text } },
+      annotations: [hpBox],
     }),
   };
   return { sens, sensExplain };
@@ -253,7 +363,7 @@ export function sizeChart(c: ChartCtx): {
   sizes: { p: OptimizedIntegrationPoint; npv: number }[];
 } {
   const { t, refSys, results, points, isDark, refName } = c;
-  const { text, surface, layout } = chartTheme(isDark);
+  const { layout } = chartTheme(isDark);
   // Economic heat pump size: every working pump on the optimisation curve,
   // costed with the same inputs. A smaller pump costs less but leaves more of
   // the demand on the old heater; the Kapitalwert weighs both. Per size (1 %
@@ -263,6 +373,7 @@ export function sizeChart(c: ChartCtx): {
   const optimum = c.n.size.optimum && { p: c.n.size.optimum.point, npv: c.n.size.optimum.npv };
   const analysed = points[0];
   const analysedNpv = results[0]?.npv;
+  const { hpStroke, hpFill } = hpColors(isDark);
   const sizeHover = (p: OptimizedIntegrationPoint) =>
     [
       pointName(p),
@@ -291,14 +402,17 @@ export function sizeChart(c: ChartCtx): {
               x: [optimum.p.Q_demand],
               y: [optimum.npv],
               name: t('economics.charts.size_optimum'),
+              // An open ring larger than the "WP" box: when the analysed pump is
+              // the optimum, the ring sits around the box and both stay visible.
               marker: {
-                symbol: 'diamond',
-                size: 16,
+                symbol: 'circle-open',
+                size: 40,
                 color: '#E0A100',
-                line: { color: text, width: 1 },
+                line: { color: '#E0A100', width: 3 },
               },
-              customdata: [sizeHover(optimum.p)],
-              hovertemplate: `<b>${t('economics.charts.size_optimum')}</b><br>%{customdata}<br>${t('economics.rows.npv')}: %{y:,.0f} €<extra></extra>`,
+              // The big ring would take hover and clicks from the points around
+              // it; the curve point under it carries the same tooltip.
+              hoverinfo: 'skip',
             },
           ]
         : []),
@@ -310,7 +424,7 @@ export function sizeChart(c: ChartCtx): {
               x: [analysed.Q_demand],
               y: [analysedNpv],
               name: t('economics.charts.size_analysed'),
-              marker: { size: 13, color: text, line: { color: surface, width: 2 } },
+              marker: { symbol: 'square', size: 12, color: hpFill, line: { color: hpStroke, width: 2 } },
               customdata: [sizeHover(analysed)],
               hovertemplate: `<b>${t('economics.charts.size_analysed')}</b><br>%{customdata}<br>${t('economics.rows.npv')}: %{y:,.0f} €<extra></extra>`,
             },
@@ -319,6 +433,26 @@ export function sizeChart(c: ChartCtx): {
     ],
     layout: layout(t('economics.charts.size_title', { ref: refName }), {
       height: 360,
+      // The analysed pump as the "WP" box, on its point.
+      annotations:
+        analysed && analysedNpv !== undefined
+          ? [
+              {
+                x: analysed.Q_demand,
+                y: analysedNpv,
+                xref: 'x',
+                yref: 'y',
+                text: `<b>${t('economics.charts.hp_short')}</b>`,
+                showarrow: false,
+                font: { size: 10, color: hpStroke },
+                bgcolor: hpFill,
+                bordercolor: hpStroke,
+                borderwidth: 2,
+                borderpad: 2,
+                hovertext: sizeHover(analysed),
+              },
+            ]
+          : [],
       xaxis: {
         title: { text: t('economics.charts.size_x', { q: formatDe(refSys.Q) }) },
         ticksuffix: ' kW',

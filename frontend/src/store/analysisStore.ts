@@ -177,7 +177,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   copFormula: null,
   customCopModel: null,
   // The 2-temperature model is the standard; the 4-temperature one is offered next to it.
-  copModel: '2t',
+  copModel: '4t',
   // Source out and sink out follow the search; source in and sink in sit at the pinch.
   searchTemps: ['source_out', 'sink_out'],
   // Shifted once, the literature's convention for utilities on the GCC.

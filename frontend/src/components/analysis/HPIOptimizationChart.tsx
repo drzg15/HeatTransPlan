@@ -341,6 +341,9 @@ export default function HPIOptimizationChart({
     showlegend: true,
     legend: {
       orientation: 'h' as const,
+      // In a row: with legend groups in the chart (the refrigerants, the
+      // archetypes) Plotly would otherwise stack each entry as its own group.
+      traceorder: 'normal' as const,
       x: 0.5,
       y: -0.12,
       xanchor: 'center' as const,

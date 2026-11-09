@@ -44,6 +44,8 @@ export function buildEconomics(
   if (!n) return null;
   const { points, refSys, ref, variants, results, breakEven } = n;
   const inp = n.inputs;
+  // The CO₂ rows count CO₂-equivalents incl. upstream chain when that is on.
+  const co2e = inp.co2eFuel != null ? ' (CO₂e)' : '';
   const PAYBACK_HORIZON = n.horizon;
   // Investment and specific investment are one value seen two ways: I = c_spez · Q.
   const capexOf = (p: OptimizedIntegrationPoint) => Math.round(n.specTotal * p.Q_demand);
@@ -69,7 +71,7 @@ export function buildEconomics(
   const paybackText = (k: number | null) =>
     k === null
       ? t('economics.payback_never', { year: form.year + PAYBACK_HORIZON })
-      : `${k} ${t('economics.years')} (${form.year + k})`;
+      : `${formatDe(k, 1, true, 1)} ${t('economics.years')} / ${form.year + Math.ceil(k)}`;
 
   const rows: Array<[string, string, string, string, string[]]> = [
     ['q', t('economics.rows.q'), 'kW', formatDe(refSys.Q), points.map((p) => formatDe(p.Q_demand))],
@@ -113,14 +115,14 @@ export function buildEconomics(
     ['saving1', t('economics.rows.saving1'), '€/a', '–', results.map((r) => formatDe(r.saving1))],
     [
       'co2',
-      t('economics.rows.co2'),
+      t('economics.rows.co2') + co2e,
       't/a',
       formatDe(ref.co2, 1),
       results.map((r) => formatDe(r.co2, 1)),
     ],
     [
       'co2_saving',
-      t('economics.rows.co2_saving'),
+      t('economics.rows.co2_saving') + co2e,
       't/a',
       '–',
       results.map((r) => formatDe(r.co2Saving, 1)),
@@ -197,6 +199,8 @@ export function buildEconomics(
     const signed = SIGNED_ROWS.has(key) && v !== '–';
     // CO₂: the whole period as the headline, the yearly figure underneath.
     const co2 = key === 'co2_saving' && results[0];
+    // Heat cost: the reference heater's underneath, to compare with.
+    const lcohRef = key === 'lcoh_hp' && results[0];
     return {
       key,
       label,
@@ -210,7 +214,11 @@ export function buildEconomics(
         : key === 'payback'
           ? ''
           : unitLabel(unit),
-      sub: co2 ? `= ${v} ${unitLabel(unit)}` : '',
+      sub: co2
+        ? `= ${v} ${unitLabel(unit)}`
+        : lcohRef
+          ? `${refName}: ${formatDe(100 * lcohRef.lcohRef, 2)} ${unitLabel(unit)}`
+          : '',
     };
   });
 
@@ -246,7 +254,10 @@ export function buildEconomics(
       t('economics.summary.invest', { eur: eur(v.capex), funding: form.funding }),
       r.payback === null
         ? t('economics.summary.payback_never', { years: PAYBACK_HORIZON })
-        : t('economics.summary.payback', { years: r.payback, year: form.year + r.payback }),
+        : t('economics.summary.payback', {
+            years: formatDe(r.payback, 1, true, 1),
+            year: form.year + Math.ceil(r.payback),
+          }),
       t(r.npv >= 0 ? 'economics.summary.npv_pos' : 'economics.summary.npv_neg', {
         T: inp.T,
         eur: eur(r.npv),

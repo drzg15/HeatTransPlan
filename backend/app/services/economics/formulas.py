@@ -59,6 +59,10 @@ class EconInputs:
     fMaintRef: float  # maintenance of that avoided boiler, share per year
     opFunding: float  # operating funding, € per kWh of heat from the heat pump …
     opFundingYears: float  # … paid in the first this many years
+    # CO₂ balance only (not costs): CO₂-equivalent factors incl. upstream chain,
+    # t/MWh; None = the pure CO₂ factors above.
+    co2eFuel: Optional[float] = None
+    co2eEl: Optional[float] = None
 
 
 @dataclass(frozen=True)
@@ -144,7 +148,10 @@ def _flows(inp: EconInputs, ref: EconReference, v: Optional[EconVariant]) -> _Fl
         fuel=fuel,
         el=el,
         elCool=el_cool,
-        co2=((fuel / inp.hsHi) * inp.co2Fuel + (el + el_cool) * inp.co2El) / 1000,
+        co2=(
+            (fuel / inp.hsHi) * (inp.co2Fuel if inp.co2eFuel is None else inp.co2eFuel)
+            + (el + el_cool) * (inp.co2El if inp.co2eEl is None else inp.co2eEl)
+        ) / 1000,
         cost=cost,
     )
 
@@ -232,14 +239,16 @@ def evaluate(inp: EconInputs, ref: EconReference, v: EconVariant, with_irr: bool
 
     npv_curve: List[float] = [-net_invest]
     npv = -net_invest
-    payback: Optional[int] = 0 if npv >= 0 else None
+    # Years to pay back, interpolated within the year the Kapitalwert turns positive.
+    payback: Optional[float] = 0 if npv >= 0 else None
     cum_cost = 0.0
     for t in range(1, int(max(inp.T, PAYBACK_HORIZON)) + 1):
         cost = h.cost(t)
         reinvest = (inp.reinvestShare * v.capex if t == inp.reinvestYear else 0) + _replacement(inp, v.capex, t)
+        prev = npv
         npv += (r.cost(t) - cost - reinvest) / rate(t)
         if payback is None and npv >= 0:
-            payback = t
+            payback = t - 1 + -prev / (npv - prev)
         if t <= inp.T:
             npv_curve.append(npv)
             cum_cost += cost

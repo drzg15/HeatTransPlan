@@ -33,6 +33,8 @@ export interface EconInputs {
   fMaintRef: number;
   opFunding: number;
   opFundingYears: number;
+  co2eFuel?: number | null; // CO₂ balance only; null = co2Fuel
+  co2eEl?: number | null;
 }
 
 export interface EconResult {

@@ -938,17 +938,24 @@
    columns, not grid rows: each block sits right under the one above it, so a
    tall block (the heat pump's) leaves no empty space beside it. */
 .econ-assumptions {
-  display: block;
-  columns: 4 460px;
-  column-gap: 12px;
+  /* Three columns of the same, limited width, side by side; they wrap when narrow. */
+  grid-template-columns: repeat(auto-fit, minmax(420px, 1fr));
 }
-.econ-assumptions > .econ-table {
+.econ-assumptions .econ-table {
+  table-layout: fixed;
   break-inside: avoid;
   width: 100%;
   margin: 0 0 8px;
 }
 .econ-unit-cell {
   white-space: nowrap;
+}
+/* Checkbox, −, value, + and slider; then the unit. */
+.econ-col-input {
+  width: 245px;
+}
+.econ-col-unit {
+  width: 72px;
 }
 /* An option's on/off box before its value; greyed while off. */
 .econ-switch {

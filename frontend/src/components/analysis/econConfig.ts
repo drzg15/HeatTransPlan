@@ -10,7 +10,7 @@ import type { OptimizedIntegrationPoint } from '../../types/analysis';
 export const DEFAULTS = {
   year: new Date().getFullYear() + 1,
   hours: 6000, // VDI 4646 Tabelle 8: three-shift operation
-  i: 12, // VDI 4646 Tabelle 8; companies use 8–12 % (p. 58)
+  i: 8, // VDI 4646 p. 58: companies use 8–12 %; user decision 2026-11-09
   T: 20, // VDI 4646 p. 58 / VDI 2067 Tabelle 1: heating 20 years
   // Reference heater (gas condensing boiler, VDI 4646 Tabelle 8: η = 0,87 on
   // Hs). The fuel price is per kWh Hs and excludes CO₂, which is costed on Hi.
@@ -29,6 +29,11 @@ export const DEFAULTS = {
   rEl: 3, // ⚠ as rFuel
   co2El: 0.352, // UBA 2025, location-based
   co2ElPriced: 0, // 1 = add CO₂ cost on electricity; VDI: check if in the price
+  // CO₂ balance in CO₂-equivalents incl. upstream chain (GEG 2024, Anlage 9)
+  // instead of pure CO₂. The CO₂ costs always stay on pure CO₂.
+  co2e: 1,
+  co2eFuel: 0.24,
+  co2eEl: 0.56,
   pDemand: 0, // only if not already in the electricity price
   // Price of the heat pump itself per kW (machine only): SPH offers for large
   // industrial high-temperature heat pumps up to ~150 °C (≈ 1.000–1.200 €/kW);
@@ -36,9 +41,9 @@ export const DEFAULTS = {
   specCost: 1000,
   fPI: 1.25, // VDI 4646 Tabelle 6, p. 59: planning and installation
   // System integration (periphery). VDI 4646 Tabelle 6 (p. 59) has 1,8, fitted to
-  // cheap machines; with a 1.000 €/kW machine 1,25 gives ≈ 1.560 €/kW installed,
-  // the Danish Energy Agency value up to 150 °C. Rationale D1.
-  fPer: 1.25,
+  // cheap machines; 1,35 (user decision 2026-11-09): with a 1.000 €/kW machine
+  // ≈ 1.690 €/kW installed. Rationale D1.
+  fPer: 1.35,
   fMaint: 2.5, // VDI 2067 Tabelle A2: f_Inst 1 % + f_W+Insp 1,5 %
   opHours: 5, // VDI 2067 Tabelle A2: 5 h/a operation
   wage: 100, // €/h; VDI 4646 and VDI 2067 give no value
@@ -62,10 +67,10 @@ export type Form = typeof DEFAULTS;
 // price, so no CO₂ cost is added on top.
 export type RefType = 'gas' | 'oil' | 'eboiler';
 // Efficiencies and prices on Hs, CO₂ factors on Hi (see the rationale file).
-export const PRESETS: Record<RefType, Pick<Form, 'eta' | 'hsHi' | 'pFuel' | 'co2Fuel'>> = {
-  gas: { eta: 87, hsHi: 1.11, pFuel: 6, co2Fuel: 0.201 },
-  oil: { eta: 85, hsHi: 1.06, pFuel: 8, co2Fuel: 0.266 },
-  eboiler: { eta: 99, hsHi: 1, pFuel: 13, co2Fuel: 0.352 },
+export const PRESETS: Record<RefType, Pick<Form, 'eta' | 'hsHi' | 'pFuel' | 'co2Fuel' | 'co2eFuel'>> = {
+  gas: { eta: 87, hsHi: 1.11, pFuel: 6, co2Fuel: 0.201, co2eFuel: 0.24 },
+  oil: { eta: 85, hsHi: 1.06, pFuel: 8, co2Fuel: 0.266, co2eFuel: 0.31 },
+  eboiler: { eta: 99, hsHi: 1, pFuel: 13, co2Fuel: 0.352, co2eFuel: 0.56 },
 };
 
 export type Group =
@@ -80,7 +85,7 @@ export const GROUPS: Group[] = [
   'replace',
 ];
 // Yes/no inputs, shown as a checkbox and stored as 0 / 1.
-export const BOOL_FIELDS: Array<keyof Form> = ['co2ElPriced'];
+export const BOOL_FIELDS: Array<keyof Form> = ['co2ElPriced', 'co2e'];
 
 // Options that are off by default (value 0). A checkbox switches one on, which
 // fills in a typical value, taken from its help text; off sets 0 again.
@@ -89,7 +94,7 @@ export const SWITCHES: Partial<Record<keyof Form, number>> = {
   reinvestShare: 20, // e.g. a compressor overhaul; an assumption, no source
   opFunding: 92, // BEW Modul 4: up to about 92 €/MWh
   coolShare: 100, // a chiller or cooling tower removes all of it today
-  boilerInvest: 131, // VDI 4646:2026 (p. 74): gas condensing boiler
+  boilerInvest: 200, // user decision 2026-11-09; VDI 4646:2026 (p. 74) has 131
 };
 // Inputs that only count while an option is on: greyed out while it is off.
 export const SWITCHED_BY: Partial<Record<keyof Form, keyof Form>> = {
@@ -97,6 +102,8 @@ export const SWITCHED_BY: Partial<Record<keyof Form, keyof Form>> = {
   opFundingYears: 'opFunding',
   eer: 'coolShare',
   fMaintRef: 'boilerInvest',
+  co2eFuel: 'co2e',
+  co2eEl: 'co2e',
 };
 
 export type Range = { step: number; min: number; max: number; open?: boolean };
@@ -111,16 +118,19 @@ export const FIELDS: Array<[keyof Form, string, Group, Range]> = [
   ['hours', 'h/a', 'general', { step: 100, min: 0, max: 8760 }],
   ['i', '%', 'general', { step: 0.5, min: 0, max: 15, open: true }],
   ['T', 'a', 'general', { step: 1, min: 1, max: 40, open: true }],
+  ['co2e', '-', 'general', { step: 1, min: 0, max: 1 }],
   ['eta', '%', 'reference', { step: 1, min: 50, max: 100 }],
   ['hsHi', '-', 'reference', { step: 0.01, min: 1, max: 1.2 }],
   ['pFuel', 'ct/kWh', 'reference', { step: 0.5, min: 0, max: 30, open: true }],
   ['rFuel', '%/a', 'reference', { step: 0.5, min: -5, max: 10, open: true }],
   ['co2Fuel', 't/MWh', 'reference', { step: 0.001, min: 0, max: 0.4 }],
+  ['co2eFuel', 't/MWh', 'reference', { step: 0.01, min: 0, max: 1 }],
   ['co2Price', '€/t', 'reference', { step: 5, min: 0, max: 300, open: true }],
   ['rCo2', '%/a', 'reference', { step: 0.5, min: -5, max: 15, open: true }],
   ['pEl', 'ct/kWh', 'electricity', { step: 0.5, min: 0, max: 40, open: true }],
   ['rEl', '%/a', 'electricity', { step: 0.5, min: -5, max: 10, open: true }],
   ['co2El', 't/MWh', 'electricity', { step: 0.01, min: 0, max: 1 }],
+  ['co2eEl', 't/MWh', 'electricity', { step: 0.01, min: 0, max: 1 }],
   ['co2ElPriced', '-', 'electricity', { step: 1, min: 0, max: 1 }],
   ['pDemand', '€/kW/a', 'hp', { step: 10, min: 0, max: 300, open: true }],
   ['specCost', '€/kW', 'hp', { step: 10, min: 0, max: 2500, open: true }],
@@ -148,11 +158,11 @@ export const pointName = (p: OptimizedIntegrationPoint) =>
   `${p.refrigerant} ${p.T_sink.toFixed(0)} °C`;
 
 // The results shown up front, one line per pump.
-export const KPI_ROWS = ['payback', 'npv', 'saving1', 'co2_saving', 'breakeven'];
+export const KPI_ROWS = ['payback', 'npv', 'lcoh_hp', 'co2_saving', 'breakeven'];
 // One colour per key result, none of them the pinch cards' red, blue, violet
 // or green, so the two rows of cards read as different things.
 export const KPI_COLORS: Record<string, string> = {
-  saving1: '#B45309', // amber
+  lcoh_hp: '#B45309', // amber
   payback: '#0F766E', // teal
   npv: '#A21CAF', // fuchsia
   co2_saving: '#475569', // slate

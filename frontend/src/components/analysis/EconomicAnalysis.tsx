@@ -5,7 +5,7 @@
  *  formulas in backend/app/services/economics/formulas.py. */
 
 import { LoaderCircle, RotateCcw } from 'lucide-react';
-import { useState } from 'react';
+import { Fragment, useState } from 'react';
 import Plot from './Plot';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
@@ -18,7 +18,7 @@ import {
   BOOL_FIELDS,
   DEFAULTS,
   FIELDS,
-  GROUPS,
+  type Group,
   GREEN,
   PRESETS,
   RED,
@@ -169,8 +169,9 @@ const FORMULAS: Record<string, { f: string[]; terms: string[] }> = {
     f: [
       'LCOH_WP = a_T · PV(capital + f_W · I + t_AB · w + p_L · P_el + α · E_el · p_el(t) − F_B) / (Q · h)',
       'a_T = i / (1 − (1 + i)^−T)',
+      'α = (COP / η) / (COP / η + a · (COP − 1) / EER)',
     ],
-    terms: ['LCOH', 'a_T', 'α', 'E_el', 'I', 'Q', 'h', 'i', 'T'],
+    terms: ['LCOH', 'a_T', 'α', 'E_el', 'I', 'Q', 'h', 'i', 'T', 'COP', 'η', 'a', 'EER'],
   },
   lcoh_ref: {
     f: ['LCOH_Ist = a_T · PV(Q · h / η · p_fuel(t) + f_k,ref · I_ref) / (Q · h)'],
@@ -208,11 +209,22 @@ const termKey = (sym: string) =>
   sym.replace(/,/g, '_');
 
 // The inputs shown up front; all others sit under "More assumptions".
-const KEY_FIELDS: Array<keyof Form> = ['pFuel', 'pEl', 'specCost', 'funding', 'T', 'i'];
+// Left the general inputs, in the middle the reference and electricity, on
+// the right the heat pump. The reference card is placed before pFuel.
+const KEY_FIELDS: Array<keyof Form> = ['T', 'i', 'pFuel', 'pEl', 'specCost', 'funding'];
 // Each price card also carries its yearly price change, next to the price.
 const PRICE_CHANGE: Partial<Record<keyof Form, keyof Form>> = { pFuel: 'rFuel', pEl: 'rEl' };
 // Short values that get a narrower card.
 const NARROW_KEYS: Array<keyof Form> = ['funding', 'T', 'i'];
+// Left the general inputs and options, in the middle the reference and
+// electricity, on the right the heat pump.
+const INPUT_COLUMNS: Group[][] = [
+  ['general', 'funding', 'cooling', 'replace'],
+  ['reference', 'electricity'],
+  ['hp'],
+];
+/** Key inputs with a fractional step always show one decimal (6,0 ct/kWh). */
+const decimals = (r: Range) => (r.step % 1 ? 1 : 0);
 // The results shown up front, one line per pump.
 
 /** Text input showing the value German-style (3.222.575 / 0,07). The typed
@@ -225,12 +237,15 @@ function NumInput({
   width = 80,
   grouping = true,
   disabled = false,
+  minDigits = 0,
 }: {
   value: number;
   onChange: (v: number) => void;
   range: Range;
   width?: number;
   grouping?: boolean;
+  /** Always show this many decimals, e.g. 6,0. */
+  minDigits?: number;
   /** Shown but greyed: an option that is switched off. */
   disabled?: boolean;
 }) {
@@ -251,8 +266,8 @@ function NumInput({
         disabled={disabled}
         className="pa-number-input"
         style={{ width }}
-        value={draft ?? formatDe(value, 4, grouping)}
-        onFocus={() => setDraft(formatDe(value, 4, grouping))}
+        value={draft ?? formatDe(value, 4, grouping, minDigits)}
+        onFocus={() => setDraft(formatDe(value, 4, grouping, minDigits))}
         onChange={(e) => {
           setDraft(e.target.value);
           const v = parseDe(e.target.value);
@@ -410,6 +425,9 @@ export default function EconomicAnalysis() {
                 </li>
               ))}
             </ul>
+            {i18n.exists(`economics.row_notes.${key}`) && (
+              <p style={{ margin: '0.5rem 0 0' }}>{t(`economics.row_notes.${key}`)}</p>
+            )}
           </>
         }
       />
@@ -443,7 +461,8 @@ export default function EconomicAnalysis() {
         data={data}
         layout={layout}
         config={{ responsive: true }}
-        style={{ width: '100%' }}
+        // A chart with a fixed width sits centred; the others fill the card.
+        style={{ width: layout.width ?? '100%', margin: '0 auto' }}
         onClick={onClick}
       />
     </div>
@@ -457,7 +476,9 @@ export default function EconomicAnalysis() {
     const pt = ev.points?.[0];
     if (!pt) return;
     setSensBase((b) => b ?? { fuel: form.pFuel, el: form.pEl });
-    setForm({ ...form, pFuel: Number(pt.x), pEl: Number(pt.y) });
+    // The break-even line carries its exact price pair in customdata.
+    const [fuelPrice, elPrice] = pt.customdata ?? [pt.x, pt.y];
+    setForm({ ...form, pFuel: Number(fuelPrice), pEl: Number(elPrice) });
   });
   // Clicking a size analyses that pump in everything above.
   const sizeChart = plot(figures.size, (ev) => {
@@ -482,6 +503,97 @@ export default function EconomicAnalysis() {
     </select>
   );
 
+  // One key-input card.
+  const keyCard = (key: keyof Form) => {
+    const [, unit, , range] = FIELDS.find((f) => f[0] === key)!;
+    // Specific investment and investment share one card: € per kW × kW = €.
+    if (key === 'specCost')
+      return (
+        <div key={key} className="econ-key-card econ-invest">
+          {rowLabel('capex', t('economics.invest_card'))}
+          <div className="econ-invest-row">
+            <div>
+              <span className="econ-capex-name">
+                {inputLabel('specCost', `${t('economics.inputs.specCost')} [€/kW]`)}
+              </span>
+              <NumInput
+                width={70}
+                value={form.specCost}
+                range={range}
+                onChange={(v) => setForm({ ...form, specCost: v })}
+              />
+            </div>
+            <div className="econ-invest-pumps">
+              {points.map((p) => (
+                <div key={pointKey(p)}>
+                  <span className="econ-capex-name">
+                    × {formatDe(form.fPI, 2)} × {formatDe(form.fPer, 2)} × {formatDe(p.Q_demand)} kW
+                    = {t('economics.rows.capex')} [€]
+                    {points.length > 1 && ` · ${pointName(p)}`}
+                  </span>
+                  <NumInput
+                    width={90}
+                    // Starts at 3.000 €/kW installed.
+                    range={{
+                      step: 10000,
+                      min: 0,
+                      max: Math.round(3000 * p.Q_demand),
+                      open: true,
+                    }}
+                    value={capexOf(p)}
+                    onChange={(v) => setCapexOf(p, v)}
+                  />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    // Price cards: the price and its yearly change side by side.
+    const rKey = PRICE_CHANGE[key];
+    if (rKey) {
+      const [, rUnit, , rRange] = FIELDS.find((f) => f[0] === rKey)!;
+      return (
+        <div key={key} className="econ-key-card econ-pair">
+          <div className="econ-invest-row">
+            <div>
+              {inputLabel(key, `${t(`economics.inputs.${key}`, { fuel })} [${unitLabel(unit)}]`)}
+              <NumInput
+                width={70}
+                value={form[key]}
+                range={range}
+                minDigits={decimals(range)}
+                onChange={(v) => setPrice({ [key]: v })}
+              />
+            </div>
+            <div>
+              {inputLabel(rKey, `${t('economics.inputs.change_short')} [${unitLabel(rUnit)}]`)}
+              <NumInput
+                width={60}
+                value={form[rKey]}
+                range={rRange}
+                minDigits={decimals(rRange)}
+                onChange={(v) => setForm({ ...form, [rKey]: v })}
+              />
+            </div>
+          </div>
+        </div>
+      );
+    }
+    return (
+      <div key={key} className={`econ-key-card${NARROW_KEYS.includes(key) ? ' narrow' : ''}`}>
+        {inputLabel(key, `${t(`economics.inputs.${key}`, { fuel })} [${unitLabel(unit)}]`)}
+        <NumInput
+          width={NARROW_KEYS.includes(key) ? 56 : 70}
+          value={form[key]}
+          range={range}
+          minDigits={decimals(range)}
+          onChange={(v) => setForm({ ...form, [key]: v })}
+        />
+      </div>
+    );
+  };
+
   return (
     <Part
       n={4}
@@ -493,104 +605,18 @@ export default function EconomicAnalysis() {
       <div className="econ-card">
         <div className="econ-card-title">{t('economics.blocks.inputs')}</div>
         <div className="econ-key" key={`key-${resetCount}`}>
-          <div className="econ-key-card econ-ref">
-            {inputLabel('refType', t('economics.inputs.refType'))}
-            {refSelect}
-          </div>
           {KEY_FIELDS.map((key) => {
-            const [, unit, , range] = FIELDS.find((f) => f[0] === key)!;
-            // Specific investment and investment share one card: € per kW × kW = €.
-            if (key === 'specCost')
+            if (key === 'pFuel')
               return (
-                <div key={key} className="econ-key-card econ-invest">
-                  {rowLabel('capex', t('economics.invest_card'))}
-                  <div className="econ-invest-row">
-                    <div>
-                      <span className="econ-capex-name">
-                        {inputLabel('specCost', `${t('economics.inputs.specCost')} [€/kW]`)}
-                      </span>
-                      <NumInput
-                        width={70}
-                        value={form.specCost}
-                        range={range}
-                        onChange={(v) => setForm({ ...form, specCost: v })}
-                      />
-                    </div>
-                    <div className="econ-invest-pumps">
-                      {points.map((p) => (
-                        <div key={pointKey(p)}>
-                          <span className="econ-capex-name">
-                            × {formatDe(form.fPI, 2)} × {formatDe(form.fPer, 2)} ×{' '}
-                            {formatDe(p.Q_demand)} kW = {t('economics.rows.capex')} [€]
-                            {points.length > 1 && ` · ${pointName(p)}`}
-                          </span>
-                          <NumInput
-                            width={90}
-                            // Starts at 3.000 €/kW installed.
-                            range={{
-                              step: 10000,
-                              min: 0,
-                              max: Math.round(3000 * p.Q_demand),
-                              open: true,
-                            }}
-                            value={capexOf(p)}
-                            onChange={(v) => setCapexOf(p, v)}
-                          />
-                        </div>
-                      ))}
-                    </div>
+                <Fragment key={key}>
+                  <div className="econ-key-card econ-ref">
+                    {inputLabel('refType', t('economics.inputs.refType'))}
+                    {refSelect}
                   </div>
-                </div>
+                  {keyCard(key)}
+                </Fragment>
               );
-            // Price cards: the price and its yearly change side by side.
-            const rKey = PRICE_CHANGE[key];
-            if (rKey) {
-              const [, rUnit, , rRange] = FIELDS.find((f) => f[0] === rKey)!;
-              return (
-                <div key={key} className="econ-key-card econ-pair">
-                  <div className="econ-invest-row">
-                    <div>
-                      {inputLabel(
-                        key,
-                        `${t(`economics.inputs.${key}`, { fuel })} [${unitLabel(unit)}]`
-                      )}
-                      <NumInput
-                        width={70}
-                        value={form[key]}
-                        range={range}
-                        onChange={(v) => setPrice({ [key]: v })}
-                      />
-                    </div>
-                    <div>
-                      {inputLabel(
-                        rKey,
-                        `${t('economics.inputs.change_short')} [${unitLabel(rUnit)}]`
-                      )}
-                      <NumInput
-                        width={60}
-                        value={form[rKey]}
-                        range={rRange}
-                        onChange={(v) => setForm({ ...form, [rKey]: v })}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            }
-            return (
-              <div
-                key={key}
-                className={`econ-key-card${NARROW_KEYS.includes(key) ? ' narrow' : ''}`}
-              >
-                {inputLabel(key, `${t(`economics.inputs.${key}`, { fuel })} [${unitLabel(unit)}]`)}
-                <NumInput
-                  width={NARROW_KEYS.includes(key) ? 56 : 70}
-                  value={form[key]}
-                  range={range}
-                  onChange={(v) => setForm({ ...form, [key]: v })}
-                />
-              </div>
-            );
+            return keyCard(key);
           })}
         </div>
       </div>
@@ -602,86 +628,104 @@ export default function EconomicAnalysis() {
           <span className="econ-more-hint">{t('economics.click_to_open')}</span>
         </summary>
         <div className="econ-blocks econ-assumptions" key={`in-${resetCount}`}>
-          {GROUPS.map((g) => {
-            const fields = FIELDS.filter(
-              (f) =>
-                f[2] === g &&
-                !KEY_FIELDS.includes(f[0]) &&
-                !Object.values(PRICE_CHANGE).includes(f[0])
-            );
-            if (!fields.length) return null;
-            return (
-              <table key={g} className="pa-table econ-table">
-                <thead>
-                  <tr>
-                    <th colSpan={3}>{t(`economics.groups.${g}`)}</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {fields.map(([key, unit, , range]) => (
-                    <tr key={key} className="econ-input-row">
-                      <td>{inputLabel(key, t(`economics.inputs.${key}`, { fuel }))}</td>
-                      <td>
-                        {BOOL_FIELDS.includes(key) ? (
-                          <span className="econ-switch">
-                            <input
-                              type="checkbox"
-                              checked={Boolean(form[key])}
-                              aria-label={t(`economics.inputs.${key}`, { fuel })}
-                              onChange={(e) =>
-                                setForm({ ...form, [key]: e.target.checked ? 1 : 0 })
-                              }
-                            />
-                            {/* What switching it on adds: the CO₂ cost on a kWh of
+          {/* Three fixed columns: general and options, reference and electricity, heat pump. */}
+          {INPUT_COLUMNS.map((col) => (
+            <div key={col[0]}>
+              {col.map((g) => {
+                const fields = FIELDS.filter(
+                  (f) =>
+                    f[2] === g &&
+                    !KEY_FIELDS.includes(f[0]) &&
+                    !Object.values(PRICE_CHANGE).includes(f[0])
+                );
+                if (!fields.length) return null;
+                return (
+                  <table key={g} className="pa-table econ-table">
+                    {/* Fixed input and unit columns: every table lines up. */}
+                    <colgroup>
+                      <col />
+                      <col className="econ-col-input" />
+                      <col className="econ-col-unit" />
+                    </colgroup>
+                    <thead>
+                      <tr>
+                        <th colSpan={3}>{t(`economics.groups.${g}`)}</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {fields.map(([key, unit, , range]) => (
+                        <tr key={key} className="econ-input-row">
+                          <td>{inputLabel(key, t(`economics.inputs.${key}`, { fuel }))}</td>
+                          <td>
+                            {BOOL_FIELDS.includes(key) ? (
+                              <span className="econ-switch">
+                                <input
+                                  type="checkbox"
+                                  checked={Boolean(form[key])}
+                                  aria-label={t(`economics.inputs.${key}`, { fuel })}
+                                  onChange={(e) =>
+                                    setForm({ ...form, [key]: e.target.checked ? 1 : 0 })
+                                  }
+                                />
+                                {/* What switching it on adds: the CO₂ cost on a kWh of
                                 electricity in the base year, greyed while off. */}
-                            <span className={`econ-switch-value${form[key] ? '' : ' is-off'}`}>
-                              {formatDe((form.co2El * form.co2Price) / 10, 2)}
-                            </span>
-                          </span>
-                        ) : (
-                          <span className="econ-switch">
-                            {/* An option off by default: on fills in its typical value. */}
-                            {SWITCHES[key] !== undefined && (
-                              <input
-                                type="checkbox"
-                                checked={Boolean(form[key])}
-                                aria-label={t(`economics.inputs.${key}`, { fuel })}
-                                onChange={(e) =>
-                                  setForm({ ...form, [key]: e.target.checked ? SWITCHES[key]! : 0 })
-                                }
-                              />
-                            )}
-                            {/* Off: shown greyed at 0, as are the inputs that
+                                {key === 'co2ElPriced' && (
+                                  <span
+                                    className={`econ-switch-value${form[key] ? '' : ' is-off'}`}
+                                  >
+                                    {formatDe((form.co2El * form.co2Price) / 10, 2)}
+                                  </span>
+                                )}
+                              </span>
+                            ) : (
+                              <span className="econ-switch">
+                                {/* An option off by default: on fills in its typical value. */}
+                                {SWITCHES[key] !== undefined && (
+                                  <input
+                                    type="checkbox"
+                                    checked={Boolean(form[key])}
+                                    aria-label={t(`economics.inputs.${key}`, { fuel })}
+                                    onChange={(e) =>
+                                      setForm({
+                                        ...form,
+                                        [key]: e.target.checked ? SWITCHES[key]! : 0,
+                                      })
+                                    }
+                                  />
+                                )}
+                                {/* Off: shown greyed at 0, as are the inputs that
                                 only count while their option is on. */}
-                            <NumInput
-                              width={64}
-                              // Off: the value it would get, greyed; 0 is what counts.
-                              value={
-                                SWITCHES[key] !== undefined && !form[key]
-                                  ? SWITCHES[key]!
-                                  : form[key]
-                              }
-                              range={range}
-                              grouping={key !== 'year' && key !== 'reinvestYear'}
-                              disabled={
-                                (SWITCHES[key] !== undefined && !form[key]) ||
-                                (SWITCHED_BY[key] !== undefined && !form[SWITCHED_BY[key]!])
-                              }
-                              onChange={(v) => setForm({ ...form, [key]: v })}
-                            />
-                          </span>
-                        )}
-                      </td>
-                      <td className="econ-unit-cell">
-                        {/* The switch shows the surcharge it adds; the report keeps "-". */}
-                        {unitLabel(key === 'co2ElPriced' ? 'ct/kWh' : unit)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            );
-          })}
+                                <NumInput
+                                  width={64}
+                                  // Off: the value it would get, greyed; 0 is what counts.
+                                  value={
+                                    SWITCHES[key] !== undefined && !form[key]
+                                      ? SWITCHES[key]!
+                                      : form[key]
+                                  }
+                                  range={range}
+                                  grouping={key !== 'year' && key !== 'reinvestYear'}
+                                  disabled={
+                                    (SWITCHES[key] !== undefined && !form[key]) ||
+                                    (SWITCHED_BY[key] !== undefined && !form[SWITCHED_BY[key]!])
+                                  }
+                                  onChange={(v) => setForm({ ...form, [key]: v })}
+                                />
+                              </span>
+                            )}
+                          </td>
+                          <td className="econ-unit-cell">
+                            {/* The switch shows the surcharge it adds; the report keeps "-". */}
+                            {unitLabel(key === 'co2ElPriced' ? 'ct/kWh' : unit)}
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                );
+              })}
+            </div>
+          ))}
         </div>
       </details>
 

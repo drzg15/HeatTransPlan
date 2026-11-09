@@ -151,7 +151,7 @@ def generate_html_report(req: ReportRequest) -> str:
                 npv = num["npv"]
                 sc_npv.append(npv)
                 payback = (texts['econ_never'] if num["payback"] is None
-                           else f"{num['payback']} {texts['econ_years']}")
+                           else f"{num['payback']:.1f}".replace(".", ",") + f" {texts['econ_years']}")
                 npv_colour = '#C62828' if npv < 0 else '#2E7D32'
                 econ_cells = (
                     f"<td class='c-econ'>{_de(num['capex'])}</td>"

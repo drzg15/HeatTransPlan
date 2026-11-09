@@ -1,8 +1,9 @@
 /** German number style for the economic analysis: "." groups thousands, ","
  *  marks decimals (3.222.575 / 0,07), whatever the UI language. */
 
-export function formatDe(value: number, maxDigits = 0, grouping = true): string {
+export function formatDe(value: number, maxDigits = 0, grouping = true, minDigits = 0): string {
   return new Intl.NumberFormat('de-DE', {
+    minimumFractionDigits: minDigits,
     maximumFractionDigits: maxDigits,
     useGrouping: grouping,
   }).format(value);

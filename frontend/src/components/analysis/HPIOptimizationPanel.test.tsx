@@ -116,7 +116,7 @@ describe('HPIOptimizationPanel', () => {
 
     const boxes = () =>
       Array.from(
-        view.container.querySelectorAll('.pa-opt-filters > div > label input[type=checkbox]')
+        view.container.querySelectorAll('.pa-opt-filters .pa-opt-toggles > label input[type=checkbox]')
       );
     boxes().forEach((b, i) => {
       fireEvent.click(b);

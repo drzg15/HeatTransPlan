@@ -51,6 +51,7 @@ exports[`HPIOptimizationChart > draws German the same 1`] = `
   "showlegend": true,
   "legend": {
    "orientation": "h",
+   "traceorder": "normal",
    "x": 0.5,
    "y": -0.12,
    "xanchor": "center",
@@ -298,6 +299,7 @@ exports[`HPIOptimizationChart > draws a selection the same 1`] = `
   "showlegend": true,
   "legend": {
    "orientation": "h",
+   "traceorder": "normal",
    "x": 0.5,
    "y": -0.12,
    "xanchor": "center",
@@ -545,6 +547,7 @@ exports[`HPIOptimizationChart > draws dark the same 1`] = `
   "showlegend": true,
   "legend": {
    "orientation": "h",
+   "traceorder": "normal",
    "x": 0.5,
    "y": -0.12,
    "xanchor": "center",
@@ -792,6 +795,7 @@ exports[`HPIOptimizationChart > draws the composite mode the same 1`] = `
   "showlegend": true,
   "legend": {
    "orientation": "h",
+   "traceorder": "normal",
    "x": 0.5,
    "y": -0.12,
    "xanchor": "center",
@@ -1013,6 +1017,7 @@ exports[`HPIOptimizationChart > draws the same 1`] = `
   "showlegend": true,
   "legend": {
    "orientation": "h",
+   "traceorder": "normal",
    "x": 0.5,
    "y": -0.12,
    "xanchor": "center",

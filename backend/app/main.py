@@ -119,6 +119,7 @@ async def health():
 # Serve frontend static files
 import os
 from fastapi.staticfiles import StaticFiles
+from fastapi import HTTPException
 from fastapi.responses import FileResponse
 
 frontend_dist = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "frontend", "dist")
@@ -127,6 +128,10 @@ if os.path.isdir(frontend_dist):
     
     @app.get("/{full_path:path}")
     async def serve_frontend(full_path: str):
+        # An unknown API address is a 404, not the app's page: the same answer
+        # with or without a built frontend (and no 200 for a mistyped call).
+        if full_path == "api" or full_path.startswith("api/"):
+            raise HTTPException(status_code=404, detail="Not Found")
         # Serve specific files from root if they exist — only inside dist:
         # "/%2e%2e/…" must not reach the source, .env or /proc.
         target_file = os.path.realpath(os.path.join(frontend_dist, full_path))

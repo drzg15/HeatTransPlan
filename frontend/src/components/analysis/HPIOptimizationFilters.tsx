@@ -355,36 +355,6 @@ export default function HPIOptimizationFilters(p: Props) {
           isDark ? '#3B82F6' : '#2563EB'
         )}
         {button(t('optimization.panel.filters.clear'), p.onClear, isDark ? '#EF4444' : '#DC2626')}
-        {p.theoreticalCount > 0 && (
-          <Toggle
-            checked={p.showTheoretical}
-            onChange={p.onShowTheoretical}
-            label={t('optimization.panel.filters.show_theoretical')}
-            count={p.theoreticalCount}
-            desc={t('optimization.panel.filters.show_theoretical_desc')}
-            isDark={isDark}
-          />
-        )}
-        {p.sourceLimitedCount > 0 && (
-          <Toggle
-            checked={p.showSourceLimited}
-            onChange={p.onShowSourceLimited}
-            label={t('optimization.panel.filters.source_limited')}
-            count={p.sourceLimitedCount}
-            desc={t('optimization.panel.filters.source_limited_desc')}
-            isDark={isDark}
-          />
-        )}
-        {p.demandLimitedCount > 0 && (
-          <Toggle
-            checked={p.showDemandLimited}
-            onChange={p.onShowDemandLimited}
-            label={t('optimization.panel.filters.demand_limited')}
-            count={p.demandLimitedCount}
-            desc={t('optimization.panel.filters.demand_limited_desc')}
-            isDark={isDark}
-          />
-        )}
         <p
           style={{
             marginTop: '0.5rem',
@@ -436,8 +406,8 @@ export default function HPIOptimizationFilters(p: Props) {
               onChange={(e) => p.onCopModel(e.target.value as CopModel)}
               title={t('optimization.panel.filters.cop_model_desc')}
             >
-              <option value="2t">{t('optimization.panel.filters.cop_model_2t')}</option>
               <option value="4t">{t('optimization.panel.filters.cop_model_4t')}</option>
+              <option value="2t">{t('optimization.panel.filters.cop_model_2t')}</option>
             </select>
             <button
               className="cf-trigger"
@@ -528,6 +498,42 @@ export default function HPIOptimizationFilters(p: Props) {
             </option>
           ))}
         </select>
+        {/* Which points the chart shows: rarely changed, so kept here. */}
+        <div
+          className="pa-opt-toggles"
+          style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '0.75rem' }}
+        >
+          {p.theoreticalCount > 0 && (
+            <Toggle
+              checked={p.showTheoretical}
+              onChange={p.onShowTheoretical}
+              label={t('optimization.panel.filters.show_theoretical')}
+              count={p.theoreticalCount}
+              desc={t('optimization.panel.filters.show_theoretical_desc')}
+              isDark={isDark}
+            />
+          )}
+          {p.sourceLimitedCount > 0 && (
+            <Toggle
+              checked={p.showSourceLimited}
+              onChange={p.onShowSourceLimited}
+              label={t('optimization.panel.filters.source_limited')}
+              count={p.sourceLimitedCount}
+              desc={t('optimization.panel.filters.source_limited_desc')}
+              isDark={isDark}
+            />
+          )}
+          {p.demandLimitedCount > 0 && (
+            <Toggle
+              checked={p.showDemandLimited}
+              onChange={p.onShowDemandLimited}
+              label={t('optimization.panel.filters.demand_limited')}
+              count={p.demandLimitedCount}
+              desc={t('optimization.panel.filters.demand_limited_desc')}
+              isDark={isDark}
+            />
+          )}
+        </div>
       </details>
     </div>
   );

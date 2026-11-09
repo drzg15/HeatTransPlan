@@ -19,7 +19,7 @@ exports[`economic model > German report data 1`] = `
    "label": "Dyn. Amortisationszeit",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "7 Jahre (2034)",
+   "value": "7,0 Jahre / 2034",
    "unit": "",
    "sub": ""
   },
@@ -33,13 +33,13 @@ exports[`economic model > German report data 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Kosteneinsparung im 1. Jahr",
+   "key": "lcoh_hp",
+   "label": "Wärmegestehungskosten Wärmepumpe (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "36.078",
-   "unit": "€/Jahr",
-   "sub": ""
+   "value": "6,38",
+   "unit": "ct/kWh",
+   "sub": "Erdgaskessel: 9,73 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -76,13 +76,18 @@ exports[`economic model > German report data 1`] = `
     ],
     [
      "Kalkulationszins",
-     "12",
+     "8",
      "%"
     ],
     [
      "Betrachtungszeitraum",
      "20",
      "Jahre"
+    ],
+    [
+     "CO₂-Bilanz in CO₂-Äquivalenten (mit Vorkette)",
+     "ja",
+     "-"
     ]
    ]
   },
@@ -120,6 +125,11 @@ exports[`economic model > German report data 1`] = `
      "t/MWh"
     ],
     [
+     "CO₂e-Faktor Erdgas (mit Vorkette, je MWh Hi)",
+     "0,24",
+     "t/MWh"
+    ],
+    [
      "CO₂-Preis",
      "55",
      "€/t"
@@ -150,6 +160,11 @@ exports[`economic model > German report data 1`] = `
      "t/MWh"
     ],
     [
+     "CO₂e-Faktor Strom (mit Vorkette)",
+     "0,56",
+     "t/MWh"
+    ],
+    [
      "CO₂-Kosten auf Strom aufschlagen",
      "nein",
      "-"
@@ -176,7 +191,7 @@ exports[`economic model > German report data 1`] = `
     ],
     [
      "Faktor Einbindung (Peripherie)",
-     "1,25",
+     "1,35",
      "-"
     ],
     [
@@ -399,7 +414,7 @@ exports[`economic model > German report data 1`] = `
       "Dyn. Amortisationszeit",
       "Jahre",
       "–",
-      "7 Jahre (2034)"
+      "7,0 Jahre / 2034"
      ],
      "color": ""
     },
@@ -492,11 +507,30 @@ exports[`economic model > German report data 1`] = `
  "summary": {
   "name": "Butane_2 84 °C",
   "good": true,
-  "text": "Diese Wärmepumpe liefert 105 kW des Bedarfs von 375 kW (28 %) bei einem COP von 7,48 und entzieht der Wärmequelle 91 kW. Der restliche Bedarf bleibt beim Erdgaskessel. Sie ersetzt 724.138 kWh/Jahr Erdgas durch 84.269 kWh/Jahr Strom, spart 639.868 kWh/Jahr Endenergie und 101,5 t CO₂ pro Jahr. Im ersten Jahr senkt sie die Betriebskosten um 36.078 €. Die Investition beträgt 164.063 € (0 % Förderung). Sie amortisiert sich nach 7 Jahren (2034). Über 20 Jahre erwirtschaftet sie 157.677 € in heutigem Geld (Kapitalwert, inkl. 0 € Restwert). Je kWh Wärme kostet die Wärmepumpe 6,38 ct gegenüber 9,73 ct beim Erdgaskessel (Wärmegestehungskosten, Annuitätenmethode, VDI 4646:2026); statische Amortisation 4,5 Jahre, interner Zinsfuß 24,3 %. Bei 6 ct/kWh für Erdgas bleibt sie wirtschaftlich, solange Strom weniger als 33,12 ct/kWh kostet."
+  "text": "Diese Wärmepumpe liefert 105 kW des Bedarfs von 375 kW (28 %) bei einem COP von 7,48 und entzieht der Wärmequelle 91 kW. Der restliche Bedarf bleibt beim Erdgaskessel. Sie ersetzt 724.138 kWh/Jahr Erdgas durch 84.269 kWh/Jahr Strom, spart 639.868 kWh/Jahr Endenergie und 101,5 t CO₂ pro Jahr. Im ersten Jahr senkt sie die Betriebskosten um 36.078 €. Die Investition beträgt 164.063 € (0 % Förderung). Sie amortisiert sich nach 7,0 Jahren (2034). Über 20 Jahre erwirtschaftet sie 157.677 € in heutigem Geld (Kapitalwert, inkl. 0 € Restwert). Je kWh Wärme kostet die Wärmepumpe 6,38 ct gegenüber 9,73 ct beim Erdgaskessel (Wärmegestehungskosten, Annuitätenmethode, VDI 4646:2026); statische Amortisation 4,5 Jahre, interner Zinsfuß 24,3 %. Bei 6 ct/kWh für Erdgas bleibt sie wirtschaftlich, solange Strom weniger als 33,12 ct/kWh kostet."
  },
  "figures": [
   {
    "data": [
+    {
+     "type": "bar",
+     "name": "Kumulierte Betriebskosten",
+     "x": [
+      "Ist-Situation (Erdgaskessel)",
+      "Butane_2 84 °C"
+     ],
+     "y": [
+      4809771.549848747,
+      3858263.875144681
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investitionskosten",
@@ -517,23 +551,24 @@ exports[`economic model > German report data 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Kumulierte Betriebskosten",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Ist-Situation (Erdgaskessel)",
       "Butane_2 84 °C"
      ],
      "y": [
       4809771.549848747,
-      3858263.875144681
+      4022326.875144681
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.809.772 €",
+      "4.022.327 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -586,7 +621,11 @@ exports[`economic model > German report data 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      5531237.282326059
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -1214,23 +1253,36 @@ exports[`economic model > German report data 1`] = `
        459917.6672142603
       ]
      ],
-     "zmid": 0,
+     "zmin": -348364.39589966764,
+     "zmax": 663717.6525574639,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.11473522870691223,
+       "#EF9A9A"
+      ],
+      [
+       0.22947045741382446,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.3442056861207367,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.3442056861207367,
+       "#E8F5E9"
+      ],
+      [
+       0.5628037907471578,
        "#C8E6C9"
+      ],
+      [
+       0.7814018953735788,
+       "#A5D6A7"
       ],
       [
        1,
@@ -1257,67 +1309,37 @@ exports[`economic model > German report data 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -22.739518692165465,
-      -18.44295851218233,
-      -9.849838152216046,
-      -1.256717792249767,
-      7.336402567716505,
-      15.929522927682784,
-      24.522643287649057,
-      33.115763647615324,
-      41.7088840075816,
-      50.3020043675479,
-      58.89512472751416,
-      67.48824508748044,
-      76.08136544744671,
-      84.67448580741299,
-      88.97104598739615
-     ],
+     "x": "[102 items 5e866942]",
+     "y": "[102 items c2a82350]",
+     "customdata": "[102 items 860e4c4c]",
      "name": "Break-even (Kapitalwert = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (Kapitalwert = 0)<br>Preis Erdgas ohne CO₂: %{x:,.1f} ct/kWh<br>Strompreis: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (Kapitalwert = 0)</b><br>Kapitalwert: 0 €<br>Preis Erdgas ohne CO₂: %{customdata[0]:,.2f} ct/kWh<br>Strompreis: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Eingegebene Preise",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Eingegebene Preise<br>Preis Erdgas ohne CO₂: %{x:,.2f} ct/kWh<br>Strompreis: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -1332,7 +1354,7 @@ exports[`economic model > German report data 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -1349,7 +1371,7 @@ exports[`economic model > German report data 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -1363,7 +1385,7 @@ exports[`economic model > German report data 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -1380,6 +1402,7 @@ exports[`economic model > German report data 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -1417,7 +1440,28 @@ exports[`economic model > German report data 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>WP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C · COP 7,48 · 105 kW<br>Preis Erdgas ohne CO₂: 6 ct/kWh<br>Strompreis: 13 ct/kWh"
+     }
+    ]
    }
   },
   {
@@ -1450,18 +1494,15 @@ exports[`economic model > German report data 1`] = `
      ],
      "name": "Wirtschaftliches Optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Wärmepumpe: 293 kW (78 %)<br>Rest vom Erdgaskessel: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Wirtschaftliches Optimum</b><br>%{customdata}<br>Kapitalwert: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -1474,10 +1515,11 @@ exports[`economic model > German report data 1`] = `
      ],
      "name": "Analysierte Wärmepumpe",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -1512,6 +1554,25 @@ exports[`economic model > German report data 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 105,
+      "y": 157676.62832889802,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>WP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C<br>Wärmepumpe: 105 kW (28 %)<br>Rest vom Erdgaskessel: 270 kW<br>COP: 7,48"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -1798,7 +1859,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
    "a",
    "–",
    [
-    "12 years (2039)"
+    "12,0 years / 2039"
    ]
   ],
   [
@@ -1898,7 +1959,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "12 years (2039)",
+   "value": "12,0 years / 2039",
    "unit": "",
    "sub": ""
   },
@@ -1912,13 +1973,13 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "81.444",
-   "unit": "€/year",
-   "sub": ""
+   "value": "7,56",
+   "unit": "ct/kWh",
+   "sub": "Electric boiler: 8,59 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -1943,7 +2004,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
   {
    "name": "Carnot 113 °C",
    "good": true,
-   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Electricity (boiler) with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 81.444 €. The investment is 585.938 € (0 % funding). It pays back after 12 years (2039). Over 20 years it earns 173.214 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 7,2 years, internal rate of return 16 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 16,94 ct/kWh."
+   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Electricity (boiler) with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 81.444 €. The investment is 585.938 € (0 % funding). It pays back after 12,0 years (2039). Over 20 years it earns 173.214 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 7,2 years, internal rate of return 16 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 16,94 ct/kWh."
   }
  ],
  "sensExplain": "At a Electricity (boiler) price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 16,94 ct/kWh. That is the dashed line.",
@@ -1952,6 +2013,25 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Electric boiler)",
+      "Carnot 113 °C"
+     ],
+     "y": [
+      4294627.095049119,
+      2002115.7032228974
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -1972,23 +2052,24 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Electric boiler)",
       "Carnot 113 °C"
      ],
      "y": [
       4294627.095049119,
-      2002115.7032228974
+      2588053.7032228974
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.294.627 €",
+      "2.588.054 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -2041,7 +2122,11 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      4938821.159306486
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -2669,23 +2754,36 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
        1045516.8668075136
       ]
      ],
-     "zmid": 0,
+     "zmin": -1841204.7871708015,
+     "zmax": 2187633.1607073694,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.15233547166625644,
+       "#EF9A9A"
+      ],
+      [
+       0.3046709433325129,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.4570064149987693,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.4570064149987693,
+       "#E8F5E9"
+      ],
+      [
+       0.6380042766658462,
        "#C8E6C9"
+      ],
+      [
+       0.8190021383329231,
+       "#A5D6A7"
       ],
       [
        1,
@@ -2712,67 +2810,37 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -18.6527262859647,
-      -15.914579734240558,
-      -10.438286630792287,
-      -4.961993527344009,
-      0.5142995761042637,
-      5.990592679552538,
-      11.46688578300081,
-      16.94317888644909,
-      22.419471989897353,
-      27.895765093345638,
-      33.372058196793915,
-      38.848351300242186,
-      44.32464440369046,
-      49.80093750713874,
-      52.53908405886287
-     ],
+     "x": "[114 items 10939687]",
+     "y": "[114 items 453d2127]",
+     "customdata": "[114 items abe6218c]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Electricity (boiler) price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Electricity (boiler) price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Electricity (boiler) price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -2787,7 +2855,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -2804,7 +2872,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -2818,7 +2886,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -2835,6 +2903,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -2872,7 +2941,28 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Carnot 113 °C · COP 4,76 · 375 kW<br>Electricity (boiler) price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -2905,18 +2995,15 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Electric boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -2929,10 +3016,11 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -2967,6 +3055,25 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 375,
+      "y": 173214.1867682842,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Carnot 113 °C<br>Heat pump: 375 kW (100 %)<br>Rest from Electric boiler: 0 kW<br>COP: 4,76"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -3246,7 +3353,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
    "a",
    "–",
    [
-    "11 years (2038)"
+    "11,0 years / 2038"
    ]
   ],
   [
@@ -3346,7 +3453,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "11 years (2038)",
+   "value": "11,0 years / 2038",
    "unit": "",
    "sub": ""
   },
@@ -3360,13 +3467,13 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "49.201",
-   "unit": "€/year",
-   "sub": ""
+   "value": "7,03",
+   "unit": "ct/kWh",
+   "sub": "Electric boiler: 8,59 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -3391,7 +3498,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
   {
    "name": "Butane_1 102 °C",
    "good": true,
-   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 1.396.552 kWh/year of Electricity (boiler) with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 49.201 €. The investment is 316.406 € (0 % funding). It pays back after 11 years (2038). Over 20 years it earns 141.047 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 6,4 years, internal rate of return 17,8 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 20,08 ct/kWh."
+   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 1.396.552 kWh/year of Electricity (boiler) with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 49.201 €. The investment is 316.406 € (0 % funding). It pays back after 11,0 years (2038). Over 20 years it earns 141.047 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 6,4 years, internal rate of return 17,8 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 20,08 ct/kWh."
   }
  ],
  "sensExplain": "At a Electricity (boiler) price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 20,08 ct/kWh. That is the dashed line.",
@@ -3400,6 +3507,25 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Electric boiler)",
+      "Butane_1 102 °C"
+     ],
+     "y": [
+      4294627.095049119,
+      2914793.547773918
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -3420,23 +3546,24 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Electric boiler)",
       "Butane_1 102 °C"
      ],
      "y": [
       4294627.095049119,
-      2914793.547773918
+      3231199.547773918
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.294.627 €",
+      "3.231.200 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -3489,7 +3616,11 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      4938821.159306486
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -4117,23 +4248,36 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
        661319.3630955151
       ]
      ],
-     "zmid": 0,
+     "zmin": -897510.3300527747,
+     "zmax": 1179604.5518511513,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.14403156639240203,
+       "#EF9A9A"
+      ],
+      [
+       0.28806313278480405,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.43209469917720605,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.43209469917720605,
+       "#E8F5E9"
+      ],
+      [
+       0.6213964661181374,
        "#C8E6C9"
+      ],
+      [
+       0.8106982330590686,
+       "#A5D6A7"
       ],
       [
        1,
@@ -4160,67 +4304,37 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -22.282299575317236,
-      -19.02399275078336,
-      -12.507379101715618,
-      -5.990765452647885,
-      0.5258481964198594,
-      7.042461845487604,
-      13.559075494555342,
-      20.075689143623087,
-      26.59230279269083,
-      33.10891644175857,
-      39.62553009082632,
-      46.14214373989406,
-      52.658757388961796,
-      59.175371038029546,
-      62.43367786256341
-     ],
+     "x": "[108 items 694acbc8]",
+     "y": "[108 items 43936f78]",
+     "customdata": "[108 items f084d62]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Electricity (boiler) price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Electricity (boiler) price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Electricity (boiler) price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -4235,7 +4349,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -4252,7 +4366,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -4266,7 +4380,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -4283,6 +4397,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -4320,7 +4435,28 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C · COP 5,67 · 203 kW<br>Electricity (boiler) price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -4353,18 +4489,15 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Electric boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -4377,10 +4510,11 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -4415,6 +4549,25 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 202.5,
+      "y": 141047.1108991883,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Electric boiler: 173 kW<br>COP: 5,67"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -4694,7 +4847,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
    "a",
    "–",
    [
-    "9 years (2036)"
+    "9,0 years / 2036"
    ]
   ],
   [
@@ -4794,7 +4947,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "9 years (2036)",
+   "value": "9,0 years / 2036",
    "unit": "",
    "sub": ""
   },
@@ -4808,13 +4961,13 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "28.866",
-   "unit": "€/year",
-   "sub": ""
+   "value": "6,38",
+   "unit": "ct/kWh",
+   "sub": "Electric boiler: 8,59 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -4839,7 +4992,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
   {
    "name": "Butane_2 84 °C",
    "good": true,
-   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 724.138 kWh/year of Electricity (boiler) with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 28.866 €. The investment is 164.063 € (0 % funding). It pays back after 9 years (2036). Over 20 years it earns 103.807 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 5,7 years, internal rate of return 20,1 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 26,24 ct/kWh."
+   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 724.138 kWh/year of Electricity (boiler) with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 28.866 €. The investment is 164.063 € (0 % funding). It pays back after 9,0 years (2036). Over 20 years it earns 103.807 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 5,7 years, internal rate of return 20,1 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 26,24 ct/kWh."
   }
  ],
  "sensExplain": "At a Electricity (boiler) price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 26,24 ct/kWh. That is the dashed line.",
@@ -4848,6 +5001,25 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Electric boiler)",
+      "Butane_2 84 °C"
+     ],
+     "y": [
+      4294627.095049119,
+      3487359.8676889497
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -4868,23 +5040,24 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Electric boiler)",
       "Butane_2 84 °C"
      ],
      "y": [
       4294627.095049119,
-      3487359.8676889497
+      3651422.8676889497
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.294.627 €",
+      "3.651.423 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -4937,7 +5110,11 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      4938821.159306486
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -5565,23 +5742,36 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
        406047.87272510945
       ]
      ],
-     "zmid": 0,
+     "zmin": -402234.19038881874,
+     "zmax": 609847.858068313,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.1324774643195528,
+       "#EF9A9A"
+      ],
+      [
+       0.2649549286391056,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.39743239295865845,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.3974323929586584,
+       "#E8F5E9"
+      ],
+      [
+       0.5982882619724389,
        "#C8E6C9"
+      ],
+      [
+       0.7991441309862195,
+       "#A5D6A7"
       ],
       [
        1,
@@ -5608,67 +5798,37 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -29.612015048626226,
-      -25.315454868643133,
-      -16.72233450867683,
-      -8.129214148710556,
-      0.46390621125572623,
-      9.057026571221998,
-      17.65014693118827,
-      26.243267291154552,
-      34.83638765112083,
-      43.42950801108712,
-      52.02262837105337,
-      60.61574873101966,
-      69.20886909098594,
-      77.80198945095222,
-      82.09854963093537
-     ],
+     "x": "[102 items e0f4c0a4]",
+     "y": "[102 items 8b7cae8a]",
+     "customdata": "[102 items 480b5c8e]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Electricity (boiler) price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Electricity (boiler) price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Electricity (boiler) price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -5683,7 +5843,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -5700,7 +5860,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -5714,7 +5874,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -5731,6 +5891,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -5768,7 +5929,28 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C · COP 7,48 · 105 kW<br>Electricity (boiler) price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -5801,18 +5983,15 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Electric boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -5825,10 +6004,11 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -5863,6 +6043,25 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 105,
+      "y": 103806.83383974707,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C<br>Heat pump: 105 kW (28 %)<br>Rest from Electric boiler: 270 kW<br>COP: 7,48"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -6142,7 +6341,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
    "a",
    "–",
    [
-    "9 years (2036)"
+    "9,0 years / 2036"
    ]
   ],
   [
@@ -6242,7 +6441,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "9 years (2036)",
+   "value": "9,0 years / 2036",
    "unit": "",
    "sub": ""
   },
@@ -6256,13 +6455,13 @@ exports[`economic model > buildEconomics gas none 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "107.201",
-   "unit": "€/year",
-   "sub": ""
+   "value": "7,56",
+   "unit": "ct/kWh",
+   "sub": "Gas boiler: 9,73 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -6287,7 +6486,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
   {
    "name": "Carnot 113 °C",
    "good": true,
-   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Natural gas with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 107.201 €. The investment is 585.938 € (0 % funding). It pays back after 9 years (2036). Over 20 years it earns 365.606 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 5,5 years, internal rate of return 20,2 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 21,32 ct/kWh."
+   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Natural gas with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 107.201 €. The investment is 585.938 € (0 % funding). It pays back after 9,0 years (2036). Over 20 years it earns 365.606 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 5,5 years, internal rate of return 20,2 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 21,32 ct/kWh."
   }
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 21,32 ct/kWh. That is the dashed line.",
@@ -6296,6 +6495,25 @@ exports[`economic model > buildEconomics gas none 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Gas boiler)",
+      "Carnot 113 °C"
+     ],
+     "y": [
+      4809771.549848747,
+      2002115.7032228974
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -6316,23 +6534,24 @@ exports[`economic model > buildEconomics gas none 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Gas boiler)",
       "Carnot 113 °C"
      ],
      "y": [
       4809771.549848747,
-      2002115.7032228974
+      2588053.7032228974
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.809.772 €",
+      "2.588.054 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -6385,7 +6604,11 @@ exports[`economic model > buildEconomics gas none 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      5531237.282326059
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -7013,23 +7236,36 @@ exports[`economic model > buildEconomics gas none 1`] = `
        1237908.9899830527
       ]
      ],
-     "zmid": 0,
+     "zmin": -1648812.6639952618,
+     "zmax": 2380025.283882909,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.1364175547495547,
+       "#EF9A9A"
+      ],
+      [
+       0.2728351094991094,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.4092526642486641,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.4092526642486641,
+       "#E8F5E9"
+      ],
+      [
+       0.6061684428324428,
        "#C8E6C9"
+      ],
+      [
+       0.8030842214162214,
+       "#A5D6A7"
       ],
       [
        1,
@@ -7056,67 +7292,37 @@ exports[`economic model > buildEconomics gas none 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -14.2729663357029,
-      -11.53481978397876,
-      -6.058526680530484,
-      -0.5822335770822091,
-      4.894059526366068,
-      10.370352629814342,
-      15.846645733262612,
-      21.322938836710893,
-      26.799231940159167,
-      32.275525043607445,
-      37.75181814705571,
-      43.228111250504,
-      48.704404353952256,
-      54.18069745740054,
-      56.91884400912467
-     ],
+     "x": "[108 items e9c6fa89]",
+     "y": "[108 items d9fb850d]",
+     "customdata": "[108 items 329fe9d3]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Natural gas price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Natural gas price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Natural gas price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -7131,7 +7337,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -7148,7 +7354,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -7162,7 +7368,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -7179,6 +7385,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -7216,7 +7423,28 @@ exports[`economic model > buildEconomics gas none 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Carnot 113 °C · COP 4,76 · 375 kW<br>Natural gas price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -7249,18 +7477,15 @@ exports[`economic model > buildEconomics gas none 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Gas boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -7273,10 +7498,11 @@ exports[`economic model > buildEconomics gas none 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -7311,6 +7537,25 @@ exports[`economic model > buildEconomics gas none 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 375,
+      "y": 365606.3099438236,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Carnot 113 °C<br>Heat pump: 375 kW (100 %)<br>Rest from Gas boiler: 0 kW<br>COP: 4,76"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -7590,7 +7835,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
    "a",
    "–",
    [
-    "8 years (2035)"
+    "8,0 years / 2035"
    ]
   ],
   [
@@ -7690,7 +7935,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "8 years (2035)",
+   "value": "8,0 years / 2035",
    "unit": "",
    "sub": ""
   },
@@ -7704,13 +7949,13 @@ exports[`economic model > buildEconomics gas one 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "63.110",
-   "unit": "€/year",
-   "sub": ""
+   "value": "7,03",
+   "unit": "ct/kWh",
+   "sub": "Gas boiler: 9,73 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -7735,7 +7980,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
   {
    "name": "Butane_1 102 °C",
    "good": true,
-   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 1.396.552 kWh/year of Natural gas with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
+   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 1.396.552 kWh/year of Natural gas with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8,0 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
   }
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 25,29 ct/kWh. That is the dashed line.",
@@ -7744,6 +7989,25 @@ exports[`economic model > buildEconomics gas one 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Gas boiler)",
+      "Butane_1 102 °C"
+     ],
+     "y": [
+      4809771.549848747,
+      3151759.9969817465
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -7764,23 +8028,24 @@ exports[`economic model > buildEconomics gas one 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Gas boiler)",
       "Butane_1 102 °C"
      ],
      "y": [
       4809771.549848747,
-      3151759.9969817465
+      3468165.9969817465
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.809.772 €",
+      "3.468.166 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -7833,7 +8098,11 @@ exports[`economic model > buildEconomics gas one 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      5531237.282326059
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -8461,23 +8730,36 @@ exports[`economic model > buildEconomics gas one 1`] = `
        765211.1096103063
       ]
      ],
-     "zmid": 0,
+     "zmin": -793618.5835379834,
+     "zmax": 1283496.2983659427,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.12735912209319503,
+       "#EF9A9A"
+      ],
+      [
+       0.25471824418639005,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.38207736627958505,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.38207736627958505,
+       "#E8F5E9"
+      ],
+      [
+       0.5880515775197234,
        "#C8E6C9"
+      ],
+      [
+       0.7940257887598616,
+       "#A5D6A7"
       ],
       [
        1,
@@ -8504,67 +8786,37 @@ exports[`economic model > buildEconomics gas one 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -17.070525308971877,
-      -13.812218484437993,
-      -7.295604835370257,
-      -0.7789911863025163,
-      5.737622462765224,
-      12.254236111832972,
-      18.770849760900713,
-      25.287463409968446,
-      31.8040770590362,
-      38.32069070810393,
-      44.83730435717167,
-      51.35391800623942,
-      57.870531655307154,
-      64.3871453043749,
-      67.64545212890877
-     ],
+     "x": "[108 items 8fac674e]",
+     "y": "[108 items 26b9fdc7]",
+     "customdata": "[108 items 987f6248]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Natural gas price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Natural gas price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Natural gas price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -8579,7 +8831,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -8596,7 +8848,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -8610,7 +8862,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -8627,6 +8879,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -8664,7 +8917,28 @@ exports[`economic model > buildEconomics gas one 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C · COP 5,67 · 203 kW<br>Natural gas price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -8697,18 +8971,15 @@ exports[`economic model > buildEconomics gas one 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Gas boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -8721,10 +8992,11 @@ exports[`economic model > buildEconomics gas one 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -8759,6 +9031,25 @@ exports[`economic model > buildEconomics gas one 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 202.5,
+      "y": 244938.8574139795,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Gas boiler: 173 kW<br>COP: 5,67"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -9038,7 +9329,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
    "a",
    "–",
    [
-    "7 years (2034)"
+    "7,0 years / 2034"
    ]
   ],
   [
@@ -9138,7 +9429,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "7 years (2034)",
+   "value": "7,0 years / 2034",
    "unit": "",
    "sub": ""
   },
@@ -9152,13 +9443,13 @@ exports[`economic model > buildEconomics gas several 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "36.078",
-   "unit": "€/year",
-   "sub": ""
+   "value": "6,38",
+   "unit": "ct/kWh",
+   "sub": "Gas boiler: 9,73 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -9183,7 +9474,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
   {
    "name": "Butane_2 84 °C",
    "good": true,
-   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 724.138 kWh/year of Natural gas with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 36.078 €. The investment is 164.063 € (0 % funding). It pays back after 7 years (2034). Over 20 years it earns 157.677 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 4,5 years, internal rate of return 24,3 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 33,12 ct/kWh."
+   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 724.138 kWh/year of Natural gas with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 36.078 €. The investment is 164.063 € (0 % funding). It pays back after 7,0 years (2034). Over 20 years it earns 157.677 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 4,5 years, internal rate of return 24,3 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 33,12 ct/kWh."
   }
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 33,12 ct/kWh. That is the dashed line.",
@@ -9192,6 +9483,25 @@ exports[`economic model > buildEconomics gas several 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Gas boiler)",
+      "Butane_2 84 °C"
+     ],
+     "y": [
+      4809771.549848747,
+      3858263.875144681
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -9212,23 +9522,24 @@ exports[`economic model > buildEconomics gas several 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Gas boiler)",
       "Butane_2 84 °C"
      ],
      "y": [
       4809771.549848747,
-      3858263.875144681
+      4022326.875144681
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.809.772 €",
+      "4.022.327 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -9281,7 +9592,11 @@ exports[`economic model > buildEconomics gas several 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      5531237.282326059
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -9909,23 +10224,36 @@ exports[`economic model > buildEconomics gas several 1`] = `
        459917.6672142603
       ]
      ],
-     "zmid": 0,
+     "zmin": -348364.39589966764,
+     "zmax": 663717.6525574639,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.11473522870691223,
+       "#EF9A9A"
+      ],
+      [
+       0.22947045741382446,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.3442056861207367,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.3442056861207367,
+       "#E8F5E9"
+      ],
+      [
+       0.5628037907471578,
        "#C8E6C9"
+      ],
+      [
+       0.7814018953735788,
+       "#A5D6A7"
       ],
       [
        1,
@@ -9952,67 +10280,37 @@ exports[`economic model > buildEconomics gas several 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -22.739518692165465,
-      -18.44295851218233,
-      -9.849838152216046,
-      -1.256717792249767,
-      7.336402567716505,
-      15.929522927682784,
-      24.522643287649057,
-      33.115763647615324,
-      41.7088840075816,
-      50.3020043675479,
-      58.89512472751416,
-      67.48824508748044,
-      76.08136544744671,
-      84.67448580741299,
-      88.97104598739615
-     ],
+     "x": "[102 items 5e866942]",
+     "y": "[102 items c2a82350]",
+     "customdata": "[102 items 860e4c4c]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Natural gas price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Natural gas price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Natural gas price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -10027,7 +10325,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -10044,7 +10342,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -10058,7 +10356,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -10075,6 +10373,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -10112,7 +10411,28 @@ exports[`economic model > buildEconomics gas several 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C · COP 7,48 · 105 kW<br>Natural gas price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -10145,18 +10465,15 @@ exports[`economic model > buildEconomics gas several 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Gas boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -10169,10 +10486,11 @@ exports[`economic model > buildEconomics gas several 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -10207,6 +10525,25 @@ exports[`economic model > buildEconomics gas several 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 105,
+      "y": 157676.62832889802,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C<br>Heat pump: 105 kW (28 %)<br>Rest from Gas boiler: 270 kW<br>COP: 7,48"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -10486,7 +10823,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
    "a",
    "–",
    [
-    "9 years (2036)"
+    "9,0 years / 2036"
    ]
   ],
   [
@@ -10586,7 +10923,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "9 years (2036)",
+   "value": "9,0 years / 2036",
    "unit": "",
    "sub": ""
   },
@@ -10600,13 +10937,13 @@ exports[`economic model > buildEconomics oil none 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "107.201",
-   "unit": "€/year",
-   "sub": ""
+   "value": "7,56",
+   "unit": "ct/kWh",
+   "sub": "Oil boiler: 9,73 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -10631,7 +10968,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
   {
    "name": "Carnot 113 °C",
    "good": true,
-   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Heating oil with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 107.201 €. The investment is 585.938 € (0 % funding). It pays back after 9 years (2036). Over 20 years it earns 365.606 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 5,5 years, internal rate of return 20,2 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 21,32 ct/kWh."
+   "text": "This heat pump delivers 375 kW of the 375 kW demand (100 %) at a COP of 4,76, drawing 296 kW from the heat source. It replaces 2.586.207 kWh/year of Heating oil with 472.255 kWh/year of electricity, saving 2.113.952 kWh/year of final energy and 302,1 t CO₂ per year. In the first year it lowers operating costs by 107.201 €. The investment is 585.938 € (0 % funding). It pays back after 9,0 years (2036). Over 20 years it earns 365.606 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,56 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 5,5 years, internal rate of return 20,2 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 21,32 ct/kWh."
   }
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 21,32 ct/kWh. That is the dashed line.",
@@ -10640,6 +10977,25 @@ exports[`economic model > buildEconomics oil none 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Oil boiler)",
+      "Carnot 113 °C"
+     ],
+     "y": [
+      4809771.549848747,
+      2002115.7032228974
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -10660,23 +11016,24 @@ exports[`economic model > buildEconomics oil none 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Oil boiler)",
       "Carnot 113 °C"
      ],
      "y": [
       4809771.549848747,
-      2002115.7032228974
+      2588053.7032228974
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.809.772 €",
+      "2.588.054 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -10729,7 +11086,11 @@ exports[`economic model > buildEconomics oil none 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      5531237.282326059
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -11357,23 +11718,36 @@ exports[`economic model > buildEconomics oil none 1`] = `
        1237908.9899830527
       ]
      ],
-     "zmid": 0,
+     "zmin": -1648812.6639952618,
+     "zmax": 2380025.283882909,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.1364175547495547,
+       "#EF9A9A"
+      ],
+      [
+       0.2728351094991094,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.4092526642486641,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.4092526642486641,
+       "#E8F5E9"
+      ],
+      [
+       0.6061684428324428,
        "#C8E6C9"
+      ],
+      [
+       0.8030842214162214,
+       "#A5D6A7"
       ],
       [
        1,
@@ -11400,67 +11774,37 @@ exports[`economic model > buildEconomics oil none 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -14.2729663357029,
-      -11.53481978397876,
-      -6.058526680530484,
-      -0.5822335770822091,
-      4.894059526366068,
-      10.370352629814342,
-      15.846645733262612,
-      21.322938836710893,
-      26.799231940159167,
-      32.275525043607445,
-      37.75181814705571,
-      43.228111250504,
-      48.704404353952256,
-      54.18069745740054,
-      56.91884400912467
-     ],
+     "x": "[108 items e9c6fa89]",
+     "y": "[108 items d9fb850d]",
+     "customdata": "[108 items 329fe9d3]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Heating oil price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Heating oil price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Heating oil price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -11475,7 +11819,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -11492,7 +11836,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -11506,7 +11850,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -11523,6 +11867,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -11560,7 +11905,28 @@ exports[`economic model > buildEconomics oil none 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Carnot 113 °C · COP 4,76 · 375 kW<br>Heating oil price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -11593,18 +11959,15 @@ exports[`economic model > buildEconomics oil none 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Oil boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -11617,10 +11980,11 @@ exports[`economic model > buildEconomics oil none 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -11655,6 +12019,25 @@ exports[`economic model > buildEconomics oil none 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 375,
+      "y": 365606.3099438236,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Carnot 113 °C<br>Heat pump: 375 kW (100 %)<br>Rest from Oil boiler: 0 kW<br>COP: 4,76"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -11934,7 +12317,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
    "a",
    "–",
    [
-    "8 years (2035)"
+    "8,0 years / 2035"
    ]
   ],
   [
@@ -12034,7 +12417,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "8 years (2035)",
+   "value": "8,0 years / 2035",
    "unit": "",
    "sub": ""
   },
@@ -12048,13 +12431,13 @@ exports[`economic model > buildEconomics oil one 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "63.110",
-   "unit": "€/year",
-   "sub": ""
+   "value": "7,03",
+   "unit": "ct/kWh",
+   "sub": "Oil boiler: 9,73 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -12079,7 +12462,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
   {
    "name": "Butane_1 102 °C",
    "good": true,
-   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 1.396.552 kWh/year of Heating oil with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
+   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 1.396.552 kWh/year of Heating oil with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8,0 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
   }
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 25,29 ct/kWh. That is the dashed line.",
@@ -12088,6 +12471,25 @@ exports[`economic model > buildEconomics oil one 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Oil boiler)",
+      "Butane_1 102 °C"
+     ],
+     "y": [
+      4809771.549848747,
+      3151759.9969817465
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -12108,23 +12510,24 @@ exports[`economic model > buildEconomics oil one 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Oil boiler)",
       "Butane_1 102 °C"
      ],
      "y": [
       4809771.549848747,
-      3151759.9969817465
+      3468165.9969817465
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.809.772 €",
+      "3.468.166 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -12177,7 +12580,11 @@ exports[`economic model > buildEconomics oil one 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      5531237.282326059
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -12805,23 +13212,36 @@ exports[`economic model > buildEconomics oil one 1`] = `
        765211.1096103063
       ]
      ],
-     "zmid": 0,
+     "zmin": -793618.5835379834,
+     "zmax": 1283496.2983659427,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.12735912209319503,
+       "#EF9A9A"
+      ],
+      [
+       0.25471824418639005,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.38207736627958505,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.38207736627958505,
+       "#E8F5E9"
+      ],
+      [
+       0.5880515775197234,
        "#C8E6C9"
+      ],
+      [
+       0.7940257887598616,
+       "#A5D6A7"
       ],
       [
        1,
@@ -12848,67 +13268,37 @@ exports[`economic model > buildEconomics oil one 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -17.070525308971877,
-      -13.812218484437993,
-      -7.295604835370257,
-      -0.7789911863025163,
-      5.737622462765224,
-      12.254236111832972,
-      18.770849760900713,
-      25.287463409968446,
-      31.8040770590362,
-      38.32069070810393,
-      44.83730435717167,
-      51.35391800623942,
-      57.870531655307154,
-      64.3871453043749,
-      67.64545212890877
-     ],
+     "x": "[108 items 8fac674e]",
+     "y": "[108 items 26b9fdc7]",
+     "customdata": "[108 items 987f6248]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Heating oil price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Heating oil price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Heating oil price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -12923,7 +13313,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -12940,7 +13330,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -12954,7 +13344,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -12971,6 +13361,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -13008,7 +13399,28 @@ exports[`economic model > buildEconomics oil one 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C · COP 5,67 · 203 kW<br>Heating oil price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -13041,18 +13453,15 @@ exports[`economic model > buildEconomics oil one 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Oil boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -13065,10 +13474,11 @@ exports[`economic model > buildEconomics oil one 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -13103,6 +13513,25 @@ exports[`economic model > buildEconomics oil one 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 202.5,
+      "y": 244938.8574139795,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Oil boiler: 173 kW<br>COP: 5,67"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -13382,7 +13811,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
    "a",
    "–",
    [
-    "7 years (2034)"
+    "7,0 years / 2034"
    ]
   ],
   [
@@ -13482,7 +13911,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "7 years (2034)",
+   "value": "7,0 years / 2034",
    "unit": "",
    "sub": ""
   },
@@ -13496,13 +13925,13 @@ exports[`economic model > buildEconomics oil several 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "36.078",
-   "unit": "€/year",
-   "sub": ""
+   "value": "6,38",
+   "unit": "ct/kWh",
+   "sub": "Oil boiler: 9,73 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -13527,7 +13956,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
   {
    "name": "Butane_2 84 °C",
    "good": true,
-   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 724.138 kWh/year of Heating oil with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 36.078 €. The investment is 164.063 € (0 % funding). It pays back after 7 years (2034). Over 20 years it earns 157.677 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 4,5 years, internal rate of return 24,3 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 33,12 ct/kWh."
+   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 724.138 kWh/year of Heating oil with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 36.078 €. The investment is 164.063 € (0 % funding). It pays back after 7,0 years (2034). Over 20 years it earns 157.677 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 6,38 ct against 9,73 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 4,5 years, internal rate of return 24,3 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 33,12 ct/kWh."
   }
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 33,12 ct/kWh. That is the dashed line.",
@@ -13536,6 +13965,25 @@ exports[`economic model > buildEconomics oil several 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Oil boiler)",
+      "Butane_2 84 °C"
+     ],
+     "y": [
+      4809771.549848747,
+      3858263.875144681
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -13556,23 +14004,24 @@ exports[`economic model > buildEconomics oil several 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Oil boiler)",
       "Butane_2 84 °C"
      ],
      "y": [
       4809771.549848747,
-      3858263.875144681
+      4022326.875144681
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.809.772 €",
+      "4.022.327 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -13625,7 +14074,11 @@ exports[`economic model > buildEconomics oil several 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      5531237.282326059
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -14253,23 +14706,36 @@ exports[`economic model > buildEconomics oil several 1`] = `
        459917.6672142603
       ]
      ],
-     "zmid": 0,
+     "zmin": -348364.39589966764,
+     "zmax": 663717.6525574639,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.11473522870691223,
+       "#EF9A9A"
+      ],
+      [
+       0.22947045741382446,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.3442056861207367,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.3442056861207367,
+       "#E8F5E9"
+      ],
+      [
+       0.5628037907471578,
        "#C8E6C9"
+      ],
+      [
+       0.7814018953735788,
+       "#A5D6A7"
       ],
       [
        1,
@@ -14296,67 +14762,37 @@ exports[`economic model > buildEconomics oil several 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -22.739518692165465,
-      -18.44295851218233,
-      -9.849838152216046,
-      -1.256717792249767,
-      7.336402567716505,
-      15.929522927682784,
-      24.522643287649057,
-      33.115763647615324,
-      41.7088840075816,
-      50.3020043675479,
-      58.89512472751416,
-      67.48824508748044,
-      76.08136544744671,
-      84.67448580741299,
-      88.97104598739615
-     ],
+     "x": "[102 items 5e866942]",
+     "y": "[102 items c2a82350]",
+     "customdata": "[102 items 860e4c4c]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Heating oil price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Heating oil price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Heating oil price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -14371,7 +14807,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -14388,7 +14824,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -14402,7 +14838,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -14419,6 +14855,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -14456,7 +14893,28 @@ exports[`economic model > buildEconomics oil several 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C · COP 7,48 · 105 kW<br>Heating oil price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -14489,18 +14947,15 @@ exports[`economic model > buildEconomics oil several 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Oil boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -14513,10 +14968,11 @@ exports[`economic model > buildEconomics oil several 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -14551,6 +15007,25 @@ exports[`economic model > buildEconomics oil several 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 105,
+      "y": 157676.62832889802,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C<br>Heat pump: 105 kW (28 %)<br>Rest from Oil boiler: 270 kW<br>COP: 7,48"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -14825,7 +15300,7 @@ exports[`economic model > changed inputs 1`] = `
    "a",
    "–",
    [
-    "7 years (2034)"
+    "7,0 years / 2034"
    ]
   ],
   [
@@ -14925,7 +15400,7 @@ exports[`economic model > changed inputs 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "7 years (2034)",
+   "value": "7,0 years / 2034",
    "unit": "",
    "sub": ""
   },
@@ -14939,13 +15414,13 @@ exports[`economic model > changed inputs 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "32.396",
-   "unit": "€/year",
-   "sub": ""
+   "value": "6,58",
+   "unit": "ct/kWh",
+   "sub": "Oil boiler: 9,43 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -14970,7 +15445,7 @@ exports[`economic model > changed inputs 1`] = `
   {
    "name": "Butane_2 84 °C",
    "good": true,
-   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 724.138 kWh/year of Heating oil with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 32.396 €. The investment is 246.094 € (40 % funding). It pays back after 7 years (2034). Over 15 years it earns 122.305 € in today's money (net present value, incl. 61.524 € residual value). Per kWh of heat the heat pump costs 6,58 ct against 9,43 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 4,6 years, internal rate of return 24 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 30,73 ct/kWh."
+   "text": "This heat pump delivers 105 kW of the 375 kW demand (28 %) at a COP of 7,48, drawing 91 kW from the heat source. The rest of the demand stays on the Oil boiler. It replaces 724.138 kWh/year of Heating oil with 84.269 kWh/year of electricity, saving 639.868 kWh/year of final energy and 101,5 t CO₂ per year. In the first year it lowers operating costs by 32.396 €. The investment is 246.094 € (40 % funding). It pays back after 7,0 years (2034). Over 15 years it earns 122.305 € in today's money (net present value, incl. 61.524 € residual value). Per kWh of heat the heat pump costs 6,58 ct against 9,43 ct from the Oil boiler (LCOH, annuity method, VDI 4646:2026); static payback 4,6 years, internal rate of return 24 %. At 6 ct/kWh for Heating oil, it stays profitable as long as electricity costs less than 30,73 ct/kWh."
   }
  ],
  "sensExplain": "At a Heating oil price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 30,73 ct/kWh. That is the dashed line.",
@@ -14979,6 +15454,25 @@ exports[`economic model > changed inputs 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Oil boiler)",
+      "Butane_2 84 °C"
+     ],
+     "y": [
+      3358977.8536796565,
+      2752585.464482389
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -14999,23 +15493,24 @@ exports[`economic model > changed inputs 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Oil boiler)",
       "Butane_2 84 °C"
      ],
      "y": [
       3358977.8536796565,
-      2752585.464482389
+      2998679.464482389
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "3.358.978 €",
+      "2.998.679 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -15068,7 +15563,11 @@ exports[`economic model > changed inputs 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      3862824.5317316046
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -15661,23 +16160,36 @@ exports[`economic model > changed inputs 1`] = `
        388325.4703368217
       ]
      ],
-     "zmid": 0,
+     "zmin": -323092.86511841294,
+     "zmax": 567702.2658333053,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.12090055049029556,
+       "#EF9A9A"
+      ],
+      [
+       0.24180110098059113,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.3627016514708867,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.3627016514708867,
+       "#E8F5E9"
+      ],
+      [
+       0.5751344343139244,
        "#C8E6C9"
+      ],
+      [
+       0.7875672171569622,
+       "#A5D6A7"
       ],
       [
        1,
@@ -15704,67 +16216,37 @@ exports[`economic model > changed inputs 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -25.127670468400627,
-      -20.831110288417502,
-      -12.23798992845121,
-      -3.644869568484941,
-      4.948250791481335,
-      13.54137115144761,
-      22.13449151141389,
-      30.727611871380166,
-      39.32073223134645,
-      47.91385259131274,
-      56.506972951279025,
-      65.1000933112453,
-      73.69321367121158,
-      82.28633403117786,
-      86.58289421116099
-     ],
+     "x": "[102 items 129b7225]",
+     "y": "[102 items 619d0012]",
+     "customdata": "[102 items 8dfc85d0]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Heating oil price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Heating oil price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Heating oil price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -15779,7 +16261,7 @@ exports[`economic model > changed inputs 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -15796,7 +16278,7 @@ exports[`economic model > changed inputs 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -15810,7 +16292,7 @@ exports[`economic model > changed inputs 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -15827,6 +16309,7 @@ exports[`economic model > changed inputs 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -15864,7 +16347,28 @@ exports[`economic model > changed inputs 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C · COP 7,48 · 105 kW<br>Heating oil price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -15897,18 +16401,15 @@ exports[`economic model > changed inputs 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Oil boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -15921,10 +16422,11 @@ exports[`economic model > changed inputs 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -15959,6 +16461,25 @@ exports[`economic model > changed inputs 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 105,
+      "y": 122304.70035744605,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_2 84 °C<br>Heat pump: 105 kW (28 %)<br>Rest from Oil boiler: 270 kW<br>COP: 7,48"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -16238,7 +16759,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
    "a",
    "–",
    [
-    "8 years (2035)"
+    "8,0 years / 2035"
    ]
   ],
   [
@@ -16338,7 +16859,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "8 years (2035)",
+   "value": "8,0 years / 2035",
    "unit": "",
    "sub": ""
   },
@@ -16352,13 +16873,13 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "63.110",
-   "unit": "€/year",
-   "sub": ""
+   "value": "7,03",
+   "unit": "ct/kWh",
+   "sub": "Gas boiler: 9,73 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -16383,7 +16904,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
   {
    "name": "Butane_1 102 °C",
    "good": true,
-   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 1.396.552 kWh/year of Natural gas with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
+   "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Gas boiler. It replaces 1.396.552 kWh/year of Natural gas with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 63.110 €. The investment is 316.406 € (0 % funding). It pays back after 8,0 years (2035). Over 20 years it earns 244.939 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 9,73 ct from the Gas boiler (LCOH, annuity method, VDI 4646:2026); static payback 5 years, internal rate of return 22,1 %. At 6 ct/kWh for Natural gas, it stays profitable as long as electricity costs less than 25,29 ct/kWh."
   }
  ],
  "sensExplain": "At a Natural gas price of 6 ct/kWh, the heat pump pays off as long as electricity costs less than 25,29 ct/kWh. That is the dashed line.",
@@ -16392,6 +16913,25 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
  "figures": {
   "bar": {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Gas boiler)",
+      "Butane_1 102 °C"
+     ],
+     "y": [
+      4809771.549848747,
+      3151759.9969817465
+     ],
+     "marker": {
+      "color": "#B0558C",
+      "line": {
+       "color": "#1e293b",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -16412,23 +16952,24 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Gas boiler)",
       "Butane_1 102 °C"
      ],
      "y": [
       4809771.549848747,
-      3151759.9969817465
+      3468165.9969817465
      ],
-     "marker": {
-      "color": "#B0558C",
-      "line": {
-       "color": "#1e293b",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.809.772 €",
+      "3.468.166 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -16481,7 +17022,11 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      5531237.282326059
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -17029,27 +17574,40 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
        486134.4695111176
       ]
      ],
-     "zmid": 0,
+     "zmin": -1072695.2236371718,
+     "zmax": 1283496.2983659427,
      "colorscale": [
       [
        0,
-       "#c62828"
+       "#E57373"
       ],
       [
-       0.35,
-       "#6d2b2b"
+       0.15175552208155824,
+       "#EF9A9A"
       ],
       [
-       0.5,
-       "#2a2f3a"
+       0.3035110441631165,
+       "#FFCDD2"
       ],
       [
-       0.65,
-       "#2e5a31"
+       0.4552665662446747,
+       "#FDECEC"
+      ],
+      [
+       0.4552665662446747,
+       "#E8F5E9"
+      ],
+      [
+       0.6368443774964498,
+       "#C8E6C9"
+      ],
+      [
+       0.8184221887482249,
+       "#A5D6A7"
       ],
       [
        1,
-       "#2e7d32"
+       "#66BB6A"
       ]
      ],
      "xgap": 1,
@@ -17072,67 +17630,37 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -17.070525308971877,
-      -13.812218484437993,
-      -7.295604835370257,
-      -0.7789911863025163,
-      5.737622462765224,
-      12.254236111832972,
-      18.770849760900713,
-      25.287463409968446,
-      31.8040770590362,
-      38.32069070810393,
-      44.83730435717167,
-      51.35391800623942,
-      57.870531655307154,
-      64.3871453043749,
-      67.64545212890877
-     ],
+     "x": "[90 items f152faba]",
+     "y": "[90 items c3f86be2]",
+     "customdata": "[90 items de38f934]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#F8FAFC",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Natural gas price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Natural gas price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#F8FAFC",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(49,46,129,0.75)",
       "line": {
-       "color": "#1e293b",
+       "color": "#A78BFA",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Natural gas price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -17147,7 +17675,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#c62828"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -17164,7 +17692,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#2e7d32"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -17178,7 +17706,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      },
      "y": 0.98
     },
-    "height": 460,
+    "height": 520,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -17195,6 +17723,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
       "color": "#F8FAFC"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#334155",
@@ -17232,7 +17761,28 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#A78BFA"
+      },
+      "bgcolor": "rgba(49,46,129,0.75)",
+      "bordercolor": "#A78BFA",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C · COP 5,67 · 203 kW<br>Natural gas price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   "size": {
@@ -17265,18 +17815,15 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#F8FAFC",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Gas boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -17289,10 +17836,11 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#F8FAFC",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(49,46,129,0.75)",
       "line": {
-       "color": "#1e293b",
+       "color": "#A78BFA",
        "width": 2
       }
      },
@@ -17327,6 +17875,25 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
       "color": "#F8FAFC"
      }
     },
+    "annotations": [
+     {
+      "x": 202.5,
+      "y": 244938.8574139795,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#A78BFA"
+      },
+      "bgcolor": "rgba(49,46,129,0.75)",
+      "bordercolor": "#A78BFA",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Gas boiler: 173 kW<br>COP: 5,67"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#334155",
@@ -17377,7 +17944,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
    "label": "Dynamic payback",
    "color": "#0F766E",
    "valueColor": "#0F766E",
-   "value": "11 years (2038)",
+   "value": "11,0 years / 2038",
    "unit": "",
    "sub": ""
   },
@@ -17391,13 +17958,13 @@ exports[`economic model > report data, core and pump choice 1`] = `
    "sub": ""
   },
   {
-   "key": "saving1",
-   "label": "Cost saving, year 1",
+   "key": "lcoh_hp",
+   "label": "Heat cost of the heat pump (LCOH)",
    "color": "#B45309",
    "valueColor": "#B45309",
-   "value": "49.201",
-   "unit": "€/year",
-   "sub": ""
+   "value": "7,03",
+   "unit": "ct/kWh",
+   "sub": "Electric boiler: 8,59 ct/kWh"
   },
   {
    "key": "co2_saving",
@@ -17434,13 +18001,18 @@ exports[`economic model > report data, core and pump choice 1`] = `
     ],
     [
      "Discount rate",
-     "12",
+     "8",
      "%"
     ],
     [
      "Period",
      "20",
      "years"
+    ],
+    [
+     "CO₂ balance in CO₂-equivalents (incl. upstream chain)",
+     "yes",
+     "-"
     ]
    ]
   },
@@ -17478,6 +18050,11 @@ exports[`economic model > report data, core and pump choice 1`] = `
      "t/MWh"
     ],
     [
+     "CO₂e factor Electricity (boiler) (incl. upstream, per MWh Hi)",
+     "0,24",
+     "t/MWh"
+    ],
+    [
      "CO₂ price",
      "55",
      "€/t"
@@ -17508,6 +18085,11 @@ exports[`economic model > report data, core and pump choice 1`] = `
      "t/MWh"
     ],
     [
+     "CO₂e factor electricity (incl. upstream)",
+     "0,56",
+     "t/MWh"
+    ],
+    [
      "Add CO₂ cost on electricity",
      "no",
      "-"
@@ -17534,7 +18116,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
     ],
     [
      "Integration factor (periphery)",
-     "1,25",
+     "1,35",
      "-"
     ],
     [
@@ -17757,7 +18339,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
       "Dynamic payback",
       "years",
       "–",
-      "11 years (2038)"
+      "11,0 years / 2038"
      ],
      "color": ""
     },
@@ -17850,11 +18432,30 @@ exports[`economic model > report data, core and pump choice 1`] = `
  "summary": {
   "name": "Butane_1 102 °C",
   "good": true,
-  "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 1.396.552 kWh/year of Electricity (boiler) with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 49.201 €. The investment is 316.406 € (0 % funding). It pays back after 11 years (2038). Over 20 years it earns 141.047 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 6,4 years, internal rate of return 17,8 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 20,08 ct/kWh."
+  "text": "This heat pump delivers 203 kW of the 375 kW demand (54 %) at a COP of 5,67, drawing 167 kW from the heat source. The rest of the demand stays on the Electric boiler. It replaces 1.396.552 kWh/year of Electricity (boiler) with 214.306 kWh/year of electricity, saving 1.182.245 kWh/year of final energy and 177,5 t CO₂ per year. In the first year it lowers operating costs by 49.201 €. The investment is 316.406 € (0 % funding). It pays back after 11,0 years (2038). Over 20 years it earns 141.047 € in today's money (net present value, incl. 0 € residual value). Per kWh of heat the heat pump costs 7,03 ct against 8,59 ct from the Electric boiler (LCOH, annuity method, VDI 4646:2026); static payback 6,4 years, internal rate of return 17,8 %. At 6 ct/kWh for Electricity (boiler), it stays profitable as long as electricity costs less than 20,08 ct/kWh."
  },
  "figures": [
   {
    "data": [
+    {
+     "type": "bar",
+     "name": "Cumulative operating costs",
+     "x": [
+      "Current (Electric boiler)",
+      "Butane_1 102 °C"
+     ],
+     "y": [
+      4294627.095049119,
+      2914793.547773918
+     ],
+     "marker": {
+      "color": "#8E3B6E",
+      "line": {
+       "color": "#ffffff",
+       "width": 2
+      }
+     }
+    },
     {
      "type": "bar",
      "name": "Investment",
@@ -17875,23 +18476,24 @@ exports[`economic model > report data, core and pump choice 1`] = `
      }
     },
     {
-     "type": "bar",
-     "name": "Cumulative operating costs",
+     "type": "scatter",
+     "mode": "text",
      "x": [
       "Current (Electric boiler)",
       "Butane_1 102 °C"
      ],
      "y": [
       4294627.095049119,
-      2914793.547773918
+      3231199.547773918
      ],
-     "marker": {
-      "color": "#8E3B6E",
-      "line": {
-       "color": "#ffffff",
-       "width": 2
-      }
-     }
+     "text": [
+      "4.294.627 €",
+      "3.231.200 €"
+     ],
+     "textposition": "top center",
+     "cliponaxis": false,
+     "showlegend": false,
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -17944,7 +18546,11 @@ exports[`economic model > report data, core and pump choice 1`] = `
      "title": {
       "text": "€"
      },
-     "tickformat": ",.0f"
+     "tickformat": ",.0f",
+     "range": [
+      0,
+      4938821.159306486
+     ]
     },
     "xaxis": {
      "automargin": true,
@@ -18572,23 +19178,36 @@ exports[`economic model > report data, core and pump choice 1`] = `
        661319.3630955151
       ]
      ],
-     "zmid": 0,
+     "zmin": -897510.3300527747,
+     "zmax": 1179604.5518511513,
      "colorscale": [
       [
        0,
        "#E57373"
       ],
       [
-       0.35,
+       0.14403156639240203,
+       "#EF9A9A"
+      ],
+      [
+       0.28806313278480405,
        "#FFCDD2"
       ],
       [
-       0.5,
-       "#FAFAF8"
+       0.43209469917720605,
+       "#FDECEC"
       ],
       [
-       0.65,
+       0.43209469917720605,
+       "#E8F5E9"
+      ],
+      [
+       0.6213964661181374,
        "#C8E6C9"
+      ],
+      [
+       0.8106982330590686,
+       "#A5D6A7"
       ],
       [
        1,
@@ -18615,67 +19234,37 @@ exports[`economic model > report data, core and pump choice 1`] = `
     {
      "type": "scatter",
      "mode": "lines",
-     "x": [
-      -0.5,
-      0,
-      1,
-      2,
-      3,
-      4,
-      5,
-      6,
-      7,
-      8,
-      9,
-      10,
-      11,
-      12,
-      12.5
-     ],
-     "y": [
-      -22.282299575317236,
-      -19.02399275078336,
-      -12.507379101715618,
-      -5.990765452647885,
-      0.5258481964198594,
-      7.042461845487604,
-      13.559075494555342,
-      20.075689143623087,
-      26.59230279269083,
-      33.10891644175857,
-      39.62553009082632,
-      46.14214373989406,
-      52.658757388961796,
-      59.175371038029546,
-      62.43367786256341
-     ],
+     "x": "[108 items 694acbc8]",
+     "y": "[108 items 43936f78]",
+     "customdata": "[108 items f084d62]",
      "name": "Break-even (net present value = 0)",
      "line": {
       "color": "#1A1C1E",
       "width": 3,
       "dash": "dash"
      },
-     "hovertemplate": "Break-even (net present value = 0)<br>Electricity (boiler) price excl. CO₂: %{x:,.1f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hovertemplate": "<b>Break-even (net present value = 0)</b><br>Net present value: 0 €<br>Electricity (boiler) price excl. CO₂: %{customdata[0]:,.2f} ct/kWh<br>Electricity price: %{customdata[1]:,.2f} ct/kWh<extra></extra>"
     },
     {
      "type": "scatter",
      "mode": "markers",
      "x": [
-      6
+      null
      ],
      "y": [
-      13
+      null
      ],
      "name": "Entered prices",
      "marker": {
-      "size": 14,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
-     "hovertemplate": "Entered prices<br>Electricity (boiler) price excl. CO₂: %{x:,.2f} ct/kWh<br>Electricity price: %{y:,.2f} ct/kWh<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -18690,7 +19279,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#E57373"
+      "color": "#EF9A9A"
      },
      "hoverinfo": "skip"
     },
@@ -18707,7 +19296,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
      "marker": {
       "symbol": "square",
       "size": 12,
-      "color": "#66BB6A"
+      "color": "#A5D6A7"
      },
      "hoverinfo": "skip"
     }
@@ -18721,7 +19310,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
      },
      "y": 0.98
     },
-    "height": 486,
+    "height": 570,
     "separators": ",.",
     "paper_bgcolor": "rgba(0,0,0,0)",
     "plot_bgcolor": "rgba(0,0,0,0)",
@@ -18738,6 +19327,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "width": 1465,
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",
@@ -18775,7 +19365,28 @@ exports[`economic model > report data, core and pump choice 1`] = `
      ],
      "fixedrange": true,
      "showgrid": false
-    }
+    },
+    "annotations": [
+     {
+      "x": 6,
+      "y": 13,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "xanchor": "left",
+      "xshift": 28,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C · COP 5,67 · 203 kW<br>Electricity (boiler) price excl. CO₂: 6 ct/kWh<br>Electricity price: 13 ct/kWh"
+     }
+    ]
    }
   },
   {
@@ -18808,18 +19419,15 @@ exports[`economic model > report data, core and pump choice 1`] = `
      ],
      "name": "Economic optimum",
      "marker": {
-      "symbol": "diamond",
-      "size": 16,
+      "symbol": "circle-open",
+      "size": 40,
       "color": "#E0A100",
       "line": {
-       "color": "#1A1C1E",
-       "width": 1
+       "color": "#E0A100",
+       "width": 3
       }
      },
-     "customdata": [
-      "Butane_2 108 °C<br>Heat pump: 293 kW (78 %)<br>Rest from Electric boiler: 83 kW<br>COP: 5,02"
-     ],
-     "hovertemplate": "<b>Economic optimum</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hoverinfo": "skip"
     },
     {
      "type": "scatter",
@@ -18832,10 +19440,11 @@ exports[`economic model > report data, core and pump choice 1`] = `
      ],
      "name": "Analysed heat pump",
      "marker": {
-      "size": 13,
-      "color": "#1A1C1E",
+      "symbol": "square",
+      "size": 12,
+      "color": "rgba(237,233,254,0.95)",
       "line": {
-       "color": "#ffffff",
+       "color": "#7C3AED",
        "width": 2
       }
      },
@@ -18870,6 +19479,25 @@ exports[`economic model > report data, core and pump choice 1`] = `
       "color": "#1A1C1E"
      }
     },
+    "annotations": [
+     {
+      "x": 202.5,
+      "y": 141047.1108991883,
+      "xref": "x",
+      "yref": "y",
+      "text": "<b>HP</b>",
+      "showarrow": false,
+      "font": {
+       "size": 10,
+       "color": "#7C3AED"
+      },
+      "bgcolor": "rgba(237,233,254,0.95)",
+      "bordercolor": "#7C3AED",
+      "borderwidth": 2,
+      "borderpad": 2,
+      "hovertext": "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Electric boiler: 173 kW<br>COP: 5,67"
+     }
+    ],
     "xaxis": {
      "automargin": true,
      "gridcolor": "#E2E8F0",

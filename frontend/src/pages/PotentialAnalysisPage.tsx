@@ -267,7 +267,7 @@ export default function PotentialAnalysisPage() {
   });
   useLiveCommand('reset_heat_pumps', () => {
     const s = useAnalysisStore.getState();
-    s.setCopModel('2t');
+    s.setCopModel('4t');
     s.setTempScale('shifted');
     s.setCopFormula(null);
     s.setSelectedHPPoints([]);
@@ -640,7 +640,7 @@ export default function PotentialAnalysisPage() {
                   hint={t('analysis.controls.reset_hpi_hint')}
                   onClick={() => {
                     const s = useAnalysisStore.getState();
-                    s.setCopModel('2t');
+                    s.setCopModel('4t');
                     s.setTempScale('shifted');
                     s.setCopFormula(null);
                     s.setSelectedHPPoints([]);

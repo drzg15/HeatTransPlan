@@ -49,7 +49,9 @@ def test_matches_the_typescript(n):
     close(core["ref"], exp["ref"], "ref")
     close(core["specTotal"], exp["specTotal"], "specTotal")
     close([asdict(v) for v in core["variants"]], exp["variants"], "variants")
-    close(core["results"], exp["results"], "results")
+    # The payback is now interpolated within the year; the original counted whole years.
+    res = [{**r, "payback": None if r["payback"] is None else math.ceil(r["payback"])} for r in core["results"]]
+    close(res, exp["results"], "results")
     close(core["breakEven"], exp["breakEven"], "breakEven")
     close(core["pump"].model_dump(), exp["pump"], "pump")
 
@@ -248,6 +250,10 @@ def test_gas_on_hs_and_its_co2_on_hi():
     fuel_hs = (100 * 1000) / 0.87
     near(r["fuel"], fuel_hs, 6)
     near(r["co2"], ((fuel_hs / 1.11) * 0.201) / 1000, 9)
+    # CO₂-equivalents change the balance only; the CO₂ cost stays on pure CO₂.
+    e = reference_cost(_r(g, co2eFuel=0.24, co2eEl=0.56), EconReference(Q=100, Qsrc=0))
+    near(e["co2"], ((fuel_hs / 1.11) * 0.24) / 1000, 9)
+    near(e["opex1"], r["opex1"], 6)
 
 
 def test_the_size_curve_keeps_to_the_profiles():

@@ -34,7 +34,7 @@ RefType = Literal["gas", "oil", "eboiler"]
 DEFAULTS: Dict[str, float] = {
     "year": date.today().year + 1,
     "hours": 6000,  # VDI 4646 Tabelle 8: three-shift operation
-    "i": 12,  # VDI 4646 Tabelle 8; companies use 8–12 % (p. 58)
+    "i": 8,  # VDI 4646 p. 58: companies use 8–12 %; user decision 2026-11-09
     "T": 20,  # VDI 4646 p. 58 / VDI 2067 Tabelle 1: heating 20 years
     # Reference heater (gas condensing boiler, VDI 4646 Tabelle 8: η = 0,87 on
     # Hs). The fuel price is per kWh Hs and excludes CO₂, which is costed on Hi.
@@ -53,14 +53,20 @@ DEFAULTS: Dict[str, float] = {
     "rEl": 3,  # as rFuel
     "co2El": 0.352,  # UBA 2025, location-based
     "co2ElPriced": 0,  # 1 = add CO₂ cost on electricity
+    # CO₂ balance in CO₂-equivalents incl. upstream chain (GEG 2024, Anlage 9),
+    # instead of pure CO₂. The CO₂ costs always stay on pure CO₂.
+    "co2e": 1,  # user decision 2026-11-09
+    "co2eFuel": 0.240,
+    "co2eEl": 0.560,
     "pDemand": 0,  # only if not already in the electricity price
     # Price of the heat pump itself per kW (machine only): SPH offers for large
     # industrial high-temperature heat pumps up to ~150 °C (≈ 1.000–1.200 €/kW).
     "specCost": 1000,
     "fPI": 1.25,  # VDI 4646 Tabelle 6, p. 59: planning and installation
     # System integration (periphery). VDI 4646 Tabelle 6 has 1,8, fitted to cheap
-    # machines; with a 1.000 €/kW machine 1,25 gives ≈ 1.560 €/kW installed.
-    "fPer": 1.25,
+    # machines; 1,35 (user decision 2026-11-09): with a 1.000 €/kW machine
+    # ≈ 1.690 €/kW installed.
+    "fPer": 1.35,
     "fMaint": 2.5,  # VDI 2067 Tabelle A2: f_Inst 1 % + f_W+Insp 1,5 %
     "opHours": 5,  # VDI 2067 Tabelle A2: 5 h/a operation
     "wage": 100,  # €/h; VDI 4646 and VDI 2067 give no value
@@ -79,9 +85,9 @@ DEFAULTS: Dict[str, float] = {
 # Reference heaters: picking one loads its efficiency, price and CO₂ factor.
 # Efficiencies and prices on Hs, CO₂ factors on Hi.
 PRESETS: Dict[str, Dict[str, float]] = {
-    "gas": {"eta": 87, "hsHi": 1.11, "pFuel": 6, "co2Fuel": 0.201},
-    "oil": {"eta": 85, "hsHi": 1.06, "pFuel": 8, "co2Fuel": 0.266},
-    "eboiler": {"eta": 99, "hsHi": 1, "pFuel": 13, "co2Fuel": 0.352},
+    "gas": {"eta": 87, "hsHi": 1.11, "pFuel": 6, "co2Fuel": 0.201, "co2eFuel": 0.240},
+    "oil": {"eta": 85, "hsHi": 1.06, "pFuel": 8, "co2Fuel": 0.266, "co2eFuel": 0.310},
+    "eboiler": {"eta": 99, "hsHi": 1, "pFuel": 13, "co2Fuel": 0.352, "co2eFuel": 0.560},
 }
 
 
@@ -123,6 +129,8 @@ def to_inputs(f: Dict[str, float], ref_type: str) -> EconInputs:
         fMaintRef=f["fMaintRef"] / 100,
         opFunding=f["opFunding"] / 1000,
         opFundingYears=js_round(f["opFundingYears"]),
+        co2eFuel=f["co2eFuel"] if f.get("co2e") else None,
+        co2eEl=f["co2eEl"] if f.get("co2e") else None,
     )
 
 

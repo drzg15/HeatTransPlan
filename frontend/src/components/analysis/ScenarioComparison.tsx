@@ -353,9 +353,9 @@ const ScenarioComparison: React.FC = () => {
                     <td style={{ textAlign: 'right' }}>
                       {!ec
                         ? '—'
-                        : payback === null
+                        : payback == null
                           ? t('economics.payback_never_short')
-                          : `${payback} ${t('economics.years')}`}
+                          : `${formatDe(payback, 1, true, 1)} ${t('economics.years')}`}
                     </td>
                     <td style={{ textAlign: 'right' }}>
                       {ec ? formatDe(ec.results[0].saving1) : '—'}
