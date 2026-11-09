@@ -32,7 +32,7 @@ jobs:
         working-directory: frontend
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: npm
@@ -53,7 +53,7 @@ jobs:
           python-version: '3.13'
           cache: pip
       - run: pip install "./backend[dev]" ./mcp_server
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v7
         with:
           node-version: '20'
           cache: npm
