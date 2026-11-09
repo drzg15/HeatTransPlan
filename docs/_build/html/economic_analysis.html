@@ -1,0 +1,1431 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Step 4 — Cost Analysis &#8212; HeatTransPlan — Calculation Logic</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=408308f3" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=c73c0f3e"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>window.addEventListener('load', () => {
+  const tip = window.MathJax?._?.output?.common?.Wrappers?.maction?.TooltipData;
+  if (tip) tip.postDelay = 80;
+});</script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=ccdb6887"></script>
+    <script>let toggleHintShow = 'Show implementation';</script>
+    <script>let toggleHintHide = 'Hide implementation';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=b8b12719"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'economic_analysis';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="next" title="Architecture &amp; Security" href="architecture_and_security.html" />
+    <link rel="prev" title="Refrigerant Operating Limits" href="refrigerant_limits.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HeatTransPlan — Calculation Logic</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">The four steps</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="data_collection.html">Step 1 — Data Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pinch_analysis.html">Step 2 — Streams &amp; Heat Integration (Pinch Analysis)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="heat_pump_step.html">Step 3 — Heat Pump Integration</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_integration.html">Classic Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html">Optimization (ML Model &amp; Grid Search)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="refrigerant_limits.html">Refrigerant Operating Limits</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Step 4 — Cost Analysis</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Architecture</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="architecture_and_security.html">Architecture &amp; Security</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/drzg15/HeatTransPlan" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/economic_analysis.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Step 4 — Cost Analysis</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-compared">4.0 What is compared</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-pump-analysed">The pump analysed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-reference-demand">The reference demand</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inputs">4.1 Inputs</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#investment">Investment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-flows-and-co2-per-year">4.2 Energy flows and CO₂ per year</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prices-over-time">4.3 Prices over time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operating-costs-per-year">4.4 Operating costs per year</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#net-present-value">4.5 Net present value</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-payback">4.6 Dynamic payback</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#break-even-electricity-price">4.7 Break-even electricity price</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#heat-cost-lcoh-and-the-other-vdi-4646-2026-results">4.8 Heat cost (LCOH) and the other VDI 4646:2026 results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-page-shows">What the page shows</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-comparison-and-report">Scenario comparison and report</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">4.9 Validation</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="step-4-cost-analysis">
+<h1>Step 4 — Cost Analysis<a class="headerlink" href="#step-4-cost-analysis" title="Link to this heading">#</a></h1>
+<p>Step 3 says what a heat pump <em>can</em> deliver. <strong>Step 4, the cost analysis</strong>, asks whether it is worth buying. It compares the heat pump with the system it replaces year by year and turns the difference into a <strong>net present value</strong>, a <strong>dynamic payback</strong>, the <strong>heat cost (LCOH)</strong>, the <strong>CO₂ saving</strong> and a <strong>break-even electricity price</strong>.</p>
+<p>The method is the <strong>net present value method</strong> (<em>Kapitalwertmethode</em>) with price-dynamic cash flows, as in VDI 2067 Blatt 1:2012. Its annuity method, which VDI 4646:2026 builds on, gives the same decision (annuity = NPV × annuity factor). Every input, formula and deviation below names the page of the guideline it comes from. The implementation reproduces the worked examples of both guidelines (see <em>4.9 Validation</em>).</p>
+<p><strong>References.</strong> Both are German engineering guidelines of the VDI (<em>Verein Deutscher Ingenieure</em>, Association of German Engineers), published in German and English; the German text is binding.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Short</p></th>
+<th class="head"><p>Guideline</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>[4646:2026]</strong></p></td>
+<td><p>VDI 4646:2026-05 <em>Anwendung von Großwärmepumpen</em> (Application of large-scale heat pumps)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>[2067-1:2012]</strong></p></td>
+<td><p>VDI 2067 Blatt 1:2012-09 <em>Wirtschaftlichkeit gebäudetechnischer Anlagen – Grundlagen und Kostenberechnung</em> (Economic efficiency of building installations – Fundamentals and economic calculation)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>[GEG 2024]</strong></p></td>
+<td><p><em>Gebäudeenergiegesetz</em> 2024, the German Buildings Energy Act, Anlage 9 (CO₂-equivalent factors)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The backend computes every number (<code class="docutils literal notranslate"><span class="pre">/api/analysis/economics</span></code>). The page, the scenario comparison and the report all show the same results.</p>
+<hr class="docutils" />
+<section id="what-is-compared">
+<h2>4.0 What is compared<a class="headerlink" href="#what-is-compared" title="Link to this heading">#</a></h2>
+<p>Both systems are costed <strong>in full</strong> every year:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>System</p></th>
+<th class="head"><p>Supplies heat with</p></th>
+<th class="head"><p>Removes the source’s waste heat with</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Reference</strong> (current situation)</p></td>
+<td><p>a fuel-fired heater (gas, oil or electric boiler)</p></td>
+<td><p>today’s cooling, if the source is actively cooled</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Heat pump</strong></p></td>
+<td><p>the heat pump, plus the old heater for whatever the pump does not cover</p></td>
+<td><p>the heat pump’s evaporator, plus the old cooling for what it does not take</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The heat pump is credited only with what it actually replaces. A pump that covers 60 % of the demand leaves 40 % on the old heater, and that remaining fuel stays in its costs.</p>
+<section id="the-pump-analysed">
+<h3>The pump analysed<a class="headerlink" href="#the-pump-analysed" title="Link to this heading">#</a></h3>
+<p>One pump is analysed at a time, so the results stay readable:</p>
+<ul class="simple">
+<li><p>nothing selected in Step 3 → the default pump the optimization chart highlights (largest duty);</p></li>
+<li><p>one or more selected → the best of the selection: real machines before theoretical archetypes, then the largest heat output, then the highest COP;</p></li>
+<li><p>a click on a point of the <em>Economic heat pump size</em> chart selects that pump.</p></li>
+</ul>
+</section>
+<section id="the-reference-demand">
+<h3>The reference demand<a class="headerlink" href="#the-reference-demand" title="Link to this heading">#</a></h3>
+<p>The reference must supply the <strong>largest</strong> demand any candidate could cover, so a small and a large pump are compared against the same current situation:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{\dot{Q}_{ref}}{Reference heat demand: the largest demand any candidate pump covers [kW]} = \max_p \texttip{\dot{Q}_{demand,total,p}}{Total heat demand seen by pump p [kW]} \qquad \texttip{\dot{Q}_{src,ref}}{Source heat the reference cools today: the largest of the candidates [kW]} = \max_p \texttip{\dot{Q}_{source,p}}{Source heat taken up by pump p [kW]}
+\]</div>
+<p>taken over the analysed pump, the maximum-duty point and all real feasible points of the optimization.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/economics/model.py</code> (<code>pick_pump</code>, <code>econ_core</code>)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">pick_pump</span><span class="p">(</span>
+    <span class="n">selected</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">OptimizedIntegrationPoint</span><span class="p">],</span> <span class="n">opt</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HPIOptimizationResult</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">OptimizedIntegrationPoint</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The one pump analysed, so the analysis stays readable however many are</span>
+<span class="sd">    picked: the best of the selection (real machines before archetypes, then</span>
+<span class="sd">    largest heat output, then highest COP). Nothing picked: the default pump, as</span>
+<span class="sd">    the optimization chart shows.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">selected</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="nb">bool</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">theoretical</span><span class="p">)),</span> <span class="o">-</span><span class="n">p</span><span class="o">.</span><span class="n">Q_demand</span><span class="p">,</span> <span class="o">-</span><span class="n">p</span><span class="o">.</span><span class="n">COP</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">opt</span><span class="o">.</span><span class="n">max_q_point</span> <span class="k">if</span> <span class="n">opt</span> <span class="k">else</span> <span class="kc">None</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">econ_core</span><span class="p">(</span>
+    <span class="n">form</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">],</span>
+    <span class="n">ref_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">selected</span><span class="p">:</span> <span class="n">Sequence</span><span class="p">[</span><span class="n">OptimizedIntegrationPoint</span><span class="p">],</span>
+    <span class="n">opt</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">HPIOptimizationResult</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The numbers alone, no text or charts: what the scenario comparison needs.&quot;&quot;&quot;</span>
+    <span class="n">pump</span> <span class="o">=</span> <span class="n">pick_pump</span><span class="p">(</span><span class="n">selected</span><span class="p">,</span> <span class="n">opt</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">pump</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">points</span> <span class="o">=</span> <span class="p">[</span><span class="n">pump</span><span class="p">]</span>
+    <span class="n">inp</span> <span class="o">=</span> <span class="n">to_inputs</span><span class="p">(</span><span class="n">form</span><span class="p">,</span> <span class="n">ref_type</span><span class="p">)</span>
+    <span class="c1"># The reference supplies the largest demand (and cools the largest source)</span>
+    <span class="c1"># among the variants, so every pump is compared against the same Ist-Situation.</span>
+    <span class="n">real_feasible</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">(</span><span class="n">opt</span><span class="o">.</span><span class="n">feasible_points</span> <span class="k">if</span> <span class="n">opt</span> <span class="k">else</span> <span class="p">[])</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">theoretical</span> <span class="ow">and</span> <span class="n">p</span><span class="o">.</span><span class="n">COP</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">ref_pool</span> <span class="o">=</span> <span class="p">[</span><span class="o">*</span><span class="n">points</span><span class="p">,</span> <span class="o">*</span><span class="p">([</span><span class="n">opt</span><span class="o">.</span><span class="n">max_q_point</span><span class="p">]</span> <span class="k">if</span> <span class="n">opt</span> <span class="ow">and</span> <span class="n">opt</span><span class="o">.</span><span class="n">max_q_point</span> <span class="k">else</span> <span class="p">[]),</span> <span class="o">*</span><span class="n">real_feasible</span><span class="p">]</span>
+    <span class="n">ref_sys</span> <span class="o">=</span> <span class="n">EconReference</span><span class="p">(</span>
+        <span class="n">Q</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">Q_demand_total</span> <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">Q_demand_total</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">p</span><span class="o">.</span><span class="n">Q_demand</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ref_pool</span><span class="p">),</span>
+        <span class="n">Qsrc</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">Q_source</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">ref_pool</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="n">reference_cost</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">ref_sys</span><span class="p">)</span>
+    <span class="c1"># Investment and specific investment are one value seen two ways: I = c_spez · Q.</span>
+    <span class="c1"># Installed price per kW: the heat pump&#39;s own price × planning and</span>
+    <span class="c1"># installation × integration (VDI 4646 eq. 26 factors).</span>
+    <span class="n">spec_total</span> <span class="o">=</span> <span class="n">form</span><span class="p">[</span><span class="s2">&quot;specCost&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">form</span><span class="p">[</span><span class="s2">&quot;fPI&quot;</span><span class="p">]</span> <span class="o">*</span> <span class="n">form</span><span class="p">[</span><span class="s2">&quot;fPer&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">capex_of</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">OptimizedIntegrationPoint</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">js_round</span><span class="p">(</span><span class="n">spec_total</span> <span class="o">*</span> <span class="n">p</span><span class="o">.</span><span class="n">Q_demand</span><span class="p">)</span>
+
+    <span class="n">variants</span> <span class="o">=</span> <span class="p">[</span><span class="n">EconVariant</span><span class="p">(</span><span class="n">Q</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">Q_demand</span><span class="p">,</span> <span class="n">Qsrc</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">Q_source</span><span class="p">,</span> <span class="n">cop</span><span class="o">=</span><span class="n">p</span><span class="o">.</span><span class="n">COP</span><span class="p">,</span> <span class="n">capex</span><span class="o">=</span><span class="n">capex_of</span><span class="p">(</span><span class="n">p</span><span class="p">))</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">points</span><span class="p">]</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[</span><span class="n">evaluate</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">ref_sys</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">]</span>
+    <span class="n">break_even</span> <span class="o">=</span> <span class="p">[</span><span class="n">break_even_el_price</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">ref_sys</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">inp</span><span class="o">.</span><span class="n">pFuel</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">variants</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;pump&quot;</span><span class="p">:</span> <span class="n">pump</span><span class="p">,</span>
+        <span class="s2">&quot;points&quot;</span><span class="p">:</span> <span class="n">points</span><span class="p">,</span>
+        <span class="s2">&quot;inp&quot;</span><span class="p">:</span> <span class="n">inp</span><span class="p">,</span>
+        <span class="s2">&quot;realFeasible&quot;</span><span class="p">:</span> <span class="n">real_feasible</span><span class="p">,</span>
+        <span class="s2">&quot;refSys&quot;</span><span class="p">:</span> <span class="n">ref_sys</span><span class="p">,</span>
+        <span class="s2">&quot;ref&quot;</span><span class="p">:</span> <span class="n">ref</span><span class="p">,</span>
+        <span class="s2">&quot;specTotal&quot;</span><span class="p">:</span> <span class="n">spec_total</span><span class="p">,</span>
+        <span class="s2">&quot;capexOf&quot;</span><span class="p">:</span> <span class="n">capex_of</span><span class="p">,</span>
+        <span class="s2">&quot;variants&quot;</span><span class="p">:</span> <span class="n">variants</span><span class="p">,</span>
+        <span class="s2">&quot;results&quot;</span><span class="p">:</span> <span class="n">results</span><span class="p">,</span>
+        <span class="s2">&quot;breakEven&quot;</span><span class="p">:</span> <span class="n">break_even</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</details>
+</section>
+</section>
+<hr class="docutils" />
+<section id="inputs">
+<h2>4.1 Inputs<a class="headerlink" href="#inputs" title="Link to this heading">#</a></h2>
+<p>The six inputs people change most sit in the <strong>Key inputs</strong> row: period <span class="math notranslate nohighlight">\(\texttip{T}{Period of analysis [a], default 20}\)</span>, discount rate <span class="math notranslate nohighlight">\(\texttip{i}{Discount rate, default 8 percent}\)</span>, fuel price, electricity price, heat pump price per kW and investment funding. Everything else is under <strong>More assumptions</strong>, in two columns: <em>General</em>, <em>Reference heater</em>, <em>Operating funding</em>, <em>Cooling</em> and <em>Replacement case</em> on the left, <em>Heat pump</em> and <em>Electricity</em> on the right. Every input has a help bulb with typical values.</p>
+<p>Options that are off by default have a checkbox. Switching one on fills in the typical value given in the table, and inputs that only count while it is on are greyed out until then.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Input</p></th>
+<th class="head"><p>Symbol</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p>Source of the default</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>General</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>First year of operation (year 0)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{t_0}{First year of operation = year 0 (investment paid)}\)</span></p></td>
+<td><p>next year</p></td>
+<td><p>only labels the time axis</p></td>
+</tr>
+<tr class="row-even"><td><p>Full-load hours</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{h}{Full-load hours [h/a], default 6.000}\)</span></p></td>
+<td><p>6.000 h/a</p></td>
+<td><p>[4646:2026] Tabelle 8, p. 62 (three shifts)</p></td>
+</tr>
+<tr class="row-odd"><td><p>Discount rate</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{i}{Discount rate, default 8 percent}\)</span></p></td>
+<td><p>8 %</p></td>
+<td><p>[4646:2026] p. 58: companies use 8–12 % (Tabelle 8, p. 62 uses 12 %)</p></td>
+</tr>
+<tr class="row-even"><td><p>Period of analysis</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{T}{Period of analysis [a], default 20}\)</span></p></td>
+<td><p>20 a</p></td>
+<td><p>[4646:2026] p. 58; [2067-1:2012] Tabelle 1, p. 11</p></td>
+</tr>
+<tr class="row-odd"><td><p>CO₂ balance in CO₂-equivalents</p></td>
+<td><p></p></td>
+<td><p><strong>on</strong></p></td>
+<td><p>[GEG 2024] Anlage 9; see <em>4.2</em></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Reference heater</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Type</p></td>
+<td><p></p></td>
+<td><p>gas condensing boiler</p></td>
+<td><p>[4646:2026] p. 61</p></td>
+</tr>
+<tr class="row-even"><td><p>Efficiency on Hs</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{\eta}{Efficiency of the reference heater on Hs, default 87 percent (gas)}\)</span></p></td>
+<td><p>87 %</p></td>
+<td><p>[4646:2026] Tabelle 8, p. 62</p></td>
+</tr>
+<tr class="row-odd"><td><p>Calorific value ratio</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{H_s/H_i}{Ratio of gross to net calorific value, 1,11 for natural gas}\)</span></p></td>
+<td><p>1,11</p></td>
+<td><p>natural gas H; needed by [4646:2026] eq. (23), p. 57</p></td>
+</tr>
+<tr class="row-even"><td><p>Fuel price (excl. CO₂, per kWh Hs)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{p_{fuel,0}}{Fuel price today, excl. CO2, per kWh Hs [ct/kWh], default 6}\)</span></p></td>
+<td><p>6 ct/kWh</p></td>
+<td><p>≈ 7 ct incl. CO₂</p></td>
+</tr>
+<tr class="row-odd"><td><p>Fuel price change</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{r_{fuel}}{Yearly fuel price change, default 3 percent}\)</span></p></td>
+<td><p>3 %/a</p></td>
+<td><p><strong>deviation</strong> from [4646:2026] p. 57 (constant prices)</p></td>
+</tr>
+<tr class="row-even"><td><p>CO₂ factor of the fuel (on Hi)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{c_{CO_2}}{CO2 factor of the fuel on Hi (gas 0,201 t/MWh)}\)</span></p></td>
+<td><p>0,201 t/MWh</p></td>
+<td><p>UBA; [4646:2026] p. 64: 202 g/kWh</p></td>
+</tr>
+<tr class="row-odd"><td><p>CO₂e factor of the fuel (incl. upstream, on Hi)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{c_{CO_2e}}{CO2-equivalent factor of the fuel incl. upstream chain, on Hi (gas 0,24 t/MWh)}\)</span></p></td>
+<td><p>0,24 t/MWh</p></td>
+<td><p>[GEG 2024] Anlage 9</p></td>
+</tr>
+<tr class="row-even"><td><p>CO₂ price</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{p_{CO_2,0}}{CO2 price today, default 55 EUR/t}\)</span></p></td>
+<td><p>55 €/t</p></td>
+<td><p>BEHG 2025 fixed price</p></td>
+</tr>
+<tr class="row-odd"><td><p>CO₂ price change</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{r_{CO_2}}{Yearly CO2 price change, default 0}\)</span></p></td>
+<td><p>0 %/a</p></td>
+<td><p>[4646:2026] p. 57</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Electricity</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Electricity price</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{p_{el,0}}{Electricity price today [ct/kWh], default 13}\)</span></p></td>
+<td><p>13 ct/kWh</p></td>
+<td><p>assumption</p></td>
+</tr>
+<tr class="row-even"><td><p>Electricity price change</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{r_{el}}{Yearly electricity price change, default 3 percent}\)</span></p></td>
+<td><p>3 %/a</p></td>
+<td><p>as the fuel; <strong>deviation</strong> from [4646:2026] p. 57</p></td>
+</tr>
+<tr class="row-odd"><td><p>CO₂ factor of electricity</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{c_{CO_2,el}}{CO2 factor of electricity, 0,352 t/MWh}\)</span></p></td>
+<td><p>0,352 t/MWh</p></td>
+<td><p>UBA 2025</p></td>
+</tr>
+<tr class="row-even"><td><p>CO₂e factor of electricity (incl. upstream)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{c_{CO_2e,el}}{CO2-equivalent factor of electricity incl. upstream chain, 0,56 t/MWh (GEG 2024)}\)</span></p></td>
+<td><p>0,56 t/MWh</p></td>
+<td><p>[GEG 2024] Anlage 9</p></td>
+</tr>
+<tr class="row-odd"><td><p>Add CO₂ cost on electricity</p></td>
+<td><p></p></td>
+<td><p>off</p></td>
+<td><p>[4646:2026] p. 60: check if in the price (EU ETS)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Heat pump</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Capacity charge (if not in the electricity price)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{p_C}{Capacity charge [EUR per kW el and year], default off}\)</span></p></td>
+<td><p>off; on: 100 €/kW<span class="math notranslate nohighlight">\(_{el}\)</span>·a</p></td>
+<td><p>[2067-1:2012] p. 15</p></td>
+</tr>
+<tr class="row-even"><td><p>Heat pump price per kW (machine only)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{c_{spec}}{Heat pump price per kW, machine only, default 1.000 EUR/kW}\)</span></p></td>
+<td><p><strong>1.000 €/kW</strong></p></td>
+<td><p>manufacturer offers, see <em>Investment</em> below</p></td>
+</tr>
+<tr class="row-odd"><td><p>Planning &amp; installation factor</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{F_{PI}}{Planning and installation factor, 1,25 (VDI 4646:2026)}\)</span></p></td>
+<td><p>1,25</p></td>
+<td><p>[4646:2026] Tabelle 6, p. 59</p></td>
+</tr>
+<tr class="row-even"><td><p>Integration factor (periphery)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{F_{Per}}{Integration factor (periphery), default 1,35}\)</span></p></td>
+<td><p><strong>1,35</strong></p></td>
+<td><p><strong>deviation</strong> from [4646:2026] Tabelle 6, p. 59 (1,8), see below</p></td>
+</tr>
+<tr class="row-odd"><td><p>Maintenance</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{f_M}{Maintenance per year as share of the investment, 2,5 percent}\)</span></p></td>
+<td><p>2,5 % of <span class="math notranslate nohighlight">\(\texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]}\)</span> per a</p></td>
+<td><p>[2067-1:2012] Tabelle A2, p. 22 (1 + 1,5 %)</p></td>
+</tr>
+<tr class="row-even"><td><p>Operation effort × hourly rate</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{t_{AB}}{Operation effort [h/a], default 5} \cdot \texttip{w}{Hourly rate for operation, default 100 EUR/h}\)</span></p></td>
+<td><p>5 h/a × 100 €/h</p></td>
+<td><p>[2067-1:2012] Tabelle A2, p. 22 (hours); rate assumed</p></td>
+</tr>
+<tr class="row-odd"><td><p>Reinvestment (share of <span class="math notranslate nohighlight">\(\texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]}\)</span>) in year …</p></td>
+<td><p></p></td>
+<td><p>off; on: 20 % in year 10</p></td>
+<td><p>app extension (e.g. a compressor overhaul)</p></td>
+</tr>
+<tr class="row-even"><td><p>Service life</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{L}{Service life of the heat pump, 20 a}\)</span></p></td>
+<td><p>20 a</p></td>
+<td><p>[2067-1:2012] Tabelle A2, p. 22</p></td>
+</tr>
+<tr class="row-odd"><td><p>Investment price change</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{r_{inv}}{Yearly price change of the investment, default 0}\)</span></p></td>
+<td><p>0 %/a</p></td>
+<td><p>[2067-1:2012] eq. (2)/(3), p. 17</p></td>
+</tr>
+<tr class="row-even"><td><p>Investment funding</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{\varphi}{Investment funding as share of the investment, default 0}\)</span></p></td>
+<td><p>0 % of <span class="math notranslate nohighlight">\(\texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]}\)</span></p></td>
+<td><p>[2067-1:2012] §8.2, p. 19</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Operating funding</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Funding per MWh of heat, paid for … years</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{f_{op}}{Operating funding per MWh of heat, default off}\)</span>, <span class="math notranslate nohighlight">\(\texttip{t_{op}}{Years the operating funding is paid, default 10}\)</span></p></td>
+<td><p>off; on: 92 €/MWh for 10 a</p></td>
+<td><p>BEW Modul 4; [2067-1:2012] §8.2, p. 19</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Cooling the heat pump takes over</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p>Actively cooled share of the source</p></td>
+<td><p><span class="math notranslate nohighlight">\(a\)</span></p></td>
+<td><p>off (0 %); on: 100 %</p></td>
+<td><p>—</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cooling COP of the current cooling</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{EER}{Cooling COP of today's cooling, default 4}\)</span></p></td>
+<td><p>4</p></td>
+<td><p>mechanical chiller ([4646:2026] §8.2 uses 15 for a cooling tower)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Replacement case (boiler due anyway)</strong></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p>Avoided boiler investment</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{c_{boiler}}{Avoided boiler investment per kW of heat pump (replacement case), 200 EUR/kW when on}\)</span></p></td>
+<td><p>off (0); on: 200 €/kW of HP</p></td>
+<td><p>[4646:2026] Tabelle 8, p. 62 (efficiency case = 0); p. 74 uses 131 €/kW</p></td>
+</tr>
+<tr class="row-even"><td><p>Its maintenance</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{f_{k,ref}}{Maintenance of the avoided boiler, 3 percent per year}\)</span></p></td>
+<td><p>3 %/a</p></td>
+<td><p>[4646:2026] Tabelle 8, p. 62</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Choosing the reference type loads a preset (all editable):</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\texttip{\eta}{Efficiency of the reference heater on Hs, default 87 percent (gas)}\)</span> (Hs)</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\texttip{H_s/H_i}{Ratio of gross to net calorific value, 1,11 for natural gas}\)</span></p></th>
+<th class="head"><p>Price</p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\texttip{c_{CO_2}}{CO2 factor of the fuel on Hi (gas 0,201 t/MWh)}\)</span></p></th>
+<th class="head"><p><span class="math notranslate nohighlight">\(\texttip{c_{CO_2e}}{CO2-equivalent factor of the fuel incl. upstream chain, on Hi (gas 0,24 t/MWh)}\)</span></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Gas condensing boiler</p></td>
+<td><p>87 %</p></td>
+<td><p>1,11</p></td>
+<td><p>6 ct</p></td>
+<td><p>0,201</p></td>
+<td><p>0,24</p></td>
+</tr>
+<tr class="row-odd"><td><p>Oil boiler</p></td>
+<td><p>85 %</p></td>
+<td><p>1,06</p></td>
+<td><p>8 ct</p></td>
+<td><p>0,266</p></td>
+<td><p>0,31</p></td>
+</tr>
+<tr class="row-even"><td><p>Electric boiler</p></td>
+<td><p>99 %</p></td>
+<td><p>1</p></td>
+<td><p>13 ct</p></td>
+<td><p>0,352</p></td>
+<td><p>0,56</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The electric boiler’s CO₂ cost is in its electricity price unless <em>Add CO₂ cost on electricity</em> is on.</p>
+<blockquote>
+<div><p>[!IMPORTANT]
+<strong>Gross and net calorific value.</strong> Gas is billed per kWh of gross calorific value <span class="math notranslate nohighlight">\(\texttip{H_s}{Gross calorific value (fuel billed on it)}\)</span>, but its CO₂ factor refers to the net calorific value <span class="math notranslate nohighlight">\(\texttip{H_i}{Net calorific value (CO2 factor refers to it)}\)</span> ([4646:2026] p. 60; eq. (23), p. 57 uses <span class="math notranslate nohighlight">\(\texttip{\eta}{Efficiency of the reference heater on Hs, default 87 percent (gas)}_{\texttip{H_s}{Gross calorific value (fuel billed on it)}}\)</span> for the price and <span class="math notranslate nohighlight">\(\texttip{\eta}{Efficiency of the reference heater on Hs, default 87 percent (gas)}_{\texttip{H_i}{Net calorific value (CO2 factor refers to it)}}\)</span> for CO₂). The efficiency, fuel price and fuel consumption are therefore on <span class="math notranslate nohighlight">\(\texttip{H_s}{Gross calorific value (fuel billed on it)}\)</span>, and the CO₂ factor is converted with <span class="math notranslate nohighlight">\(\texttip{H_s/H_i}{Ratio of gross to net calorific value, 1,11 for natural gas}\)</span>. Using one efficiency for both overstates the CO₂ of gas by about 11 %.</p>
+</div></blockquote>
+<section id="investment">
+<h3>Investment<a class="headerlink" href="#investment" title="Link to this heading">#</a></h3>
+<p>The heat pump’s own price per kW times the planning-and-installation and integration factors of [4646:2026] eq. (25)/(26), Tabelle 6, p. 58–59, times the heat output:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]} = \texttip{c_{spec}}{Heat pump price per kW, machine only, default 1.000 EUR/kW} \cdot \texttip{F_{PI}}{Planning and installation factor, 1,25 (VDI 4646:2026)} \cdot \texttip{F_{Per}}{Integration factor (periphery), default 1,35} \cdot \texttip{\dot{Q}}{Heat output of the heat pump [kW]}
+\]</div>
+<p>Editing the investment sets the price per kW back through the same factors. The default of 1.000 €/kW is the machine alone, from manufacturer offers for large industrial high-temperature heat pumps up to about 150 °C (about 1.000–1.200 €/kW; 175 °C steam about 2.000 €/kW). With the factors, 1.000 × 1,25 × 1,35 ≈ <strong>1.690 €/kW installed</strong>, between the Danish Energy Agency values for heat pumps up to 150 °C (1.550 €/kW) and steam heat pumps up to 150 °C (1.750 €/kW).</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Source</p></th>
+<th class="head"><p>Specific investment</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Manufacturer offers, machine only</p></td>
+<td><p>≈ 1.000–1.200 €/kW up to ~150 °C; ≈ 2.000–2.200 €/kW for 175 °C steam</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://ens.dk/media/8517/download">Danish Energy Agency (2026), Technology Data – Industrial Process Heat</a></p></td>
+<td><p>installed: 1.200 €/kW ≤ 125 °C, 1.550 €/kW ≤ 150 °C; steam 1.400 / 1.750 €/kW</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference external" href="https://www.sciencedirect.com/science/article/pii/S0360544224029220">Energy (2024): VHTHPs in European markets</a></p></td>
+<td><p>~200–1.500 €/kW, ≥ 600 €/kW for lifts &gt; 100 K</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference external" href="https://energy.nl/wp-content/uploads/industrial-high-temperature-heat-pump-2-7.pdf">TNO / energy.nl factsheet</a></p></td>
+<td><p>300–900 €/kW up to 160 °C</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The full-load hours default to 6.000 h as in [4646:2026]; with a load profile, set <span class="math notranslate nohighlight">\(\texttip{h}{Full-load hours [h/a], default 6.000}\)</span> to the real full-load hours. All inputs are kept for the whole project: every saved scenario is evaluated with the same prices and assumptions, so scenarios differ only in their heat pump.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="energy-flows-and-co2-per-year">
+<h2>4.2 Energy flows and CO₂ per year<a class="headerlink" href="#energy-flows-and-co2-per-year" title="Link to this heading">#</a></h2>
+<p>The heat pump draws electricity for its duty; the old heater burns fuel for the rest; the old cooling still removes whatever source heat the pump does not take:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{E_{fuel}}{Fuel used per year, on Hs [kWh/a]} = \frac{(\texttip{\dot{Q}_{ref}}{Reference heat demand: the largest demand any candidate pump covers [kW]} - \texttip{\dot{Q}}{Heat output of the heat pump [kW]}) \cdot \texttip{h}{Full-load hours [h/a], default 6.000}}{\texttip{\eta}{Efficiency of the reference heater on Hs, default 87 percent (gas)}} \qquad
+\texttip{E_{el}}{Electricity of the heat pump per year [kWh/a]} = \frac{\texttip{\dot{Q}}{Heat output of the heat pump [kW]} \cdot \texttip{h}{Full-load hours [h/a], default 6.000}}{\texttip{COP}{Coefficient of performance of the heat pump}} \qquad
+\texttip{E_{cool}}{Electricity of the remaining cooling per year [kWh/a]} = \frac{(\texttip{\dot{Q}_{src,ref}}{Source heat the reference cools today: the largest of the candidates [kW]} - \texttip{\dot{Q}_{src}}{Source heat the heat pump takes up (its evaporator) [kW]}) \cdot \texttip{h}{Full-load hours [h/a], default 6.000} \cdot a}{\texttip{EER}{Cooling COP of today's cooling, default 4}}
+\]</div>
+<p>For the reference, <span class="math notranslate nohighlight">\(\texttip{\dot{Q}}{Heat output of the heat pump [kW]} = \texttip{\dot{Q}_{src}}{Source heat the heat pump takes up (its evaporator) [kW]} = 0\)</span> and <span class="math notranslate nohighlight">\(\texttip{E_{el}}{Electricity of the heat pump per year [kWh/a]} = 0\)</span>.</p>
+<p><strong>CO₂ emissions</strong> follow from the same flows, with <span class="math notranslate nohighlight">\(\texttip{E_{fuel}}{Fuel used per year, on Hs [kWh/a]}\)</span> on <span class="math notranslate nohighlight">\(\texttip{H_s}{Gross calorific value (fuel billed on it)}\)</span> ([4646:2026] eq. (30)/(31), p. 63):</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{CO_2}{CO2 emissions per year [t/a]} = \frac{\texttip{E_{fuel}}{Fuel used per year, on Hs [kWh/a]}}{\texttip{H_s/H_i}{Ratio of gross to net calorific value, 1,11 for natural gas}} \cdot \texttip{c_{CO_2}}{CO2 factor of the fuel on Hi (gas 0,201 t/MWh)} + (\texttip{E_{el}}{Electricity of the heat pump per year [kWh/a]} + \texttip{E_{cool}}{Electricity of the remaining cooling per year [kWh/a]}) \cdot \texttip{c_{CO_2,el}}{CO2 factor of electricity, 0,352 t/MWh}
+\]</div>
+<p>With <strong>CO₂ balance in CO₂-equivalents</strong> on (the default), the same formula uses <span class="math notranslate nohighlight">\(\texttip{c_{CO_2e}}{CO2-equivalent factor of the fuel incl. upstream chain, on Hi (gas 0,24 t/MWh)}\)</span> and <span class="math notranslate nohighlight">\(\texttip{c_{CO_2e,el}}{CO2-equivalent factor of electricity incl. upstream chain, 0,56 t/MWh (GEG 2024)}\)</span>: CO₂-equivalents including the upstream chain (methane, nitrous oxide, extraction and transport), [GEG 2024] Anlage 9. The CO₂ rows are then labelled “(CO₂e)”. The <strong>CO₂ costs</strong> in <em>4.3</em> always use the pure CO₂ factors <span class="math notranslate nohighlight">\(\texttip{c_{CO_2}}{CO2 factor of the fuel on Hi (gas 0,201 t/MWh)}\)</span>, <span class="math notranslate nohighlight">\(\texttip{c_{CO_2,el}}{CO2 factor of electricity, 0,352 t/MWh}\)</span>: BEHG and EU ETS price only the CO₂ from combustion.</p>
+<p><strong>Final energy saving</strong> is the difference in final energy, fuel and electricity alike:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{\Delta E}{Final energy saving per year [kWh/a]} = (\texttip{E_{fuel}}{Fuel used per year, on Hs [kWh/a]} + \texttip{E_{cool}}{Electricity of the remaining cooling per year [kWh/a]})_{ref} - (\texttip{E_{fuel}}{Fuel used per year, on Hs [kWh/a]} + \texttip{E_{el}}{Electricity of the heat pump per year [kWh/a]} + \texttip{E_{cool}}{Electricity of the remaining cooling per year [kWh/a]})_{HP}
+\]</div>
+</section>
+<section id="prices-over-time">
+<h2>4.3 Prices over time<a class="headerlink" href="#prices-over-time" title="Link to this heading">#</a></h2>
+<p>Prices are given for year 0 and change from year 1 at their own rates. The fuel carries a CO₂ cost with its own price path:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{p_{fuel}}{Fuel price in year t incl. CO2 cost [EUR/kWh]}(t) = \texttip{p_{fuel,0}}{Fuel price today, excl. CO2, per kWh Hs [ct/kWh], default 6} \cdot (1 + \texttip{r_{fuel}}{Yearly fuel price change, default 3 percent})^t + \frac{\texttip{c_{CO_2}}{CO2 factor of the fuel on Hi (gas 0,201 t/MWh)}}{1000 \cdot \texttip{H_s/H_i}{Ratio of gross to net calorific value, 1,11 for natural gas}} \cdot \texttip{p_{CO_2,0}}{CO2 price today, default 55 EUR/t} \cdot (1 + \texttip{r_{CO_2}}{Yearly CO2 price change, default 0})^t
+\]</div>
+<div class="math notranslate nohighlight">
+\[
+\texttip{p_{el}}{Electricity price in year t [EUR/kWh]}(t) = \texttip{p_{el,0}}{Electricity price today [ct/kWh], default 13} \cdot (1 + \texttip{r_{el}}{Yearly electricity price change, default 3 percent})^t \;\big[ + \tfrac{\texttip{c_{CO_2,el}}{CO2 factor of electricity, 0,352 t/MWh}}{1000} \cdot \texttip{p_{CO_2,0}}{CO2 price today, default 55 EUR/t} \cdot (1 + \texttip{r_{CO_2}}{Yearly CO2 price change, default 0})^t \big]
+\]</div>
+<p>The bracket counts only when <em>Add CO₂ cost on electricity</em> is on. This is [4646:2026] eq. (23) and (29), p. 57 and 61. [4646:2026] assumes constant prices (all <span class="math notranslate nohighlight">\(r = 0\)</span>, p. 57). The app’s default is +3 %/a for fuel and electricity (CO₂ and investment 0 %): a deliberate deviation, allowed by [2067-1:2012] §6.9, p. 12, which permits change rates per cost type. The same rate on both sides keeps the electricity-to-gas price ratio constant; set both to 0 for the VDI 4646:2026 case. Today’s price grown by one year equals the “first-year cost” <span class="math notranslate nohighlight">\(A_{V1}\)</span> of [2067-1:2012] eq. (6), so the two conventions agree.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>fuel_price</code>, <code>el_price</code>)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">fuel_price</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">EconInputs</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fuel price incl. CO₂ cost in year t, € per kWh_Hs. The CO₂ factor is per</span>
+<span class="sd">    kWh_Hi, so per kWh_Hs it is divided by Hs/Hi.&quot;&quot;&quot;</span>
+    <span class="n">co2</span> <span class="o">=</span> <span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">co2Fuel</span> <span class="o">/</span> <span class="n">inp</span><span class="o">.</span><span class="n">hsHi</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">_co2_at</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">co2Priced</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">inp</span><span class="o">.</span><span class="n">pFuel</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">inp</span><span class="o">.</span><span class="n">rFuel</span><span class="p">)</span> <span class="o">**</span> <span class="n">t</span> <span class="o">+</span> <span class="n">co2</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">el_price</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">EconInputs</span><span class="p">,</span> <span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Electricity price in year t, €/kWh, with its CO₂ cost when that is not</span>
+<span class="sd">    already in the price.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">inp</span><span class="o">.</span><span class="n">pEl</span> <span class="o">*</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">inp</span><span class="o">.</span><span class="n">rEl</span><span class="p">)</span> <span class="o">**</span> <span class="n">t</span> <span class="o">+</span> <span class="p">((</span><span class="n">inp</span><span class="o">.</span><span class="n">co2El</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">)</span> <span class="o">*</span> <span class="n">_co2_at</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">co2ElPriced</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+<section id="operating-costs-per-year">
+<h2>4.4 Operating costs per year<a class="headerlink" href="#operating-costs-per-year" title="Link to this heading">#</a></h2>
+<div class="math notranslate nohighlight">
+\[
+\texttip{K}{Operating costs in year t [EUR]}(t) = \texttip{E_{fuel}}{Fuel used per year, on Hs [kWh/a]} \cdot \texttip{p_{fuel}}{Fuel price in year t incl. CO2 cost [EUR/kWh]}(t) + (\texttip{E_{el}}{Electricity of the heat pump per year [kWh/a]} + \texttip{E_{cool}}{Electricity of the remaining cooling per year [kWh/a]}) \cdot \texttip{p_{el}}{Electricity price in year t [EUR/kWh]}(t) + \texttip{f_M}{Maintenance per year as share of the investment, 2,5 percent} \cdot \texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]} + \texttip{t_{AB}}{Operation effort [h/a], default 5} \cdot \texttip{w}{Hourly rate for operation, default 100 EUR/h} + \texttip{p_C}{Capacity charge [EUR per kW el and year], default off} \cdot \texttip{P_{el}}{Electrical power of the heat pump = heat output / COP [kW]} - \texttip{f_{k,ref}}{Maintenance of the avoided boiler, 3 percent per year} \cdot \texttip{I_{ref}}{Avoided boiler investment = boiler price per kW x heat output (0 in the efficiency case)} - \texttip{F_{op}}{Operating funding received in year t [EUR]}(t)
+\]</div>
+<p>with <span class="math notranslate nohighlight">\(\texttip{P_{el}}{Electrical power of the heat pump = heat output / COP [kW]} = \texttip{\dot{Q}}{Heat output of the heat pump [kW]} / \texttip{COP}{Coefficient of performance of the heat pump}\)</span>, the avoided boiler investment <span class="math notranslate nohighlight">\(\texttip{I_{ref}}{Avoided boiler investment = boiler price per kW x heat output (0 in the efficiency case)} = \texttip{c_{boiler}}{Avoided boiler investment per kW of heat pump (replacement case), 200 EUR/kW when on} \cdot \texttip{\dot{Q}}{Heat output of the heat pump [kW]}\)</span> (0 in the default efficiency case) and the operating funding</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+\texttip{F_{op}}{Operating funding received in year t [EUR]}(t) = \begin{cases} \texttip{f_{op}}{Operating funding per MWh of heat, default off} \cdot \texttip{\dot{Q}}{Heat output of the heat pump [kW]} \cdot \texttip{h}{Full-load hours [h/a], default 6.000} &amp; t \le \texttip{t_{op}}{Years the operating funding is paid, default 10} \\ 0 &amp; \text{otherwise} \end{cases}
+\end{split}\]</div>
+<p>These are the demand-related, operation-related and maintenance costs of [2067-1:2012] eq. (6)–(9), p. 18–19, and [4646:2026] eq. (22)–(28), p. 57–60. Maintenance, operation, capacity charge, the saved boiler maintenance and operating funding apply to the heat pump only. The <strong>cost saving in year 1</strong> is <span class="math notranslate nohighlight">\(\texttip{S}{Cost saving in year 1 [EUR]}(1) = \texttip{K_{ref}}{Operating costs of the reference in year t [EUR]}(1) - \texttip{K_{HP}}{Operating costs with the heat pump in year t [EUR]}(1)\)</span> (in the result table).</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>_flows</code>)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">_flows</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">EconInputs</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">EconReference</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">EconVariant</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">_Flows</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Energy flows and fixed costs of a system: the reference alone (v = None)</span>
+<span class="sd">    or a heat pump with the reference covering what the pump leaves.&quot;&quot;&quot;</span>
+    <span class="n">fuel</span> <span class="o">=</span> <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">Q</span> <span class="o">-</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">Q</span> <span class="k">if</span> <span class="n">v</span> <span class="k">else</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">hours</span><span class="p">)</span> <span class="o">/</span> <span class="n">inp</span><span class="o">.</span><span class="n">eta</span>
+    <span class="n">el</span> <span class="o">=</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">Q</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">hours</span><span class="p">)</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">cop</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">cop</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="n">el_cool</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">ref</span><span class="o">.</span><span class="n">Qsrc</span> <span class="o">-</span> <span class="p">(</span><span class="n">v</span><span class="o">.</span><span class="n">Qsrc</span> <span class="k">if</span> <span class="n">v</span> <span class="k">else</span> <span class="mi">0</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">hours</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">coolShare</span><span class="p">)</span> <span class="o">/</span> <span class="n">inp</span><span class="o">.</span><span class="n">eer</span>
+        <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">eer</span> <span class="o">&gt;</span> <span class="mi">0</span>
+        <span class="k">else</span> <span class="mi">0</span>
+    <span class="p">)</span>
+    <span class="n">p_el_kw</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">Q</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">cop</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">v</span><span class="o">.</span><span class="n">cop</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="c1"># Heat pump only: maintenance, operation, capacity charge; minus the</span>
+    <span class="c1"># maintenance of a boiler that no longer has to be bought (replacement case).</span>
+    <span class="n">fixed</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">inp</span><span class="o">.</span><span class="n">fMaint</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">capex</span> <span class="o">+</span> <span class="n">inp</span><span class="o">.</span><span class="n">opHours</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">wage</span> <span class="o">+</span> <span class="n">inp</span><span class="o">.</span><span class="n">pDemand</span> <span class="o">*</span> <span class="n">p_el_kw</span>
+        <span class="o">-</span> <span class="n">inp</span><span class="o">.</span><span class="n">fMaintRef</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">boilerInvest</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">Q</span>
+        <span class="k">if</span> <span class="n">v</span>
+        <span class="k">else</span> <span class="mi">0</span>
+    <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">cost</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="c1"># Operating funding lowers the heat pump&#39;s cost while it is paid.</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">fuel</span> <span class="o">*</span> <span class="n">fuel_price</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+            <span class="o">+</span> <span class="p">(</span><span class="n">el</span> <span class="o">+</span> <span class="n">el_cool</span><span class="p">)</span> <span class="o">*</span> <span class="n">el_price</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">fixed</span>
+            <span class="o">-</span> <span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">opFunding</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">Q</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">hours</span> <span class="k">if</span> <span class="n">v</span> <span class="ow">and</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="n">inp</span><span class="o">.</span><span class="n">opFundingYears</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">_Flows</span><span class="p">(</span>
+        <span class="n">fuel</span><span class="o">=</span><span class="n">fuel</span><span class="p">,</span>
+        <span class="n">el</span><span class="o">=</span><span class="n">el</span><span class="p">,</span>
+        <span class="n">elCool</span><span class="o">=</span><span class="n">el_cool</span><span class="p">,</span>
+        <span class="n">co2</span><span class="o">=</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">fuel</span> <span class="o">/</span> <span class="n">inp</span><span class="o">.</span><span class="n">hsHi</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">co2Fuel</span> <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">co2eFuel</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">inp</span><span class="o">.</span><span class="n">co2eFuel</span><span class="p">)</span>
+            <span class="o">+</span> <span class="p">(</span><span class="n">el</span> <span class="o">+</span> <span class="n">el_cool</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">co2El</span> <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">co2eEl</span> <span class="ow">is</span> <span class="kc">None</span> <span class="k">else</span> <span class="n">inp</span><span class="o">.</span><span class="n">co2eEl</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="mi">1000</span><span class="p">,</span>
+        <span class="n">cost</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span>
+    <span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+<section id="net-present-value">
+<h2>4.5 Net present value<a class="headerlink" href="#net-present-value" title="Link to this heading">#</a></h2>
+<p>The yearly cash flow is what the heat pump saves against the reference:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{CF}{Cash flow in year t: what the heat pump saves [EUR]}(t) = \texttip{K_{ref}}{Operating costs of the reference in year t [EUR]}(t) - \texttip{K_{HP}}{Operating costs with the heat pump in year t [EUR]}(t)
+\]</div>
+<p>The net present value discounts every cash flow to year 0, after the investment net of funding, the avoided boiler investment, any reinvestment <span class="math notranslate nohighlight">\(\texttip{R}{Replacements and reinvestment in year t [EUR]}(t)\)</span> and the residual value at the end of the period:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{NPV}{Net present value (Kapitalwert) [EUR]} = -(1 - \texttip{\varphi}{Investment funding as share of the investment, default 0}) \cdot \texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]} + \texttip{I_{ref}}{Avoided boiler investment = boiler price per kW x heat output (0 in the efficiency case)} + \sum_{t=1}^{\texttip{T}{Period of analysis [a], default 20}} \frac{\texttip{CF}{Cash flow in year t: what the heat pump saves [EUR]}(t) - \texttip{R}{Replacements and reinvestment in year t [EUR]}(t)}{(1 + \texttip{i}{Discount rate, default 8 percent})^t} + \frac{\texttip{RV}{Residual value after T years [EUR]}}{(1 + \texttip{i}{Discount rate, default 8 percent})^\texttip{T}{Period of analysis [a], default 20}}
+\]</div>
+<p><span class="math notranslate nohighlight">\(\texttip{R}{Replacements and reinvestment in year t [EUR]}(t)\)</span> are the <strong>replacements</strong> of [2067-1:2012] eq. (1)–(2), p. 16–17 — the heat pump is bought again at the end of each service life, at the then-current price — plus the optional reinvestment (share × <span class="math notranslate nohighlight">\(\texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]}\)</span> in its year):</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{R}{Replacements and reinvestment in year t [EUR]}(t) = \texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]} \cdot (1 + \texttip{r_{inv}}{Yearly price change of the investment, default 0})^t \quad \text{at } t = \texttip{L}{Service life of the heat pump, 20 a}, 2\texttip{L}{Service life of the heat pump, 20 a}, \dots &lt; \texttip{T}{Period of analysis [a], default 20}
+\]</div>
+<p>The <strong>residual value</strong> is the last purchase, depreciated linearly over its service life ([2067-1:2012] eq. (3), p. 17):</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{RV}{Residual value after T years [EUR]} = \texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]} \cdot (1 + \texttip{r_{inv}}{Yearly price change of the investment, default 0})^{nL} \cdot \frac{(n+1) \cdot \texttip{L}{Service life of the heat pump, 20 a} - \texttip{T}{Period of analysis [a], default 20}}{\texttip{L}{Service life of the heat pump, 20 a}}, \qquad n = \lceil \texttip{T}{Period of analysis [a], default 20}/\texttip{L}{Service life of the heat pump, 20 a} \rceil - 1
+\]</div>
+<p>A positive NPV means the heat pump earns more over <span class="math notranslate nohighlight">\(\texttip{T}{Period of analysis [a], default 20}\)</span> years than the money would earn at the discount rate <span class="math notranslate nohighlight">\(\texttip{i}{Discount rate, default 8 percent}\)</span>. The annuity of [2067-1:2012] eq. (12) / [4646:2026] eq. (22) is the same result spread over the years: <span class="math notranslate nohighlight">\(A = \texttip{NPV}{Net present value (Kapitalwert) [EUR]} \cdot a\)</span> with the annuity factor <span class="math notranslate nohighlight">\(a = \texttip{i}{Discount rate, default 8 percent} / (1 - (1+\texttip{i}{Discount rate, default 8 percent})^{-\texttip{T}{Period of analysis [a], default 20}})\)</span> ([2067-1:2012] eq. (4), p. 17; [4646:2026] eq. (24), p. 57).</p>
+</section>
+<section id="dynamic-payback">
+<h2>4.6 Dynamic payback<a class="headerlink" href="#dynamic-payback" title="Link to this heading">#</a></h2>
+<p>The <strong>dynamic payback</strong> is the time until the cumulated, discounted cash flows have recovered the net investment:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{NPV}{Net present value (Kapitalwert) [EUR]}(k) = -(1 - \texttip{\varphi}{Investment funding as share of the investment, default 0}) \cdot \texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]} + \texttip{I_{ref}}{Avoided boiler investment = boiler price per kW x heat output (0 in the efficiency case)} + \sum_{t=1}^{k} \frac{\texttip{CF}{Cash flow in year t: what the heat pump saves [EUR]}(t) - \texttip{R}{Replacements and reinvestment in year t [EUR]}(t)}{(1 + \texttip{i}{Discount rate, default 8 percent})^t}, \qquad k^* = \min \{ k : \texttip{NPV}{Net present value (Kapitalwert) [EUR]}(k) \ge 0 \}
+\]</div>
+<p>Within the year <span class="math notranslate nohighlight">\(k^*\)</span> it is interpolated linearly, so it has one decimal:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{t_P}{Dynamic payback [a], one decimal} = k^* - 1 + \frac{-\texttip{NPV}{Net present value (Kapitalwert) [EUR]}(k^*-1)}{\texttip{NPV}{Net present value (Kapitalwert) [EUR]}(k^*) - \texttip{NPV}{Net present value (Kapitalwert) [EUR]}(k^*-1)}
+\]</div>
+<p>It is shown as “8,2 years / 2035”: the years, and the calendar year <span class="math notranslate nohighlight">\(\texttip{t_0}{First year of operation = year 0 (investment paid)} + \lceil \texttip{t_P}{Dynamic payback [a], one decimal} \rceil\)</span> in which it is reached. The search runs past <span class="math notranslate nohighlight">\(\texttip{T}{Period of analysis [a], default 20}\)</span> up to <strong>40 years</strong>, so a pump that pays back after the period still gets a value. The residual value is left out here: it is not cash in hand before the end of the period.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>evaluate</code>)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">evaluate</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">EconInputs</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">EconReference</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">EconVariant</span><span class="p">,</span> <span class="n">with_irr</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;All results of one heat pump. `with_irr=False` skips the internal rate</span>
+<span class="sd">    of return, the one costly result, where only the NPV is wanted.&quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_flows</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">h</span> <span class="o">=</span> <span class="n">_flows</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span>
+    <span class="c1"># A boiler that no longer has to be bought counts as income at t = 0.</span>
+    <span class="n">net_invest</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">inp</span><span class="o">.</span><span class="n">funding</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">capex</span> <span class="o">-</span> <span class="n">inp</span><span class="o">.</span><span class="n">boilerInvest</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">Q</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">rate</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">inp</span><span class="o">.</span><span class="n">i</span><span class="p">)</span> <span class="o">**</span> <span class="n">t</span>
+
+    <span class="n">npv_curve</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="n">net_invest</span><span class="p">]</span>
+    <span class="n">npv</span> <span class="o">=</span> <span class="o">-</span><span class="n">net_invest</span>
+    <span class="c1"># Years to pay back, interpolated within the year the Kapitalwert turns positive.</span>
+    <span class="n">payback</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">npv</span> <span class="o">&gt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+    <span class="n">cum_cost</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="nb">max</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">PAYBACK_HORIZON</span><span class="p">))</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">cost</span> <span class="o">=</span> <span class="n">h</span><span class="o">.</span><span class="n">cost</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">reinvest</span> <span class="o">=</span> <span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">reinvestShare</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">capex</span> <span class="k">if</span> <span class="n">t</span> <span class="o">==</span> <span class="n">inp</span><span class="o">.</span><span class="n">reinvestYear</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">_replacement</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">capex</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">npv</span>
+        <span class="n">npv</span> <span class="o">+=</span> <span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">cost</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="o">-</span> <span class="n">cost</span> <span class="o">-</span> <span class="n">reinvest</span><span class="p">)</span> <span class="o">/</span> <span class="n">rate</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">payback</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">npv</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">payback</span> <span class="o">=</span> <span class="n">t</span> <span class="o">-</span> <span class="mi">1</span> <span class="o">+</span> <span class="o">-</span><span class="n">prev</span> <span class="o">/</span> <span class="p">(</span><span class="n">npv</span> <span class="o">-</span> <span class="n">prev</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="n">inp</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
+            <span class="n">npv_curve</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">npv</span><span class="p">)</span>
+            <span class="n">cum_cost</span> <span class="o">+=</span> <span class="n">cost</span>
+
+    <span class="c1"># Counted in the Kapitalwert, not in the payback curve.</span>
+    <span class="n">residual</span> <span class="o">=</span> <span class="n">residual_value</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">capex</span><span class="p">)</span>
+    <span class="n">npv_T</span> <span class="o">=</span> <span class="n">npv_curve</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="n">residual</span> <span class="o">/</span> <span class="n">rate</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">saving1</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">cost</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">h</span><span class="o">.</span><span class="n">cost</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># LCOH (VDI 4646 eq. 21–23): annuity of a heater&#39;s costs over the heat it</span>
+    <span class="c1"># makes. The heat pump: capital (net of funding, with replacements, less</span>
+    <span class="c1"># residual value) + maintenance and operation + its electricity, of which</span>
+    <span class="c1"># only the share α is charged to heating. The reference heater: its fuel.</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">annuity_factor</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">i</span><span class="p">,</span> <span class="n">inp</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">heat</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">Q</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">hours</span>
+    <span class="n">alpha</span> <span class="o">=</span> <span class="n">allocation_factor</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">cop</span><span class="p">)</span>
+    <span class="n">pv_hp</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">inp</span><span class="o">.</span><span class="n">funding</span><span class="p">)</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">capex</span> <span class="o">-</span> <span class="n">residual</span> <span class="o">/</span> <span class="n">rate</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">T</span><span class="p">)</span>
+    <span class="n">pv_ref</span> <span class="o">=</span> <span class="n">inp</span><span class="o">.</span><span class="n">boilerInvest</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">Q</span>
+    <span class="n">p_el_kw</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">Q</span> <span class="o">/</span> <span class="n">v</span><span class="o">.</span><span class="n">cop</span> <span class="k">if</span> <span class="n">v</span><span class="o">.</span><span class="n">cop</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">T</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">own</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">alpha</span> <span class="o">*</span> <span class="n">h</span><span class="o">.</span><span class="n">el</span> <span class="o">*</span> <span class="n">el_price</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span>
+            <span class="o">+</span> <span class="n">inp</span><span class="o">.</span><span class="n">fMaint</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">capex</span>
+            <span class="o">+</span> <span class="n">inp</span><span class="o">.</span><span class="n">opHours</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">wage</span>
+            <span class="o">+</span> <span class="n">inp</span><span class="o">.</span><span class="n">pDemand</span> <span class="o">*</span> <span class="n">p_el_kw</span>
+            <span class="o">-</span> <span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">opFunding</span> <span class="o">*</span> <span class="n">heat</span> <span class="k">if</span> <span class="n">t</span> <span class="o">&lt;=</span> <span class="n">inp</span><span class="o">.</span><span class="n">opFundingYears</span> <span class="k">else</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">pv_hp</span> <span class="o">+=</span> <span class="p">(</span><span class="n">own</span> <span class="o">+</span> <span class="n">_replacement</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">v</span><span class="o">.</span><span class="n">capex</span><span class="p">,</span> <span class="n">t</span><span class="p">))</span> <span class="o">/</span> <span class="n">rate</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+        <span class="n">pv_ref</span> <span class="o">+=</span> <span class="p">((</span><span class="n">heat</span> <span class="o">/</span> <span class="n">inp</span><span class="o">.</span><span class="n">eta</span><span class="p">)</span> <span class="o">*</span> <span class="n">fuel_price</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="o">+</span> <span class="n">inp</span><span class="o">.</span><span class="n">fMaintRef</span> <span class="o">*</span> <span class="n">inp</span><span class="o">.</span><span class="n">boilerInvest</span> <span class="o">*</span> <span class="n">v</span><span class="o">.</span><span class="n">Q</span><span class="p">)</span> <span class="o">/</span> <span class="n">rate</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;fuel&quot;</span><span class="p">:</span> <span class="n">h</span><span class="o">.</span><span class="n">fuel</span><span class="p">,</span>
+        <span class="s2">&quot;el&quot;</span><span class="p">:</span> <span class="n">h</span><span class="o">.</span><span class="n">el</span><span class="p">,</span>
+        <span class="s2">&quot;elCool&quot;</span><span class="p">:</span> <span class="n">h</span><span class="o">.</span><span class="n">elCool</span><span class="p">,</span>
+        <span class="s2">&quot;co2&quot;</span><span class="p">:</span> <span class="n">h</span><span class="o">.</span><span class="n">co2</span><span class="p">,</span>
+        <span class="s2">&quot;opex1&quot;</span><span class="p">:</span> <span class="n">h</span><span class="o">.</span><span class="n">cost</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span>
+        <span class="s2">&quot;energySaving&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">fuel</span> <span class="o">+</span> <span class="n">r</span><span class="o">.</span><span class="n">elCool</span> <span class="o">-</span> <span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">fuel</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">el</span> <span class="o">+</span> <span class="n">h</span><span class="o">.</span><span class="n">elCool</span><span class="p">),</span>
+        <span class="s2">&quot;saving1&quot;</span><span class="p">:</span> <span class="n">saving1</span><span class="p">,</span>
+        <span class="s2">&quot;co2Saving&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">co2</span> <span class="o">-</span> <span class="n">h</span><span class="o">.</span><span class="n">co2</span><span class="p">,</span>
+        <span class="s2">&quot;npvCurve&quot;</span><span class="p">:</span> <span class="n">npv_curve</span><span class="p">,</span>
+        <span class="s2">&quot;residual&quot;</span><span class="p">:</span> <span class="n">residual</span><span class="p">,</span>
+        <span class="s2">&quot;npv&quot;</span><span class="p">:</span> <span class="n">npv_T</span><span class="p">,</span>
+        <span class="s2">&quot;payback&quot;</span><span class="p">:</span> <span class="n">payback</span><span class="p">,</span>
+        <span class="s2">&quot;paybackStatic&quot;</span><span class="p">:</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">net_invest</span> <span class="o">&lt;=</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="n">net_invest</span> <span class="o">/</span> <span class="n">saving1</span> <span class="k">if</span> <span class="n">saving1</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span><span class="p">),</span>
+        <span class="s2">&quot;irr&quot;</span><span class="p">:</span> <span class="n">_internal_rate</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">ref</span><span class="p">,</span> <span class="n">v</span><span class="p">)</span> <span class="k">if</span> <span class="n">with_irr</span> <span class="k">else</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s2">&quot;lcohHp&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">pv_hp</span><span class="p">)</span> <span class="o">/</span> <span class="n">heat</span> <span class="k">if</span> <span class="n">heat</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;lcohRef&quot;</span><span class="p">:</span> <span class="p">(</span><span class="n">a</span> <span class="o">*</span> <span class="n">pv_ref</span><span class="p">)</span> <span class="o">/</span> <span class="n">heat</span> <span class="k">if</span> <span class="n">heat</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;alpha&quot;</span><span class="p">:</span> <span class="n">alpha</span><span class="p">,</span>
+        <span class="s2">&quot;cumCost&quot;</span><span class="p">:</span> <span class="n">cum_cost</span><span class="p">,</span>
+    <span class="p">}</span>
+</pre></div>
+</div>
+</details>
+</section>
+<section id="break-even-electricity-price">
+<h2>4.7 Break-even electricity price<a class="headerlink" href="#break-even-electricity-price" title="Link to this heading">#</a></h2>
+<p>For a given fuel price, the <strong>break-even electricity price</strong> <span class="math notranslate nohighlight">\(\texttip{p_{el}^*}{Break-even electricity price: NPV = 0, below it the heat pump wins}\)</span> is the one at which the NPV is exactly zero. Below it the heat pump wins. The NPV is linear in the electricity price, so two evaluations give the root exactly:</p>
+<div class="math notranslate nohighlight">
+\[
+\texttip{p_{el}^*}{Break-even electricity price: NPV = 0, below it the heat pump wins} = -\frac{\texttip{NPV}{Net present value (Kapitalwert) [EUR]}(\texttip{p_{el}}{Electricity price in year t [EUR/kWh]} = 0)}{\texttip{NPV}{Net present value (Kapitalwert) [EUR]}(\texttip{p_{el}}{Electricity price in year t [EUR/kWh]} = 1) - \texttip{NPV}{Net present value (Kapitalwert) [EUR]}(\texttip{p_{el}}{Electricity price in year t [EUR/kWh]} = 0)}
+\]</div>
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>break_even_el_price</code>)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">break_even_el_price</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">EconInputs</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="n">EconReference</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="n">EconVariant</span><span class="p">,</span> <span class="n">p_fuel</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Electricity price [€/kWh] at which the Kapitalwert is exactly 0 for a given</span>
+<span class="sd">    fuel price: below it the heat pump beats the reference. The Kapitalwert is</span>
+<span class="sd">    linear in the electricity price, so two evaluations pin the root exactly.</span>
+<span class="sd">    None when the electricity price has no effect.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">at</span><span class="p">(</span><span class="n">p_el</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">npv_at</span><span class="p">(</span><span class="n">dc_replace</span><span class="p">(</span><span class="n">inp</span><span class="p">,</span> <span class="n">pFuel</span><span class="o">=</span><span class="n">p_fuel</span><span class="p">,</span> <span class="n">pEl</span><span class="o">=</span><span class="n">p_el</span><span class="p">),</span> <span class="n">ref</span><span class="p">,</span> <span class="n">v</span><span class="p">,</span> <span class="n">inp</span><span class="o">.</span><span class="n">i</span><span class="p">)</span>
+
+    <span class="n">npv0</span> <span class="o">=</span> <span class="n">at</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="n">at</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">-</span> <span class="n">npv0</span>
+    <span class="k">return</span> <span class="o">-</span><span class="n">npv0</span> <span class="o">/</span> <span class="n">slope</span> <span class="k">if</span> <span class="n">slope</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="kc">None</span>
+</pre></div>
+</div>
+</details>
+</section>
+<section id="heat-cost-lcoh-and-the-other-vdi-4646-2026-results">
+<h2>4.8 Heat cost (LCOH) and the other VDI 4646:2026 results<a class="headerlink" href="#heat-cost-lcoh-and-the-other-vdi-4646-2026-results" title="Link to this heading">#</a></h2>
+<p>The <strong>heat cost of the heat pump</strong> is a key result (with the reference’s heat cost underneath); the rest is under <em>Detailed results</em>.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Result</p></th>
+<th class="head"><p>Formula</p></th>
+<th class="head"><p>Source</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Heat cost of the heat pump</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{LCOH_{HP}}{Heat cost of the heat pump [EUR/kWh heat]} = a \cdot \Big[(1-\texttip{\varphi}{Investment funding as share of the investment, default 0}) \texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]} - \dfrac{\texttip{RV}{Residual value after T years [EUR]}}{(1+\texttip{i}{Discount rate, default 8 percent})^\texttip{T}{Period of analysis [a], default 20}} + \displaystyle\sum_{t=1}^{\texttip{T}{Period of analysis [a], default 20}} \dfrac{\texttip{\alpha}{Allocation factor (Finnish method): share of the electricity charged to heat} \texttip{E_{el}}{Electricity of the heat pump per year [kWh/a]} \texttip{p_{el}}{Electricity price in year t [EUR/kWh]}(t) + \texttip{f_M}{Maintenance per year as share of the investment, 2,5 percent} \texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]} + \texttip{t_{AB}}{Operation effort [h/a], default 5} \texttip{w}{Hourly rate for operation, default 100 EUR/h} + \texttip{p_C}{Capacity charge [EUR per kW el and year], default off} \texttip{P_{el}}{Electrical power of the heat pump = heat output / COP [kW]} - \texttip{F_{op}}{Operating funding received in year t [EUR]}(t) + \texttip{R_L}{Replacement purchases at the end of each service life [EUR]}(t)}{(1+\texttip{i}{Discount rate, default 8 percent})^t}\Big] \Big/ (\texttip{\dot{Q}}{Heat output of the heat pump [kW]} \texttip{h}{Full-load hours [h/a], default 6.000})\)</span></p></td>
+<td><p>[4646:2026] eq. (21)–(23), p. 57</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Heat cost of the reference</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{LCOH_{ref}}{Heat cost of the reference heater [EUR/kWh heat]} = a \cdot \Big[\texttip{I_{ref}}{Avoided boiler investment = boiler price per kW x heat output (0 in the efficiency case)} + \displaystyle\sum_{t=1}^{\texttip{T}{Period of analysis [a], default 20}} \dfrac{\texttip{\dot{Q}}{Heat output of the heat pump [kW]} \texttip{h}{Full-load hours [h/a], default 6.000} / \texttip{\eta}{Efficiency of the reference heater on Hs, default 87 percent (gas)} \cdot \texttip{p_{fuel}}{Fuel price in year t incl. CO2 cost [EUR/kWh]}(t) + \texttip{f_{k,ref}}{Maintenance of the avoided boiler, 3 percent per year} \texttip{I_{ref}}{Avoided boiler investment = boiler price per kW x heat output (0 in the efficiency case)}}{(1+\texttip{i}{Discount rate, default 8 percent})^t}\Big] \Big/ (\texttip{\dot{Q}}{Heat output of the heat pump [kW]} \texttip{h}{Full-load hours [h/a], default 6.000})\)</span></p></td>
+<td><p>[4646:2026] p. 61 (efficiency case: fuel costs only)</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Allocation factor</strong> (Finnish method)</p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{\alpha}{Allocation factor (Finnish method): share of the electricity charged to heat} = \dfrac{\texttip{COP}{Coefficient of performance of the heat pump}/\texttip{\eta}{Efficiency of the reference heater on Hs, default 87 percent (gas)}}{\texttip{COP}{Coefficient of performance of the heat pump}/\texttip{\eta}{Efficiency of the reference heater on Hs, default 87 percent (gas)} + a \cdot (\texttip{COP}{Coefficient of performance of the heat pump}-1)/\texttip{EER}{Cooling COP of today's cooling, default 4}}\)</span>, <span class="math notranslate nohighlight">\(\texttip{COP_\alpha}{Allocated COP = COP / alpha} = \texttip{COP}{Coefficient of performance of the heat pump}/\texttip{\alpha}{Allocation factor (Finnish method): share of the electricity charged to heat}\)</span></p></td>
+<td><p>[4646:2026] eq. (17)–(19), p. 55–57</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Static payback</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{PP}{Static payback [a]} = \dfrac{(1-\texttip{\varphi}{Investment funding as share of the investment, default 0}) \cdot \texttip{I}{Investment of the heat pump = price per kW x planning factor x integration factor x heat output [EUR]} - \texttip{I_{ref}}{Avoided boiler investment = boiler price per kW x heat output (0 in the efficiency case)}}{\texttip{S}{Cost saving in year 1 [EUR]}(1)}\)</span></p></td>
+<td><p>[4646:2026] eq. (C5), p. 90</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Internal rate of return</strong></p></td>
+<td><p>the discount rate at which <span class="math notranslate nohighlight">\(\texttip{NPV}{Net present value (Kapitalwert) [EUR]} = 0\)</span></p></td>
+<td><p>[4646:2026] eq. (C6), p. 91</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>VDI cost function</strong> (reference only)</p></td>
+<td><p><span class="math notranslate nohighlight">\(k_{Inv} = F_{WP} \, \texttip{\dot{Q}}{Heat output of the heat pump [kW]}^{E_{WP}} \cdot 1{,}25 \cdot 1{,}8 / \texttip{\dot{Q}}{Heat output of the heat pump [kW]}\)</span></p></td>
+<td><p>[4646:2026] eq. (26), Tabelle 6, p. 58–59</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="math notranslate nohighlight">\(\texttip{R_L}{Replacement purchases at the end of each service life [EUR]}(t)\)</span> are the replacements at the end of each service life (the optional reinvestment is not in the LCOH). Both heat costs are for the heat the pump makes, <span class="math notranslate nohighlight">\(\texttip{\dot{Q}}{Heat output of the heat pump [kW]} \texttip{h}{Full-load hours [h/a], default 6.000}\)</span>, so they compare like with like.</p>
+<p><strong>Finnish method.</strong> When the heat pump’s cold side replaces cooling, the pump makes two products, heat and cold. Its electricity is split by what each would cost made separately: heat from the boiler (<span class="math notranslate nohighlight">\(\texttip{COP}{Coefficient of performance of the heat pump}/\texttip{\eta}{Efficiency of the reference heater on Hs, default 87 percent (gas)}\)</span>), cold from the existing cooling (<span class="math notranslate nohighlight">\(a \cdot (\texttip{COP}{Coefficient of performance of the heat pump}-1)/\texttip{EER}{Cooling COP of today's cooling, default 4}\)</span>). Only the share <span class="math notranslate nohighlight">\(\texttip{\alpha}{Allocation factor (Finnish method): share of the electricity charged to heat}\)</span> is charged to heat. The app multiplies the cooling term by the actively cooled share <span class="math notranslate nohighlight">\(a\)</span> — <strong>an extension of [4646:2026]</strong>, whose formula assumes the whole cold side is useful (the case <span class="math notranslate nohighlight">\(a = 1\)</span>); cold that replaces no chiller earns no credit, so with <span class="math notranslate nohighlight">\(a = 0\)</span>, <span class="math notranslate nohighlight">\(\texttip{\alpha}{Allocation factor (Finnish method): share of the electricity charged to heat} = 1\)</span>. The NPV and payback need no split: they compare the whole systems, heating and cooling, as in [4646:2026] Bild 9, p. 54.</p>
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/economics/formulas.py</code> (<code>allocation_factor</code>, <code>vdi_specific_cost</code>)</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">allocation_factor</span><span class="p">(</span><span class="n">inp</span><span class="p">:</span> <span class="n">EconInputs</span><span class="p">,</span> <span class="n">cop</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Finnish allocation factor (VDI 4646 eq. 17/18): the share of the heat</span>
+<span class="sd">    pump&#39;s electricity that is charged to heating when its cold side also</span>
+<span class="sd">    replaces cooling. Only the actively cooled share of the source heat counts</span>
+<span class="sd">    as useful cooling, so with nothing cooled today α = 1.&quot;&quot;&quot;</span>
+    <span class="n">heat</span> <span class="o">=</span> <span class="n">cop</span> <span class="o">/</span> <span class="n">inp</span><span class="o">.</span><span class="n">eta</span>
+    <span class="n">cold</span> <span class="o">=</span> <span class="p">(</span><span class="n">inp</span><span class="o">.</span><span class="n">coolShare</span> <span class="o">*</span> <span class="nb">max</span><span class="p">(</span><span class="n">cop</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span> <span class="o">/</span> <span class="n">inp</span><span class="o">.</span><span class="n">eer</span> <span class="k">if</span> <span class="n">inp</span><span class="o">.</span><span class="n">eer</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="n">heat</span> <span class="o">/</span> <span class="p">(</span><span class="n">heat</span> <span class="o">+</span> <span class="n">cold</span><span class="p">)</span>
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">vdi_specific_cost</span><span class="p">(</span><span class="n">Q</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;VDI 4646 cost function (eq. 25/26, Tabelle 6): specific investment of a</span>
+<span class="sd">    large heat pump incl. planning, installation and integration, €/kW_th.</span>
+<span class="sd">    Shown for reference only; the app&#39;s default comes from newer literature.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">Q</span> <span class="o">&lt;=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mi">0</span>
+    <span class="n">F</span><span class="p">,</span> <span class="n">E</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1521</span><span class="p">,</span> <span class="mf">0.637</span><span class="p">)</span> <span class="k">if</span> <span class="n">Q</span> <span class="o">&lt;=</span> <span class="mi">210</span> <span class="k">else</span> <span class="p">(</span><span class="mf">349.5</span><span class="p">,</span> <span class="mf">0.912</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">F</span> <span class="o">*</span> <span class="n">Q</span> <span class="o">**</span> <span class="n">E</span> <span class="o">*</span> <span class="mf">1.25</span> <span class="o">*</span> <span class="mf">1.8</span><span class="p">)</span> <span class="o">/</span> <span class="n">Q</span>
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="what-the-page-shows">
+<h2>What the page shows<a class="headerlink" href="#what-the-page-shows" title="Link to this heading">#</a></h2>
+<p><strong>Key results</strong> (one card each): dynamic payback (<span class="math notranslate nohighlight">\(\texttip{t_P}{Dynamic payback [a], one decimal}\)</span>, <em>4.6</em>), net present value (<em>4.5</em>), heat cost of the heat pump with the reference’s underneath (<em>4.8</em>), CO₂ saving (<em>4.2</em>) and break-even electricity price (<em>4.7</em>). Every result row has a help bulb with its formula and source.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Chart</p></th>
+<th class="head"><p>What it shows</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Costs over <span class="math notranslate nohighlight">\(\texttip{T}{Period of analysis [a], default 20}\)</span> years</strong></p></td>
+<td><p>One stacked bar per system: the nominal (undiscounted) operating costs over <span class="math notranslate nohighlight">\(\texttip{T}{Period of analysis [a], default 20}\)</span>, with the investment on top. In the replacement case the reference bar carries the boiler investment it would have to make (<span class="math notranslate nohighlight">\(\texttip{c_{boiler}}{Avoided boiler investment per kW of heat pump (replacement case), 200 EUR/kW when on} \cdot \texttip{\dot{Q}}{Heat output of the heat pump [kW]}\)</span>). The total is written above each bar; the legend gives the investment’s share.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Energy price development</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{p_{fuel}}{Fuel price in year t incl. CO2 cost [EUR/kWh]}(t)\)</span> with and without CO₂, and <span class="math notranslate nohighlight">\(\texttip{p_{el}}{Electricity price in year t [EUR/kWh]}(t)\)</span> over the period.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>NPV over time</strong></p></td>
+<td><p><span class="math notranslate nohighlight">\(\texttip{NPV}{Net present value (Kapitalwert) [EUR]}(k)\)</span> year by year, past <span class="math notranslate nohighlight">\(\texttip{T}{Period of analysis [a], default 20}\)</span> until payback; red markers before payback, green after; a dotted line marks the end of the period. The legend names the payback year.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Sensitivity map</strong></p></td>
+<td><p>NPV for every pair of fuel and electricity prices, each from 0 to twice the entered price (at most about 14 cells per axis). Cells are red where the reference is cheaper and green where the heat pump pays off; the dashed line between them is <span class="math notranslate nohighlight">\(\texttip{p_{el}^*}{Break-even electricity price: NPV = 0, below it the heat pump wins}\)</span>, with the exact price pair on hover. The “WP” box marks the entered prices. Clicking a cell or the line adopts its prices everywhere.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Economic heat pump size</strong></p></td>
+<td><p>NPV against heat output for every real pump on the profiles, keeping the best machine per 1 % of the demand. A smaller pump costs less but leaves more on the old heater; the peak is the economic optimum (open gold ring). The analysed pump is the “WP” box; when it is the optimum, the ring sits around the box. Clicking a point analyses that pump. Source- and demand-limited pumps are left out, as on the optimization chart: on-profile pumps come in duty steps wider than 1 %, so a source-limited pump (partial coverage at a high sink temperature, poor COP) landing in an empty step would otherwise pull the curve down to a loss.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>A plain-language <strong>summary</strong> closes the section: coverage, energy and CO₂ saved, cost saving, investment, payback, NPV and break-even price of the pump analysed.</p>
+<section id="scenario-comparison-and-report">
+<h3>Scenario comparison and report<a class="headerlink" href="#scenario-comparison-and-report" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Scenario comparison</strong>: each saved scenario gets its investment, NPV, dynamic payback and cost saving in year 1, plus a bar chart of NPV per scenario. All scenarios use the same inputs.</p></li>
+<li><p><strong>Report</strong>: every scenario page ends with the full cost analysis — key results, all inputs, both result tables, the charts and the summary. The comparison page carries the same economic columns and the NPV-per-scenario chart.</p></li>
+</ul>
+<details>
+<summary><b>Source code:</b> <code>frontend/src/components/analysis/econModel.ts</code> (<code>econReportData</code>)</summary>
+<div class="highlight-typescript notranslate"><div class="highlight"><pre><span></span><span class="k">export</span><span class="w"> </span><span class="kd">function</span><span class="w"> </span><span class="nx">econReportData</span><span class="p">(</span><span class="nx">t</span><span class="o">:</span><span class="w"> </span><span class="kt">TFunction</span><span class="p">,</span><span class="w"> </span><span class="nx">form</span><span class="o">:</span><span class="w"> </span><span class="kt">Form</span><span class="p">,</span><span class="w"> </span><span class="nx">refType</span><span class="o">:</span><span class="w"> </span><span class="kt">RefType</span><span class="p">,</span><span class="w"> </span><span class="nx">n</span><span class="o">:</span><span class="w"> </span><span class="kt">EconNumbers</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="kc">null</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">e</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">buildEconomics</span><span class="p">(</span><span class="nx">t</span><span class="p">,</span><span class="w"> </span><span class="nx">form</span><span class="p">,</span><span class="w"> </span><span class="nx">refType</span><span class="p">,</span><span class="w"> </span><span class="nx">n</span><span class="p">);</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="p">(</span><span class="o">!</span><span class="nx">e</span><span class="p">)</span><span class="w"> </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">  </span><span class="kd">const</span><span class="w"> </span><span class="nx">fmtInput</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">keyof</span><span class="w"> </span><span class="nx">Form</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span>
+<span class="w">    </span><span class="nx">BOOL_FIELDS</span><span class="p">.</span><span class="nx">includes</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span>
+<span class="w">      </span><span class="o">?</span><span class="w"> </span><span class="nx">t</span><span class="p">(</span><span class="nx">form</span><span class="p">[</span><span class="nx">key</span><span class="p">]</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;economics.yes&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;economics.no&#39;</span><span class="p">)</span>
+<span class="w">      </span><span class="o">:</span><span class="w"> </span><span class="nx">formatDe</span><span class="p">(</span><span class="nx">form</span><span class="p">[</span><span class="nx">key</span><span class="p">],</span><span class="w"> </span><span class="mf">4</span><span class="p">,</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;year&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">key</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;reinvestYear&#39;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="kt">t</span><span class="p">(</span><span class="s1">&#39;economics.title&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">pump</span><span class="o">:</span><span class="w"> </span><span class="kt">pointName</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">pump</span><span class="p">),</span>
+<span class="w">    </span><span class="nx">labels</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">key</span><span class="o">:</span><span class="w"> </span><span class="kt">t</span><span class="p">(</span><span class="s1">&#39;economics.blocks.results&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">inputs</span><span class="o">:</span><span class="w"> </span><span class="kt">t</span><span class="p">(</span><span class="s1">&#39;economics.report_inputs&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">results</span><span class="o">:</span><span class="w"> </span><span class="kt">t</span><span class="p">(</span><span class="s1">&#39;economics.report_results&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">charts</span><span class="o">:</span><span class="w"> </span><span class="kt">t</span><span class="p">(</span><span class="s1">&#39;economics.blocks.charts&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">sensitivity</span><span class="o">:</span><span class="w"> </span><span class="kt">t</span><span class="p">(</span><span class="s1">&#39;economics.blocks.sensitivity&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">size</span><span class="o">:</span><span class="w"> </span><span class="kt">t</span><span class="p">(</span><span class="s1">&#39;economics.blocks.size&#39;</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">summary</span><span class="o">:</span><span class="w"> </span><span class="kt">t</span><span class="p">(</span><span class="s1">&#39;economics.blocks.summary&#39;</span><span class="p">),</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nx">kpis</span><span class="o">:</span><span class="w"> </span><span class="kt">e.kpis</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">inputs</span><span class="o">:</span><span class="w"> </span><span class="kt">GROUPS.map</span><span class="p">((</span><span class="nx">g</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<span class="w">      </span><span class="nx">title</span><span class="o">:</span><span class="w"> </span><span class="kt">t</span><span class="p">(</span><span class="sb">`economics.groups.</span><span class="si">${</span><span class="nx">g</span><span class="si">}</span><span class="sb">`</span><span class="p">),</span>
+<span class="w">      </span><span class="nx">rows</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="p">...(</span><span class="nx">g</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s1">&#39;reference&#39;</span>
+<span class="w">          </span><span class="o">?</span><span class="w"> </span><span class="p">[[</span><span class="nx">t</span><span class="p">(</span><span class="s1">&#39;economics.inputs.refType&#39;</span><span class="p">),</span><span class="w"> </span><span class="nx">t</span><span class="p">(</span><span class="sb">`economics.ref.</span><span class="si">${</span><span class="nx">refType</span><span class="si">}</span><span class="sb">`</span><span class="p">),</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">]]</span>
+<span class="w">          </span><span class="o">:</span><span class="w"> </span><span class="p">[]),</span>
+<span class="w">        </span><span class="p">...</span><span class="nx">FIELDS</span><span class="p">.</span><span class="nx">filter</span><span class="p">((</span><span class="nx">f</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">f</span><span class="p">[</span><span class="mf">2</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">g</span><span class="p">).</span><span class="nx">map</span><span class="p">(([</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">unit</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="nx">t</span><span class="p">(</span><span class="sb">`economics.inputs.</span><span class="si">${</span><span class="nx">key</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nx">fuel</span><span class="o">:</span><span class="w"> </span><span class="kt">e.fuel</span><span class="w"> </span><span class="p">}),</span>
+<span class="w">          </span><span class="nx">fmtInput</span><span class="p">(</span><span class="nx">key</span><span class="p">),</span>
+<span class="w">          </span><span class="nx">e</span><span class="p">.</span><span class="nx">unitLabel</span><span class="p">(</span><span class="nx">unit</span><span class="p">),</span>
+<span class="w">        </span><span class="p">]),</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">    </span><span class="p">})),</span>
+<span class="w">    </span><span class="nx">results</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">RESULT_ROWS_ENERGY</span><span class="p">,</span><span class="w"> </span><span class="nx">RESULT_ROWS_MONEY</span><span class="p">].</span><span class="nx">map</span><span class="p">((</span><span class="nx">keys</span><span class="p">,</span><span class="w"> </span><span class="nx">half</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<span class="w">      </span><span class="nx">headers</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">        </span><span class="nx">t</span><span class="p">(</span><span class="nx">half</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="mf">0</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="s1">&#39;economics.section_energy&#39;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;economics.section_money&#39;</span><span class="p">),</span>
+<span class="w">        </span><span class="nx">t</span><span class="p">(</span><span class="s1">&#39;economics.unit&#39;</span><span class="p">),</span>
+<span class="w">        </span><span class="nx">e</span><span class="p">.</span><span class="nx">istName</span><span class="p">,</span>
+<span class="w">        </span><span class="nx">pointName</span><span class="p">(</span><span class="nx">e</span><span class="p">.</span><span class="nx">pump</span><span class="p">),</span>
+<span class="w">      </span><span class="p">],</span>
+<span class="w">      </span><span class="nx">rows</span><span class="o">:</span><span class="w"> </span><span class="kt">keys</span>
+<span class="w">        </span><span class="p">.</span><span class="nx">map</span><span class="p">((</span><span class="nx">k</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">rows</span><span class="p">.</span><span class="nx">find</span><span class="p">((</span><span class="nx">r</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="nx">r</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="nx">k</span><span class="p">)</span><span class="o">!</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="nx">filter</span><span class="p">(</span><span class="nb">Boolean</span><span class="p">)</span>
+<span class="w">        </span><span class="p">.</span><span class="nx">map</span><span class="p">(([</span><span class="nx">key</span><span class="p">,</span><span class="w"> </span><span class="nx">label</span><span class="p">,</span><span class="w"> </span><span class="nx">unit</span><span class="p">,</span><span class="w"> </span><span class="nx">ist</span><span class="p">,</span><span class="w"> </span><span class="nx">vals</span><span class="p">])</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">({</span>
+<span class="w">          </span><span class="nx">cells</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">label</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">unitLabel</span><span class="p">(</span><span class="nx">unit</span><span class="p">),</span><span class="w"> </span><span class="nx">ist</span><span class="p">,</span><span class="w"> </span><span class="nx">vals</span><span class="p">[</span><span class="mf">0</span><span class="p">]],</span>
+<span class="w">          </span><span class="nx">color</span><span class="o">:</span>
+<span class="w">            </span><span class="kt">SIGNED_ROWS.has</span><span class="p">(</span><span class="nx">key</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nx">vals</span><span class="p">[</span><span class="mf">0</span><span class="p">]</span><span class="w"> </span><span class="o">!==</span><span class="w"> </span><span class="s1">&#39;–&#39;</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="p">(</span><span class="nx">vals</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">startsWith</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="nx">RED</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="kt">GREEN</span><span class="p">)</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="p">,</span>
+<span class="w">        </span><span class="p">})),</span>
+<span class="w">    </span><span class="p">})),</span>
+<span class="w">    </span><span class="nx">sens_explain</span><span class="o">:</span><span class="w"> </span><span class="kt">e.sensExplain</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">size_explain</span><span class="o">:</span><span class="w"> </span><span class="kt">e.sizeExplain</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">summary</span><span class="o">:</span><span class="w"> </span><span class="kt">e.summaries</span><span class="p">[</span><span class="mf">0</span><span class="p">],</span>
+<span class="w">    </span><span class="nx">figures</span><span class="o">:</span><span class="w"> </span><span class="p">[</span><span class="nx">e</span><span class="p">.</span><span class="nx">figures</span><span class="p">.</span><span class="nx">bar</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">figures</span><span class="p">.</span><span class="nx">price</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">figures</span><span class="p">.</span><span class="nx">npv</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">figures</span><span class="p">.</span><span class="nx">sens</span><span class="p">,</span><span class="w"> </span><span class="nx">e</span><span class="p">.</span><span class="nx">figures</span><span class="p">.</span><span class="nx">size</span><span class="p">],</span>
+<span class="w">    </span><span class="c1">// Raw numbers for the comparison page.</span>
+<span class="w">    </span><span class="nx">numbers</span><span class="o">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nx">capex</span><span class="o">:</span><span class="w"> </span><span class="kt">e.variants</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">capex</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">npv</span><span class="o">:</span><span class="w"> </span><span class="kt">e.results</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">npv</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">saving1</span><span class="o">:</span><span class="w"> </span><span class="kt">e.results</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">saving1</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">payback</span><span class="o">:</span><span class="w"> </span><span class="kt">e.results</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">payback</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">co2_saving</span><span class="o">:</span><span class="w"> </span><span class="kt">e.results</span><span class="p">[</span><span class="mf">0</span><span class="p">].</span><span class="nx">co2Saving</span><span class="p">,</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">  </span><span class="p">};</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</details>
+</section>
+</section>
+<hr class="docutils" />
+<section id="validation">
+<h2>4.9 Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Example</p></th>
+<th class="head"><p>Source</p></th>
+<th class="head"><p>Expected</p></th>
+<th class="head"><p>App</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Replacements and residual value</p></td>
+<td><p>[2067-1:2012] Annex B, p. 37</p></td>
+<td><p><span class="math notranslate nohighlight">\(A_1\)</span> = 1.266,11 €, <span class="math notranslate nohighlight">\(A_2\)</span> = 801,52 €, <span class="math notranslate nohighlight">\(\texttip{RV}{Residual value after T years [EUR]}\)</span> = 267,04 €</p></td>
+<td><p>identical</p></td>
+</tr>
+<tr class="row-odd"><td><p>Annuity factor (6 %, 20 a)</p></td>
+<td><p>[2067-1:2012] eq. (4), p. 17</p></td>
+<td><p>0,087185</p></td>
+<td><p>0,087185</p></td>
+</tr>
+<tr class="row-even"><td><p>Static payback / IRR, example of §8.2</p></td>
+<td><p>[4646:2026] p. 72, eq. (C5)/(C6)</p></td>
+<td><p>13,65 a / 3,95 % from the equations</p></td>
+<td><p>13,65 a / 3,95 %</p></td>
+</tr>
+<tr class="row-odd"><td><p>Allocated COP (COP 3,2, η 0,87, cooling COP 15)</p></td>
+<td><p>[4646:2026] p. 73</p></td>
+<td><p>3,35 (read off Bild 24)</p></td>
+<td><p>3,33</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The text of [4646:2026] §8.2 states “just under 12 years” and an IRR of 6 % for the static-payback example. These are read off the nomogram (Bild 22); its own equations (C5)/(C6) give 13,65 years and 3,95 % for the stated inputs, as does the app. These checks run as unit tests in <code class="docutils literal notranslate"><span class="pre">backend/tests/test_economics.py</span></code>.</p>
+<blockquote>
+<div><p>[!NOTE]
+The cost analysis assumes constant duty and COP over the year, prices that change at fixed rates, and an investment from a specific cost per kW.</p>
+</div></blockquote>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="refrigerant_limits.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Refrigerant Operating Limits</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="architecture_and_security.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Architecture &amp; Security</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-compared">4.0 What is compared</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-pump-analysed">The pump analysed</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-reference-demand">The reference demand</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#inputs">4.1 Inputs</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#investment">Investment</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#energy-flows-and-co2-per-year">4.2 Energy flows and CO₂ per year</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prices-over-time">4.3 Prices over time</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#operating-costs-per-year">4.4 Operating costs per year</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#net-present-value">4.5 Net present value</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#dynamic-payback">4.6 Dynamic payback</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#break-even-electricity-price">4.7 Break-even electricity price</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#heat-cost-lcoh-and-the-other-vdi-4646-2026-results">4.8 Heat cost (LCOH) and the other VDI 4646:2026 results</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-page-shows">What the page shows</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#scenario-comparison-and-report">Scenario comparison and report</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">4.9 Validation</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By HeatTransPlan Contributors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, HeatTransPlan Contributors.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

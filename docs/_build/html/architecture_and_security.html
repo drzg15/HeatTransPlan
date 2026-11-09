@@ -1,0 +1,1235 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="./" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Architecture &amp; Security &#8212; HeatTransPlan — Calculation Logic</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="_static/styles/theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+<link href="_static/styles/pydata-sphinx-theme.css?digest=90905a2f556bf617f1a9" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="_static/styles/sphinx-book-theme.css?v=4418a689" />
+    <link rel="stylesheet" type="text/css" href="_static/togglebutton.css?v=9c3e77be" />
+    <link rel="stylesheet" type="text/css" href="_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="_static/custom.css?v=408308f3" />
+  
+  <!-- So that users can add custom icons -->
+  <script defer src="_static/scripts/fontawesome.js?digest=90905a2f556bf617f1a9"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9" />
+<link rel="preload" as="script" href="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9" />
+
+    <script src="_static/documentation_options.js?v=c73c0f3e"></script>
+    <script src="_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script>window.addEventListener('load', () => {
+  const tip = window.MathJax?._?.output?.common?.Wrappers?.maction?.TooltipData;
+  if (tip) tip.postDelay = 80;
+});</script>
+    <script src="_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="_static/copybutton.js?v=ccdb6887"></script>
+    <script>let toggleHintShow = 'Show implementation';</script>
+    <script>let toggleHintHide = 'Hide implementation';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="_static/togglebutton.js?v=b8b12719"></script>
+    <script src="_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+
+
+
+
+const initStyles = () => {
+    const defaultStyle = document.createElement('style');
+    defaultStyle.textContent = "pre.mermaid {\n    /* Same as .mermaid-container > pre */\n    display: block;\n    width: 100%;\n}\n\npre.mermaid > svg {\n    /* Same as .mermaid-container > pre > svg */\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}";
+    document.head.appendChild(defaultStyle);
+
+    const fullscreenStyle = document.createElement('style');
+    fullscreenStyle.textContent = ".mermaid-container {\n    position: relative;\n    display: flex;\n    flex-direction: row;\n    width: 100%;\n}\n\n.mermaid-container > pre {\n    display: block;\n    width: 100%;\n}\n\n.mermaid-container > pre > svg {\n    height: 500px;\n    width: 100%;\n    max-width: 100% !important;\n}\n\n.mermaid-fullscreen-btn {\n    position: absolute;\n    width: 28px;\n    height: 28px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.3);\n    border-radius: 4px;\n    cursor: pointer;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    transition: all 0.2s;\n    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);\n    font-size: 14px;\n    line-height: 1;\n    padding: 0;\n    color: #333;\n}\n\n.mermaid-fullscreen-btn:hover {\n    opacity: 100% !important;\n    background: rgba(255, 255, 255, 1);\n    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-btn.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.3);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-btn.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal {\n    display: none;\n    position: fixed !important;\n    top: 0 !important;\n    left: 0 !important;\n    width: 95vw;\n    height: 100vh;\n    background: rgba(255, 255, 255, 0.98);\n    z-index: 9999;\n    padding: 20px;\n    overflow: auto;\n}\n\n.mermaid-fullscreen-modal.dark-theme {\n    background: rgba(0, 0, 0, 0.98);\n}\n\n.mermaid-fullscreen-modal.active {\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen {\n    position: relative;\n    width: 95vw;\n    height: 90vh;\n    max-width: 95vw;\n    max-height: 90vh;\n    background: white;\n    border-radius: 8px;\n    padding: 20px;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);\n    overflow: auto;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen.dark-theme {\n    background: #1a1a1a;\n    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);\n}\n\n.mermaid-container-fullscreen pre.mermaid {\n    width: 100%;\n    height: 100%;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n}\n\n.mermaid-container-fullscreen .mermaid svg {\n    height: 100% !important;\n    width: 100% !important;\n    cursor: grab;\n}\n\n.mermaid-fullscreen-close {\n    position: fixed !important;\n    top: 20px !important;\n    right: 20px !important;\n    width: 40px;\n    height: 40px;\n    background: rgba(255, 255, 255, 0.95);\n    border: 1px solid rgba(0, 0, 0, 0.2);\n    border-radius: 50%;\n    cursor: pointer;\n    z-index: 10000;\n    display: flex;\n    align-items: center;\n    justify-content: center;\n    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);\n    transition: all 0.2s;\n    font-size: 24px;\n    line-height: 1;\n    color: #333;\n}\n\n.mermaid-fullscreen-close:hover {\n    background: white;\n    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);\n    transform: scale(1.1);\n}\n\n.mermaid-fullscreen-close.dark-theme {\n    background: rgba(50, 50, 50, 0.95);\n    border: 1px solid rgba(255, 255, 255, 0.2);\n    color: #e0e0e0;\n}\n\n.mermaid-fullscreen-close.dark-theme:hover {\n    background: rgba(60, 60, 60, 1);\n    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);\n}\n\n.mermaid-fullscreen-modal .mermaid-fullscreen-btn {\n    display: none !important;\n}";
+    document.head.appendChild(fullscreenStyle);
+}
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    // We use a set of heuristics:
+    // 1. Check for common dark mode classes or attributes
+    // 2. Check computed background color brightness
+    if (document.documentElement.classList.contains('dark') ||
+        document.documentElement.getAttribute('data-theme') === 'dark' ||
+        document.body.classList.contains('dark') ||
+        document.body.getAttribute('data-theme') === 'dark') {
+        // console.log("Dark theme detected via class/attribute");
+        return true;
+    }
+    if (document.documentElement.classList.contains('light') ||
+        document.documentElement.getAttribute('data-theme') === 'light' ||
+        document.body.classList.contains('light') ||
+        document.body.getAttribute('data-theme') === 'light') {
+        // console.log("Light theme detected via class/attribute");
+        return false;
+    }
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        // console.log("Dark theme detected via prefers-color-scheme");
+        return true;
+    }
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        // console.log("Background color brightness:", brightness);
+        return brightness < 128;
+    }
+    // console.log("No dark or light theme detected, defaulting to light theme");
+    return false;
+};
+
+let darkTheme = isDarkTheme();
+let modal = null;
+let modalContent = null;
+let previousScrollOffset = [window.scrollX, window.scrollY];
+let _lazyObserver = null;
+let _renderQueue = Promise.resolve();
+let closeModal = () => {};
+
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal?.classList.contains('active')) {
+        closeModal();
+    }
+});
+
+// Apply d3 zoom to each SVG. Idempotent: an SVG already wrapped is skipped,
+// so this is safe to call both for the initial batch and for diagrams that
+// render lazily once they become visible.
+const addZoomToSvgs = (svgs) => {
+    svgs.each(function() {
+        if (this.getAttribute('data-zoom-applied') === 'true') return;
+        var svg = d3.select(this);
+        svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+        var inner = svg.select("g");
+        var zoom = d3.zoom().on("zoom", function(event) {
+            inner.attr("transform", event.transform);
+        });
+        svg.call(zoom);
+        this.setAttribute('data-zoom-applied', 'true');
+    });
+};
+
+const runMermaid = async (rerun) => {
+    console.log("Running mermaid diagrams, rerun =", rerun);
+    // clear all existing mermaid charts
+    let all_mermaids = document.querySelectorAll(".mermaid");
+
+    if (rerun) {
+        // Disconnect any previous lazy rendering observer
+        if (_lazyObserver) {
+            _lazyObserver.disconnect();
+            _lazyObserver = null;
+        }
+
+        all_mermaids.forEach((el) => {
+            el.removeAttribute('data-mermaid-deferred');
+            el.removeAttribute('data-mermaid-render-failed');
+            if(!el.hasAttribute("data-original-code")) {
+                // store original code
+                // console.log(`Storing original code for first run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+            if(el.getAttribute("data-processed") === "true") {
+                // remove and restore original
+                el.removeAttribute("data-processed");
+                // console.log(`Restoring original code for re-run: `, el.getAttribute('data-original-code'));
+                el.innerHTML = el.getAttribute('data-original-code');
+            } else {
+                // store original code
+                // console.log(`Storing original code for re-run: `, el.innerHTML);
+                el.setAttribute('data-original-code', el.innerHTML);
+            }
+        });
+
+        // Separate visible and hidden elements. Mermaid's layout engine measures
+        // text dimensions via the DOM, which fails for elements hidden by a parent
+        // (e.g., Reveal.js non-active slides, sphinx-design unopened tabs),
+        // producing broken SVGs. Render visible elements now, defer hidden ones.
+        const visible = [];
+        const hidden = [];
+        all_mermaids.forEach((el) => {
+            // offsetParent is null for display:none ancestors.
+            // getClientRects().length > 0 catches position:fixed elements
+            // (which also have null offsetParent but are still visible).
+            if (el.offsetParent !== null || el.getClientRects().length > 0) {
+                visible.push(el);
+            } else {
+                hidden.push(el);
+                el.setAttribute('data-mermaid-deferred', 'true');
+            }
+        });
+
+        if (visible.length > 0) {
+            try {
+                await mermaid.run({ nodes: visible });
+            } catch (e) {
+                console.error("Mermaid rendering failed:", e);
+            }
+        }
+
+        // Lazily render hidden elements when they become visible.
+        // Uses a promise chain (_renderQueue) to serialize rendering,
+        // since IntersectionObserver may report multiple entries at once
+        // and mermaid.run() is not safe to call concurrently.
+        if (hidden.length > 0) {
+            if (typeof IntersectionObserver === 'undefined') {
+                console.warn("IntersectionObserver not available; hidden mermaid diagrams will not render.");
+            } else {
+                _renderQueue = Promise.resolve();
+                _lazyObserver = new IntersectionObserver((entries) => {
+                    for (const entry of entries) {
+                        if (entry.isIntersecting && entry.target.getAttribute("data-processed") !== "true") {
+                            _lazyObserver.unobserve(entry.target);
+                            const el = entry.target;
+                            _renderQueue = _renderQueue.then(async () => {
+                                try {
+                                    await mermaid.run({ nodes: [el] });
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    // Apply zoom to the now-rendered diagram, matching
+                                    // the decoration visible diagrams receive.
+                                    if (false) {
+                                        addZoomToSvgs(d3.selectAll("").select(function() {
+                                            return this.querySelector("svg");
+                                        }));
+                                    }
+                                } catch (e) {
+                                    console.error("Mermaid deferred rendering failed:", e);
+                                    el.removeAttribute('data-mermaid-deferred');
+                                    el.setAttribute('data-mermaid-render-failed', 'true');
+                                }
+                            });
+                        }
+                    }
+                });
+                hidden.forEach((el) => _lazyObserver.observe(el));
+            }
+        }
+    }
+
+    all_mermaids = document.querySelectorAll(".mermaid");
+    // Exclude deferred (hidden) and render-failed elements from completion checks
+    const mermaids_active = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])");
+    const mermaids_processed = document.querySelectorAll(".mermaid:not([data-mermaid-deferred]):not([data-mermaid-render-failed])[data-processed='true']");
+
+    if (false) {
+        const mermaids_to_add_zoom = 0 === -1 ? mermaids_active.length : 0;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("").select(function() {
+                return this.querySelector("svg");
+            });
+            // Wait until every active (visible) diagram has rendered. Deferred
+            // diagrams are excluded, so a fixed d3_node_count that counts a
+            // hidden diagram no longer loops forever waiting for its SVG.
+            if(mermaids_active.length !== mermaids_processed.length) {
+                setTimeout(() => runMermaid(false), 200);
+                return;
+            }
+            addZoomToSvgs(svgs);
+        }
+    } else if(mermaids_active.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(() => runMermaid(false), 200);
+        return;
+    }
+
+    // Stop here if not adding fullscreen capability
+    if (!true) return;
+
+    if (modal !== null ) {
+        // Destroy existing modal
+        modal.remove();
+        modal = null;
+        modalContent = null;
+    }
+
+    modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            // Already processed, adjust button class if needed
+            const existingBtn = mermaidDiv.parentNode.querySelector('.mermaid-fullscreen-btn');
+            if (existingBtn) {
+                existingBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+            }
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = "\u26f6";
+        fullscreenBtn.style.opacity = "50%";
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scrollX, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.display = 'block';
+
+                if (false) {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        container.appendChild(fullscreenBtn);
+    });
+};
+
+
+
+const load = async () => {
+    initStyles();
+
+
+    await runMermaid(true);
+
+    const reRunIfThemeChanges = async () => {
+        const newDarkTheme = isDarkTheme();
+        if (newDarkTheme !== darkTheme) {
+            darkTheme = newDarkTheme;
+            console.log("Theme change detected, re-running mermaid with", darkTheme ? "dark" : "default", "theme");
+            await mermaid.initialize(
+                {...{"startOnLoad": false},
+                ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+                }
+            );
+            await runMermaid(true);
+        }
+    };
+
+    // Update theme classes when theme changes
+    const themeObserver = new MutationObserver(reRunIfThemeChanges);
+    themeObserver.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    themeObserver.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+};
+
+
+
+
+
+console.log("Initializing mermaid with", darkTheme ? "dark" : "default", "theme");
+mermaid.initialize(
+    {...{"startOnLoad": false},
+    ...{ darkMode: darkTheme, theme: darkTheme ? "dark" : "default" },
+    }
+);
+
+window.addEventListener("load", load);
+window.runMermaid = runMermaid;</script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'architecture_and_security';</script>
+    <script>DOCUMENTATION_OPTIONS.search_as_you_type = false;</script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="prev" title="Step 4 — Cost Analysis" href="economic_analysis.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  
+    
+    <script src="_static/searchtools.js"></script>
+    <script src="_static/language_data.js"></script>
+    <script src="searchindex.js"></script>
+  
+  </head>
+  <body data-default-mode="">
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+  
+  
+  
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header id="pst-header" class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+<div class="bd-header__inner bd-page-width">
+  <button class="pst-navbar-icon sidebar-toggle primary-toggle" aria-label="Site navigation">
+    <span class="fa-solid fa-bars"></span>
+  </button>
+  
+  
+  <div class="col-lg-9 navbar-header-items">
+    
+    
+    <div class="navbar-header-items__end">
+      
+        <div class="navbar-item navbar-persistent--container">
+          
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+        </div>
+      
+      
+    </div>
+    
+  </div>
+  
+  
+    <div class="navbar-persistent--mobile">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button>
+    </div>
+  
+
+  
+    <button class="pst-navbar-icon sidebar-toggle secondary-toggle" aria-label="On this page">
+      <span class="fa-solid fa-outdent"></span>
+    </button>
+  
+</div>
+
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">HeatTransPlan — Calculation Logic</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">The four steps</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="data_collection.html">Step 1 — Data Collection</a></li>
+<li class="toctree-l1"><a class="reference internal" href="pinch_analysis.html">Step 2 — Streams &amp; Heat Integration (Pinch Analysis)</a></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="heat_pump_step.html">Step 3 — Heat Pump Integration</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_integration.html">Classic Method</a></li>
+<li class="toctree-l2"><a class="reference internal" href="heat_pump_optimization.html">Optimization (ML Model &amp; Grid Search)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="refrigerant_limits.html">Refrigerant Operating Limits</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="economic_analysis.html">Step 4 — Cost Analysis</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Architecture</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Architecture &amp; Security</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/drzg15/HeatTransPlan" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="_sources/architecture_and_security.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<div class="theme-switch-container dropdown pst-js-only" data-bs-toggle="tooltip" data-bs-placement="bottom" title="Color mode">
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button dropdown-toggle" aria-label="Color mode" data-bs-toggle="dropdown">
+    <i class="theme-switch fa-solid fa-sun fa-lg fa-fw" data-mode="light" title="Light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg fa-fw" data-mode="dark" title="Dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg fa-fw" data-mode="auto" title="System Settings"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end">
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="auto"><i class="fa-solid fa-circle-half-stroke fa-lg fa-fw me-1"></i>System Settings</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="light"><i class="fa-solid fa-sun fa-lg fa-fw me-1"></i>Light</button></li>
+    <li><button class="dropdown-item d-flex align-items-center theme-change-button" data-mode="dark"><i class="fa-solid fa-moon fa-lg fa-fw me-1"></i>Dark</button></li>
+  </ul>
+</div>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Architecture & Security</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-structure">The structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-ai-the-live-session">Connect AI: the live session</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-ai-may-do">What the AI may do</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#security-layers">Security layers</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-it-does-not-protect">What it does not protect</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#settings-per-machine">Settings per machine</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="architecture-security">
+<h1>Architecture &amp; Security<a class="headerlink" href="#architecture-security" title="Link to this heading">#</a></h1>
+<p>How HeatTransPlan is built, how an AI assistant works with it, and what protects the server, its users and their data. Written for whoever runs the server or checks it; the code behind each part is in the “Source code” toggles.</p>
+<hr class="docutils" />
+<section id="the-structure">
+<h2>The structure<a class="headerlink" href="#the-structure" title="Link to this heading">#</a></h2>
+<pre  class="mermaid">
+        flowchart LR
+    U[Browser: the page] --&gt;|https| C[Caddy&lt;br/&gt;address, certificate,&lt;br/&gt;browser protections, 50 MB limit]
+    A[AI agent&lt;br/&gt;Claude or any MCP client] --&gt;|https /mcp| C
+    C --&gt;|/| F[frontend&lt;br/&gt;the built page, static files]
+    C --&gt;|/api, /mcp| B[backend&lt;br/&gt;FastAPI + MCP server]
+    C --&gt;|/docs| D[docs&lt;br/&gt;this documentation]
+    B --- S[(projects&lt;br/&gt;/tmp, temporary)]
+    </pre><p>Every part runs in its own container (<code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code>); only Caddy is reachable from outside.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Part</p></th>
+<th class="head"><p>Folder</p></th>
+<th class="head"><p>What it does</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Page</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">frontend/</span></code></p></td>
+<td><p>The app in the browser: data collection, analysis, economics, report. Keeps the user’s project itself (saved as a file by the Save button).</p></td>
+</tr>
+<tr class="row-odd"><td><p>Backend</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">backend/app/</span></code></p></td>
+<td><p>The calculations (<code class="docutils literal notranslate"><span class="pre">modules/</span></code>, <code class="docutils literal notranslate"><span class="pre">services/</span></code>), the HTTP API (<code class="docutils literal notranslate"><span class="pre">routers/</span></code>), the live sessions for Connect AI (<code class="docutils literal notranslate"><span class="pre">services/live.py</span></code>), the limits (<code class="docutils literal notranslate"><span class="pre">rate_limit.py</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p>MCP server</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">mcp_server/</span></code></p></td>
+<td><p>The tools an AI calls. Served by the backend at <code class="docutils literal notranslate"><span class="pre">/mcp</span></code> (<code class="docutils literal notranslate"><span class="pre">backend/app/mcp_http.py</span></code>); can also run on a computer as a local program.</p></td>
+</tr>
+<tr class="row-odd"><td><p>Docs</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">docs/</span></code></p></td>
+<td><p>These pages, built into the docs container and served at <code class="docutils literal notranslate"><span class="pre">/docs</span></code>, the same version as the app.</p></td>
+</tr>
+<tr class="row-even"><td><p>Proxy</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Caddyfile</span></code></p></td>
+<td><p>One public address for all of it; HTTPS on a domain.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>A visit:</strong> the page loads from <code class="docutils literal notranslate"><span class="pre">frontend</span></code>, and every calculation is a request to <code class="docutils literal notranslate"><span class="pre">/api</span></code> that the backend answers from the data in the request. Nothing about a visitor is stored, unless they click <strong>Connect AI</strong>.</p>
+<p><strong>An agent:</strong> it sends tool calls to <code class="docutils literal notranslate"><span class="pre">/mcp</span></code>. The MCP server runs them inside the backend, against the same API the page uses.</p>
+</section>
+<hr class="docutils" />
+<section id="connect-ai-the-live-session">
+<h2>Connect AI: the live session<a class="headerlink" href="#connect-ai-the-live-session" title="Link to this heading">#</a></h2>
+<pre  class="mermaid">
+        sequenceDiagram
+    participant AI as AI agent
+    participant B as Backend
+    participant P as The open page
+    P-&gt;&gt;B: Connect AI: start a session (its project goes to the server)
+    B--&gt;&gt;P: the code, e.g. 9bb3e682
+    Note over P: the user tells the agent the code
+    AI-&gt;&gt;B: a tool with the code (e.g. delete_stream)
+    B-&gt;&gt;P: &quot;may the AI delete the stream Whey?&quot;
+    P--&gt;&gt;B: the user allows
+    B-&gt;&gt;B: the change, noted in the activity log
+    B--&gt;&gt;P: the changed project, the log entry
+    B--&gt;&gt;AI: done
+    </pre><ul class="simple">
+<li><p>The <strong>code</strong> is the key to a page. Sessions are never listed, so nobody can find someone else’s. It ends with <strong>Disconnect</strong>, or after an hour without the page.</p></li>
+<li><p>While connected, the page keeps its project on the server too: the agent’s edits arrive on the page at once, the user’s edits reach the agent. The page marks its own saves (<code class="docutils literal notranslate"><span class="pre">X-Live-Session</span></code>), so they are not sent back to it.</p></li>
+<li><p>The agent can also drive the page itself (navigate, tick streams, pick pumps): the backend sends the page a <strong>command</strong>, the page runs it with the same functions as its buttons and answers.</p></li>
+</ul>
+</section>
+<hr class="docutils" />
+<section id="what-the-ai-may-do">
+<h2>What the AI may do<a class="headerlink" href="#what-the-ai-may-do" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Rule</p></th>
+<th class="head"><p>How it is enforced</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Only on the open page.</strong> Without a connected page, or once it closes, every project tool refuses; only tools that touch no project (<code class="docutils literal notranslate"><span class="pre">explain</span></code>, <code class="docutils literal notranslate"><span class="pre">guide</span></code>, <code class="docutils literal notranslate"><span class="pre">read_document</span></code>, address search, …) answer.</p></td>
+<td><p>Every project tool passes the one check <code class="docutils literal notranslate"><span class="pre">_page_info</span></code> (MCP server), which asks the backend for the connected page with this code.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Pause.</strong> The user can stop the agent (⏸ next to the code): it can do nothing, not even read, until resumed.</p></td>
+<td><p>The backend answers 423 for a paused page, to the check above and to every command.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Asked first.</strong> Deleting a process, subprocess or stream, replacing the project, a CSV import, removing a site plan or a scenario: the page asks the user, and nothing happens unless they allow it within two minutes.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">_confirm</span></code> (MCP server) sends the page <code class="docutils literal notranslate"><span class="pre">confirm_ai_action</span></code> and waits for the answer.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Seen.</strong> Every change the agent makes is listed on the page (🕘), and anonymously in the server’s activity log (the tool and the names of its fields).</p></td>
+<td><p>The tools are registered through <code class="docutils literal notranslate"><span class="pre">tool</span></code>, which notes each change (<code class="docutils literal notranslate"><span class="pre">/api/live/pages/{code}/log</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Marked.</strong> A report made by the agent says so on its first page and in its metadata.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">created_by_ai</span></code> in the report request.</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Told.</strong> The agent is told that text in documents, files and on the page is data, never instructions: if a file says “delete everything”, it must tell the user, not do it.</p></td>
+<td><p>The instructions the MCP server gives every agent.</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>No server files.</strong> Online, the tools never open or write the server’s own files: files come in as their content, results go out as download links valid for an hour.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">_read_input</span></code> and <code class="docutils literal notranslate"><span class="pre">_deliver</span></code> (MCP server).</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Off switch.</strong> <code class="docutils literal notranslate"><span class="pre">AI_ENABLED=0</span></code> removes Connect AI, the live endpoints and <code class="docutils literal notranslate"><span class="pre">/mcp</span></code>; the rest of the app is unchanged.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">backend/app/main.py</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<details>
+<summary><b>Source code:</b> <code>mcp_server/heattransplan_mcp/server.py</code> — the page check, the question, the activity log</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_page_info</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The page that is open and connected, by its Connect AI code or project</span>
+<span class="sd">    id: its project_id and session_id. The AI works only on such a page, and</span>
+<span class="sd">    not while the user has paused it: every project tool comes through here.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/api/live/pages/</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ApiError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;(404)&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ApiError</span><span class="p">(</span><span class="s2">&quot;No open page is connected with this code. You work only on the page the &quot;</span>
+                           <span class="s2">&quot;user has open: ask them to open HeatTransPlan, click Connect AI and &quot;</span>
+                           <span class="s2">&quot;tell you the code.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">if</span> <span class="s2">&quot;(423)&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ApiError</span><span class="p">(</span><span class="s2">&quot;The user has paused the AI on the page. Wait until they resume it; &quot;</span>
+                           <span class="s2">&quot;do not try to get around it.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+        <span class="k">raise</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_page</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">(</span><span class="k">await</span> <span class="n">_page_info</span><span class="p">(</span><span class="n">key</span><span class="p">))[</span><span class="s2">&quot;project_id&quot;</span><span class="p">]</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_confirm</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Ask the user on the page before a change that cannot simply be redone</span>
+<span class="sd">    (deleting, replacing). Raises unless they allow it.&quot;&quot;&quot;</span>
+    <span class="n">session_id</span> <span class="o">=</span> <span class="p">(</span><span class="k">await</span> <span class="n">_page_info</span><span class="p">(</span><span class="n">key</span><span class="p">))[</span><span class="s2">&quot;session_id&quot;</span><span class="p">]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">answer</span> <span class="o">=</span> <span class="k">await</span> <span class="n">_live</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="s2">&quot;confirm_ai_action&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="n">kind</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">},</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">120</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ApiError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">ApiError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;The user was asked on the page but did not answer (</span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">). Nothing was &quot;</span>
+                       <span class="s2">&quot;changed.&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">answer</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">answer</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;allowed&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">ApiError</span><span class="p">(</span><span class="s2">&quot;The user declined this on the page. Nothing was changed; ask them what &quot;</span>
+                       <span class="s2">&quot;they want instead.&quot;</span><span class="p">)</span>
+
+
+</pre></div>
+</div>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">READS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;start&quot;</span><span class="p">,</span> <span class="s2">&quot;get_project&quot;</span><span class="p">,</span> <span class="s2">&quot;list_heat_pumps&quot;</span><span class="p">,</span> <span class="s2">&quot;save_project_file&quot;</span><span class="p">,</span> <span class="s2">&quot;export_csv&quot;</span><span class="p">,</span> <span class="s2">&quot;live_view&quot;</span><span class="p">,</span>
+         <span class="s2">&quot;live_results&quot;</span><span class="p">,</span> <span class="s2">&quot;live_wait&quot;</span><span class="p">}</span>
+<span class="n">LIVE_READS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;get_view&quot;</span><span class="p">,</span> <span class="s2">&quot;get_results&quot;</span><span class="p">,</span> <span class="s2">&quot;list_commands&quot;</span><span class="p">,</span> <span class="s2">&quot;wait_idle&quot;</span><span class="p">,</span> <span class="s2">&quot;get_project&quot;</span><span class="p">,</span> <span class="s2">&quot;export_csv&quot;</span><span class="p">,</span>
+              <span class="s2">&quot;export_distances_csv&quot;</span><span class="p">}</span>
+<span class="c1"># Page commands that delete or replace: the user is asked first.</span>
+<span class="n">LIVE_CONFIRM</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;set_project&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_site_plan&quot;</span><span class="p">,</span> <span class="s2">&quot;remove_subprocess_plan&quot;</span><span class="p">,</span> <span class="s2">&quot;delete_scenario&quot;</span><span class="p">}</span>
+
+
+<span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">_record</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">given</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Note a change in the page&#39;s AI activity list (and the server&#39;s log).&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;live_command&quot;</span> <span class="ow">and</span> <span class="n">given</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;command&quot;</span><span class="p">)</span> <span class="ow">in</span> <span class="n">LIVE_READS</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="n">parts</span><span class="p">,</span> <span class="n">fields</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">given</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">fields</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">k</span><span class="p">)</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;…&quot;</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">v</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+            <span class="n">v</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">text</span><span class="p">[:</span><span class="mi">60</span><span class="p">]</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;…&#39;</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">60</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">await</span> <span class="n">api</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;/api/live/pages/</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">/log&quot;</span><span class="p">,</span>
+                       <span class="n">json</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;tool&quot;</span><span class="p">:</span> <span class="n">name</span><span class="p">,</span> <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)[:</span><span class="mi">500</span><span class="p">],</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="n">fields</span><span class="p">})</span>
+    <span class="k">except</span> <span class="n">ApiError</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># the change is made; a missing log line must not undo it</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">tool</span><span class="p">(</span><span class="n">fn</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Register a tool. Its calls that change the open page (they carry its</span>
+<span class="sd">    code) appear in the page&#39;s AI activity list and the server&#39;s log.&quot;&quot;&quot;</span>
+    <span class="n">signature</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span>
+    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="nf">call</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">fn</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fn</span><span class="o">.</span><span class="vm">__name__</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">READS</span><span class="p">:</span>
+            <span class="n">given</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">signature</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span><span class="o">.</span><span class="n">arguments</span><span class="p">)</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">given</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;session_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="n">given</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;project_id&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span><span class="p">:</span>
+                <span class="k">await</span> <span class="n">_record</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">fn</span><span class="o">.</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">given</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">mcp</span><span class="o">.</span><span class="n">tool</span><span class="p">()(</span><span class="n">call</span><span class="p">)</span>
+
+<span class="c1"># Last analysis per project, so follow-up tools need not resend large results.</span>
+</pre></div>
+</div>
+</details>
+<details>
+<summary><b>Source code:</b> <code>backend/app/services/live.py</code> — the connected page and the log</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">connected_session</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Session</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The session of a page that is open and connected, found by its code or</span>
+<span class="sd">    its project id. The AI works only on such a page.&quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">_sessions</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">connected</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">in</span> <span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="n">s</span><span class="o">.</span><span class="n">project_id</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">s</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">record</span><span class="p">(</span><span class="n">session</span><span class="p">:</span> <span class="n">Session</span><span class="p">,</span> <span class="n">tool</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">detail</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Note what the AI did: in full on the page&#39;s activity list (its user sees</span>
+<span class="sd">    it), anonymously in the activity log (the tool and the names of the fields</span>
+<span class="sd">    it set, never their values).&quot;&quot;&quot;</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;time&quot;</span><span class="p">:</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">(),</span> <span class="s2">&quot;tool&quot;</span><span class="p">:</span> <span class="n">tool</span><span class="p">,</span> <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="n">detail</span><span class="p">}</span>
+    <span class="n">session</span><span class="o">.</span><span class="n">log</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">entry</span><span class="p">)</span>
+    <span class="n">_publish</span><span class="p">(</span><span class="n">session</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;ai_log&quot;</span><span class="p">,</span> <span class="o">**</span><span class="n">entry</span><span class="p">})</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span> <span class="ow">or</span> <span class="p">[]</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">isidentifier</span><span class="p">()]</span>
+    <span class="n">activity_log</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;ai&quot;</span><span class="p">,</span> <span class="n">tool</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">names</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">entry</span>
+
+
+</pre></div>
+</div>
+</details>
+</section>
+<hr class="docutils" />
+<section id="security-layers">
+<h2>Security layers<a class="headerlink" href="#security-layers" title="Link to this heading">#</a></h2>
+<p>There is no login: the app is public, so each layer has to hold on its own.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Layer</p></th>
+<th class="head"><p>Protects against</p></th>
+<th class="head"><p>Where</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Requests per visitor</strong></p></td>
+<td><p>One visitor flooding the server; guessing Connect AI codes (after 30 wrong codes in 10 minutes the live endpoints refuse that visitor for a while). Limits per minute: agents 120, reports 20, COP training 10, address search 30, everything else 1200.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">backend/app/rate_limit.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Upload size</strong></p></td>
+<td><p>Requests over 50 MB.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Caddyfile</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Browser protections</strong></p></td>
+<td><p>Framing by other sites, plugins, form tricks; HTTPS only, once on a domain. No script policy on purpose: maps, charts and docs load from several sites.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Caddyfile</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Text, never markup</strong></p></td>
+<td><p>A name or note like <code class="docutils literal notranslate"><span class="pre">&lt;script&gt;</span></code> running when someone opens a report.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">backend/app/services/report/</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Data leaves</strong></p></td>
+<td><p>A site’s process data staying on the server: a page’s project goes at Disconnect, any other after 24 hours untouched.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">backend/app/services/project_service.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Hardened containers</strong></p></td>
+<td><p>A flaw in a library taking over the machine: read-only files (only <code class="docutils literal notranslate"><span class="pre">/tmp</span></code> and the activity log’s folder writable), no root rights (the backend runs as an ordinary user), no way to gain any.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">backend/Dockerfile</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Anonymous activity log</strong></p></td>
+<td><p>Recording people while debugging: the log keeps only which feature was used, whether by a person (<code class="docutils literal notranslate"><span class="pre">human</span></code>) or an AI (<code class="docutils literal notranslate"><span class="pre">ai</span></code>), whether it worked (<code class="docutils literal notranslate"><span class="pre">system</span></code> for errors) and how long it took. No addresses, page codes or project ids (paths keep their pattern, <code class="docutils literal notranslate"><span class="pre">/api/projects/{project_id}</span></code>), no values or names: for a project only which parts changed, for an AI tool only the names of the fields it set, for an error its type and where in the code. The server keeps no access log either. It stays in the container’s volume and deletes its older half past 20 MB. Read it with <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compose</span> <span class="pre">exec</span> <span class="pre">backend</span> <span class="pre">python</span> <span class="pre">-m</span> <span class="pre">app.services.activity_log</span> <span class="pre">[rows]</span> <span class="pre">[actor]</span></code>.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">backend/app/services/activity_log.py</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Known flaws in libraries</strong></p></td>
+<td><p>Outdated dependencies: Dependabot checks them weekly and opens a pull request for each fix. Plotly is kept below 7, the version the report is tested with.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">.github/dependabot.yml</span></code>, <code class="docutils literal notranslate"><span class="pre">backend/pyproject.toml</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Nothing listed</strong></p></td>
+<td><p>Finding other people’s pages or projects: neither sessions nor projects can be listed.</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">backend/app/routers/</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<details>
+<summary><b>Source code:</b> <code>backend/app/rate_limit.py</code> — the limits</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">RULES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;/mcp&quot;</span><span class="p">,</span> <span class="mi">120</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;/api/analysis/report&quot;</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;/api/analysis/cop-model/train&quot;</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span>
+    <span class="p">(</span><span class="s2">&quot;/api/geo/search&quot;</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span>  <span class="c1"># OpenStreetMap&#39;s search allows about one a second</span>
+    <span class="p">(</span><span class="s2">&quot;/api/&quot;</span><span class="p">,</span> <span class="mi">1200</span><span class="p">,</span> <span class="mi">60</span><span class="p">),</span>
+<span class="p">]</span>
+<span class="c1"># Unknown Connect AI codes (404 under /api/live/) before that visitor&#39;s live</span>
+<span class="c1"># requests are refused for a while.</span>
+<span class="n">MISSES</span> <span class="o">=</span> <span class="p">(</span><span class="mi">30</span><span class="p">,</span> <span class="mi">600</span><span class="p">)</span>
+
+
+</pre></div>
+</div>
+</details>
+<details>
+<summary><b>Source code:</b> <code>Caddyfile</code> — browser protections and the upload limit</summary>
+<div class="highlight-text notranslate"><div class="highlight"><pre><span></span>    header {
+        Strict-Transport-Security &quot;max-age=31536000&quot;
+        X-Content-Type-Options &quot;nosniff&quot;
+        X-Frame-Options &quot;SAMEORIGIN&quot;
+        Referrer-Policy &quot;strict-origin-when-cross-origin&quot;
+        Permissions-Policy &quot;camera=(), microphone=(), geolocation=(), payment=(), usb=()&quot;
+        Content-Security-Policy &quot;frame-ancestors &#39;self&#39;; base-uri &#39;self&#39;; object-src &#39;none&#39;; form-action &#39;self&#39;&quot;
+        -Server
+    }
+    # An optimisation answers with ~1 MB of JSON; compressed it is a tenth.
+    # Only JSON and HTML: the live event stream must not be buffered.
+    encode {
+        zstd
+        gzip
+        match {
+            header Content-Type application/json*
+            header Content-Type text/html*
+        }
+    }
+    # Largest upload: a project with its site plan images, or a data file.
+    request_body {
+        max_size 50MB
+    }
+</pre></div>
+</div>
+</details>
+<section id="what-it-does-not-protect">
+<h3>What it does not protect<a class="headerlink" href="#what-it-does-not-protect" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>No accounts.</strong> Anyone can open the app and compute. Who may use it is not checked; a login (for example the university’s) would be the next step.</p></li>
+<li><p><strong>The code is the key.</strong> Whoever has a page’s Connect AI code can work on that page while it is open, also through the API directly; pause, questions and the activity log bind agents that use the MCP server.</p></li>
+<li><p><strong>Human or AI is declared, not proven.</strong> The page and the MCP server say which in a header (<code class="docutils literal notranslate"><span class="pre">X-Actor</span></code>); the log is for debugging, not evidence. A user’s edits reach it only while the page is connected (Connect AI), since otherwise the project stays in the browser.</p></li>
+<li><p><strong>One process.</strong> The limits, sessions and download links are kept in the backend’s memory: fine for one server, a shared store (e.g. Redis) when it runs on several.</p></li>
+</ul>
+</section>
+</section>
+<hr class="docutils" />
+<section id="settings-per-machine">
+<h2>Settings per machine<a class="headerlink" href="#settings-per-machine" title="Link to this heading">#</a></h2>
+<p>The same repository runs on a laptop and on a server; what differs is in a <code class="docutils literal notranslate"><span class="pre">.env</span></code> file next to <code class="docutils literal notranslate"><span class="pre">docker-compose.yml</span></code>, which stays out of git (<code class="docutils literal notranslate"><span class="pre">.env.example</span></code> lists it). Without one, everything runs on <code class="docutils literal notranslate"><span class="pre">http://localhost</span></code>.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Variable</p></th>
+<th class="head"><p>Default</p></th>
+<th class="head"><p></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">SITE_ADDRESS</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">:80</span></code> (any address, plain http)</p></td>
+<td><p>The server’s domain; Caddy then gets its HTTPS certificate</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">AI_ENABLED</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code> switches AI access off</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RATE_LIMIT</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code> switches the limits off</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PROJECT_RETENTION_HOURS</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">24</span></code></p></td>
+<td><p>How long an unused project stays on the server</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">API_KEYS</span></code></p></td>
+<td><p>–</p></td>
+<td><p>Keys every API request (and agent) must send; unset: open</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">COP_TRAINING_ENABLED</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">1</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">0</span></code> switches the COP training module off</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Start, or update after a change: <code class="docutils literal notranslate"><span class="pre">docker</span> <span class="pre">compose</span> <span class="pre">up</span> <span class="pre">-d</span> <span class="pre">--build</span></code>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="economic_analysis.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Step 4 — Cost Analysis</p>
+      </div>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-structure">The structure</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#connect-ai-the-live-session">Connect AI: the live session</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-the-ai-may-do">What the AI may do</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#security-layers">Security layers</a><ul class="pst-show_toc_level nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-it-does-not-protect">What it does not protect</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#settings-per-machine">Settings per machine</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By HeatTransPlan Contributors
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, HeatTransPlan Contributors.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="_static/scripts/bootstrap.js?digest=90905a2f556bf617f1a9"></script>
+<script defer src="_static/scripts/pydata-sphinx-theme.js?digest=90905a2f556bf617f1a9"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

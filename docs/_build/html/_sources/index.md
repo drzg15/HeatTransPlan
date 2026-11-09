@@ -1,0 +1,75 @@
+# HeatTransPlan — Calculation Logic
+
+This document explains the engineering calculations behind HeatTransPlan, a tool for **Pinch Analysis**, **heat pump integration & optimization** and the **economic analysis** of the heat pump in industrial processes.
+
+It is written for engineers and researchers who understand energy recovery concepts but do not need to read source code. Every section explains the thermodynamic logic first, with equations and step-by-step descriptions. The actual Python implementation is hidden behind toggle buttons — click **"▶ Show implementation"** to expand the code whenever you want to see exactly how a step is programmed.
+
+---
+
+## What the application does
+
+An industrial site heats some streams and cools others. Wherever something hot is being cooled while something else is being heated, that heat is bought twice: once from the boiler and once from the chiller. **HeatTransPlan finds how much of it can be exchanged internally instead, and what a heat pump could do with the rest.**
+
+The tool answers four questions in order:
+
+1. **How much energy is unavoidable?** Pinch analysis sets the thermodynamic floor — the minimum external heating and cooling the process needs once every feasible internal match has been made. No heat exchanger network can beat it.
+2. **Where is the bottleneck?** The pinch temperature divides the site into a region that needs heat and one that has heat to spare. Moving heat across that divide is what wastes utility.
+3. **What can bridge the gap?** A heat pump can lift waste heat from below the pinch to above it. The optimizer searches the feasible operating points for real refrigerants and published technology archetypes, and reports what each would deliver.
+4. **Does it pay off?** The economic analysis compares the heat pump with the heater and cooling it replaces, over a period of years, and reports its net present value, dynamic payback, heat cost (LCOH), CO₂ saving and the electricity price up to which it beats the boiler.
+
+### The workflow
+
+The app works in four numbered steps, and this documentation follows them:
+
+| Step | What happens | You choose |
+|---|---|---|
+| **1 Data collection** | Plant areas are placed on a map, their machines or steps added, and the streams entered: what is cooled (waste heat) and what is heated (demand). | temperatures in and out, mass flow and heat capacity (or the duty), operating hours |
+| **2 Streams & heat integration** | Pinch analysis: composite curves, grand composite curve, pinch temperature and the minimum heating and cooling demand. | which streams are included, today's demand, ΔTmin |
+| **3 Heat pump integration** | Heat pumps are matched to the grand composite curve: COP, duty and electrical input of every feasible operating point. | the heat pump, from the points on the chart |
+| **4 Cost analysis** | The chosen heat pump against the heater and cooling it replaces: investment, payback, net present value, cost of heat, CO₂ saving, sensitivity to energy prices. | today's heater, energy prices, operating hours |
+
+Saved scenarios are compared side by side, economics included, and everything can be exported as a report.
+
+### What the numbers mean
+
+Four results carry most of the value:
+
+- **Minimum heating and cooling demand** — the external energy still required after maximum internal recovery. The gap between this and what the site buys today is the saving available from heat exchangers alone.
+- **Pinch temperature** — the temperature at which the process is most constrained. Heat transferred across it is energy wasted twice over.
+- **Heat pump operating points** — for each feasible sink temperature, the COP and duty a machine would achieve, so a high-efficiency pump covering part of the demand can be weighed against a lower-efficiency one covering all of it.
+- **Net present value** — what the heat pump earns over the period compared with keeping the current heater, after paying for itself, with every year's money discounted to today.
+
+> [!NOTE]
+> Everything here describes a thermodynamic *potential*, not a design. The analysis assumes heat can be exchanged wherever temperatures allow; it does not cost the pipework, check that two streams run at the same time of day, or size equipment. The economic analysis prices the heat pump from a specific cost per kW, not from an offer. It tells you whether a detailed study is worth commissioning, and where to point it.
+
+### The geographic dimension
+
+Streams are placed on a real map rather than an abstract flowsheet, because a match that is thermodynamically ideal may sit half a kilometre away. The distance matrix export gives the separation between subprocesses, so a promising match can be checked against what it would cost to connect.
+
+---
+
+## How to read this document
+
+- **Equations** use standard engineering notation (LaTeX).
+- **Toggle blocks** contain the real source code from the repository — they stay in sync automatically.
+- If you only care about the methodology, ignore all toggle blocks.
+- If you want to audit the implementation, expand the blocks that interest you.
+
+---
+
+```{toctree}
+:maxdepth: 2
+:caption: The four steps
+
+data_collection
+pinch_analysis
+heat_pump_step
+economic_analysis
+```
+
+```{toctree}
+:maxdepth: 2
+:caption: Architecture
+
+architecture_and_security
+```

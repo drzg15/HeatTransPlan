@@ -1,0 +1,47 @@
+/* Custom overrides for HeatTransPlan documentation */
+
+/* Make toggle buttons stand out a bit */
+.toggle-details summary {
+    font-weight: 600;
+    color: var(--pst-color-link);
+    cursor: pointer;
+}
+
+/* Subtle background for code blocks inside toggles */
+.toggle-details .highlight {
+    border-left: 3px solid var(--pst-color-link);
+}
+
+/* Better math display spacing. Display equations only: inline symbols in a
+   table cell would otherwise get the margin too and stretch every row. */
+div.math {
+    margin: 1em 0;
+}
+
+/* Compact tables: the input and result tables are long. */
+.bd-article table.table td,
+.bd-article table.table th {
+    padding: 0.2rem 0.5rem;
+    vertical-align: top;
+}
+
+/* Callout for engineering notes */
+.admonition.note {
+    border-left-color: #2980b9;
+}
+.admonition.important {
+    border-left-color: #e74c3c;
+}
+
+/* Widen the main documentation content area */
+:root {
+    --pst-container-width: 100vw !important;
+}
+
+.bd-page-width {
+    max-width: 95% !important;
+}
+
+.bd-article-container, .bd-content {
+    max-width: 100% !important;
+}
