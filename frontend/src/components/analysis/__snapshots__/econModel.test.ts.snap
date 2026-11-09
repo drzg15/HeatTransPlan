@@ -1329,7 +1329,7 @@ exports[`economic model > German report data 1`] = `
      "y": [
       null
      ],
-     "name": "Eingegebene Preise",
+     "name": "Ausgewählte WP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -1513,7 +1513,7 @@ exports[`economic model > German report data 1`] = `
      "y": [
       157676.62832889802
      ],
-     "name": "Analysierte Wärmepumpe",
+     "name": "Ausgewählte WP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -1526,7 +1526,7 @@ exports[`economic model > German report data 1`] = `
      "customdata": [
       "Butane_2 84 °C<br>Wärmepumpe: 105 kW (28 %)<br>Rest vom Erdgaskessel: 270 kW<br>COP: 7,48"
      ],
-     "hovertemplate": "<b>Analysierte Wärmepumpe</b><br>%{customdata}<br>Kapitalwert: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Ausgewählte WP</b><br>%{customdata}<br>Kapitalwert: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -2830,7 +2830,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -3014,7 +3014,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      "y": [
       173214.1867682842
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -3027,7 +3027,7 @@ exports[`economic model > buildEconomics eboiler none 1`] = `
      "customdata": [
       "Carnot 113 °C<br>Heat pump: 375 kW (100 %)<br>Rest from Electric boiler: 0 kW<br>COP: 4,76"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -4324,7 +4324,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -4508,7 +4508,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      "y": [
       141047.1108991883
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -4521,7 +4521,7 @@ exports[`economic model > buildEconomics eboiler one 1`] = `
      "customdata": [
       "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Electric boiler: 173 kW<br>COP: 5,67"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -5818,7 +5818,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -6002,7 +6002,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      "y": [
       103806.83383974707
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -6015,7 +6015,7 @@ exports[`economic model > buildEconomics eboiler several 1`] = `
      "customdata": [
       "Butane_2 84 °C<br>Heat pump: 105 kW (28 %)<br>Rest from Electric boiler: 270 kW<br>COP: 7,48"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -7312,7 +7312,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -7496,7 +7496,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
      "y": [
       365606.3099438236
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -7509,7 +7509,7 @@ exports[`economic model > buildEconomics gas none 1`] = `
      "customdata": [
       "Carnot 113 °C<br>Heat pump: 375 kW (100 %)<br>Rest from Gas boiler: 0 kW<br>COP: 4,76"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -8806,7 +8806,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -8990,7 +8990,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
      "y": [
       244938.8574139795
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -9003,7 +9003,7 @@ exports[`economic model > buildEconomics gas one 1`] = `
      "customdata": [
       "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Gas boiler: 173 kW<br>COP: 5,67"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -10300,7 +10300,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -10484,7 +10484,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
      "y": [
       157676.62832889802
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -10497,7 +10497,7 @@ exports[`economic model > buildEconomics gas several 1`] = `
      "customdata": [
       "Butane_2 84 °C<br>Heat pump: 105 kW (28 %)<br>Rest from Gas boiler: 270 kW<br>COP: 7,48"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -11794,7 +11794,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -11978,7 +11978,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
      "y": [
       365606.3099438236
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -11991,7 +11991,7 @@ exports[`economic model > buildEconomics oil none 1`] = `
      "customdata": [
       "Carnot 113 °C<br>Heat pump: 375 kW (100 %)<br>Rest from Oil boiler: 0 kW<br>COP: 4,76"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -13288,7 +13288,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -13472,7 +13472,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
      "y": [
       244938.8574139795
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -13485,7 +13485,7 @@ exports[`economic model > buildEconomics oil one 1`] = `
      "customdata": [
       "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Oil boiler: 173 kW<br>COP: 5,67"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -14782,7 +14782,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -14966,7 +14966,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
      "y": [
       157676.62832889802
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -14979,7 +14979,7 @@ exports[`economic model > buildEconomics oil several 1`] = `
      "customdata": [
       "Butane_2 84 °C<br>Heat pump: 105 kW (28 %)<br>Rest from Oil boiler: 270 kW<br>COP: 7,48"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -16236,7 +16236,7 @@ exports[`economic model > changed inputs 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -16420,7 +16420,7 @@ exports[`economic model > changed inputs 1`] = `
      "y": [
       122304.70035744605
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -16433,7 +16433,7 @@ exports[`economic model > changed inputs 1`] = `
      "customdata": [
       "Butane_2 84 °C<br>Heat pump: 105 kW (28 %)<br>Rest from Oil boiler: 270 kW<br>COP: 7,48"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -17650,7 +17650,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -17834,7 +17834,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      "y": [
       244938.8574139795
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -17847,7 +17847,7 @@ exports[`economic model > dark theme and a fixed sensitivity window 1`] = `
      "customdata": [
       "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Gas boiler: 173 kW<br>COP: 5,67"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
@@ -19254,7 +19254,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
      "y": [
       null
      ],
-     "name": "Entered prices",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -19438,7 +19438,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
      "y": [
       141047.1108991883
      ],
-     "name": "Analysed heat pump",
+     "name": "Selected HP",
      "marker": {
       "symbol": "square",
       "size": 12,
@@ -19451,7 +19451,7 @@ exports[`economic model > report data, core and pump choice 1`] = `
      "customdata": [
       "Butane_1 102 °C<br>Heat pump: 203 kW (54 %)<br>Rest from Electric boiler: 173 kW<br>COP: 5,67"
      ],
-     "hovertemplate": "<b>Analysed heat pump</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
+     "hovertemplate": "<b>Selected HP</b><br>%{customdata}<br>Net present value: %{y:,.0f} €<extra></extra>"
     }
    ],
    "layout": {
