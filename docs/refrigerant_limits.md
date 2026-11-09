@@ -1,4 +1,4 @@
-# Step 3 — Refrigerant Operating Limits
+# Refrigerant Operating Limits
 
 The following table lists the operating temperature ranges and COP bounds for all refrigerant alternatives defined in `models/cop/cop_ranges.json`. These limits are used by the Heat Pump Optimization engine to filter feasible candidates.
 

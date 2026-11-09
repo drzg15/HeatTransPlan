@@ -63,16 +63,13 @@ Streams are placed on a real map rather than an abstract flowsheet, because a ma
 
 data_collection
 pinch_analysis
-heat_pump_integration
-heat_pump_optimization
-refrigerant_limits
+heat_pump_step
 economic_analysis
 ```
 
 ```{toctree}
 :maxdepth: 2
-:caption: API and architecture
+:caption: Architecture
 
-api_and_mcp
 architecture_and_security
 ```

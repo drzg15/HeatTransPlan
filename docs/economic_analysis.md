@@ -142,9 +142,6 @@ Editing the investment sets the price per kW back through the same factors. The 
 | [Energy (2024): VHTHPs in European markets](https://www.sciencedirect.com/science/article/pii/S0360544224029220) | ~200–1.500 €/kW, ≥ 600 €/kW for lifts > 100 K |
 | [TNO / energy.nl factsheet](https://energy.nl/wp-content/uploads/industrial-high-temperature-heat-pump-2-7.pdf) | 300–900 €/kW up to 160 °C |
 
-> [!NOTE]
-> **Deviation from VDI 4646:2026 — heat pump price and integration factor.** [4646:2026] eq. (25)/(26) with Tabelle 6 (p. 58–59) gives an installed price that falls with size: about 643 €/kW at 100 kW, 476 at 300 kW, 428 at 1 MW and 389 at 3 MW. Its factors are fitted to cheap machines (≈ 215 €/kW machine at 250 kW), where the periphery is a large share. With a 1.000 €/kW machine, the norm's $F_{Per}$ = 1,8 would give 2.250 €/kW installed, far above current data, so the app uses 1,35. It also uses one flat price per kW, so economies of scale are not modelled. The VDI value is shown for comparison under *Detailed results* (Tabelle 6 prints "≤ 210 kW" on both rows; the second means "> 210 kW").
-
 The full-load hours default to 6.000 h as in [4646:2026]; with a load profile, set $h$ to the real full-load hours. All inputs are kept for the whole project: every saved scenario is evaluated with the same prices and assumptions, so scenarios differ only in their heat pump.
 
 ---

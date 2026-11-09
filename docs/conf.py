@@ -4,7 +4,13 @@ copyright = "2024, HeatTransPlan Contributors"
 author = "HeatTransPlan Contributors"
 
 # -- General configuration -----------------------------------------------------
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath("_ext"))
+
 extensions = [
+    "symbol_tips",  # hover a formula symbol to see what it means
     "myst_parser",
     "sphinx_togglebutton",
     "sphinx_copybutton",
@@ -48,4 +54,4 @@ copybutton_prompt_is_regexp = True
 
 # Don't complain about missing includes from backend source
 # _generated/ is not a page of the site (no page links or includes it).
-exclude_patterns = ["_build", "_generated", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "_generated", "api_and_mcp.md", "Thumbs.db", ".DS_Store"]
