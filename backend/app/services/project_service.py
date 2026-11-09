@@ -16,17 +16,23 @@ from __future__ import annotations
 import json
 import os
 import tempfile
+import time
 import uuid
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Optional
 
 from app.models.project import ProjectState
+from app.services import live
 
 
 STATE_DIR = Path(
     os.getenv("HEATTRANSPLAN_STATE_DIR", Path(tempfile.gettempdir()) / "heattransplan_projects")
 )
+# Projects hold a site's process data: one nobody has changed for this long,
+# and no open session uses, is deleted. The page keeps its own copy.
+RETENTION_SECONDS = float(os.getenv("PROJECT_RETENTION_HOURS", "24")) * 3600
+_last_cleanup = 0.0
 
 
 def _ensure_dir() -> Path:
@@ -59,6 +65,7 @@ def _write(project_id: str, state: ProjectState) -> None:
 
 def create_project(state: Optional[ProjectState] = None) -> tuple[str, ProjectState]:
     """Create a new project, optionally initialized from an existing state."""
+    forget_old_projects()
     project_id = str(uuid.uuid4())
     if state is None:
         state = ProjectState()
@@ -82,8 +89,9 @@ def get_project(project_id: str) -> Optional[ProjectState]:
         return None
 
 
-def update_project(project_id: str, state: ProjectState) -> Optional[ProjectState]:
-    """Replace the full project state."""
+def update_project(project_id: str, state: ProjectState, origin: Optional[str] = None) -> Optional[ProjectState]:
+    """Replace the full project state. Pages showing the project live are told,
+    except `origin`, the live session the change came from."""
     try:
         if not _path_for(project_id).exists():
             return None
@@ -91,6 +99,7 @@ def update_project(project_id: str, state: ProjectState) -> Optional[ProjectStat
         return None
     state.timestamp = datetime.now().isoformat()
     _write(project_id, state)
+    live.notify_project(project_id, state, origin)
     return state
 
 
@@ -106,11 +115,18 @@ def delete_project(project_id: str) -> bool:
     return True
 
 
-def list_projects() -> Dict[str, str]:
-    """Return dict of project_id → timestamp for all projects."""
-    projects: Dict[str, str] = {}
+def forget_old_projects() -> None:
+    """Delete projects untouched for RETENTION_SECONDS that no session uses.
+    Runs at most once a minute, when a project is created."""
+    global _last_cleanup
+    now = time.time()
+    if now - _last_cleanup < 60:
+        return
+    _last_cleanup = now
+    in_use = live.project_ids()
     for path in _ensure_dir().glob("*.json"):
-        state = get_project(path.stem)
-        if state is not None:
-            projects[path.stem] = state.timestamp or ""
-    return projects
+        try:
+            if path.stem not in in_use and now - path.stat().st_mtime > RETENTION_SECONDS:
+                path.unlink()
+        except FileNotFoundError:
+            pass  # another request removed it first

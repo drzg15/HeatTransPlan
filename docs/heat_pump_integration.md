@@ -1,4 +1,4 @@
-# Heat Pump Integration — Classic Method
+# Classic Method
 
 Heat Pump Integration (HPI) determines the **operating point** for a heat pump placed on the Grand Composite Curve (GCC). It answers the key engineering questions: *At what source temperature should the heat pump extract waste heat? How much condenser duty can it deliver? And what is the resulting COP?*
 

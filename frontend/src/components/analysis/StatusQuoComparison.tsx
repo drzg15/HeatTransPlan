@@ -18,11 +18,7 @@ export default function StatusQuoComparison() {
   const hasDemands = energyDemands.some((d) => d.heat_demand > 0 || d.cooling_demand > 0);
 
   if (!hasDemands) {
-    return (
-      <div className="pa-info-box">
-        {t('analysis.tables.status_quo.warning')}
-      </div>
-    );
+    return <div className="pa-info-box">{t('analysis.tables.status_quo.warning')}</div>;
   }
 
   if (!statusQuoResult) return null;
@@ -47,7 +43,9 @@ export default function StatusQuoComparison() {
 
   // Find best HP for coverage columns
   const bestHP = getBestHP(hpiResult, selectedHPTypes);
-  const hpLabel = bestHP ? `${t('analysis.tables.status_quo.hp_cov_kw')} – ${bestHP.name}` : t('analysis.tables.status_quo.hp_cov_kw');
+  const hpLabel = bestHP
+    ? `${t('analysis.tables.status_quo.hp_cov_kw')} – ${bestHP.name}`
+    : t('analysis.tables.status_quo.hp_cov_kw');
   let hpHeatCov = 'N/A',
     hpCoolCov = 'N/A',
     hpHeatPct = 'N/A',

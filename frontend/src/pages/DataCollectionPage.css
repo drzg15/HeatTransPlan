@@ -88,6 +88,19 @@
   background: var(--surface-hover, #f8f8f8);
 }
 
+/* The search button lives inside the search field. */
+.action-bar .ab-search-btn {
+  height: 26px;
+  min-height: 26px;
+  border: none;
+  background: transparent;
+}
+.action-bar :is(.ab-search, .ab-base-select) {
+  height: 32px;
+  border-radius: 8px;
+  border-color: var(--line-strong);
+  background-color: var(--well);
+}
 /* ── Mobile pane switcher ─────────────────────────────── */
 .dc-pane-switch {
   display: flex;

@@ -1,0 +1,394 @@
+/** The economic analysis without the UI: inputs, the pump analysed, the result
+ *  table, key results, summary text and chart specs. The panel renders it; the
+ *  scenario comparison and the HTML report reuse it, so all three agree.
+ *  The numbers come from the backend (POST /analysis/economics); this file
+ *  only words, formats and draws them. */
+
+import type { TFunction } from 'i18next';
+import { formatDe } from '../../utils/numberFormat';
+import type { OptimizedIntegrationPoint } from '../../types/analysis';
+import type { EconNumbers } from '../../types/economics';
+import {
+  BOOL_FIELDS,
+  FIELDS,
+  GREEN,
+  GROUPS,
+  KPI_COLORS,
+  KPI_ROWS,
+  RED,
+  RESULT_ROWS_ENERGY,
+  RESULT_ROWS_MONEY,
+  SIGNED_ROWS,
+  pointName,
+  type Form,
+  type RefType,
+} from './econConfig';
+import {
+  investmentChart,
+  npvChart,
+  priceChart,
+  sensitivityChart,
+  sizeChart,
+  type ChartCtx,
+} from './econCharts';
+
+/** Everything the panel and the report show: tables, key results, summary and
+ *  chart specs (Plotly data + layout), from the backend's numbers. */
+export function buildEconomics(
+  t: TFunction,
+  form: Form,
+  refType: RefType,
+  n: EconNumbers | null,
+  isDark = false
+) {
+  if (!n) return null;
+  const { points, refSys, ref, variants, results, breakEven } = n;
+  const inp = n.inputs;
+  // The CO₂ rows count CO₂-equivalents incl. upstream chain when that is on.
+  const co2e = inp.co2eFuel != null ? ' (CO₂e)' : '';
+  const PAYBACK_HORIZON = n.horizon;
+  // Investment and specific investment are one value seen two ways: I = c_spez · Q.
+  const capexOf = (p: OptimizedIntegrationPoint) => Math.round(n.specTotal * p.Q_demand);
+  const core = {
+    pump: n.pump,
+    points,
+    inp,
+    refSys,
+    ref,
+    specTotal: n.specTotal,
+    capexOf,
+    variants,
+    results,
+    breakEven,
+  };
+  const fuel = t(`economics.fuel.${refType}`);
+  const refName = t(`economics.ref.${refType}`);
+
+  // Units read out: "a" → "years", "/a" → "/year", where there is room.
+  const unitLabel = (u: string) =>
+    u === 'a' ? t('economics.years') : u.replace(/\/a$/, `/${t('economics.year')}`);
+
+  const paybackText = (k: number | null) =>
+    k === null
+      ? t('economics.payback_never', { year: form.year + PAYBACK_HORIZON })
+      : `${formatDe(k, 1, true, 1)} ${t('economics.years')} / ${form.year + Math.ceil(k)}`;
+
+  const rows: Array<[string, string, string, string, string[]]> = [
+    ['q', t('economics.rows.q'), 'kW', formatDe(refSys.Q), points.map((p) => formatDe(p.Q_demand))],
+    [
+      'qsrc',
+      t('economics.rows.qsrc'),
+      'kW',
+      formatDe(refSys.Qsrc),
+      points.map((p) => formatDe(p.Q_source)),
+    ],
+    ['cop', 'COP', '-', '–', points.map((p) => formatDe(p.COP, 2))],
+    [
+      'fuel',
+      t('economics.rows.fuel', { fuel }),
+      'kWh/a',
+      formatDe(ref.fuel),
+      results.map((r) => formatDe(r.fuel)),
+    ],
+    ['el', t('economics.rows.el'), 'kWh/a', '0', results.map((r) => formatDe(r.el))],
+    [
+      'elCool',
+      t('economics.rows.elCool'),
+      'kWh/a',
+      formatDe(ref.elCool),
+      results.map((r) => formatDe(r.elCool)),
+    ],
+    [
+      'opex1',
+      t('economics.rows.opex1'),
+      '€/a',
+      formatDe(ref.opex1),
+      results.map((r) => formatDe(r.opex1)),
+    ],
+    [
+      'energy_saving',
+      t('economics.rows.energy_saving'),
+      'kWh/a',
+      '–',
+      results.map((r) => formatDe(r.energySaving)),
+    ],
+    ['saving1', t('economics.rows.saving1'), '€/a', '–', results.map((r) => formatDe(r.saving1))],
+    [
+      'co2',
+      t('economics.rows.co2') + co2e,
+      't/a',
+      formatDe(ref.co2, 1),
+      results.map((r) => formatDe(r.co2, 1)),
+    ],
+    [
+      'co2_saving',
+      t('economics.rows.co2_saving') + co2e,
+      't/a',
+      '–',
+      results.map((r) => formatDe(r.co2Saving, 1)),
+    ],
+    ['payback', t('economics.rows.payback'), 'a', '–', results.map((r) => paybackText(r.payback))],
+    ['residual', t('economics.rows.residual'), '€', '–', results.map((r) => formatDe(r.residual))],
+    ['npv', t('economics.rows.npv'), '€', '–', results.map((r) => formatDe(r.npv))],
+    [
+      'breakeven',
+      t('economics.rows.breakeven'),
+      'ct/kWh',
+      '–',
+      breakEven.map((p) => (p === null ? '–' : formatDe(100 * p, 2))),
+    ],
+    [
+      'payback_static',
+      t('economics.rows.payback_static'),
+      'a',
+      '–',
+      results.map((r) =>
+        r.paybackStatic === null ? t('economics.never') : formatDe(r.paybackStatic, 1)
+      ),
+    ],
+    [
+      'irr',
+      t('economics.rows.irr'),
+      '%',
+      '–',
+      results.map((r) => (r.irr === null ? '–' : formatDe(100 * r.irr, 1))),
+    ],
+    [
+      'lcoh_hp',
+      t('economics.rows.lcoh_hp'),
+      'ct/kWh',
+      '–',
+      results.map((r) => formatDe(100 * r.lcohHp, 2)),
+    ],
+    [
+      'lcoh_ref',
+      t('economics.rows.lcoh_ref', { ref: refName }),
+      'ct/kWh',
+      results[0] ? formatDe(100 * results[0].lcohRef, 2) : '–',
+      results.map(() => '–'),
+    ],
+    [
+      'alpha',
+      t('economics.rows.alpha'),
+      '-',
+      '–',
+      results.map(
+        (r, k) => `${formatDe(r.alpha, 3)} (COP_α ${formatDe(points[k].COP / r.alpha, 2)})`
+      ),
+    ],
+    [
+      'spec_total',
+      t('economics.rows.spec_total'),
+      '€/kW',
+      '–',
+      points.map(() => formatDe(core.specTotal)),
+    ],
+    [
+      'capex_vdi',
+      t('economics.rows.capex_vdi'),
+      '€/kW',
+      '–',
+      n.vdiSpecificCost.map((v) => formatDe(v)),
+    ],
+  ];
+
+  // Key results of the pump analysed, ready to draw as cards.
+  const kpis = KPI_ROWS.map((key) => {
+    const [, label, unit, , vals] = rows.find((r) => r[0] === key)!;
+    const v = vals[0] ?? '–';
+    const signed = SIGNED_ROWS.has(key) && v !== '–';
+    // CO₂: the whole period as the headline, the yearly figure underneath.
+    const co2 = key === 'co2_saving' && results[0];
+    // Heat cost: the reference heater's underneath, to compare with.
+    const lcohRef = key === 'lcoh_hp' && results[0];
+    return {
+      key,
+      label,
+      color: KPI_COLORS[key],
+      // A loss still shows in red, whatever the card's colour.
+      valueColor: signed && v.startsWith('-') ? RED : KPI_COLORS[key],
+      value: co2 ? formatDe(results[0].co2Saving * inp.T) : v,
+      // The payback text already carries its unit.
+      unit: co2
+        ? `t ${t('economics.in_years', { T: inp.T })}`
+        : key === 'payback'
+          ? ''
+          : unitLabel(unit),
+      sub: co2
+        ? `= ${v} ${unitLabel(unit)}`
+        : lcohRef
+          ? `${refName}: ${formatDe(100 * lcohRef.lcohRef, 2)} ${unitLabel(unit)}`
+          : '',
+    };
+  });
+
+  // Plain-language summary of the pump analysed.
+  const summaries = points.map((p, k) => {
+    const v = variants[k];
+    const r = results[k];
+    const be = breakEven[k];
+    const coverage = refSys.Q > 0 ? (100 * p.Q_demand) / refSys.Q : 0;
+    const eur = (v: number) => `${formatDe(Math.abs(v))} €`;
+    const parts = [
+      t('economics.summary.coverage', {
+        q: formatDe(p.Q_demand),
+        qref: formatDe(refSys.Q),
+        pct: formatDe(coverage, 0),
+        cop: formatDe(p.COP, 2),
+        qsrc: formatDe(p.Q_source),
+      }),
+      coverage < 99.5 ? t('economics.summary.rest', { ref: refName }) : '',
+      t('economics.summary.energy', {
+        fuelKwh: formatDe(ref.fuel - r.fuel),
+        fuel,
+        el: formatDe(r.el),
+        saving: formatDe(r.energySaving),
+        co2: formatDe(r.co2Saving, 1),
+      }),
+      inp.coolShare > 0
+        ? t('economics.summary.cooling', { kwh: formatDe(ref.elCool - r.elCool) })
+        : '',
+      t(r.saving1 >= 0 ? 'economics.summary.saving_pos' : 'economics.summary.saving_neg', {
+        eur: eur(r.saving1),
+      }),
+      t('economics.summary.invest', { eur: eur(v.capex), funding: form.funding }),
+      r.payback === null
+        ? t('economics.summary.payback_never', { years: PAYBACK_HORIZON })
+        : t('economics.summary.payback', {
+            years: formatDe(r.payback, 1, true, 1),
+            year: form.year + Math.ceil(r.payback),
+          }),
+      t(r.npv >= 0 ? 'economics.summary.npv_pos' : 'economics.summary.npv_neg', {
+        T: inp.T,
+        eur: eur(r.npv),
+        rv: eur(r.residual),
+      }),
+      t('economics.summary.lcoh', {
+        hp: formatDe(100 * r.lcohHp, 2),
+        refv: formatDe(100 * r.lcohRef, 2),
+        ref: refName,
+        pp:
+          r.paybackStatic === null
+            ? t('economics.never')
+            : `${formatDe(r.paybackStatic, 1)} ${t('economics.years')}`,
+        irr: r.irr === null ? '–' : `${formatDe(100 * r.irr, 1)} %`,
+      }),
+      be === null || be <= 0
+        ? t('economics.summary.be_never', { ref: refName })
+        : t('economics.summary.be', {
+            pe: formatDe(100 * be, 2),
+            fuel,
+            pf: formatDe(form.pFuel, 2),
+          }),
+    ];
+    return {
+      name: pointName(p),
+      good: r.npv >= 0,
+      text: parts.filter(Boolean).join(' '),
+    };
+  });
+  // ---- charts ----
+  const istName = t('economics.ist', { ref: refName });
+  const ctx: ChartCtx = {
+    n,
+    t,
+    form,
+    inp,
+    refSys,
+    ref,
+    variants,
+    results,
+    breakEven,
+    points,
+    isDark,
+    fuel,
+    refName,
+    istName,
+  };
+  const bar = investmentChart(ctx);
+  const price = priceChart(ctx);
+  const { sens, sensExplain } = sensitivityChart(ctx);
+  const { size, sizeExplain, sizes } = sizeChart(ctx);
+  const npv = npvChart(ctx);
+
+  return {
+    ...core,
+    fuel,
+    refName,
+    istName,
+    unitLabel,
+    rows,
+    kpis,
+    summaries,
+    sensExplain,
+    sizeExplain,
+    sizes,
+    figures: { bar, price, npv, sens, size },
+  };
+}
+
+/** The economic analysis of one scenario as plain data for the HTML report:
+ *  translated labels, formatted values and the chart specs. */
+export function econReportData(t: TFunction, form: Form, refType: RefType, n: EconNumbers | null) {
+  const e = buildEconomics(t, form, refType, n);
+  if (!e) return null;
+  const fmtInput = (key: keyof Form) =>
+    BOOL_FIELDS.includes(key)
+      ? t(form[key] ? 'economics.yes' : 'economics.no')
+      : formatDe(form[key], 4, key !== 'year' && key !== 'reinvestYear');
+  return {
+    title: t('economics.title'),
+    pump: pointName(e.pump),
+    labels: {
+      key: t('economics.blocks.results'),
+      inputs: t('economics.report_inputs'),
+      results: t('economics.report_results'),
+      charts: t('economics.blocks.charts'),
+      sensitivity: t('economics.blocks.sensitivity'),
+      size: t('economics.blocks.size'),
+      summary: t('economics.blocks.summary'),
+    },
+    kpis: e.kpis,
+    inputs: GROUPS.map((g) => ({
+      title: t(`economics.groups.${g}`),
+      rows: [
+        ...(g === 'reference'
+          ? [[t('economics.inputs.refType'), t(`economics.ref.${refType}`), '']]
+          : []),
+        ...FIELDS.filter((f) => f[2] === g).map(([key, unit]) => [
+          t(`economics.inputs.${key}`, { fuel: e.fuel }),
+          fmtInput(key),
+          e.unitLabel(unit),
+        ]),
+      ],
+    })),
+    results: [RESULT_ROWS_ENERGY, RESULT_ROWS_MONEY].map((keys, half) => ({
+      headers: [
+        t(half === 0 ? 'economics.section_energy' : 'economics.section_money'),
+        t('economics.unit'),
+        e.istName,
+        pointName(e.pump),
+      ],
+      rows: keys
+        .map((k) => e.rows.find((r) => r[0] === k)!)
+        .filter(Boolean)
+        .map(([key, label, unit, ist, vals]) => ({
+          cells: [label, e.unitLabel(unit), ist, vals[0]],
+          color:
+            SIGNED_ROWS.has(key) && vals[0] !== '–' ? (vals[0].startsWith('-') ? RED : GREEN) : '',
+        })),
+    })),
+    sens_explain: e.sensExplain,
+    size_explain: e.sizeExplain,
+    summary: e.summaries[0],
+    figures: [e.figures.bar, e.figures.price, e.figures.npv, e.figures.sens, e.figures.size],
+    // Raw numbers for the comparison page.
+    numbers: {
+      capex: e.variants[0].capex,
+      npv: e.results[0].npv,
+      saving1: e.results[0].saving1,
+      payback: e.results[0].payback,
+      co2_saving: e.results[0].co2Saving,
+    },
+  };
+}

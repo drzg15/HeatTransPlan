@@ -1,4 +1,20 @@
 import csv
+import tempfile
+
+
+def write_streams_csv(t_min, streams):
+    """Write streams in the file format Streams reads; returns the file's path.
+
+    `streams` yields (CP, T_supply, T_target) rows. The caller deletes the file.
+    """
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False, newline="") as tmp:
+        writer = csv.writer(tmp)
+        writer.writerow(["Tmin", str(t_min)])
+        writer.writerow(["CP", "TSUPPLY", "TTARGET"])
+        for cp, ts, tt in streams:
+            writer.writerow([str(cp), str(ts), str(tt)])
+    return tmp.name
+
 
 class Streams:
 

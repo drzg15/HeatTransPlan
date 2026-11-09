@@ -6,7 +6,7 @@
  *  which is cheap, so its COP is high. Pushing coverage towards 100 % forces
  *  the sink temperature up and the COP down. This chart is that trade-off. */
 
-import Plot from 'react-plotly.js';
+import Plot from './Plot';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useUIStore } from '../../store/uiStore';
@@ -88,9 +88,7 @@ export default function CopCoverageChart() {
       // Each coverage level is a duty, so the tick carries both.
       tickmode: 'array' as const,
       tickvals: kwTicks.map((k) => k.c),
-      ticktext: kwTicks.map(
-        (k) => `${k.c} %<br>${k.kw.toFixed(0)} kW<br>${k.t.toFixed(0)} °C`
-      ),
+      ticktext: kwTicks.map((k) => `${k.c} %<br>${k.kw.toFixed(0)} kW<br>${k.t.toFixed(0)} °C`),
       automargin: true,
       gridcolor: isDark ? '#334155' : '#E2E8F0',
       tickfont: { color: isDark ? '#94A3B8' : '#5F6368' },

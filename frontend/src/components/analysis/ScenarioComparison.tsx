@@ -1,9 +1,12 @@
 import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import Plot from 'react-plotly.js';
+import Plot from './Plot';
 import { useAnalysisStore } from '../../store/analysisStore';
 import { useProjectStore } from '../../store/projectStore';
 import MapViewer from '../map/MapViewer';
+import { useEconomicsList } from '../../hooks/useEconomics';
+import { GREEN, RED } from './econConfig';
+import { formatDe } from '../../utils/numberFormat';
 import './ScenarioComparison.css';
 
 const ScenarioComparison: React.FC = () => {
@@ -13,6 +16,20 @@ const ScenarioComparison: React.FC = () => {
   const projectState = useProjectStore((s) => s.state);
   const loadScenario = useAnalysisStore((s) => s.loadScenario);
   const deleteScenario = useAnalysisStore((s) => s.deleteScenario);
+  const econForm = useAnalysisStore((s) => s.econForm);
+  const econRefType = useAnalysisStore((s) => s.econRefType);
+
+  // Economics of each scenario's pump, all under the same inputs (prices,
+  // investment per kW, …) from the Economic analysis section.
+  const jobs = useMemo(
+    () =>
+      scenarios.map((sc) => ({
+        selected: sc.selectedHPPoints ?? [],
+        opt: sc.hpiOptimizationResult,
+      })),
+    [scenarios]
+  );
+  const econ = useEconomicsList(jobs, econForm, econRefType).numbers;
 
   // Group data for comparison charts
   const chartData = useMemo(() => {
@@ -35,8 +52,8 @@ const ScenarioComparison: React.FC = () => {
   return (
     <div className="scenario-comparison">
       <div className="sc-header">
-        <h2>📊 Scenario Comparison Dashboard</h2>
-        <p className="sc-subtitle">Analyze and compare saved exploration states side-by-side</p>
+        <h2>{t('scenario_cmp.title')}</h2>
+        <p className="sc-subtitle">{t('scenario_cmp.subtitle')}</p>
       </div>
 
       {/* 1. Scenario Cards - Now at Top */}
@@ -58,7 +75,7 @@ const ScenarioComparison: React.FC = () => {
                   <h3
                     onClick={() => loadScenario(idx)}
                     style={{ cursor: 'pointer', margin: 0 }}
-                    title="Click to load this scenario"
+                    title={t('scenario_cmp.load_hint')}
                   >
                     {scen.name}
                     {isActive && (
@@ -114,6 +131,7 @@ const ScenarioComparison: React.FC = () => {
                   baseTile={projectState.current_base || 'OpenStreetMap'}
                   onClick={() => {}}
                   onMoveEnd={() => {}}
+                  bearing={projectState.map_bearing}
                   subprocessMapExpanded={{}}
                   childMapExpanded={{}}
                   selectionActive={false}
@@ -132,7 +150,7 @@ const ScenarioComparison: React.FC = () => {
                     marginBottom: 8,
                   }}
                 >
-                  <span style={{ color: '#64748b' }}>Pinch Temp.</span>
+                  <span style={{ color: '#64748b' }}>{t('scenario_cmp.pinch_temp')}</span>
                   <span style={{ fontWeight: 600 }}>
                     {scen.pinchResult?.pinch_temperature.toFixed(1)} °C
                   </span>
@@ -145,7 +163,7 @@ const ScenarioComparison: React.FC = () => {
                     marginBottom: 4,
                   }}
                 >
-                  <span style={{ color: '#64748b' }}>Heat Savings</span>
+                  <span style={{ color: '#64748b' }}>{t('scenario_cmp.heat_savings')}</span>
                   <span style={{ color: '#10b981', fontWeight: 700 }}>
                     {scen.statusQuoResult?.heating_savings_pct.toFixed(1)}%
                   </span>
@@ -157,7 +175,7 @@ const ScenarioComparison: React.FC = () => {
                 onClick={() => loadScenario(idx)}
                 style={{ background: isActive ? '#3b82f6' : '', color: isActive ? 'white' : '' }}
               >
-                {isActive ? 'Scenario Selected' : 'Load Scenario'}
+                {isActive ? t('scenario_cmp.selected') : t('scenario_cmp.load')}
               </button>
             </div>
           );
@@ -166,9 +184,10 @@ const ScenarioComparison: React.FC = () => {
 
       {/* 2. Combined Comparison Table - Now in Middle */}
       <div className="sc-table-section pa-section">
-        <h3>📊 Combined Status Quo vs. Proposal Comparison</h3>
+        <h3>{t('scenario_cmp.combined')}</h3>
         <p className="sc-subtitle" style={{ marginBottom: 16 }}>
-          Aggregated performance data across all saved scenarios.
+          Aggregated performance data across all saved scenarios.{' '}
+          {t('economics.compare_note', { T: Math.round(econForm.T) })}
         </p>
         <div className="scroll-x">
           <table className="pa-table" style={{ width: '100%', minWidth: '800px' }}>
@@ -178,46 +197,83 @@ const ScenarioComparison: React.FC = () => {
                   rowSpan={2}
                   style={{ textAlign: 'left', background: '#f1f5f9', color: '#334155' }}
                 >
-                  Scenario
+                  {t('scenario_cmp.scenario')}
                 </th>
                 <th
                   colSpan={2}
                   style={{ textAlign: 'center', background: '#fecaca', color: '#991b1b' }}
                 >
-                  Heating (kW)
+                  {t('scenario_cmp.heating')}
                 </th>
                 <th
                   colSpan={2}
                   style={{ textAlign: 'center', background: '#bfdbfe', color: '#1e40af' }}
                 >
-                  Cooling (kW)
+                  {t('scenario_cmp.cooling')}
                 </th>
                 <th
                   colSpan={2}
                   style={{ textAlign: 'center', background: '#a7f3d0', color: '#065f46' }}
                 >
-                  Heat Recovery Potential
+                  {t('scenario_cmp.recovery')}
                 </th>
                 <th
                   colSpan={2}
                   style={{ textAlign: 'center', background: '#ddd6fe', color: '#5b21b6' }}
                 >
-                  HP Integration
+                  {t('scenario_cmp.hpi')}
+                </th>
+                <th
+                  colSpan={4}
+                  style={{ textAlign: 'center', background: '#fde68a', color: '#78350f' }}
+                >
+                  {t('economics.title')}
                 </th>
               </tr>
               <tr>
-                <th style={{ background: '#fee2e2', color: '#b91c1c' }}>Status Quo</th>
-                <th style={{ background: '#fee2e2', color: '#b91c1c' }}>Pinch Min.</th>
-                <th style={{ background: '#dbeafe', color: '#1d4ed8' }}>Status Quo</th>
-                <th style={{ background: '#dbeafe', color: '#1d4ed8' }}>Pinch Min.</th>
-                <th style={{ background: '#d1fae5', color: '#047857' }}>Savings (kW)</th>
-                <th style={{ background: '#d1fae5', color: '#047857' }}>Savings (%)</th>
-                <th style={{ background: '#ede9fe', color: '#6d28d9' }}>Best COP</th>
-                <th style={{ background: '#ede9fe', color: '#6d28d9' }}>Coverage (%)</th>
+                <th style={{ background: '#fee2e2', color: '#b91c1c' }}>
+                  {t('scenario_cmp.status_quo')}
+                </th>
+                <th style={{ background: '#fee2e2', color: '#b91c1c' }}>
+                  {t('scenario_cmp.pinch_min')}
+                </th>
+                <th style={{ background: '#dbeafe', color: '#1d4ed8' }}>
+                  {t('scenario_cmp.status_quo')}
+                </th>
+                <th style={{ background: '#dbeafe', color: '#1d4ed8' }}>
+                  {t('scenario_cmp.pinch_min')}
+                </th>
+                <th style={{ background: '#d1fae5', color: '#047857' }}>
+                  {t('scenario_cmp.savings_kw')}
+                </th>
+                <th style={{ background: '#d1fae5', color: '#047857' }}>
+                  {t('scenario_cmp.savings_pct')}
+                </th>
+                <th style={{ background: '#ede9fe', color: '#6d28d9' }}>
+                  {t('scenario_cmp.best_cop')}
+                </th>
+                <th style={{ background: '#ede9fe', color: '#6d28d9' }}>
+                  {t('scenario_cmp.coverage')}
+                </th>
+                <th style={{ background: '#fef3c7', color: '#92400e' }}>
+                  {t('economics.rows.capex')} (€)
+                </th>
+                <th style={{ background: '#fef3c7', color: '#92400e' }}>
+                  {t('economics.rows.npv')} (€)
+                </th>
+                <th style={{ background: '#fef3c7', color: '#92400e' }}>
+                  {t('economics.rows.payback')}
+                </th>
+                <th style={{ background: '#fef3c7', color: '#92400e' }}>
+                  {t('economics.rows.saving1')} (€/{t('economics.year')})
+                </th>
               </tr>
             </thead>
             <tbody>
-              {scenarios.map((sc) => {
+              {scenarios.map((sc, idx) => {
+                const ec = econ[idx];
+                const npv = ec?.results[0].npv;
+                const payback = ec?.results[0].payback;
                 const sq = sc.statusQuoResult;
                 const pr = sc.pinchResult;
                 const hpi = sc.hpiResult;
@@ -241,7 +297,9 @@ const ScenarioComparison: React.FC = () => {
                     <td style={{ fontWeight: 600 }}>
                       {sc.name}{' '}
                       {sc.id === activeScenarioId && (
-                        <span style={{ color: '#3b82f6', fontSize: '0.8em' }}>(Active)</span>
+                        <span style={{ color: '#3b82f6', fontSize: '0.8em' }}>
+                          {t('scenario_cmp.active')}
+                        </span>
                       )}
                     </td>
                     <td style={{ textAlign: 'right' }}>
@@ -279,6 +337,28 @@ const ScenarioComparison: React.FC = () => {
                       }}
                     >
                       {hCov.toFixed(1)}%
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {ec ? formatDe(ec.variants[0].capex) : '—'}
+                    </td>
+                    <td
+                      style={{
+                        textAlign: 'right',
+                        fontWeight: 700,
+                        color: npv === undefined ? undefined : npv < 0 ? RED : GREEN,
+                      }}
+                    >
+                      {npv === undefined ? '—' : formatDe(npv)}
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {!ec
+                        ? '—'
+                        : payback == null
+                          ? t('economics.payback_never_short')
+                          : `${formatDe(payback, 1, true, 1)} ${t('economics.years')}`}
+                    </td>
+                    <td style={{ textAlign: 'right' }}>
+                      {ec ? formatDe(ec.results[0].saving1) : '—'}
                     </td>
                   </tr>
                 );
@@ -340,7 +420,42 @@ const ScenarioComparison: React.FC = () => {
                 height: 300,
                 margin: { l: 40, r: 40, t: 40, b: 60 },
                 legend: { orientation: 'h', y: -0.2 },
-                yaxis: { title: 'Best COP', autorange: true, rangemode: 'tozero', gridcolor: '#f1f5f9' },
+                yaxis: {
+                  title: t('scenario_cmp.best_cop'),
+                  autorange: true,
+                  rangemode: 'tozero',
+                  gridcolor: '#f1f5f9',
+                },
+                paper_bgcolor: 'transparent',
+                plot_bgcolor: 'transparent',
+              }}
+              config={{ responsive: true, displayModeBar: false }}
+              style={{ width: '100%' }}
+            />
+          </div>
+          <div className="sc-chart-card">
+            <Plot
+              data={[
+                {
+                  x: chartData.names,
+                  y: econ.map((ec) => ec?.results[0].npv ?? null),
+                  name: t('economics.rows.npv'),
+                  type: 'bar',
+                  marker: {
+                    color: econ.map((ec) => ((ec?.results[0].npv ?? 0) < 0 ? RED : GREEN)),
+                  },
+                  hovertemplate: '%{x}: %{y:,.0f} €<extra></extra>',
+                },
+              ]}
+              layout={{
+                title: {
+                  text: t('economics.compare_npv_title', { T: Math.round(econForm.T) }),
+                  font: { size: 14 },
+                },
+                height: 300,
+                separators: ',.',
+                margin: { l: 70, r: 20, t: 40, b: 60 },
+                yaxis: { title: { text: '€' }, tickformat: ',.0f', zeroline: true },
                 paper_bgcolor: 'transparent',
                 plot_bgcolor: 'transparent',
               }}

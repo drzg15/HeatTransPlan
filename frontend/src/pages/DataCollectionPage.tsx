@@ -1,3 +1,4 @@
+import { ListTree, Map as MapIcon } from 'lucide-react';
 import { useState, useCallback, useEffect } from 'react';
 import { useTranslation, Trans } from 'react-i18next';
 import { useProjectStore } from '../store/projectStore';
@@ -7,11 +8,13 @@ import { useAnalysisStore } from '../store/analysisStore';
 import MapViewer from '../components/map/MapViewer';
 import type { ProcessNode } from '../types/process';
 import ProcessGroupList from '../components/process/ProcessGroupList';
-import ActionBar from '../components/io/ActionBar';
+import ActionBar, { type AddressMatch } from '../components/io/ActionBar';
 import StreamDataTable from '../components/analysis/StreamDataTable';
 import './DataCollectionPage.css';
+import { PartBanner } from '../components/ui/Part';
 import CollectionHelp from '../components/ui/CollectionHelp';
 import { useIsMobile } from '../hooks/useMediaQuery';
+import { orphanProcesses, removeProcesses } from '../utils/processIndex';
 
 export default function DataCollectionPage() {
   const { t } = useTranslation();
@@ -37,16 +40,23 @@ export default function DataCollectionPage() {
   const [mobilePane, setMobilePane] = useState<'editor' | 'map'>('map');
 
   const [addressSearch, setAddressSearch] = useState('');
-  const [_searchResults, setSearchResults] = useState<any[]>([]);
+  const [addressMatches, setAddressMatches] = useState<AddressMatch[]>([]);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
-  // Auto-sync UI mode with map_locked state (e.g., when loading files)
-  useEffect(() => {
+  // Auto-sync UI mode with map_locked state (e.g., when loading files), while
+  // rendering rather than in an effect, so the wrong mode is never drawn.
+  const [lockedSeen, setLockedSeen] = useState(state.map_locked);
+  if (lockedSeen !== state.map_locked) {
+    setLockedSeen(state.map_locked);
     setUiMode(state.map_locked ? 'analyze' : 'select');
-  }, [state.map_locked]);
+  }
 
-  // Upgrade legacy box scales automatically if loaded from local storage
+  // Upgrade legacy box scales automatically if loaded from local storage. Once,
+  // on the project as it is when the page opens: read from the stores
+  // directly, so the effect depends on nothing.
   useEffect(() => {
+    const { state, setProcesses, setGroups } = useProjectStore.getState();
+    const { selectedStreams, setSelectedStreams } = useAnalysisStore.getState();
     let changed = false;
     const processes = [...state.processes];
     processes.forEach((p, i) => {
@@ -65,7 +75,7 @@ export default function DataCollectionPage() {
     });
 
     const groups = { ...state.proc_group_coordinates };
-    Object.keys(groups).forEach(k => {
+    Object.keys(groups).forEach((k) => {
       const g = groups[parseInt(k)];
       if (g && (g.box_scale == null || parseFloat(String(g.box_scale)) < 1.5)) {
         groups[parseInt(k)] = { ...g, box_scale: 1.5 };
@@ -76,6 +86,16 @@ export default function DataCollectionPage() {
     if (changed) {
       setProcesses(processes);
       useProjectStore.getState().setGroupCoordinates(groups);
+    }
+
+    // Deletes before the fix in ProcessGroupList left the node in `processes`,
+    // so it kept turning up in the potential analysis. Clear those leftovers once.
+    const orphans = orphanProcesses(processes, state.proc_groups);
+    if (orphans.length) {
+      const next = removeProcesses(orphans, processes, state.proc_groups, selectedStreams);
+      setProcesses(next.processes);
+      setGroups(next.groups);
+      setSelectedStreams(next.selection);
     }
   }, []);
 
@@ -217,7 +237,7 @@ export default function DataCollectionPage() {
     const groupNames = [...state.proc_group_names];
     // Create a new empty subprocess (level 0 processes contain subprocesses)
     const newProcess = {
-      name: `Subprocess ${processes.length + 1}`,
+      name: t('data_collection.default_subprocess', { n: processes.length + 1 }),
       lat: '',
       lon: '',
       box_scale: 1.5,
@@ -230,37 +250,45 @@ export default function DataCollectionPage() {
     const newIdx = processes.length;
     processes.push(newProcess);
     groups.push([newIdx]);
-    groupNames.push(`Process ${groups.length}`);
+    groupNames.push(t('data_collection.default_process', { n: groups.length }));
 
     setProcesses(processes);
     setGroups(groups);
     setGroupNames(groupNames);
-    setStatusMsg(`Added Process ${groups.length}`);
-  }, [state, setProcesses, setGroups, setGroupNames]);
+    setStatusMsg(t('data_collection.added_process', { n: groups.length }));
+  }, [state, setProcesses, setGroups, setGroupNames, t]);
+
+  // The map goes to the first match; the others stay in a list to pick from,
+  // since a name like "Universität Kassel" can match several places.
+  const goTo = useCallback(
+    (match: AddressMatch) => {
+      setMapCenter([parseFloat(match.lat), parseFloat(match.lon)]);
+      setMapZoom(17);
+      setStatusMsg(t('ui.found', { name: match.display_name }));
+    },
+    [setMapCenter, setMapZoom, t]
+  );
 
   const handleAddressSearch = useCallback(async () => {
     if (!addressSearch.trim()) return;
     try {
       const resp = await fetch(
-        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+        `https://nominatim.openstreetmap.org/search?format=json&limit=5&q=${encodeURIComponent(
           addressSearch
         )}`
       );
-      const data = await resp.json();
+      const data: AddressMatch[] = await resp.json();
+      setAddressMatches(data);
       if (data.length > 0) {
-        setSearchResults(data);
-        const lat = parseFloat(data[0].lat);
-        const lon = parseFloat(data[0].lon);
-        setMapCenter([lat, lon]);
-        setMapZoom(17);
-        setStatusMsg(`Found: ${data[0].display_name}`);
+        goTo(data[0]);
       } else {
-        setStatusMsg('No results found');
+        setStatusMsg(t('ui.no_results'));
       }
     } catch {
-      setStatusMsg('Search failed');
+      setAddressMatches([]);
+      setStatusMsg(t('ui.search_failed'));
     }
-  }, [addressSearch, setMapCenter, setMapZoom]);
+  }, [addressSearch, goTo, t]);
 
   // Handle map click (for placement or measurement)
   const handleMapClick = useCallback(
@@ -359,6 +387,13 @@ export default function DataCollectionPage() {
 
   return (
     <div className="dc-page">
+      {/* Step 1 of the app, in the same form as Potential Analysis' parts 2–4. */}
+      <PartBanner
+        n={1}
+        title={t('appshell.nav.data_collection')}
+        input={t('data_collection.part_in')}
+      />
+
       {/* Action bar */}
       <ActionBar
         uiMode={uiMode}
@@ -383,6 +418,8 @@ export default function DataCollectionPage() {
         addressSearch={addressSearch}
         onAddressSearchChange={setAddressSearch}
         onAddressSearchSubmit={handleAddressSearch}
+        addressMatches={addressMatches}
+        onAddressPick={goTo}
         showHelp={showTutorial}
         onHelpToggle={() => setShowTutorial(!showTutorial)}
       />
@@ -390,14 +427,14 @@ export default function DataCollectionPage() {
       {/* Pane switcher — only reachable on narrow screens, where the split
           view collapses and the two panes take turns. */}
       {isMobile && (
-        <div className="dc-pane-switch" role="tablist" aria-label="Data collection view">
+        <div className="dc-pane-switch" role="tablist" aria-label={t('ui.data_collection_view')}>
           <button
             role="tab"
             aria-selected={mobilePane === 'editor'}
             className={mobilePane === 'editor' ? 'active' : ''}
             onClick={() => setMobilePane('editor')}
           >
-            📋 Processes
+            <ListTree size={14} /> {t('ui.pane_processes')}
           </button>
           <button
             role="tab"
@@ -405,7 +442,7 @@ export default function DataCollectionPage() {
             className={mobilePane === 'map' ? 'active' : ''}
             onClick={() => setMobilePane('map')}
           >
-            🗺️ Map &amp; Data
+            <MapIcon size={14} /> {t('ui.pane_map')}
           </button>
         </div>
       )}
@@ -463,7 +500,7 @@ export default function DataCollectionPage() {
             onTouchStart={startResizing}
             role="separator"
             aria-orientation="vertical"
-            aria-label="Resize process panel"
+            aria-label={t('ui.resize_panel')}
           />
         )}
 
@@ -497,10 +534,16 @@ export default function DataCollectionPage() {
                   setMapZoom(zoom);
                 }
               }}
+              bearing={state.map_bearing}
+              onRotateEnd={(b) => useProjectStore.getState().setMapBearing(b)}
               subprocessMapExpanded={subprocessMapExpanded}
               childMapExpanded={{}}
               onProcessesChange={setProcesses}
               onGroupCoordinatesChange={(c) => useProjectStore.getState().setGroupCoordinates(c)}
+              sitePlan={state.site_plan}
+              onSitePlanChange={(p) => useProjectStore.getState().setSitePlan(p)}
+              canvasPlans={state.canvas_plans}
+              onCanvasPlansChange={(p) => useProjectStore.getState().setCanvasPlans(p)}
               onElementDoubleClick={handleElementDoubleClick}
               selectedStreams={selectedStreams}
               onProcessesSelect={(idxs, val) => {
@@ -546,7 +589,9 @@ export default function DataCollectionPage() {
                 </span>
                 {/* Cold scale */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('data_collection.cold')}</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                    {t('data_collection.cold')}
+                  </span>
                   <div
                     style={{
                       width: 40,
@@ -558,7 +603,9 @@ export default function DataCollectionPage() {
                 </div>
                 {/* Hot scale */}
                 <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('data_collection.hot')}</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                    {t('data_collection.hot')}
+                  </span>
                   <div
                     style={{
                       width: 40,
@@ -587,7 +634,9 @@ export default function DataCollectionPage() {
                       />
                     </svg>
                   ))}
-                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>{t('data_collection.q_power')}</span>
+                  <span style={{ fontSize: 9, color: 'var(--text-muted)' }}>
+                    {t('data_collection.q_power')}
+                  </span>
                 </div>
               </div>
             )}

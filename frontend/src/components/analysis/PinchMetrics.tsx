@@ -3,30 +3,48 @@
 import { useAnalysisStore } from '../../store/analysisStore';
 import ChartHelpButton from '../ui/ChartHelpButton';
 import { useTranslation } from 'react-i18next';
+import { usePinchLink, type LinkRegion } from '../../store/pinchLinkStore';
+
+// The chart area each card matches: hovering one lights up the others.
+const LINKED: Record<string, LinkRegion> = {
+  heating: 'deficit',
+  cooling: 'surplus',
+  recovery: 'recovery',
+  pinch: 'pinch',
+};
 
 export default function PinchMetrics() {
   const { t } = useTranslation();
   const pinchResult = useAnalysisStore((s) => s.pinchResult);
+  const recoveryPct = useAnalysisStore((s) => s.recoveryPct);
+  const region = usePinchLink((s) => s.region);
+  const setRegion = usePinchLink((s) => s.setRegion);
   if (!pinchResult) return null;
 
   const totalHotDuty = pinchResult.streams_data
     .filter((s) => s.ts > s.tt)
     .reduce((sum, s) => sum + Math.abs(s.cp * (s.tt - s.ts)), 0);
-  const heatRecovery = totalHotDuty - pinchResult.hot_utility;
+  // Heat not recovered at the chosen share: it has to be heated in and cooled
+  // away on top of the pinch minimums. At 0 % that is every stream's heat.
+  const d = (1 - recoveryPct / 100) * (totalHotDuty - pinchResult.cold_utility);
+  const heating = pinchResult.hot_utility + d;
+  const cooling = pinchResult.cold_utility + d;
+  // What the hot streams give off, less what still has to be cooled away.
+  const heatRecovery = totalHotDuty - cooling;
 
   const cards = [
     {
       key: 'heating',
       label: t('metrics.min_heating'),
       description: t('metrics.min_heating_desc'),
-      value: `${pinchResult.hot_utility.toFixed(2)} kW`,
+      value: `${heating.toFixed(2)} kW`,
       cls: 'hot',
     },
     {
       key: 'cooling',
       label: t('metrics.min_cooling'),
       description: t('metrics.min_cooling_desc'),
-      value: `${pinchResult.cold_utility.toFixed(2)} kW`,
+      value: `${cooling.toFixed(2)} kW`,
       cls: 'cold',
     },
     {
@@ -48,7 +66,12 @@ export default function PinchMetrics() {
   return (
     <div className="pa-metrics-row">
       {cards.map((c) => (
-        <div key={c.key} className={`pa-metric-card pa-metric-${c.cls}`}>
+        <div
+          key={c.key}
+          className={`pa-metric-card pa-metric-${c.cls}${LINKED[c.key] && LINKED[c.key] === region ? ' pa-metric-linked' : ''}`}
+          onMouseEnter={() => setRegion(LINKED[c.key] ?? null)}
+          onMouseLeave={() => setRegion(null)}
+        >
           <div
             className="pa-metric-label"
             style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
@@ -62,4 +85,3 @@ export default function PinchMetrics() {
     </div>
   );
 }
-

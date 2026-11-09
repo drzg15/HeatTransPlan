@@ -6,7 +6,12 @@ from __future__ import annotations
 from typing import Any, Dict, List, Optional
 from pydantic import BaseModel, Field
 
-from app.models.analysis import PinchResult, HeatPumpEntry, HPIOptimizationResult
+from app.models.analysis import (
+    HeatPumpEntry,
+    HPIOptimizationResult,
+    OptimizedIntegrationPoint,
+    PinchResult,
+)
 
 
 class ReportStream(BaseModel):
@@ -38,8 +43,15 @@ class ScenarioReportData(BaseModel):
     pinch_result: Optional[PinchResult] = None
     heat_pumps: List[HeatPumpEntry] = Field(default_factory=list)
     hpi_optimization_result: Optional[HPIOptimizationResult] = None
+    # Heat pumps the user picked on the optimization chart. Empty means the
+    # report falls back to the best real machine, which is what the page
+    # highlights before anything is clicked.
+    selected_hp_points: List[OptimizedIntegrationPoint] = Field(default_factory=list)
     energy_demands: List[ReportEnergyDemand] = Field(default_factory=list)
     t_min: float = 10.0
+    # Economic analysis of the scenario's pump, built by the frontend
+    # (econReportData): translated labels, formatted values, Plotly specs.
+    economics: Optional[Dict[str, Any]] = None
 
 
 class ReportRequest(BaseModel):
@@ -69,3 +81,6 @@ class ReportRequest(BaseModel):
 
     # Scenarios for comparison
     scenarios: List[ScenarioReportData] = Field(default_factory=list)
+
+    # Made by an AI assistant (through the MCP server): the report says so.
+    created_by_ai: bool = False

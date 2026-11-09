@@ -1,9 +1,22 @@
+import {
+  BookOpen,
+  ChartArea,
+  ClipboardList,
+  House,
+  Moon,
+  RotateCcw,
+  Save,
+  Sun,
+} from 'lucide-react';
 import { type ReactNode, useEffect, useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useUIStore } from '../../store/uiStore';
 import { useProjectStore } from '../../store/projectStore';
 import LanguagePicker from './LanguagePicker';
+import PageTourButton from '../ui/PageTourButton';
+import LiveButton from '../../live/LiveButton';
+import { useFeatures } from '../../hooks/useFeatures';
 import './AppShell.css';
 
 interface Props {
@@ -14,22 +27,25 @@ const NAV_ITEMS = [
   {
     path: '/',
     translationKey: 'appshell.nav.home',
-    icon: (
-      <img
-        src="/favicon.svg"
-        alt="HTP"
-        style={{ width: '1.2em', height: '1.2em', display: 'block' }}
-      />
-    ),
+    icon: <House size={16} />,
   },
-  { path: '/data-collection', translationKey: 'appshell.nav.data_collection', icon: '📊' },
-  { path: '/potential-analysis', translationKey: 'appshell.nav.potential_analysis', icon: '📈' },
+  {
+    path: '/data-collection',
+    translationKey: 'appshell.nav.data_collection',
+    icon: <ClipboardList size={16} />,
+  },
+  {
+    path: '/potential-analysis',
+    translationKey: 'appshell.nav.potential_analysis',
+    icon: <ChartArea size={16} />,
+  },
 ];
 
 export default function AppShell({ children }: Props) {
   const { t } = useTranslation();
   const theme = useUIStore((s) => s.theme);
   const toggleTheme = useUIStore((s) => s.toggleTheme);
+  const features = useFeatures();
 
   // Burger menu — only rendered/visible below 768px, see AppShell.css
   const [menuOpen, setMenuOpen] = useState(false);
@@ -75,7 +91,7 @@ export default function AppShell({ children }: Props) {
       <header className="top-nav">
         <Link to="/" className="nav-brand" style={{ textDecoration: 'none' }}>
           <span className="brand-text notranslate">HeatTransPlan</span>
-          <span className="brand-version notranslate">v2.5</span>
+          <span className="brand-version notranslate">v3.0</span>
         </Link>
 
         <nav id="app-nav" className={`nav-links ${menuOpen ? 'open' : ''}`}>
@@ -97,36 +113,39 @@ export default function AppShell({ children }: Props) {
         </nav>
 
         <div className="nav-actions">
-          <a
-            href="https://drzg15.github.io/HeatTransPlan/"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="btn btn-sm"
-            style={{ marginRight: '8px', textDecoration: 'none' }}
-            title={t('home.documentation')}
-          >
-            📖 {t('home.documentation')}
-          </a>
           <button
             className="btn btn-sm"
             onClick={() => setShowResetModal(true)}
             title={t('action_bar.reset_modal_title')}
             style={{ marginRight: '8px' }}
           >
-            🔄 {t('home.reset_all')}
+            <RotateCcw size={14} /> {t('home.reset_all')}
           </button>
+          {features.ai && <LiveButton />}
           <LanguagePicker />
+          <a
+            href="/docs/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="theme-toggle"
+            data-tip={t('home.documentation')}
+            aria-label={t('home.documentation')}
+          >
+            <BookOpen size={16} />
+          </a>
+          <PageTourButton />
           <button
             className="theme-toggle"
             onClick={toggleTheme}
-            title={theme === 'dark' ? t('appshell.theme.light') : t('appshell.theme.dark')}
+            data-tip={theme === 'dark' ? t('appshell.theme.light') : t('appshell.theme.dark')}
+            aria-label={theme === 'dark' ? t('appshell.theme.light') : t('appshell.theme.dark')}
           >
-            {theme === 'dark' ? '☀️' : '🌙'}
+            {theme === 'dark' ? <Sun size={16} /> : <Moon size={16} />}
           </button>
           <button
             className="theme-toggle nav-burger"
             onClick={() => setMenuOpen((open) => !open)}
-            aria-label={menuOpen ? 'Close navigation menu' : 'Open navigation menu'}
+            aria-label={menuOpen ? t('ui.menu_close') : t('ui.menu_open')}
             aria-expanded={menuOpen}
             aria-controls="app-nav"
           >
@@ -182,9 +201,7 @@ export default function AppShell({ children }: Props) {
             }}
           >
             <h3 style={{ margin: 0, color: '#d32f2f' }}>{t('action_bar.reset_modal_title')}</h3>
-            <p style={{ margin: 0, lineHeight: 1.5 }}>
-              {t('action_bar.reset_modal_desc')}
-            </p>
+            <p style={{ margin: 0, lineHeight: 1.5 }}>{t('action_bar.reset_modal_desc')}</p>
             <p style={{ margin: 0, fontSize: '0.9em', color: 'var(--text-muted)' }}>
               {t('action_bar.reset_modal_recommend')}
             </p>
@@ -196,7 +213,7 @@ export default function AppShell({ children }: Props) {
                 {t('cop_modal.cancel') || 'Cancel'}
               </button>
               <button className="btn btn-primary" onClick={handleSave}>
-                💾 {t('action_bar.download_project')}
+                <Save size={14} /> {t('action_bar.download_project')}
               </button>
               <button
                 className="btn"

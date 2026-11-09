@@ -1,6 +1,6 @@
 /** TemperatureIntervalDiagram — shifted temperature interval diagram via Plotly. */
 
-import Plot from 'react-plotly.js';
+import Plot from './Plot';
 import { useTranslation } from 'react-i18next';
 import { useAnalysisStore } from '../../store/analysisStore';
 
@@ -47,10 +47,11 @@ export default function TemperatureIntervalDiagram() {
   annotations.push({
     x: numStreams + 0.5,
     y: pinchResult.pinch_temperature,
-    text: `${t('analysis.charts.pinch')}${pinchResult.pinch_temperature.toFixed(1)}°C`,
+    text: `${t('analysis.charts.pinch')}${pinchResult.pinch_temperature.toFixed(1)} °C`,
     showarrow: false,
     font: { size: 10 },
     xanchor: 'left',
+    yanchor: 'bottom', // above the dashed line, not on it
   });
 
   // Stream arrows
@@ -66,7 +67,11 @@ export default function TemperatureIntervalDiagram() {
       y: [ss, st],
       mode: 'lines' as const,
       line: { color, width: 8 },
-      hovertemplate: `<b>S${i + 1}</b><br>Type: ${streamType}<br>T_supply: ${ss.toFixed(1)}°C<br>T_target: ${st.toFixed(1)}°C<br>CP: ${stream.cp.toFixed(2)} kW/K<extra></extra>`,
+      hovertemplate:
+        `<b>S${i + 1}</b><br>${t('stream_table.headers.type')}: ` +
+        `${streamType === 'HOT' ? t('data_collection.hot') : t('data_collection.cold')}<br>` +
+        `T<sub>in</sub>: ${ss.toFixed(1)} °C<br>T<sub>out</sub>: ${st.toFixed(1)} °C<br>` +
+        `C<sub>P</sub>: ${stream.cp.toFixed(2)} kW/K<extra></extra>`,
       showlegend: false,
     });
 
@@ -122,7 +127,7 @@ export default function TemperatureIntervalDiagram() {
       showgrid: false,
     },
     yaxis: {
-      title: 'Shifted Temperature S (°C)',
+      title: t('ui.shifted_temp_axis'),
       showgrid: true,
       gridcolor: 'rgba(0,0,0,0.1)',
     },

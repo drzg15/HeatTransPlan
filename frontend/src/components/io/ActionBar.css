@@ -48,6 +48,16 @@
   padding: 4px;
 }
 
+/* The other matches of the last search, to pick a different place. */
+.ab-search-matches {
+  max-width: 160px;
+  font-size: 11px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text-main);
+}
+
 .ab-search-btn {
   border: none;
   background: transparent;

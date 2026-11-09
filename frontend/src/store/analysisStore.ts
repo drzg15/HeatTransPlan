@@ -3,14 +3,24 @@
 import { create } from 'zustand';
 import type {
   CopFormulaSpec,
+  CopModel,
+  SearchTemp,
+  TempScale,
   EnergyDemandLocal,
+  OptimizedIntegrationPoint,
   HPIOptimizationResult,
   HPIResult,
   PinchResult,
   ProfileMode,
   StatusQuoResult,
 } from '../types/analysis';
+import type { CustomCopModelSpec } from '../types/copTraining';
 import { newId } from '../utils/id';
+import {
+  DEFAULTS as ECON_DEFAULTS,
+  type Form as EconForm,
+  type RefType,
+} from '../components/analysis/econConfig';
 
 interface AnalysisStore {
   // Stream selection: "stream_{procIdx}_{streamIdx}" → boolean
@@ -19,15 +29,36 @@ interface AnalysisStore {
   // Energy demands (user-entered)
   energyDemands: EnergyDemandLocal[];
 
+  // Heat pumps picked by clicking the optimization chart or its table. Kept in
+  // the store rather than in the panel so the report can show the pump the user
+  // chose instead of the default one.
+  selectedHPPoints: OptimizedIntegrationPoint[];
+
+  // Economic analysis inputs. One set for the project, so scenarios are
+  // compared under the same prices; kept here so the report can use them.
+  econForm: EconForm;
+  econRefType: RefType;
+
   // Pinch controls
   tMin: number;
   showShifted: boolean;
 
   // How much heat recovery the heat pump integration credits
   profileMode: ProfileMode;
+  /** Share of the maximum heat recovery credited, %. 100 = pinch targets,
+   *  0 = no recovery (composite profiles); in between the GCC moves right by
+   *  the heat not recovered, in part 1 and in the optimization alike. */
+  recoveryPct: number;
   /** User-supplied COP correlation, evaluated alongside the trained model.
    *  null means "model only", which is the default. */
   copFormula: CopFormulaSpec | null;
+  // A COP network trained on the user's data (COP training module).
+  customCopModel: CustomCopModelSpec | null;
+  copModel: CopModel;
+  /** The heat pump temperatures the optimization searches (heat pump view). */
+  searchTemps: SearchTemp[];
+  /** Temperature scale the heat pump models see (TempScale). */
+  tempScale: TempScale;
 
   // Results from backend
   pinchResult: PinchResult | null;
@@ -49,6 +80,7 @@ interface AnalysisStore {
     name: string;
     selectedStreams: Record<string, boolean>;
     energyDemands: EnergyDemandLocal[];
+    selectedHPPoints: OptimizedIntegrationPoint[];
     tMin: number;
     // Results for comparison
     pinchResult?: PinchResult | null;
@@ -65,13 +97,20 @@ interface AnalysisStore {
   toggleStreamSelection: (pIdx: number, sIdx: number) => void;
   initSelectedStreams: (keys: string[]) => void;
   setEnergyDemands: (demands: EnergyDemandLocal[]) => void;
+  setSelectedHPPoints: (points: OptimizedIntegrationPoint[]) => void;
   addEnergyDemand: (demand: EnergyDemandLocal) => void;
   removeEnergyDemand: (index: number) => void;
   updateEnergyDemand: (index: number, demand: Partial<EnergyDemandLocal>) => void;
+  setEcon: (form: EconForm, refType: RefType) => void;
   setTMin: (val: number) => void;
   setShowShifted: (val: boolean) => void;
   setProfileMode: (mode: ProfileMode) => void;
+  setRecoveryPct: (pct: number) => void;
   setCopFormula: (formula: CopFormulaSpec | null) => void;
+  setCustomCopModel: (model: CustomCopModelSpec | null) => void;
+  setCopModel: (model: CopModel) => void;
+  setSearchTemps: (temps: SearchTemp[]) => void;
+  setTempScale: (scale: TempScale) => void;
   setPinchResult: (result: PinchResult | null) => void;
   setHPIResult: (result: HPIResult | null) => void;
   setHPIOptimizationResult: (result: HPIOptimizationResult | null) => void;
@@ -86,6 +125,8 @@ interface AnalysisStore {
   deleteScenario: (index: number) => void;
   renameScenario: (index: number, newName: string) => void;
   clearActiveScenario: () => void;
+  /** A new case is loaded: its scenarios describe streams that are gone. */
+  resetScenarios: () => void;
 }
 
 // Helper to update the scenario list if an active scenario is set
@@ -98,6 +139,7 @@ const syncScenario = (state: AnalysisStore) => {
             ...sc,
             selectedStreams: { ...state.selectedStreams },
             energyDemands: JSON.parse(JSON.stringify(state.energyDemands)),
+            selectedHPPoints: JSON.parse(JSON.stringify(state.selectedHPPoints)),
             tMin: state.tMin,
             pinchResult: state.pinchResult ? JSON.parse(JSON.stringify(state.pinchResult)) : null,
             hpiResult: state.hpiResult ? JSON.parse(JSON.stringify(state.hpiResult)) : null,
@@ -115,6 +157,7 @@ const syncScenario = (state: AnalysisStore) => {
 
 export const useAnalysisStore = create<AnalysisStore>((set) => ({
   selectedStreams: {},
+  selectedHPPoints: [],
   energyDemands: [
     {
       heat_demand: 0,
@@ -123,10 +166,22 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
       selected_cooling_streams: [],
     },
   ],
+  econForm: ECON_DEFAULTS,
+  econRefType: 'gas',
   tMin: 10,
-  showShifted: false,
+  // The GCC is on shifted temperatures, so the composite curves start there
+  // too and the two share one scale.
+  showShifted: true,
   profileMode: 'net_load',
+  recoveryPct: 100,
   copFormula: null,
+  customCopModel: null,
+  // The 2-temperature model is the standard; the 4-temperature one is offered next to it.
+  copModel: '4t',
+  // Source out and sink out follow the search; source in and sink in sit at the pinch.
+  searchTemps: ['source_out', 'sink_out'],
+  // Shifted once, the literature's convention for utilities on the GCC.
+  tempScale: 'shifted',
   pinchResult: null,
   hpiResult: null,
   hpiOptimizationResult: null,
@@ -183,6 +238,11 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
     set((s) => syncScenario(s));
   },
 
+  setSelectedHPPoints: (points) => {
+    set({ selectedHPPoints: points });
+    set((s) => syncScenario(s));
+  },
+
   addEnergyDemand: (demand) => {
     set((s) => ({ energyDemands: [...s.energyDemands, demand] }));
     set((s) => syncScenario(s));
@@ -202,14 +262,22 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
     set((s) => syncScenario(s));
   },
 
+  setEcon: (form, refType) => set({ econForm: form, econRefType: refType }),
+
   setTMin: (val) => {
     set({ tMin: val });
     set((s) => syncScenario(s));
   },
 
   setShowShifted: (val) => set({ showShifted: val }),
-  setProfileMode: (mode) => set({ profileMode: mode }),
+  setProfileMode: (mode) => set({ profileMode: mode, recoveryPct: mode === 'net_load' ? 100 : 0 }),
+  setRecoveryPct: (pct) =>
+    set({ recoveryPct: pct, profileMode: pct === 0 ? 'composite' : 'net_load' }),
   setCopFormula: (formula) => set({ copFormula: formula }),
+  setCustomCopModel: (model) => set({ customCopModel: model }),
+  setCopModel: (model) => set({ copModel: model }),
+  setSearchTemps: (temps) => set({ searchTemps: temps }),
+  setTempScale: (scale) => set({ tempScale: scale }),
 
   setPinchResult: (result) => {
     set((s) => {
@@ -266,6 +334,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
         name: finalName,
         selectedStreams: { ...s.selectedStreams },
         energyDemands: JSON.parse(JSON.stringify(s.energyDemands)),
+        selectedHPPoints: JSON.parse(JSON.stringify(s.selectedHPPoints)),
         tMin: s.tMin,
         pinchResult: s.pinchResult ? JSON.parse(JSON.stringify(s.pinchResult)) : null,
         hpiResult: s.hpiResult ? JSON.parse(JSON.stringify(s.hpiResult)) : null,
@@ -288,6 +357,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
         activeScenarioId: sc.id,
         selectedStreams: { ...sc.selectedStreams },
         energyDemands: JSON.parse(JSON.stringify(sc.energyDemands)),
+        selectedHPPoints: JSON.parse(JSON.stringify(sc.selectedHPPoints ?? [])),
         tMin: sc.tMin,
         pinchResult: sc.pinchResult ? JSON.parse(JSON.stringify(sc.pinchResult)) : null,
         hpiResult: sc.hpiResult ? JSON.parse(JSON.stringify(sc.hpiResult)) : null,
@@ -314,4 +384,5 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
     })),
 
   clearActiveScenario: () => set({ activeScenarioId: null }),
+  resetScenarios: () => set({ scenarios: [], activeScenarioId: null, selectedHPPoints: [] }),
 }));

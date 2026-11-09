@@ -1,6 +1,19 @@
 import { useRef } from 'react';
 import { useTranslation } from 'react-i18next';
+import {
+  FileSpreadsheet,
+  FolderOpen,
+  Lightbulb,
+  Lock,
+  LockOpen,
+  Plus,
+  RotateCcw,
+  Ruler,
+  Save,
+  Search,
+} from 'lucide-react';
 import { useProjectStore } from '../../store/projectStore';
+import { loadProject } from '../../store/loadProject';
 import { exportProjectToCsv } from '../../utils/csvExport';
 import { projectStateSchema } from '../../schemas/projectSchema';
 import './ActionBar.css';
@@ -18,8 +31,18 @@ interface Props {
   addressSearch?: string;
   onAddressSearchChange?: (val: string) => void;
   onAddressSearchSubmit?: () => void;
+  /** All matches of the last search; the map shows the first. */
+  addressMatches?: AddressMatch[];
+  onAddressPick?: (match: AddressMatch) => void;
   showHelp?: boolean;
   onHelpToggle?: () => void;
+}
+
+/** One result of the address search (Nominatim). */
+export interface AddressMatch {
+  display_name: string;
+  lat: string;
+  lon: string;
 }
 
 const BASE_OPTIONS = ['OpenStreetMap', 'Satellite'];
@@ -37,12 +60,13 @@ export default function ActionBar({
   addressSearch,
   onAddressSearchChange,
   onAddressSearchSubmit,
+  addressMatches = [],
+  onAddressPick,
   showHelp,
   onHelpToggle,
 }: Props) {
   const { t } = useTranslation();
   const state = useProjectStore((s) => s.state);
-  const setState = useProjectStore((s) => s.setState);
 
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -78,7 +102,7 @@ export default function ActionBar({
         }
 
         const data = parsed.data;
-        
+
         const isLegacy = (scale: any, threshold: number) => {
           if (scale == null) return true;
           const num = parseFloat(String(scale));
@@ -88,29 +112,29 @@ export default function ActionBar({
 
         // Upgrade legacy box scales to the new larger defaults
         if (data.processes) {
-          data.processes = data.processes.map(p => ({
+          data.processes = data.processes.map((p) => ({
             ...p,
             box_scale: isLegacy(p.box_scale, 1.5) ? 1.5 : p.box_scale,
-            children: (p.children || []).map(c => ({
+            children: (p.children || []).map((c) => ({
               ...c,
               box_scale: isLegacy(c.box_scale, 1.2) ? 1.2 : c.box_scale,
-            }))
+            })),
           }));
         }
         if (data.proc_group_coordinates) {
-          Object.keys(data.proc_group_coordinates).forEach(k => {
+          Object.keys(data.proc_group_coordinates).forEach((k) => {
             const numK = parseInt(k, 10);
             const gc = data.proc_group_coordinates[numK];
             if (gc) {
-               gc.box_scale = isLegacy(gc.box_scale, 1.5) ? 1.5 : gc.box_scale;
+              gc.box_scale = isLegacy(gc.box_scale, 1.5) ? 1.5 : gc.box_scale;
             }
           });
         }
 
         // If it succeeds, parsed.data is heavily typed and guaranteed to be clean
-        setState({ ...data, map_locked: true });
-      } catch (err) {
-        alert('Could not parse the file. It is not a valid JSON document.');
+        loadProject({ ...data, map_locked: true });
+      } catch {
+        alert(t('action_bar.invalid_file'));
       }
     };
     reader.readAsText(file);
@@ -141,7 +165,7 @@ export default function ActionBar({
                   )
                 }
               >
-                🔒 {t('action_bar.lock_map')}
+                <Lock size={14} /> {t('action_bar.lock_map')}
               </button>
               <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px' }} />
             </>
@@ -150,30 +174,22 @@ export default function ActionBar({
           {/* Primary mode actions */}
           {uiMode === 'analyze' && (
             <>
-              <button
-                className="btn btn-sm"
-                onClick={onUnlockMap}
-                title="Unlock map to move selection"
-              >
-                🔓 {t('action_bar.unlock_map')}
+              <button className="btn btn-sm" onClick={onUnlockMap} title={t('ui.unlock_map')}>
+                <LockOpen size={14} /> {t('action_bar.unlock_map')}
               </button>
-              <button
-                className="btn btn-sm btn-primary"
-                onClick={onAddProcess}
-                title="Add a new process group"
-              >
-                ➕ {t('action_bar.add_process')}
+              <button className="btn btn-sm btn-primary" onClick={onAddProcess}>
+                <Plus size={14} /> {t('action_bar.add_process')}
               </button>
               <div style={{ width: 1, height: 20, background: 'var(--border)', margin: '0 4px' }} />
             </>
           )}
 
-          <button className="btn btn-sm" onClick={handleSave} title="Save project to JSON">
-            💾 {t('action_bar.save')}
+          <button className="btn btn-sm" onClick={handleSave} title={t('ui.save_json')}>
+            <Save size={14} /> {t('action_bar.save')}
           </button>
 
-          <label className="btn btn-sm ab-load-label" title="Load project from JSON">
-            📂 {t('action_bar.load')}
+          <label className="btn btn-sm ab-load-label" title={t('ui.load_json')}>
+            <FolderOpen size={14} /> {t('action_bar.load')}
             <input
               ref={fileRef}
               type="file"
@@ -192,11 +208,12 @@ export default function ActionBar({
                 className={`btn btn-sm ${measureActive ? 'btn-primary' : ''}`}
                 onClick={onMeasureToggle}
               >
-                {measureActive ? `🔄 ${t('action_bar.reset')}` : `📏 ${t('action_bar.measure')}`}
+                {measureActive ? <RotateCcw size={14} /> : <Ruler size={14} />}{' '}
+                {measureActive ? t('action_bar.reset') : t('action_bar.measure')}
               </button>
 
               <button className="btn btn-sm" onClick={handleExportCsv}>
-                📄 {t('action_bar.export_csv')}
+                <FileSpreadsheet size={14} /> {t('action_bar.export_csv')}
               </button>
             </>
           )}
@@ -204,7 +221,8 @@ export default function ActionBar({
 
         {/* 2. Search / Status (Center) */}
         <div className="ab-group ab-group-center flex-1 flex justify-center items-center gap-md">
-          {uiMode === 'select' && (
+          {/* No address search on a site plan: it is not a geographic map. */}
+          {uiMode === 'select' && !state.site_plan && (
             <div className="ab-search flex items-center gap-xs">
               <input
                 type="text"
@@ -217,16 +235,33 @@ export default function ActionBar({
               <button
                 className="btn btn-sm ab-search-btn"
                 onClick={onAddressSearchSubmit}
-                aria-label="Search for address"
+                aria-label={t('ui.search_address')}
               >
-                🔍
+                <Search size={14} />
               </button>
+              {addressMatches.length > 1 && (
+                <select
+                  className="ab-search-matches"
+                  aria-label={t('ui.other_matches')}
+                  title={t('ui.other_matches')}
+                  defaultValue={0}
+                  key={addressMatches.map((m) => m.display_name).join('|')}
+                  onChange={(e) => onAddressPick?.(addressMatches[Number(e.target.value)])}
+                >
+                  {addressMatches.map((m, i) => (
+                    <option key={i} value={i}>
+                      {m.display_name}
+                    </option>
+                  ))}
+                </select>
+              )}
             </div>
           )}
 
           {/* Global info message */}
           <div className="ab-status">
-            {statusMsg || (uiMode === 'select' ? t('action_bar.lock_map_hint') : t('action_bar.locked_map'))}
+            {statusMsg ||
+              (uiMode === 'select' ? t('action_bar.lock_map_hint') : t('action_bar.locked_map'))}
           </div>
         </div>
 
@@ -236,7 +271,7 @@ export default function ActionBar({
             className="ab-base-select"
             value={currentBase}
             onChange={(e) => onBaseChange(e.target.value)}
-            aria-label="Map base layer"
+            aria-label={t('ui.base_layer')}
           >
             {BASE_OPTIONS.map((b) => (
               <option key={b} value={b}>
@@ -247,15 +282,13 @@ export default function ActionBar({
           <button
             className={`btn btn-sm icon-btn ${showHelp ? 'btn-primary' : ''}`}
             onClick={onHelpToggle}
-            title="Toggle Help / Tutorial"
-            aria-label="Toggle help"
+            title={t('ui.toggle_help')}
+            aria-label={t('ui.toggle_help')}
           >
-            💡
+            <Lightbulb size={16} />
           </button>
         </div>
       </div>
-
     </>
   );
 }
-

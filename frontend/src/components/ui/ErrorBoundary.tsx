@@ -1,5 +1,7 @@
+import { TriangleAlert } from 'lucide-react';
 import { Component } from 'react';
 import type { ErrorInfo, ReactNode } from 'react';
+import i18n from '../../i18n';
 import { useProjectStore } from '../../store/projectStore';
 
 interface Props {
@@ -54,11 +56,12 @@ class ErrorBoundaryClass extends Component<Props, State> {
               boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
             }}
           >
-            <h2 style={{ margin: 0, color: '#d32f2f' }}>⚠️ Application Error</h2>
-            <p style={{ margin: 0, lineHeight: 1.6 }}>
-              A critical error occurred while rendering the application. This could be due to
-              corrupted local data or an unexpected state.
-            </p>
+            <h2
+              style={{ margin: 0, color: '#d32f2f', display: 'flex', alignItems: 'center', gap: 8 }}
+            >
+              <TriangleAlert size={22} /> {i18n.t('ui.app_error')}
+            </h2>
+            <p style={{ margin: 0, lineHeight: 1.6 }}>{i18n.t('ui.app_error_text')}</p>
             <div
               style={{
                 background: '#f5f5f5',
@@ -85,7 +88,7 @@ class ErrorBoundaryClass extends Component<Props, State> {
                   cursor: 'pointer',
                 }}
               >
-                Reload Page
+                {i18n.t('ui.reload_page')}
               </button>
               <button
                 className="btn btn-primary"
@@ -103,7 +106,7 @@ class ErrorBoundaryClass extends Component<Props, State> {
                   fontWeight: 'bold',
                 }}
               >
-                Reset All Local Data
+                {i18n.t('ui.reset_local_data')}
               </button>
             </div>
           </div>

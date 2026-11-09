@@ -1,6 +1,7 @@
 import { Suspense, lazy } from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import AppShell from './components/layout/AppShell';
+// The landing page, loaded at once: the method in four steps and the guided tour.
 import HomePage from './pages/HomePage';
 import ErrorBoundary from './components/ui/ErrorBoundary';
 
@@ -25,6 +26,8 @@ function App() {
             <Route path="/" element={<HomePage />} />
             <Route path="/data-collection" element={<DataCollectionPage />} />
             <Route path="/potential-analysis" element={<PotentialAnalysisPage />} />
+            {/* The preview became the home page; old links still land there. */}
+            <Route path="/home-preview" element={<Navigate to="/" replace />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </Suspense>

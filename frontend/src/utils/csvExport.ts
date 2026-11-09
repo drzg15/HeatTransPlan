@@ -3,12 +3,13 @@
  * Synchronized with the StreamDataTable and ActionBar.
  */
 
+import i18n from '../i18n';
 import type { ProjectState } from '../types/project';
-import html2canvas from 'html2canvas';
 import { extractStreamInfo } from './streamInfo';
 import { haversineDistance, manhattanSphericalDistance } from './geoUtils';
 
-export function exportProjectToCsv(state: ProjectState) {
+/** The project's streams as CSV text (semicolon separated, quoted). */
+export function projectCsv(state: ProjectState): string {
   const rows: string[][] = [];
   const header = [
     'Name',
@@ -163,17 +164,34 @@ export function exportProjectToCsv(state: ProjectState) {
     });
   });
 
-  const csv = rows.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
+  // On a site plan the positions are plan positions, not geographic ones:
+  // Lat/Lon would only mislead, so they are left out.
+  const latCol = header.indexOf('Lat');
+  const out = state.site_plan
+    ? rows.map((r) => r.filter((_, i) => i !== latCol && i !== latCol + 1))
+    : rows;
+  return out.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
+}
+
+function downloadCsv(csv: string, filename: string) {
   const blob = new Blob([csv], { type: 'text/csv' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
   a.href = url;
-  a.download = `heattransplan_export_${new Date().toISOString().slice(0, 10)}.csv`;
+  a.download = filename;
   a.click();
   URL.revokeObjectURL(url);
 }
 
-export function exportDistanceMatrixToCsv(state: ProjectState, metric: 'manhattan' | 'euclidean') {
+export function exportProjectToCsv(state: ProjectState) {
+  downloadCsv(
+    projectCsv(state),
+    `heattransplan_export_${new Date().toISOString().slice(0, 10)}.csv`
+  );
+}
+
+/** Distances between the process groups as CSV text. */
+export function distanceCsv(state: ProjectState, metric: 'manhattan' | 'euclidean'): string {
   const nodes: { name: string; lat: number | null; lon: number | null }[] = [];
 
   (state.proc_groups || []).forEach((subIdxs, gIdx) => {
@@ -232,20 +250,20 @@ export function exportDistanceMatrixToCsv(state: ProjectState, metric: 'manhatta
     rows.push(rowData);
   });
 
-  const csv = rows.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
-  const blob = new Blob([csv], { type: 'text/csv' });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `heattransplan_distances_${metric}_${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
+  return rows.map((r) => r.map((c) => `"${c}"`).join(';')).join('\n');
+}
+
+export function exportDistanceMatrixToCsv(state: ProjectState, metric: 'manhattan' | 'euclidean') {
+  downloadCsv(
+    distanceCsv(state, metric),
+    `heattransplan_distances_${metric}_${new Date().toISOString().slice(0, 10)}.csv`
+  );
 }
 
 export async function exportLiveMapSnapshot() {
   const mapEl = document.querySelector('.leaflet-container');
   if (!mapEl) {
-    alert('Map not found on screen. Please open the map view first.');
+    alert(i18n.t('map.not_on_screen'));
     return;
   }
   try {
@@ -257,6 +275,8 @@ export async function exportLiveMapSnapshot() {
       }
     });
 
+    // Loaded on first use: 200 kB nobody needs until they export the map.
+    const { default: html2canvas } = await import('html2canvas');
     const canvas = await html2canvas(mapEl as HTMLElement, {
       useCORS: true,
       allowTaint: false,
@@ -268,6 +288,6 @@ export async function exportLiveMapSnapshot() {
     a.click();
   } catch (err) {
     console.error('Error capturing map:', err);
-    alert('Could not capture map image.');
+    alert(i18n.t('map.capture_failed'));
   }
 }

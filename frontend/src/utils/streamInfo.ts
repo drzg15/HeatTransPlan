@@ -100,7 +100,7 @@ export function extractStreamInfo(stream: Record<string, any>): StreamInfo {
   const water_out = sv['Water Content Out'] || null;
 
   // Compute CP (heat capacity flow rate)
-  let CP: number | null = cpDirect ?? (mdot != null && cpVal != null ? mdot * cpVal : null);
+  const CP: number | null = cpDirect ?? (mdot != null && cpVal != null ? mdot * cpVal : null);
 
   // Compute Q
   const Q = CP != null && tin != null && tout != null ? Math.abs(CP * (tout - tin)) : null;
@@ -111,3 +111,23 @@ export function extractStreamInfo(stream: Record<string, any>): StreamInfo {
 
   return { tin, tout, mdot, cp: cpVal, CP, Q, type, density, pressure, water_in, water_out };
 }
+
+// A subscript moved down and back up with dy, which every browser draws the same;
+// the rest of the value follows in the tspan it opens (closed by `after`).
+const sub = (s: string) => `<tspan dy="3" font-size="75%">${s}</tspan><tspan dy="-3">`;
+const after = (s: string) => `${s}</tspan>`;
+const known = (v: number | null | undefined): v is number => v !== null && v !== undefined;
+
+/** A stream's values as SVG text for the map labels, with subscripts and units
+ *  (the values are already in °C, kg/s and kJ/(kg·K)); empty where unknown. */
+export function streamSvgText(info: Pick<StreamInfo, 'tin' | 'tout' | 'mdot' | 'cp'>) {
+  return {
+    tin: known(info.tin) ? `T${sub('in')}${after(`=${info.tin} °C`)}` : '',
+    tout: known(info.tout) ? `T${sub('out')}${after(`=${info.tout} °C`)}` : '',
+    mdot: known(info.mdot) ? `ṁ=${info.mdot} kg/s` : '',
+    cp: known(info.cp) ? `c${sub('p')}${after(`=${info.cp} kJ/(kg·K)`)}` : '',
+  };
+}
+
+/** About how wide an SVG label line is at 11 px, for sizing its box. */
+export const svgTextWidth = (svg: string) => svg.replace(/<[^>]+>/g, '').length * 6.3;

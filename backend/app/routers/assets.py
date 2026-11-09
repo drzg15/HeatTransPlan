@@ -24,7 +24,8 @@ async def list_examples():
     """List available example files."""
     if not EXAMPLES_DIR.exists():
         return {"examples": []}
-    files = [f.name for f in EXAMPLES_DIR.iterdir() if f.suffix == ".json"]
+    # Sorted: the file system's own order differs between machines.
+    files = sorted(f.name for f in EXAMPLES_DIR.iterdir() if f.suffix == ".json")
     return {"examples": files}
 
 

@@ -1,5 +1,7 @@
+import { Info } from 'lucide-react';
 import React, { useState, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslation } from 'react-i18next';
 import './ChartHelpButton.css';
 
 interface Props {
@@ -9,7 +11,13 @@ interface Props {
   size?: 'normal' | 'large';
 }
 
-export default function ChartHelpButton({ title, description, inline = false, size = 'normal' }: Props) {
+export default function ChartHelpButton({
+  title,
+  description,
+  inline = false,
+  size = 'normal',
+}: Props) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
   const buttonRef = useRef<HTMLButtonElement>(null);
@@ -75,7 +83,7 @@ export default function ChartHelpButton({ title, description, inline = false, si
             ) : (
               description
             )}
-            {!description && <span style={{ color: 'red' }}>Missing description</span>}
+            {!description && <span style={{ color: 'red' }}>{t('ui.missing_description')}</span>}
           </div>
         </div>,
         document.body
@@ -105,9 +113,9 @@ export default function ChartHelpButton({ title, description, inline = false, si
       <button
         ref={buttonRef}
         className={`btn btn-sm chart-help-btn ${size === 'large' ? 'chart-help-btn-large' : ''} ${isOpen ? 'active' : ''}`}
-        title="Toggle Explanation"
+        title={t('ui.toggle_explanation')}
       >
-        💡
+        <Info size={size === 'large' ? 20 : 16} />
       </button>
       {popup}
     </div>

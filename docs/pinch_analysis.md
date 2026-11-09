@@ -1,4 +1,4 @@
-# Pinch Analysis
+# Step 2 — Streams & Heat Integration (Pinch Analysis)
 
 Pinch Analysis is the foundational calculation of HeatTransPlan. It determines the **minimum heating and cooling utility** requirements for a set of process streams, identifies the **Pinch Temperature**, and constructs the diagnostic curves (Composite Curves, Grand Composite Curve) that drive all downstream modules.
 
@@ -74,7 +74,7 @@ for rawStream in self._rawStreamsData[2:]:
 
 ---
 
-## Step 1 — Shift Temperatures by ΔTmin/2
+## 2.1 — Shift Temperatures by ΔTmin/2
 
 To guarantee that the minimum approach temperature $\Delta T_{min}$ is respected between hot and cold streams, we **shift** all stream temperatures before constructing any interval diagram:
 
@@ -111,7 +111,7 @@ def shift_temperatures(self):
 
 ---
 
-## Step 2 — Construct Temperature Intervals
+## 2.2 — Construct Temperature Intervals
 
 All unique shifted temperatures are collected and sorted in descending order. The gaps between consecutive temperatures form the **temperature intervals**.
 
@@ -157,7 +157,7 @@ def construct_temperature_interval(self):
 
 ---
 
-## Step 3 — Build the Problem Table
+## 2.3 — Build the Problem Table
 
 For each temperature interval, we compute:
 
@@ -194,7 +194,7 @@ def construct_problem_table(self):
 
 ---
 
-## Step 4 — Heat Cascade and Pinch Point
+## 2.4 — Heat Cascade and Pinch Point
 
 The heat cascade is constructed in two passes:
 
@@ -263,7 +263,7 @@ def construct_heat_cascade(self):
 
 ---
 
-## Step 5 — Shifted Composite Diagram
+## 2.5 — Shifted Composite Diagram
 
 The **Shifted Composite Diagram** plots the cumulative enthalpy of all hot streams and all cold streams separately, using shifted temperatures. Each composite curve is a piecewise-linear function $T$ vs. $H$.
 
@@ -336,7 +336,7 @@ def construct_shifted_composite_diagram(self, localisation):
 
 ---
 
-## Step 6 — Composite Diagram (Actual Temperatures)
+## 2.6 — Composite Diagram (Actual Temperatures)
 
 The Composite Diagram is obtained by **un-shifting** the temperatures from the Shifted Composite Diagram:
 
@@ -375,7 +375,7 @@ def construct_composite_diagram(self, localisation):
 
 ---
 
-## Step 7 — Grand Composite Curve (GCC)
+## 2.7 — Grand Composite Curve (GCC)
 
 The Grand Composite Curve plots the **net heat surplus** at each shifted temperature level. It is constructed directly from the feasible heat cascade:
 
@@ -412,7 +412,7 @@ def construct_grand_composite_curve(self, localisation):
 
 ---
 
-## Step 8 — Temperature Pocket Deletion
+## 2.8 — Temperature Pocket Deletion
 
 The Grand Composite Curve (GCC) can contain **temperature pockets** — regions where the curve doubles back on itself, creating a local surplus sandwiched between deficits (or vice versa). These pockets represent heat that can be exchanged internally within the process and do **not** need external utility.
 

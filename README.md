@@ -12,6 +12,9 @@ It is developed as part of the [HeatTransPlan research project](https://www.heat
 - **Energy Data Collection** — Define processes, sub-processes, hot/cold streams, temperatures, flow rates, and operating hours.
 - **Pinch Analysis** — Automatically compute composite curves, the grand composite curve, pinch point, and minimum heating/cooling demands.
 - **Heat Pump Integration** — Evaluate and optimise heat pump solutions across feasible temperature lifts, with COP modelling and refrigerant selection.
+- **Economic Analysis** — Net present value (VDI 2067-1:2012), dynamic payback, CO₂ saving, break-even electricity price, energy price sensitivity map and economic heat pump size, against a gas, oil or electric boiler.
+- **Scenario Comparison** — Save stream selections as scenarios and compare utilities, heat pump coverage and economics side by side.
+- **HTML Report** — Export every scenario, its charts, its economic analysis and the scenario comparison as one interactive HTML file.
 - **Import / Export** — Save and load project state as JSON; export stream data and distance matrices as CSV; export map screenshots.
 - **Multilingual** — English and German UI (i18n ready).
 - **Dark / Light mode** — Theme toggle built in.
@@ -76,13 +79,18 @@ Open `http://localhost:5173` in your browser.
 The Docker Compose stack runs the backend, frontend, and a Caddy reverse proxy together.
 
 ```bash
-docker compose up --build
+./deploy.sh            # or: ./deploy.sh backend   for one service
 ```
 
-The app will be served on port `80` (HTTP) and `443` (HTTPS) via Caddy.
+It runs `docker compose up -d --build` and then removes the images the
+rebuild replaced and week-old build cache, so the disk does not fill up.
 
-> **Note:** The Caddyfile is pre-configured for `heattransplan.uni-paderborn.de`.  
-> Update it with your own domain before deploying.
+Without settings it serves `http://localhost` (with the MCP server for AI
+agents at `http://localhost/mcp` and this version's documentation at
+`http://localhost/docs`), so the whole stack can be tested on your
+own computer. On a server, copy `.env.example` to `.env` and set
+`SITE_ADDRESS` to its domain; Caddy then gets the TLS certificate and serves
+ports `80` and `443`. `.env` stays out of git.
 
 ---
 
@@ -97,6 +105,10 @@ The app will be served on port `80` (HTTP) and `443` (HTTPS) via Caddy.
 | `PORT` | `8000` | Bind port |
 | `API_KEYS` | *(empty — auth disabled)* | Comma-separated API keys for `X-API-Key` header auth |
 | `HEATTRANSPLAN_STATE_DIR` | `/app/state` | Directory for persisted project state |
+| `AI_ENABLED` | `1` | `0` switches AI access off: the Connect AI button, the live endpoints and the MCP server at `/mcp`. The rest of the app is unchanged |
+| `RATE_LIMIT` | `1` | `0` switches off the requests-per-visitor limits (`backend/app/rate_limit.py`) |
+| `PROJECT_RETENTION_HOURS` | `24` | Projects nobody changed for this long, and no open page uses, are deleted from the server; a page's project goes when it disconnects |
+| `COP_TRAINING_ENABLED` | `1` | `0` switches the COP training module off: its endpoints, its button on the page, and trained models in the optimization |
 
 ### Frontend
 
@@ -134,6 +146,13 @@ HeatTransPlan/
 
 ---
 
+## AI assistants (MCP)
+
+`mcp_server/` is an MCP server that lets an AI assistant do what the pages
+do: build and edit projects, run the potential analysis and the economic
+analysis, write reports, and — after **Connect AI** in the header — watch
+and drive the open page. Setup and tools: [mcp_server/README.md](mcp_server/README.md).
+
 ## Running Tests
 
 ```bash
@@ -145,7 +164,17 @@ pytest
 # Frontend
 cd frontend
 npm test
+
+# The main path in a real browser (starts the backend and the dev server)
+npx playwright install chromium   # once
+npx playwright test
 ```
+
+GitHub Actions runs all three on every push (`.github/workflows/tests.yml`), except
+the end-to-end reference runs (`test_analysis_chain`): they compare against
+output recorded on the development machine, so run them locally before a
+commit (`GOLDEN_UPDATE=1 pytest tests/test_golden.py` records a deliberate
+change).
 
 ---
 

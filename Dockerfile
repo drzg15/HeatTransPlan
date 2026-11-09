@@ -26,7 +26,10 @@ ENV PATH="/uv/bin:$PATH"
 # Editable install: one copy of the code, at /app/backend/app. The previous
 # COPY+install twice left a second copy in site-packages that could go stale.
 COPY backend/ ./backend/
-RUN cd backend && uv pip install --system -e . --no-cache-dir
+# The MCP server, served at /mcp; explain() finds docs/ next to it (editable).
+COPY mcp_server/ ./mcp_server/
+COPY docs/ ./docs/
+RUN cd backend && uv pip install --system -e . -e ../mcp_server --no-cache-dir
 
 # Copy built frontend from the frontend-builder stage
 COPY --from=frontend-builder /app/frontend/dist /app/frontend/dist
@@ -39,11 +42,17 @@ COPY models/ ./backend/models/
 # Expose Hugging Face Space port
 EXPOSE 7860
 
-# One worker per CPU. Project state is shared through the filesystem
-# (see app/services/project_service.py), so any worker can serve any request.
+# One process: projects are shared through the filesystem, but the live
+# sessions behind Connect AI, the MCP download links and the rate limiter live
+# in memory. The computing endpoints run in uvicorn's thread pool.
 ENV HEATTRANSPLAN_STATE_DIR=/app/state
+# The COP model's many small matrix products lose more to thread start-up than
+# they gain from all cores: 2 BLAS threads per request are ~4x faster than the
+# default (one per core), and parallel requests do not fight over the cores.
+ENV OPENBLAS_NUM_THREADS=2
 RUN mkdir -p /app/state
 
-# Run uvicorn server
+# Run uvicorn server. No access log: it would keep every visitor's address;
+# the anonymous activity log records use instead.
 WORKDIR /app/backend
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port 7860 --workers $(python -c 'import os; print(getattr(os, \"process_cpu_count\", os.cpu_count)() or 1)')"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "7860", "--proxy-headers", "--forwarded-allow-ips", "*", "--no-access-log"]

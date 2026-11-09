@@ -6,6 +6,8 @@ from __future__ import annotations
 from typing import Any, Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, Field
 
+from app.models.cop_training import CustomCopModelSpec
+
 
 # How much internal heat recovery is credited before the heat pump is placed.
 #   net_load    pocket-free GCC split into source/sink (full recovery, default)
@@ -179,6 +181,10 @@ class OptimizedIntegrationPoint(BaseModel):
     # published regression rather than the model, so the UI keeps them visually
     # apart instead of ranking them against real machines.
     theoretical: bool = False
+    # The two temperatures the 4-temperature model took from the pinch rather
+    # than from the grid. None when the 2-temperature model scored the point.
+    T_vorlauf_quelle: Optional[float] = None
+    T_ruecklauf_senke: Optional[float] = None
 
 
 class HPIOptimizationDiagnostics(BaseModel):
@@ -245,6 +251,35 @@ class CopFormulaValidateRequest(BaseModel):
     T_sink: float = 110.0
 
 
+class CopPointRequest(BaseModel):
+    """One operating point to rate: a trained heat pump and its four
+    temperatures (°C, on the shifted scale the optimization uses)."""
+    refrigerant: str = Field(max_length=64)
+    medium_sink: str = Field(max_length=32)
+    T_source_in: float
+    T_source_out: float
+    T_sink_in: float
+    T_sink_out: float
+
+
+class CopPointCheck(BaseModel):
+    #: source_spread / sink_spread (outside the training data), source_reversed /
+    #: sink_reversed (flows the wrong way), source_range / sink_range (outside
+    #: the heat pump's envelope).
+    code: str
+    value: Optional[float] = None
+    min: Optional[float] = None
+    max: Optional[float] = None
+
+
+class CopPointResult(BaseModel):
+    cop_4t: float
+    cop_2t: float
+    carnot_50: Optional[float] = None
+    carnot_ideal: Optional[float] = None
+    checks: List[CopPointCheck] = Field(default_factory=list)
+
+
 class CopFormulaValidateResult(BaseModel):
     valid: bool
     cop: Optional[float] = None
@@ -261,6 +296,28 @@ class HPIOptimizationRequest(BaseModel):
     # Optional user-supplied correlation, evaluated alongside the trained model
     # so the two can be compared in the same chart and table.
     cop_formula: Optional[CopFormulaSpec] = None
+    # "2t" (standard): source return + sink supply only. "4t": all four
+    # temperatures, source supply and sink return taken from the pinch as
+    # temp_scale places them (see _four_temperature_alternatives).
+    cop_model: Literal["2t", "4t"] = "2t"
+    # Share of the maximum heat recovery credited, %. Below 100 (net_load only)
+    # the heat not recovered flows through the pinch: GCC and profiles shift.
+    recovery_pct: float = Field(100.0, ge=0, le=100)
+    # Language of the diagnostic messages ("en" or "de").
+    lang: str = "en"
+    # A network the user trained on their own data (COP training module);
+    # offered next to the shipped model like cop_formula.
+    custom_cop_model: Optional[CustomCopModelSpec] = None
+    # Which of the heat pump's four temperatures follow the search along the
+    # profiles; the others stay at the pinch (source side pinch − ΔTmin/2, sink
+    # side pinch + ΔTmin/2). Each model reads the ones it uses.
+    search_temps: List[Literal["source_in", "source_out", "sink_in", "sink_out"]] = Field(
+        default_factory=lambda: ["source_out", "sink_out"], max_length=4)
+    # Temperature scale the heat pump models see (TEMP_SCALES in
+    # optimization/alternatives.py): "double" fixed at pinch ∓ ΔTmin/2 on the
+    # shifted grid (ΔTmin/2 counted twice), "shifted" fixed at the pinch (the
+    # literature's convention), "real" the process streams' own temperatures.
+    temp_scale: Literal["double", "shifted", "real"] = "shifted"
 
 
 class HPIOptimizationResult(BaseModel):

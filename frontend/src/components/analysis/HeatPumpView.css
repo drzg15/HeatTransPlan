@@ -1,0 +1,308 @@
+/* The heat pump view: its three circuits with the four temperatures to edit. */
+
+.hpv-modal {
+  width: 1040px;
+}
+
+.hpv-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  margin-bottom: 8px;
+}
+.hpv-toolbar select {
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-main);
+}
+
+.hpv-diagram {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+.hpv-frame {
+  fill: none;
+  stroke: var(--text-muted);
+  stroke-dasharray: 6 5;
+  stroke-width: 1.2;
+  opacity: 0.7;
+}
+.hpv-circuit {
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-muted);
+}
+.hpv-pipe {
+  fill: none;
+  stroke-width: 3;
+}
+.hpv-box {
+  fill: var(--surface);
+  stroke-width: 2;
+}
+.hpv-c {
+  font-size: 18px;
+  font-weight: 700;
+}
+.hpv-label {
+  font-size: 14px;
+  font-weight: 700;
+  fill: var(--text-main);
+}
+.hpv-small {
+  font-size: 12px;
+  fill: var(--text-muted);
+}
+.hpv-cop {
+  font-size: 26px;
+  font-weight: 800;
+  fill: #7e3fa8;
+}
+
+.hpv-temp {
+  font-size: 13px;
+  line-height: 1.25;
+  transition: opacity 0.15s;
+}
+.hpv-unused {
+  opacity: 0.35;
+}
+.hpv-name {
+  font-weight: 700;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hpv-badge {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  border-radius: 4px;
+  padding: 0 4px;
+  opacity: 0.8;
+}
+label.hpv-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 1px 6px 1px 3px;
+  cursor: pointer;
+}
+.hpv-badge input {
+  margin: 0;
+  width: 12px;
+  height: 12px;
+  accent-color: currentColor;
+  cursor: pointer;
+}
+/* Fixed values get a dashed badge, the searched ones a solid, tinted one. */
+.hpv-badge:not(.hpv-searched) {
+  border-style: dashed;
+}
+.hpv-searched {
+  opacity: 1;
+  background: rgba(127, 127, 127, 0.12);
+}
+.hpv-german {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+.hpv-value {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-weight: 700;
+  font-size: 16px;
+}
+.hpv-value input {
+  width: 72px;
+  font: inherit;
+  color: inherit;
+  padding: 1px 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+}
+
+.hpv-cases {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.85rem;
+  margin-top: 8px;
+}
+.hpv-cases th,
+.hpv-cases td {
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.hpv-cases tbody tr {
+  cursor: pointer;
+}
+.hpv-cases tbody tr:hover {
+  background: var(--surface-hover);
+}
+.hpv-chosen {
+  background: var(--surface-active);
+}
+.hpv-mark {
+  text-align: center !important;
+}
+.hpv-num {
+  font-weight: 700;
+  white-space: nowrap;
+}
+.hpv-note {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+}
+.hpv-warn {
+  margin: 8px 0 0;
+  padding: 8px 12px 8px 26px;
+  border-radius: 6px;
+  background: rgba(217, 119, 6, 0.1);
+  color: var(--text-main);
+  font-size: 0.82rem;
+}
+
+/* The search variables and the optimization's calculation, side by side. */
+.hpv-calc-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+  gap: 16px;
+  margin-top: 8px;
+}
+@media (max-width: 720px) {
+  .hpv-calc-row {
+    grid-template-columns: 1fr;
+  }
+}
+.hpv-calc-row h4 {
+  margin: 0 0 6px;
+  font-size: 0.85rem;
+}
+.hpv-search,
+.hpv-calc {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.85rem;
+}
+.hpv-slider {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.hpv-slider input {
+  width: 100%;
+}
+.hpv-slider .cf-muted {
+  font-weight: 400;
+  font-size: 0.75rem;
+}
+.hpv-calc ol {
+  margin: 0;
+  padding-left: 18px;
+  line-height: 1.6;
+}
+.hpv-calc code {
+  font-size: 0.78rem;
+}
+.hpv-verdict {
+  margin: 8px 0 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+}
+.hpv-balanced {
+  background: rgba(22, 163, 74, 0.12);
+}
+.hpv-source_limited,
+.hpv-demand_limited {
+  background: rgba(217, 119, 6, 0.12);
+}
+
+/* The two pages of the window: the heat pump, and the COP model alone. */
+.hpv-tabs {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+  margin-right: 8px;
+}
+.hpv-tabs button {
+  padding: 5px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-main);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+.hpv-tabs button.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: var(--text-on-primary);
+}
+.hpv-model {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 16px;
+}
+@media (max-width: 720px) {
+  .hpv-model {
+    grid-template-columns: 1fr;
+  }
+}
+.hpv-model-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.hpv-model-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+.hpv-model-field select {
+  padding: 4px 6px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface);
+  color: var(--text-main);
+}
+.hpv-model-temp {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.hpv-model-temp input[type='range'] {
+  flex: 1;
+}
+.hpv-model-temp input[type='number'] {
+  width: 76px;
+  padding: 2px 4px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text-main);
+}
+.hpv-model-cop {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #7e3fa8;
+  margin: 0 0 6px;
+}

@@ -1,6 +1,6 @@
 import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import type { ProjectState } from '../types/project';
+import { persist, type PersistStorage } from 'zustand/middleware';
+import type { ProjectState, SitePlan } from '../types/project';
 import type { ProcessNode } from '../types/process';
 
 interface ProjectStore {
@@ -15,6 +15,7 @@ interface ProjectStore {
   updateProcess: (idx: number, node: ProcessNode) => void;
   setMapCenter: (center: number[]) => void;
   setMapZoom: (zoom: number) => void;
+  setMapBearing: (bearing: number) => void;
   setMapLocked: (locked: boolean) => void;
   setCurrentBase: (base: string) => void;
   setProjectNotes: (notes: string) => void;
@@ -23,6 +24,8 @@ interface ProjectStore {
   setGroups: (groups: number[][]) => void;
   setGroupCoordinates: (coords: ProjectState['proc_group_coordinates']) => void;
   setMapSnapshots: (snapshots: Record<string, string>) => void;
+  setSitePlan: (plan: SitePlan | null) => void;
+  setCanvasPlans: (plans: Record<string, string>) => void;
 
   // Potential Analysis
   setAnalysisSelection: (streams: Record<string, boolean>) => void;
@@ -50,6 +53,41 @@ const defaultState: ProjectState = {
   t_min: 10.0,
 };
 
+/** localStorage, written once typing or dragging pauses. The project can hold
+ *  site plans of several MB as base64, and serialising it on every keystroke
+ *  made typing lag. The last change is written when the page is left. */
+function deferredStorage<S>(delay = 400): PersistStorage<S> {
+  let pending: { name: string; value: unknown } | null = null;
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  const flush = () => {
+    clearTimeout(timer);
+    if (!pending) return;
+    try {
+      localStorage.setItem(pending.name, JSON.stringify(pending.value));
+    } catch {
+      // Full or blocked storage: the project still lives in the page.
+    }
+    pending = null;
+  };
+  if (typeof window !== 'undefined') window.addEventListener('pagehide', flush);
+  return {
+    getItem: (name) => {
+      const raw = localStorage.getItem(name);
+      return raw ? JSON.parse(raw) : null;
+    },
+    setItem: (name, value) => {
+      pending = { name, value };
+      clearTimeout(timer);
+      timer = setTimeout(flush, delay);
+    },
+    removeItem: (name) => {
+      pending = null;
+      clearTimeout(timer);
+      localStorage.removeItem(name);
+    },
+  };
+}
+
 export const useProjectStore = create<ProjectStore>()(
   persist(
     (set) => ({
@@ -68,6 +106,7 @@ export const useProjectStore = create<ProjectStore>()(
         }),
       setMapCenter: (center) => set((s) => ({ state: { ...s.state, map_center: center } })),
       setMapZoom: (zoom) => set((s) => ({ state: { ...s.state, map_zoom: zoom } })),
+      setMapBearing: (bearing) => set((s) => ({ state: { ...s.state, map_bearing: bearing } })),
       setMapLocked: (locked) => set((s) => ({ state: { ...s.state, map_locked: locked } })),
       setCurrentBase: (base) => set((s) => ({ state: { ...s.state, current_base: base } })),
       setProjectNotes: (notes) => set((s) => ({ state: { ...s.state, project_notes: notes } })),
@@ -78,6 +117,8 @@ export const useProjectStore = create<ProjectStore>()(
         set((s) => ({ state: { ...s.state, proc_group_coordinates: coords } })),
       setMapSnapshots: (snapshots) =>
         set((s) => ({ state: { ...s.state, map_snapshots_encoded: snapshots } })),
+      setSitePlan: (plan) => set((s) => ({ state: { ...s.state, site_plan: plan } })),
+      setCanvasPlans: (plans) => set((s) => ({ state: { ...s.state, canvas_plans: plans } })),
 
       // Potential Analysis
       setAnalysisSelection: (streams) =>
@@ -88,6 +129,7 @@ export const useProjectStore = create<ProjectStore>()(
     }),
     {
       name: 'heattransplan-storage', // name of the item in the storage (must be unique)
+      storage: deferredStorage(),
     }
   )
 );

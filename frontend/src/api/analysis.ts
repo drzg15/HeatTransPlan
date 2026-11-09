@@ -3,6 +3,9 @@
 import client from './client';
 import type {
   CopFormulaValidateResult,
+  CopPointOption,
+  CopPointRequest,
+  CopPointResult,
   HPIOptimizationRequest,
   HPIOptimizationResult,
   HPIRequest,
@@ -11,7 +14,9 @@ import type {
   PinchResult,
   StatusQuoRequest,
   StatusQuoResult,
+  OptimizedIntegrationPoint,
 } from '../types/analysis';
+import type { EconNumbers } from '../types/economics';
 
 export async function runPinch(req: PinchRequest): Promise<PinchResult> {
   const { data } = await client.post<PinchResult>('/api/analysis/pinch', req);
@@ -41,6 +46,43 @@ export async function validateCopFormula(
     '/api/analysis/cop-formula/validate',
     { expression, T_source, T_sink }
   );
+  return data;
+}
+
+/** Every heat pump the trained models know (the COP model page). */
+export async function getCopPointOptions(): Promise<CopPointOption[]> {
+  const { data } = await client.get<CopPointOption[]>('/api/analysis/cop-point/options');
+  return data;
+}
+
+/** One heat pump at four chosen temperatures, rated by both trained models
+ *  and the Carnot reference (the heat pump view). */
+export async function rateCopPoint(req: CopPointRequest): Promise<CopPointResult> {
+  const { data } = await client.post<CopPointResult>('/api/analysis/cop-point', req);
+  return data;
+}
+
+/** The economic analysis of the pump picked (or the default one). Only the
+ *  real machines are sent: the reference size and the size curve come from
+ *  them, and the archetypes would only make the request heavier. */
+export async function runEconomics(
+  form: Record<string, number>,
+  refType: string,
+  selected: OptimizedIntegrationPoint[],
+  opt: HPIOptimizationResult | null | undefined,
+  sensBase: { fuel: number; el: number } | null = null
+): Promise<EconNumbers | null> {
+  const optimization = opt && {
+    feasible_points: opt.feasible_points.filter((p) => !p.theoretical),
+    max_q_point: opt.max_q_point,
+  };
+  const { data } = await client.post<EconNumbers | null>('/api/analysis/economics', {
+    form,
+    ref_type: refType,
+    selected_points: selected,
+    optimization,
+    sens_base: sensBase,
+  });
   return data;
 }
 

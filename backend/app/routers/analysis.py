@@ -13,41 +13,72 @@ from app.models.analysis import (
     StatusQuoRequest, StatusQuoResult,
     HPIOptimizationRequest, HPIOptimizationResult,
     CopFormulaValidateRequest, CopFormulaValidateResult,
+    CopPointRequest, CopPointResult,
 )
+from app.services.optimization.alternatives import _load_model_and_data, cop_at
+from app.models.economics import EconomicsRequest, ProjectAnalysisRequest
+from app.services.project_analysis import analyse_project
 from app.models.report import ReportRequest
+from app.services.economics import DEFAULTS as ECON_DEFAULTS, PRESETS as ECON_PRESETS, economics, economics_payload
 from app.services.analysis_service import run_pinch, run_hpi, run_status_quo
-from app.services.optimization_service import run_hpi_optimization
+from app.services.optimization import run_hpi_optimization
 from app.utils.cop_formula import (
     ALLOWED_FUNCS,
     FORMULA_VARIABLES,
     FormulaError,
     cop_from_formula,
 )
-from app.services.report_service import generate_html_report
+from app.services.report import generate_html_report
 
 router = APIRouter()
 
+# The endpoints that compute are plain `def`: FastAPI runs them in its thread
+# pool, so a one-second optimisation does not hold up every other request
+# (live sessions, the MCP server, other users) the way `async def` would.
+
 
 @router.post("/pinch", response_model=PinchResult)
-async def pinch_analysis(request: PinchRequest):
+def pinch_analysis(request: PinchRequest):
     """Run pinch analysis on provided streams."""
     return run_pinch(request)
 
 
 @router.post("/hpi", response_model=HPIResult)
-async def heat_pump_integration(request: HPIRequest):
+def heat_pump_integration(request: HPIRequest):
     """Run heat pump integration analysis."""
     return run_hpi(request)
 
 
 @router.post("/hpi-optimization", response_model=HPIOptimizationResult)
-async def heat_pump_integration_optimization(request: HPIOptimizationRequest):
+def heat_pump_integration_optimization(request: HPIOptimizationRequest):
     """Run data-driven heat pump integration optimization."""
     try:
         return run_hpi_optimization(request)
     except FormulaError as exc:
         # A bad formula is the caller's mistake, not a server fault.
         raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/cop-point/options")
+def cop_point_options():
+    """Every heat pump the trained models know, with its range: the choices of
+    the COP model page."""
+    _, alts = _load_model_and_data()
+    keys = ("name", "medium_sink", "refrigerant_type", "hp_level", "T_src_min", "T_src_max",
+            "T_sink_min", "T_sink_max")
+    return [{k: a[k] for k in keys} for a in alts]
+
+
+@router.post("/cop-point", response_model=CopPointResult)
+def cop_point(request: CopPointRequest):
+    """The COP of one heat pump at four chosen temperatures, every way the
+    optimization rates it (4- and 2-temperature model, Carnot). For the heat
+    pump view, where the temperatures are tried out by hand."""
+    try:
+        return cop_at(request.refrigerant, request.medium_sink, request.T_source_in,
+                      request.T_source_out, request.T_sink_in, request.T_sink_out)
+    except KeyError as exc:
+        raise HTTPException(404, str(exc.args[0]))
 
 
 @router.post("/cop-formula/validate", response_model=CopFormulaValidateResult)
@@ -77,6 +108,38 @@ async def validate_cop_formula(request: CopFormulaValidateRequest):
     return CopFormulaValidateResult(valid=True, cop=value, **common)
 
 
+@router.post("/project")
+def project_analysis(request: ProjectAnalysisRequest):
+    """The Potential Analysis page's whole chain on a project: selected
+    streams, pinch, heat pump integration, optimization and (with
+    economics_form) the economic analysis."""
+    try:
+        return analyse_project(
+            request.state, request.selected_streams, request.t_min, request.profile_mode,
+            request.recovery_pct, request.cop_model, request.cop_formula, request.custom_cop_model,
+            request.economics_form, request.ref_type, request.selected_points, request.lang,
+        )
+    except FormulaError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.get("/economics/defaults")
+async def economics_defaults():
+    """Default inputs of the economic analysis and the reference-heater presets."""
+    return {"form": ECON_DEFAULTS, "presets": ECON_PRESETS}
+
+
+@router.post("/economics")
+def economic_analysis(request: EconomicsRequest):
+    """Economic analysis of the analysed heat pump against the reference
+    heater: results, price sensitivity, economic size, NPV over time.
+    null when there is no pump to analyse."""
+    form = {**ECON_DEFAULTS, **request.form}
+    return economics_payload(
+        economics(form, request.ref_type, request.selected_points, request.optimization, request.sens_base)
+    )
+
+
 @router.post("/status-quo", response_model=StatusQuoResult)
 async def status_quo_comparison(request: StatusQuoRequest):
     """Compare current energy demands against pinch minimum."""
@@ -84,7 +147,7 @@ async def status_quo_comparison(request: StatusQuoRequest):
 
 
 @router.post("/report")
-async def generate_report(request: ReportRequest):
+def generate_report(request: ReportRequest):
     """Generate an HTML report and return it as a downloadable file."""
     html = generate_html_report(request)
     return HTMLResponse(
@@ -96,7 +159,7 @@ async def generate_report(request: ReportRequest):
 
 
 @router.post("/map-preview")
-async def get_map_preview(request: ReportRequest):
+def get_map_preview(request: ReportRequest):
     """Generate process map with drawn streams."""
     from app.services.map_service import generate_process_map_b64
     b64 = generate_process_map_b64(request)

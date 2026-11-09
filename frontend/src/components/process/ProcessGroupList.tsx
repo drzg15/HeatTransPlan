@@ -1,8 +1,12 @@
+import { Check, ChevronUp, Map as MapIcon, MapPin, Plus, Trash2, X } from 'lucide-react';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import type { ProcessNode } from '../../types/process';
 import SubprocessCard from './SubprocessCard';
 import { useUIStore } from '../../store/uiStore';
+import { useProjectStore } from '../../store/projectStore';
+import { useAnalysisStore } from '../../store/analysisStore';
+import { removeProcesses } from '../../utils/processIndex';
 import './ProcessGroupList.css';
 
 interface GroupCoords {
@@ -48,6 +52,8 @@ export default function ProcessGroupList({
   onExpandedGroupsChange,
 }: Props) {
   const { t } = useTranslation();
+  // On a site plan the positions are not geographic: no latitude/longitude.
+  const hasPlan = useProjectStore((s) => !!s.state.site_plan);
   const [infoExpanded, setInfoExpanded] = useState<Set<number>>(new Set());
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
 
@@ -85,6 +91,19 @@ export default function ProcessGroupList({
     onGroupCoordinatesChange(coords);
   };
 
+  /** Drop these processes from the project, keeping group members and stream selection in step. */
+  const applyRemoval = (removed: number[], groupsAfter: number[][]) => {
+    const next = removeProcesses(
+      removed,
+      processes,
+      groupsAfter,
+      useAnalysisStore.getState().selectedStreams
+    );
+    onProcessesChange(next.processes);
+    onGroupsChange(next.groups);
+    useAnalysisStore.getState().setSelectedStreams(next.selection);
+  };
+
   const deleteGroup = (gIdx: number) => {
     const newGroups = groups.filter((_, i) => i !== gIdx);
     const newNames = groupNames.filter((_, i) => i !== gIdx);
@@ -97,7 +116,7 @@ export default function ProcessGroupList({
       const newIdx = oldIdx > gIdx ? oldIdx - 1 : oldIdx;
       reindexed[newIdx] = newCoords[oldIdx];
     });
-    onGroupsChange(newGroups);
+    applyRemoval(groups[gIdx] ?? [], newGroups);
     onGroupNamesChange(newNames);
     onGroupCoordinatesChange(reindexed);
     setConfirmDelete(null);
@@ -106,7 +125,7 @@ export default function ProcessGroupList({
   const addSubprocess = (gIdx: number) => {
     const newProcesses = [...processes];
     const newSub: ProcessNode = {
-      name: `Subprocess ${newProcesses.length + 1}`,
+      name: t('data_collection.default_subprocess', { n: newProcesses.length + 1 }),
       lat: '',
       lon: '',
       box_scale: 1.5,
@@ -133,16 +152,16 @@ export default function ProcessGroupList({
   };
 
   const deleteSubprocess = (gIdx: number, subIdx: number) => {
-    const newGroups = [...groups];
-    newGroups[gIdx] = newGroups[gIdx].filter((i) => i !== subIdx);
-    // Don't remove from processes array to avoid re-indexing issues
-    // Just remove from group
-    if (newGroups[gIdx].length === 0) {
-      // Remove empty group
+    const remaining = groups[gIdx].filter((i) => i !== subIdx);
+    if (remaining.length === 0) {
+      // Last one out: the group goes too, and takes this subprocess with it
       deleteGroup(gIdx);
-    } else {
-      onGroupsChange(newGroups);
+      return;
     }
+    applyRemoval(
+      [subIdx],
+      groups.map((g, i) => (i === gIdx ? remaining : g))
+    );
   };
 
   return (
@@ -165,54 +184,79 @@ export default function ProcessGroupList({
                 <span className={`collapsible-arrow ${expanded ? 'open' : ''}`}>▶</span>
               </button>
 
-              <input
-                type="text"
-                className="pgl-name-input"
-                value={groupNames[gIdx] || ''}
-                onChange={(e) => updateGroupName(gIdx, e.target.value)}
-              />
-
-              <div className="pgl-scale">
+              <div className="pgl-title">
+                <span className="pgl-level">{t('stream_table.headers.process')}</span>
                 <input
-                  type="range"
-                  min={0.5}
-                  max={2.5}
-                  step={0.1}
-                  value={gCoords.box_scale ?? 1.5}
-                  onChange={(e) => updateGroupCoord(gIdx, 'box_scale', parseFloat(e.target.value))}
-                  title={`Box size: ${gCoords.box_scale ?? 1.5}`}
+                  type="text"
+                  className="pgl-name-input"
+                  value={groupNames[gIdx] || ''}
+                  onChange={(e) => updateGroupName(gIdx, e.target.value)}
                 />
               </div>
 
-              <button
-                className={`btn btn-sm ${isPlacing ? 'btn-primary' : ''}`}
-                onClick={() => onPlaceRequest(isPlacing ? '' : `group_${gIdx}`)}
-              >
-                {isPlacing ? t('process.done') : t('process.place')}
-              </button>
+              <div className="pgl-controls">
+                <div className="pgl-scale">
+                  <input
+                    type="range"
+                    min={0.5}
+                    max={2.5}
+                    step={0.1}
+                    value={gCoords.box_scale ?? 1.5}
+                    onChange={(e) =>
+                      updateGroupCoord(gIdx, 'box_scale', parseFloat(e.target.value))
+                    }
+                    title={t('ui.box_size', { v: gCoords.box_scale ?? 1.5 })}
+                  />
+                </div>
 
-              <span className="pgl-badge">
-                {subIdxs.length} {t('data_collection.sub_short')}
-              </span>
-
-              {confirmDelete === gIdx ? (
-                <span className="pgl-confirm">
-                  <button className="btn btn-sm btn-danger" onClick={() => deleteGroup(gIdx)}>
-                    ✅
-                  </button>
-                  <button className="btn btn-sm" onClick={() => setConfirmDelete(null)}>
-                    ❌
-                  </button>
-                </span>
-              ) : (
+                {/* An icon while idle, to keep the row short; spelled out while placing. */}
                 <button
-                  className="btn btn-sm"
-                  onClick={() => setConfirmDelete(gIdx)}
-                  title="Delete group"
+                  className={`btn btn-sm ${isPlacing ? 'btn-primary' : 'icon-btn'}`}
+                  onClick={() => onPlaceRequest(isPlacing ? '' : `group_${gIdx}`)}
+                  title={t('process.place')}
+                  aria-label={isPlacing ? t('process.done') : t('process.place')}
                 >
-                  ✕
+                  {isPlacing ? (
+                    <>
+                      <Check size={14} /> {t('process.done')}
+                    </>
+                  ) : (
+                    <MapPin size={14} />
+                  )}
                 </button>
-              )}
+
+                <span className="pgl-badge">
+                  {subIdxs.length} {t('data_collection.sub_short')}
+                </span>
+
+                {confirmDelete === gIdx ? (
+                  <span className="pgl-confirm">
+                    <button
+                      className="btn btn-sm btn-danger icon-btn"
+                      onClick={() => deleteGroup(gIdx)}
+                      aria-label={t('ui.confirm_delete')}
+                    >
+                      <Check size={14} />
+                    </button>
+                    <button
+                      className="btn btn-sm icon-btn"
+                      onClick={() => setConfirmDelete(null)}
+                      aria-label={t('ui.cancel')}
+                    >
+                      <X size={14} />
+                    </button>
+                  </span>
+                ) : (
+                  <button
+                    className="btn btn-sm icon-btn"
+                    onClick={() => setConfirmDelete(gIdx)}
+                    title={t('ui.delete_group')}
+                    aria-label={t('ui.delete_group')}
+                  >
+                    <Trash2 size={14} />
+                  </button>
+                )}
+              </div>
             </div>
 
             {/* Expanded content */}
@@ -226,22 +270,26 @@ export default function ProcessGroupList({
                   </div>
                   {showInfo && (
                     <div className="pgl-info-grid">
-                      <div>
-                        <label>{t('process.lat')}</label>
-                        <input
-                          type="text"
-                          value={gCoords.lat || ''}
-                          onChange={(e) => updateGroupCoord(gIdx, 'lat', e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <label>{t('process.lon')}</label>
-                        <input
-                          type="text"
-                          value={gCoords.lon || ''}
-                          onChange={(e) => updateGroupCoord(gIdx, 'lon', e.target.value)}
-                        />
-                      </div>
+                      {!hasPlan && (
+                        <>
+                          <div>
+                            <label>{t('process.lat')}</label>
+                            <input
+                              type="text"
+                              value={gCoords.lat || ''}
+                              onChange={(e) => updateGroupCoord(gIdx, 'lat', e.target.value)}
+                            />
+                          </div>
+                          <div>
+                            <label>{t('process.lon')}</label>
+                            <input
+                              type="text"
+                              value={gCoords.lon || ''}
+                              onChange={(e) => updateGroupCoord(gIdx, 'lon', e.target.value)}
+                            />
+                          </div>
+                        </>
+                      )}
                       <div>
                         <label>{t('process.hours')}</label>
                         <input
@@ -256,32 +304,50 @@ export default function ProcessGroupList({
 
                 {/* Subprocesses */}
                 <div className="pgl-section">
-                  <div className="pgl-section-header flex justify-between items-center">
+                  <div className="pgl-section-header pgl-sub-header">
                     <span>
                       {t('process.subprocesses')} ({subIdxs.length})
                     </span>
                     <div className="flex gap-xs">
-                      <button 
-                        className="btn btn-sm" 
+                      <button
+                        className="btn btn-sm icon-btn"
+                        aria-label={t('process.toggle_all')}
                         onClick={() => {
                           const state = useUIStore.getState();
-                          const anyExpanded = subIdxs.some(si => state.expandedSubprocesses.has(si));
-                          subIdxs.forEach(si => state.setSubprocessExpanded(si, !anyExpanded));
+                          const anyExpanded = subIdxs.some((si) =>
+                            state.expandedSubprocesses.has(si)
+                          );
+                          subIdxs.forEach((si) => state.setSubprocessExpanded(si, !anyExpanded));
                         }}
-                        title="Collapse / Expand All"
+                        title={t('process.toggle_all')}
                       >
                         ↕
                       </button>
-                      <button className="btn btn-sm" onClick={() => onSubprocessMapToggle(gIdx)}>
-                        {subprocessMapExpanded[gIdx]
-                          ? `🔽 ${t('process.hide_map')}`
-                          : `🗺️ ${t('process.show_map')}`}
+                      <button
+                        className={`btn btn-sm icon-btn ${subprocessMapExpanded[gIdx] ? 'btn-primary' : ''}`}
+                        onClick={() => onSubprocessMapToggle(gIdx)}
+                        title={
+                          subprocessMapExpanded[gIdx]
+                            ? t('process.hide_map')
+                            : t('process.show_map')
+                        }
+                        aria-label={
+                          subprocessMapExpanded[gIdx]
+                            ? t('process.hide_map')
+                            : t('process.show_map')
+                        }
+                      >
+                        {subprocessMapExpanded[gIdx] ? (
+                          <ChevronUp size={14} />
+                        ) : (
+                          <MapIcon size={14} />
+                        )}
                       </button>
                       <button
                         className="btn btn-sm btn-primary"
                         onClick={() => addSubprocess(gIdx)}
                       >
-                        ➕ {t('process.add')}
+                        <Plus size={14} /> {t('process.add')}
                       </button>
                     </div>
                   </div>

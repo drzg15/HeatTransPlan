@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { useProjectStore } from './projectStore';
 import type { ProcessNode } from '../types/process';
 
@@ -54,5 +54,29 @@ describe('useProjectStore', () => {
     const resetState = useProjectStore.getState().state;
     expect(resetState.map_locked).toBe(false);
     expect(resetState.processes).toEqual([]);
+  });
+});
+
+const saved = () =>
+  JSON.parse(localStorage.getItem('heattransplan-storage') ?? 'null')?.state?.state;
+
+describe('saving the project in the browser', () => {
+  afterEach(() => vi.useRealTimers());
+
+  it('writes once the typing pauses, with the last value', () => {
+    vi.useFakeTimers();
+    const { setProjectNotes } = useProjectStore.getState();
+    setProjectNotes('a');
+    setProjectNotes('ab');
+    expect(saved()?.project_notes).not.toBe('ab');
+    vi.advanceTimersByTime(1000);
+    expect(saved()?.project_notes).toBe('ab');
+  });
+
+  it('writes the last change when the page is left', () => {
+    vi.useFakeTimers();
+    useProjectStore.getState().setProjectNotes('closing');
+    window.dispatchEvent(new Event('pagehide'));
+    expect(saved()?.project_notes).toBe('closing');
   });
 });

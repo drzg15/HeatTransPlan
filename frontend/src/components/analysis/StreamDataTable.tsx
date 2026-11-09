@@ -1,7 +1,9 @@
 import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FileSpreadsheet } from 'lucide-react';
 import type { ProcessNode } from '../../types/process';
 import { extractStreamInfo } from '../../utils/streamInfo';
+import { useProjectStore } from '../../store/projectStore';
 import {
   exportProjectToCsv,
   exportDistanceMatrixToCsv,
@@ -42,6 +44,7 @@ export default function StreamDataTable({
   groupCoordinates = {},
 }: Props) {
   const { t } = useTranslation();
+  const hasPlan = useProjectStore((s) => !!s.state.site_plan);
   const [sortKey, setSortKey] = useState<SortKey>('Q');
   const [sortDir, setSortDir] = useState<'desc' | 'asc'>('desc');
   const [exportMenuOpen, setExportMenuOpen] = useState(false);
@@ -142,7 +145,7 @@ export default function StreamDataTable({
       if (vA === vB) return 0;
       if (vA == null) return 1;
       if (vB == null) return -1;
-      let res = vA < vB ? -1 : 1;
+      const res = vA < vB ? -1 : 1;
       return sortDir === 'asc' ? res : -res;
     });
   }, [allRows, sortKey, sortDir]);
@@ -215,9 +218,9 @@ export default function StreamDataTable({
                 proc_group_coordinates: groupCoordinates as any,
               } as any)
             }
-            style={{ fontSize: '10px', padding: '2px 8px' }}
+            style={{ fontSize: '10px', padding: '2px 8px', display: 'inline-flex', gap: 4 }}
           >
-            {t('stream_table.export_csv')}
+            <FileSpreadsheet size={12} /> {t('stream_table.export_csv')}
           </button>
           <div
             style={{ width: '1px', height: '16px', background: 'var(--border)', margin: '0 4px' }}
@@ -344,14 +347,29 @@ export default function StreamDataTable({
           >
             {/* Top level grouped headers */}
             <tr>
-              <th colSpan={4} style={{ ...headStyle('' as SortKey), textAlign: 'center', borderRight: '1px solid var(--border)' }}>
+              <th
+                colSpan={4}
+                style={{
+                  ...headStyle('' as SortKey),
+                  textAlign: 'center',
+                  borderRight: '1px solid var(--border)',
+                }}
+              >
                 Process & Stream Info
               </th>
-              <th colSpan={2} style={{ ...headStyle('' as SortKey), textAlign: 'center', background: 'var(--surface-hover)', borderRight: '1px solid var(--border)' }}>
-                Actual Temp. [°C]
+              <th
+                colSpan={2}
+                style={{
+                  ...headStyle('' as SortKey),
+                  textAlign: 'center',
+                  background: 'var(--surface-hover)',
+                  borderRight: '1px solid var(--border)',
+                }}
+              >
+                {t('stream_table.actual_temp')}
               </th>
               <th colSpan={12} style={{ ...headStyle('' as SortKey), textAlign: 'center' }}>
-                Thermal & Physical Data
+                {t('stream_table.thermal_data')}
               </th>
             </tr>
             {/* Sub-headers for sorting */}
@@ -367,8 +385,13 @@ export default function StreamDataTable({
                 { k: 'cp', l: 'cp [kJ/(kg·K)]' },
                 { k: 'CP', l: 'CP [kW/K]' },
                 { k: 'Q', l: 'Q [kW]' },
-                { k: 'lat', l: 'Lat' },
-                { k: 'lon', l: 'Lon' },
+                // Not on a site plan: there the positions are not geographic.
+                ...(hasPlan
+                  ? []
+                  : [
+                      { k: 'lat', l: 'Lat' },
+                      { k: 'lon', l: 'Lon' },
+                    ]),
                 { k: 'hours', l: t('stream_table.headers.hours') },
                 { k: 'water_in', l: t('stream_table.headers.water_in') },
                 { k: 'water_out', l: t('stream_table.headers.water_out') },
@@ -413,15 +436,25 @@ export default function StreamDataTable({
                   </td>
                   <td style={cellStyle}>{r.type}</td>
                   <td style={cellStyle}>{r.tin?.toFixed(1) ?? '—'}</td>
-                  <td style={{ ...cellStyle, borderRight: '1px solid var(--border)' }}>{r.tout?.toFixed(1) ?? '—'}</td>
+                  <td style={{ ...cellStyle, borderRight: '1px solid var(--border)' }}>
+                    {r.tout?.toFixed(1) ?? '—'}
+                  </td>
                   <td style={cellStyle}>{r.mdot?.toFixed(2) ?? '—'}</td>
                   <td style={cellStyle}>{r.cp?.toFixed(2) ?? '—'}</td>
                   <td style={cellStyle}>{r.CP?.toFixed(2) ?? '—'}</td>
                   <td style={{ ...cellStyle, fontWeight: 700, color: 'var(--primary)' }}>
                     {r.Q?.toFixed(1) ?? '—'}
                   </td>
-                  <td style={cellStyle}>{typeof r.lat === 'number' ? r.lat.toFixed(6) : r.lat}</td>
-                  <td style={cellStyle}>{typeof r.lon === 'number' ? r.lon.toFixed(6) : r.lon}</td>
+                  {!hasPlan && (
+                    <>
+                      <td style={cellStyle}>
+                        {typeof r.lat === 'number' ? r.lat.toFixed(6) : r.lat}
+                      </td>
+                      <td style={cellStyle}>
+                        {typeof r.lon === 'number' ? r.lon.toFixed(6) : r.lon}
+                      </td>
+                    </>
+                  )}
                   <td style={cellStyle}>{r.hours}</td>
                   <td style={cellStyle}>{r.water_in}</td>
                   <td style={cellStyle}>{r.water_out}</td>
@@ -442,4 +475,3 @@ export default function StreamDataTable({
     </div>
   );
 }
-

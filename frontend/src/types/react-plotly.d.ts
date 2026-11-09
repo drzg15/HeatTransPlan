@@ -1,7 +1,4 @@
 declare module 'react-plotly.js' {
-  import { Component } from 'react';
-  import { PlotParams } from 'plotly.js';
-
   interface PlotProps {
     data: any[];
     layout?: any;
@@ -18,9 +15,31 @@ declare module 'react-plotly.js' {
     onUnhover?: (event: any) => void;
     onSelected?: (event: any) => void;
     onRelayout?: (event: any) => void;
+    onClickAnnotation?: (event: { annotation?: { text?: string } }) => void;
+    // Returning false stops Plotly's own show/hide on a legend click.
+    onLegendClick?: (event: any) => boolean;
+    onLegendDoubleClick?: (event: any) => boolean;
     revision?: number;
   }
 
   const Plot: React.FC<PlotProps>;
   export default Plot;
+}
+
+// The partial bundle in components/analysis/Plot.ts.
+declare module 'react-plotly.js/factory' {
+  import type Plot from 'react-plotly.js';
+  export default function createPlotlyComponent(plotly: object): typeof Plot;
+}
+declare module 'plotly.js/lib/core' {
+  const Plotly: { register(modules: object[]): void };
+  export default Plotly;
+}
+declare module 'plotly.js/lib/bar' {
+  const trace: object;
+  export default trace;
+}
+declare module 'plotly.js/lib/heatmap' {
+  const trace: object;
+  export default trace;
 }
