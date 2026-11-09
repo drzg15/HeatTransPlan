@@ -8,11 +8,15 @@ import { gccPockets } from './gccPockets';
 import { summaryPoints } from './summaryPoints';
 
 function SummaryBox({ title, sentences }: { title: string; sentences: string[] }) {
+  const { t } = useTranslation();
   return (
-    <div className="pa-summary">
-      <h5>{title}</h5>
+    <details className="pa-summary">
+      <summary>
+        <h5>{title}</h5>
+        <span className="econ-more-hint">{t('economics.click_to_open')}</span>
+      </summary>
       <p>{sentences.filter(Boolean).join(' ')}</p>
-    </div>
+    </details>
   );
 }
 

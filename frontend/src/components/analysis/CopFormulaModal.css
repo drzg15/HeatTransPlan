@@ -312,6 +312,24 @@
   flex: 1;
   min-width: 0;
 }
+/* COP model and COP source side by side, each sharing its own width. */
+.cf-cop-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+}
+.cf-cop-row > div {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.cf-cop-row .cf-trigger-block {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: none;
+}
+.cf-cop-row .cf-trigger-row {
+  align-items: stretch;
+}
 .cf-trigger-toggle {
   display: flex;
   align-items: center;

@@ -13,13 +13,8 @@
   gap: 0.75rem;
   margin: 0;
   padding: 10px 16px;
-  /* One calm blue-violet: our blue with a touch of our magenta, a step
-     softer (about #656fa4), still dark enough for white text. */
-  background: color-mix(
-    in srgb,
-    color-mix(in srgb, var(--brand-blue) 82%, var(--brand-magenta)) 85%,
-    var(--surface)
-  );
+  /* The logo's blue (the H), a step softer, still dark enough for white text. */
+  background: color-mix(in srgb, var(--brand-blue) 85%, var(--surface));
   color: #fff;
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   font-size: 1.25rem;

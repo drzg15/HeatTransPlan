@@ -73,6 +73,14 @@ export const CHAPTERS = {
   results: TOUR.findIndex((s) => s.key === 'scenarios'),
 };
 
+/** The steps of one page, [from, to): what its "?" button tours. */
+export function pageSteps(path: string) {
+  // A page's steps follow each other: they end where another page's begin.
+  const from = TOUR.findIndex((s) => s.page === path);
+  const rest = from < 0 ? -1 : TOUR.slice(from).findIndex((s) => s.page !== path);
+  return { from, to: from < 0 ? -1 : rest < 0 ? TOUR.length : from + rest };
+}
+
 /** What a step points at, if the page shows it now. */
 function target(step: TourStep): Element | undefined {
   if (step.part)
@@ -96,7 +104,14 @@ async function waitFor(step: TourStep): Promise<boolean> {
 /** The fixed bar with Back, the step count, Next and Close. driver.js blocks
  *  clicks outside its popover while a tour runs; guidedTour.css lets this
  *  bar through. */
-function makeBar(t: TFunction, onBack: () => void, onNext: () => void, onClose: () => void) {
+function makeBar(
+  t: TFunction,
+  from: number,
+  to: number,
+  onBack: () => void,
+  onNext: () => void,
+  onClose: () => void
+) {
   const bar = document.createElement('div');
   bar.className = 'htp-tour-bar';
   bar.setAttribute('role', 'toolbar');
@@ -120,14 +135,10 @@ function makeBar(t: TFunction, onBack: () => void, onNext: () => void, onClose: 
   document.body.append(bar);
   return {
     show(i: number, waiting: boolean) {
-      back.disabled = i <= 0 || waiting;
+      back.disabled = i <= from || waiting;
       next.disabled = waiting;
-      next.textContent = waiting
-        ? '…'
-        : i >= TOUR.length - 1
-          ? t('tour.finish')
-          : `${t('tour.next')} ▶`;
-      count.textContent = t('tour.progress', { current: i + 1, total: TOUR.length });
+      next.textContent = waiting ? '…' : i >= to - 1 ? t('tour.finish') : `${t('tour.next')} ▶`;
+      count.textContent = t('tour.progress', { current: i - from + 1, total: to - from });
     },
     remove: () => bar.remove(),
   };
@@ -135,8 +146,14 @@ function makeBar(t: TFunction, onBack: () => void, onNext: () => void, onClose: 
 
 let active: Driver | null = null;
 
-/** Start the tour at a step; navigate goes to the step's page. */
-export function startTour(navigate: (path: string) => void, t: TFunction, from = 0) {
+/** Start the tour at a step and end it before `to` (one page's steps, or all);
+ *  navigate goes to the step's page. */
+export function startTour(
+  navigate: (path: string) => void,
+  t: TFunction,
+  from = 0,
+  to = TOUR.length
+) {
   active?.destroy();
   let index = from;
   let moving = false;
@@ -165,6 +182,8 @@ export function startTour(navigate: (path: string) => void, t: TFunction, from =
   active = tour;
   const bar = makeBar(
     t,
+    from,
+    to,
     () => void go(index - 1, -1),
     () => void go(index + 1, 1),
     () => end()
@@ -178,8 +197,8 @@ export function startTour(navigate: (path: string) => void, t: TFunction, from =
   }
 
   async function go(i: number, dir: 1 | -1) {
-    if (moving || i < 0) return;
-    if (i >= TOUR.length) return end();
+    if (moving || i < from) return;
+    if (i >= to) return end();
     moving = true;
     bar.show(i, true);
     try {
@@ -189,7 +208,7 @@ export function startTour(navigate: (path: string) => void, t: TFunction, from =
         if (!(step.element || step.part) || (await waitFor(step))) break;
         // Not on the page in this state: on to the next one.
         i += dir;
-        if (i < 0 || i >= TOUR.length) return end();
+        if (i < from || i >= to) return end();
       }
       if (active !== tour) return;
       index = i;

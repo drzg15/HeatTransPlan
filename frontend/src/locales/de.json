@@ -1117,7 +1117,7 @@
     "results_need_label": "Sie erhalten:",
     "results_need": "eine einzige Datei, die sich in jedem Browser öffnen und weitergeben lässt",
     "integration_more_title": "Was macht die Pinch-Analyse?",
-    "integration_more_1": "Verbundkurven: Alle heißen Prozessströme (zu kühlen) werden zu einer Kurve addiert, alle kalten Prozessströme (zu heizen) zu einer zweiten. Wo sie sich überlappen, kann Abwärme den Standort heizen; der Rest muss eingekauft werden: Heizen oben, Kühlen unten.",
+    "integration_more_1": "Verbundkurven: Alle heißen Prozessströme (zu kühlen) werden zu einer Kurve addiert, alle kalten Prozessströme (zu heizen) zu einer zweiten. Wo sie sich überlappen, kann Abwärme den Standort heizen; der Rest muss durch externe Versorgung gedeckt werden: Heizen oben, Kühlen unten.",
     "integration_more_2": "ΔTmin ist die kleinste Temperaturdifferenz, die ein Wärmeübertrager braucht; sie legt fest, wie nah sich die beiden Kurven kommen dürfen. Wo sie sich am nächsten kommen, liegt der Pinch.",
     "integration_more_3": "Großverbundkurve: der Abstand zwischen den beiden Verbundkurven bei jeder Temperatur, als eine Kurve. Sie zeigt, wie viel Wärme bei jeder Temperatur nach der Rückgewinnung fehlt oder übrig ist, und berührt am Pinch null.",
     "integration_more_4": "Oberhalb des Pinch braucht der Standort Wärme, unterhalb hat er Wärme übrig. Eine Wärmepumpe hilft, indem sie Wärme von unterhalb des Pinch nach oberhalb hebt: Schritt 3 liest aus der Großverbundkurve, wo.",
@@ -1166,7 +1166,8 @@
     "composite_title": "Verbundkurven",
     "composite_text": "Alle heißen Prozessströme (zu kühlen) werden zu einer Kurve addiert, rot, alle kalten Prozessströme (zu heizen) zu einer zweiten, blau: Temperatur über Wärmestrom. Wo sie sich überlappen, können heiße Prozessströme kalte erwärmen: die Wärme, die der Standort selbst zurückgewinnen kann. Was oben übrig bleibt, muss weiter von außen beheizt werden, was unten übrig bleibt, gekühlt. Wo sich die Kurven am nächsten kommen, ΔTmin voneinander entfernt, liegt der Pinch.",
     "gcc_title": "Großverbundkurve",
-    "gcc_text": "Der Abstand zwischen den beiden Verbundkurven bei jeder Temperatur, als eine Kurve: wie viel Wärme dort nach der Rückgewinnung noch fehlt oder übrig ist. Am Pinch berührt sie null. Oberhalb des Pinch braucht der Standort Wärme, unterhalb hat er Wärme übrig; Ausbuchtungen (Taschen) sind Wärme, die innerhalb des Standorts ausgetauscht wird. Teil 3 liest aus dieser Kurve, wo eine Wärmepumpe Wärme aufnehmen und wo sie sie abgeben kann."
+    "gcc_text": "Der Abstand zwischen den beiden Verbundkurven bei jeder Temperatur, als eine Kurve: wie viel Wärme dort nach der Rückgewinnung noch fehlt oder übrig ist. Am Pinch berührt sie null. Oberhalb des Pinch braucht der Standort Wärme, unterhalb hat er Wärme übrig; Ausbuchtungen (Taschen) sind Wärme, die innerhalb des Standorts ausgetauscht wird. Teil 3 liest aus dieser Kurve, wo eine Wärmepumpe Wärme aufnehmen und wo sie sie abgeben kann.",
+    "page_help": "Diese Seite erklären"
   },
   "hp_view": {
     "title": "Temperaturen der Wärmepumpe",

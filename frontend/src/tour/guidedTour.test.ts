@@ -2,7 +2,7 @@
  *  text, this fails and names the step, instead of the tour going quiet. */
 
 import { describe, it, expect } from 'vitest';
-import { TOUR, CHAPTERS, PART } from './guidedTour';
+import { TOUR, CHAPTERS, PART, pageSteps } from './guidedTour';
 import en from '../locales/en.json';
 import de from '../locales/de.json';
 
@@ -55,5 +55,14 @@ describe('guided tour in German', () => {
       expect(i18n.t(`tour.${step.key}_title`, { lng: 'de' })).not.toBe(
         i18n.t(`tour.${step.key}_title`, { lng: 'en' })
       );
+  });
+});
+
+describe('pageSteps', () => {
+  it("covers exactly one page's steps, and none for a page without any", () => {
+    const { from, to } = pageSteps('/data-collection');
+    expect(TOUR.slice(from, to).every((s) => s.page === '/data-collection')).toBe(true);
+    expect(TOUR.filter((s) => s.page === '/data-collection')).toHaveLength(to - from);
+    expect(pageSteps('/').from).toBe(-1);
   });
 });

@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next';
 import { useUIStore } from '../../store/uiStore';
 import { useProjectStore } from '../../store/projectStore';
 import LanguagePicker from './LanguagePicker';
+import PageTourButton from '../ui/PageTourButton';
 import LiveButton from '../../live/LiveButton';
 import { useFeatures } from '../../hooks/useFeatures';
 import './AppShell.css';
@@ -132,6 +133,7 @@ export default function AppShell({ children }: Props) {
           >
             <BookOpen size={16} />
           </a>
+          <PageTourButton />
           <button
             className="theme-toggle"
             onClick={toggleTheme}

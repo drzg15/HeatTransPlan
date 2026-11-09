@@ -82,6 +82,23 @@ export const GROUPS: Group[] = [
 // Yes/no inputs, shown as a checkbox and stored as 0 / 1.
 export const BOOL_FIELDS: Array<keyof Form> = ['co2ElPriced'];
 
+// Options that are off by default (value 0). A checkbox switches one on, which
+// fills in a typical value, taken from its help text; off sets 0 again.
+export const SWITCHES: Partial<Record<keyof Form, number>> = {
+  pDemand: 100, // industrial capacity charges: often 50–150 €/kW per year
+  reinvestShare: 20, // e.g. a compressor overhaul; an assumption, no source
+  opFunding: 92, // BEW Modul 4: up to about 92 €/MWh
+  coolShare: 100, // a chiller or cooling tower removes all of it today
+  boilerInvest: 131, // VDI 4646:2026 (p. 74): gas condensing boiler
+};
+// Inputs that only count while an option is on: greyed out while it is off.
+export const SWITCHED_BY: Partial<Record<keyof Form, keyof Form>> = {
+  reinvestYear: 'reinvestShare',
+  opFundingYears: 'opFunding',
+  eer: 'coolShare',
+  fMaintRef: 'boilerInvest',
+};
+
 export type Range = { step: number; min: number; max: number; open?: boolean };
 
 // Inputs: key, unit, the block it sits in, and the step and range of the −/+

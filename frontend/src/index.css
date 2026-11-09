@@ -30,11 +30,12 @@
     var(--brand-magenta) 50%,
     var(--brand-red) 100%
   );
-  /* The app's main colour: the violet between our blue and our magenta. */
+  /* The violet between our blue and our magenta (subprocess level colour). */
   --violet: color-mix(in srgb, var(--brand-blue) 62%, var(--brand-magenta));
-  --primary: var(--violet);
-  --primary-hover: color-mix(in srgb, var(--violet) 82%, #000);
-  --primary-light: color-mix(in srgb, var(--violet) 10%, var(--surface));
+  /* The app's main colour: the logo's blue, as the H. */
+  --primary: var(--brand-blue);
+  --primary-hover: color-mix(in srgb, var(--primary) 82%, #000);
+  --primary-light: color-mix(in srgb, var(--primary) 10%, var(--surface));
 
   /* Controls embedded in the surface: their lines and wells are the text
      colour, see-through, so they tint whatever they sit on (light or dark)
@@ -78,7 +79,7 @@
 
 .dark {
   --brand-blue: #60a5fa; /* Brighter blue for navy backgrounds */
-  --primary-hover: color-mix(in srgb, var(--violet) 80%, #fff);
+  --primary-hover: color-mix(in srgb, var(--primary) 80%, #fff);
 
   --bg: #0f172a; /* Deep Navy Slate */
   --surface: #1e293b; /* Lighter Slate Blue */

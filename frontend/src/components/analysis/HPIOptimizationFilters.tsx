@@ -405,89 +405,96 @@ export default function HPIOptimizationFilters(p: Props) {
           )}
         </p>
       </div>
-      <div>
-        <div className="cf-trigger-head">
-          <label style={labelStyle}>{t('optimization.panel.filters.cop_model')}</label>
-          <ChartHelpButton
-            inline
-            title={t('optimization.panel.filters.cop_model_help_title')}
-            description={
-              <>
-                <p>{t('optimization.panel.filters.cop_model_help_1')}</p>
-                <p>
-                  <strong>{t('optimization.panel.filters.cop_model_4t')}</strong>{' '}
-                  {t('optimization.panel.filters.cop_model_help_4t')}
-                </p>
-                <p>
-                  <strong>{t('optimization.panel.filters.cop_model_2t')}</strong>{' '}
-                  {t('optimization.panel.filters.cop_model_help_2t')}
-                </p>
-                <p>{t('optimization.panel.filters.cop_model_help_2')}</p>
-              </>
-            }
-          />
-        </div>
-        <select
-          style={selectStyle}
-          value={p.copModel}
-          onChange={(e) => p.onCopModel(e.target.value as CopModel)}
-          title={t('optimization.panel.filters.cop_model_desc')}
-        >
-          <option value="2t">{t('optimization.panel.filters.cop_model_2t')}</option>
-          <option value="4t">{t('optimization.panel.filters.cop_model_4t')}</option>
-        </select>
-        <div className="cf-trigger-row" style={{ marginTop: '0.5rem' }}>
-          <button className="cf-trigger" onClick={p.onOpenHeatPump} title={t('hp_view.open_hint')}>
-            {t('hp_view.open')}
-          </button>
-        </div>
-      </div>
-      <div className="cf-trigger-block">
-        <div className="cf-trigger-head">
-          <label style={labelStyle}>{t('optimization.panel.filters.cop_source')}</label>
-          <ChartHelpButton
-            inline
-            title={t('optimization.title_custom_cop_formula')}
-            description={<CopFormulaHelp />}
-          />
-        </div>
-        {/* Both ways to bring your own COP, side by side; the line under a
-            name appears once one is in use. */}
-        <div className="cf-trigger-row">
-          <button
-            className={`cf-trigger ${p.copFormula ? 'active' : ''}`}
-            onClick={p.onOpenFormula}
-            title={t('optimization.panel.filters.custom_cop_desc')}
-          >
-            ƒ {p.copFormula ? p.copFormula.name : t('optimization.panel.filters.custom_cop_btn')}
-            {p.copFormula && <span className="cf-trigger-sub">{p.copFormula.expression}</span>}
-          </button>
-          {p.trainingAvailable && (
-            <button
-              className={`cf-trigger ${p.customModel?.enabled ? 'active' : ''}`}
-              onClick={p.onOpenTraining}
-              title={t('optimization.train.desc')}
+      {/* COP model and COP source on one line; they wrap when narrow. */}
+      <div className="cf-cop-row">
+        <div>
+          <div className="cf-trigger-head">
+            <label style={labelStyle}>{t('optimization.panel.filters.cop_model')}</label>
+            <ChartHelpButton
+              inline
+              title={t('optimization.panel.filters.cop_model_help_title')}
+              description={
+                <>
+                  <p>{t('optimization.panel.filters.cop_model_help_1')}</p>
+                  <p>
+                    <strong>{t('optimization.panel.filters.cop_model_4t')}</strong>{' '}
+                    {t('optimization.panel.filters.cop_model_help_4t')}
+                  </p>
+                  <p>
+                    <strong>{t('optimization.panel.filters.cop_model_2t')}</strong>{' '}
+                    {t('optimization.panel.filters.cop_model_help_2t')}
+                  </p>
+                  <p>{t('optimization.panel.filters.cop_model_help_2')}</p>
+                </>
+              }
+            />
+          </div>
+          <div className="cf-trigger-row">
+            <select
+              style={selectStyle}
+              value={p.copModel}
+              onChange={(e) => p.onCopModel(e.target.value as CopModel)}
+              title={t('optimization.panel.filters.cop_model_desc')}
             >
-              {p.customModel ? p.customModel.name : t('optimization.train.btn')}
-              {p.customModel && (
-                <span className="cf-trigger-sub">
-                  R² {formatDe(p.customModel.metrics.r2 ?? NaN, 3)} · MAE{' '}
-                  {formatDe(p.customModel.metrics.mae ?? NaN, 3)}
-                </span>
-              )}
+              <option value="2t">{t('optimization.panel.filters.cop_model_2t')}</option>
+              <option value="4t">{t('optimization.panel.filters.cop_model_4t')}</option>
+            </select>
+            <button
+              className="cf-trigger"
+              onClick={p.onOpenHeatPump}
+              title={t('hp_view.open_hint')}
+            >
+              {t('hp_view.open')}
             </button>
+          </div>
+        </div>
+        <div className="cf-trigger-block">
+          <div className="cf-trigger-head">
+            <label style={labelStyle}>{t('optimization.panel.filters.cop_source')}</label>
+            <ChartHelpButton
+              inline
+              title={t('optimization.title_custom_cop_formula')}
+              description={<CopFormulaHelp />}
+            />
+          </div>
+          {/* Both ways to bring your own COP, side by side; the line under a
+            name appears once one is in use. */}
+          <div className="cf-trigger-row">
+            <button
+              className={`cf-trigger ${p.copFormula ? 'active' : ''}`}
+              onClick={p.onOpenFormula}
+              title={t('optimization.panel.filters.custom_cop_desc')}
+            >
+              ƒ {p.copFormula ? p.copFormula.name : t('optimization.panel.filters.custom_cop_btn')}
+              {p.copFormula && <span className="cf-trigger-sub">{p.copFormula.expression}</span>}
+            </button>
+            {p.trainingAvailable && (
+              <button
+                className={`cf-trigger ${p.customModel?.enabled ? 'active' : ''}`}
+                onClick={p.onOpenTraining}
+                title={t('optimization.train.desc')}
+              >
+                {p.customModel ? p.customModel.name : t('optimization.train.btn')}
+                {p.customModel && (
+                  <span className="cf-trigger-sub">
+                    R² {formatDe(p.customModel.metrics.r2 ?? NaN, 3)} · MAE{' '}
+                    {formatDe(p.customModel.metrics.mae ?? NaN, 3)}
+                  </span>
+                )}
+              </button>
+            )}
+          </div>
+          {p.trainingAvailable && p.customModel && (
+            <label className="cf-trigger-toggle">
+              <input
+                type="checkbox"
+                checked={p.customModel.enabled}
+                onChange={(e) => p.onToggleCustomModel(e.target.checked)}
+              />
+              {t('optimization.train.use')}
+            </label>
           )}
         </div>
-        {p.trainingAvailable && p.customModel && (
-          <label className="cf-trigger-toggle">
-            <input
-              type="checkbox"
-              checked={p.customModel.enabled}
-              onChange={(e) => p.onToggleCustomModel(e.target.checked)}
-            />
-            {t('optimization.train.use')}
-          </label>
-        )}
       </div>
       <details>
         <summary style={{ ...labelStyle, cursor: 'pointer' }}>

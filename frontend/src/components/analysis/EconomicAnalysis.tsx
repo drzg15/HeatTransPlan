@@ -25,6 +25,8 @@ import {
   RESULT_ROWS_ENERGY,
   RESULT_ROWS_MONEY,
   SIGNED_ROWS,
+  SWITCHED_BY,
+  SWITCHES,
   pointKey,
   pointName,
   type Form,
@@ -222,12 +224,15 @@ function NumInput({
   range,
   width = 80,
   grouping = true,
+  disabled = false,
 }: {
   value: number;
   onChange: (v: number) => void;
   range: Range;
   width?: number;
   grouping?: boolean;
+  /** Shown but greyed: an option that is switched off. */
+  disabled?: boolean;
 }) {
   const { step } = range;
   const [draft, setDraft] = useState<string | null>(null);
@@ -237,12 +242,13 @@ function NumInput({
   const nudge = (dir: number) => onChange(Number((value + dir * step).toFixed(6)));
   return (
     <span className="econ-num">
-      <button type="button" onClick={() => nudge(-1)} aria-label="−">
+      <button type="button" onClick={() => nudge(-1)} aria-label="−" disabled={disabled}>
         −
       </button>
       <input
         type="text"
         inputMode="decimal"
+        disabled={disabled}
         className="pa-number-input"
         style={{ width }}
         value={draft ?? formatDe(value, 4, grouping)}
@@ -254,7 +260,7 @@ function NumInput({
         }}
         onBlur={() => setDraft(null)}
       />
-      <button type="button" onClick={() => nudge(1)} aria-label="+">
+      <button type="button" onClick={() => nudge(1)} aria-label="+" disabled={disabled}>
         +
       </button>
       <input
@@ -263,6 +269,7 @@ function NumInput({
         max={max}
         step={step}
         value={value}
+        disabled={disabled}
         onChange={(e) => onChange(Number(e.target.value))}
         onPointerUp={() => range.open && value >= max && setGrown(max * 2)}
       />
@@ -616,22 +623,59 @@ export default function EconomicAnalysis() {
                       <td>{inputLabel(key, t(`economics.inputs.${key}`, { fuel }))}</td>
                       <td>
                         {BOOL_FIELDS.includes(key) ? (
-                          <input
-                            type="checkbox"
-                            checked={Boolean(form[key])}
-                            onChange={(e) => setForm({ ...form, [key]: e.target.checked ? 1 : 0 })}
-                          />
+                          <span className="econ-switch">
+                            <input
+                              type="checkbox"
+                              checked={Boolean(form[key])}
+                              aria-label={t(`economics.inputs.${key}`, { fuel })}
+                              onChange={(e) =>
+                                setForm({ ...form, [key]: e.target.checked ? 1 : 0 })
+                              }
+                            />
+                            {/* What switching it on adds: the CO₂ cost on a kWh of
+                                electricity in the base year, greyed while off. */}
+                            <span className={`econ-switch-value${form[key] ? '' : ' is-off'}`}>
+                              {formatDe((form.co2El * form.co2Price) / 10, 2)}
+                            </span>
+                          </span>
                         ) : (
-                          <NumInput
-                            width={64}
-                            value={form[key]}
-                            range={range}
-                            grouping={key !== 'year' && key !== 'reinvestYear'}
-                            onChange={(v) => setForm({ ...form, [key]: v })}
-                          />
+                          <span className="econ-switch">
+                            {/* An option off by default: on fills in its typical value. */}
+                            {SWITCHES[key] !== undefined && (
+                              <input
+                                type="checkbox"
+                                checked={Boolean(form[key])}
+                                aria-label={t(`economics.inputs.${key}`, { fuel })}
+                                onChange={(e) =>
+                                  setForm({ ...form, [key]: e.target.checked ? SWITCHES[key]! : 0 })
+                                }
+                              />
+                            )}
+                            {/* Off: shown greyed at 0, as are the inputs that
+                                only count while their option is on. */}
+                            <NumInput
+                              width={64}
+                              // Off: the value it would get, greyed; 0 is what counts.
+                              value={
+                                SWITCHES[key] !== undefined && !form[key]
+                                  ? SWITCHES[key]!
+                                  : form[key]
+                              }
+                              range={range}
+                              grouping={key !== 'year' && key !== 'reinvestYear'}
+                              disabled={
+                                (SWITCHES[key] !== undefined && !form[key]) ||
+                                (SWITCHED_BY[key] !== undefined && !form[SWITCHED_BY[key]!])
+                              }
+                              onChange={(v) => setForm({ ...form, [key]: v })}
+                            />
+                          </span>
                         )}
                       </td>
-                      <td className="econ-unit-cell">{unitLabel(unit)}</td>
+                      <td className="econ-unit-cell">
+                        {/* The switch shows the surcharge it adds; the report keeps "-". */}
+                        {unitLabel(key === 'co2ElPriced' ? 'ct/kWh' : unit)}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -794,24 +838,28 @@ export default function EconomicAnalysis() {
         {sizeChart}
       </div>
 
-      <div className="econ-card">
-        <div className="econ-card-title">{t('economics.blocks.summary')}</div>
-
-        {summaries.map((sm) => (
-          <p
-            key={sm.name}
-            style={{
-              fontSize: '0.85rem',
-              lineHeight: 1.5,
-              margin: '0 0 0.5rem',
-              paddingLeft: '0.6rem',
-              borderLeft: `4px solid ${sm.good ? GREEN : RED}`,
-            }}
-          >
-            <b>{sm.name}:</b> {sm.text}
-          </p>
-        ))}
-      </div>
+      <details className="pa-summary">
+        <summary>
+          <h5>{t('economics.blocks.summary')}</h5>
+          <span className="econ-more-hint">{t('economics.click_to_open')}</span>
+        </summary>
+        <div>
+          {summaries.map((sm) => (
+            <p
+              key={sm.name}
+              style={{
+                fontSize: '0.85rem',
+                lineHeight: 1.5,
+                margin: '0 0 0.5rem',
+                paddingLeft: '0.6rem',
+                borderLeft: `4px solid ${sm.good ? GREEN : RED}`,
+              }}
+            >
+              <b>{sm.name}:</b> {sm.text}
+            </p>
+          ))}
+        </div>
+      </details>
     </Part>
   );
 }

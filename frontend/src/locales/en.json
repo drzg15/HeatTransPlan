@@ -1117,7 +1117,7 @@
     "results_need_label": "You get:",
     "results_need": "a single file to open in any browser and pass on",
     "integration_more_title": "What does the pinch analysis do?",
-    "integration_more_1": "Composite curves: all hot streams (to be cooled) are added up into one curve, all cold streams (to be heated) into another. Where they overlap, waste heat can heat the site; what is left must still be bought: heating at the top, cooling at the bottom.",
+    "integration_more_1": "Composite curves: all hot streams (to be cooled) are added up into one curve, all cold streams (to be heated) into another. Where they overlap, waste heat can heat the site; what is left must come from external utilities: heating at the top, cooling at the bottom.",
     "integration_more_2": "ΔTmin is the smallest temperature difference a heat exchanger needs; it sets how close the two curves may come. Where they come closest is the pinch.",
     "integration_more_3": "Grand composite curve: the gap between the two composite curves at every temperature, as one curve. It shows how much heat is missing or left over at each temperature after recovery, and touches zero at the pinch.",
     "integration_more_4": "Above the pinch the site needs heat, below it has heat to spare. A heat pump helps by lifting heat from below the pinch to above it: step 3 reads where from the grand composite curve.",
@@ -1166,7 +1166,8 @@
     "composite_title": "Composite curves",
     "composite_text": "All hot streams (to be cooled) are added up into one curve, red, and all cold streams (to be heated) into another, blue: temperature against heat flow. Where they overlap, hot streams can heat cold ones: the heat the site can recover itself. What is left at the top must still be heated from outside, at the bottom cooled. Where the curves come closest, ΔTmin apart, is the pinch.",
     "gcc_title": "Grand composite curve",
-    "gcc_text": "The gap between the two composite curves at every temperature, as one curve: how much heat is still missing or left over there after recovery. It touches zero at the pinch. Above the pinch the site needs heat, below it has heat to spare; bulges (pockets) are heat exchanged within the site. Part 3 reads from this curve where a heat pump can take heat and where it can deliver it."
+    "gcc_text": "The gap between the two composite curves at every temperature, as one curve: how much heat is still missing or left over there after recovery. It touches zero at the pinch. Above the pinch the site needs heat, below it has heat to spare; bulges (pockets) are heat exchanged within the site. Part 3 reads from this curve where a heat pump can take heat and where it can deliver it.",
+    "page_help": "Explain this page"
   },
   "hp_view": {
     "title": "Heat pump temperatures",
