@@ -3,7 +3,7 @@
 
 import { useEffect, useRef, useState, type CSSProperties } from 'react';
 import { useTranslation } from 'react-i18next';
-import type { CopFormulaSpec, CopModel, TempScale } from '../../types/analysis';
+import type { CopFormulaSpec, CopModel } from '../../types/analysis';
 import type { CustomCopModelSpec } from '../../types/copTraining';
 import { formatDe } from '../../utils/numberFormat';
 import ChartHelpButton from '../ui/ChartHelpButton';
@@ -48,12 +48,7 @@ interface Props {
   onToggleCustomModel: (enabled: boolean) => void;
   /** Opens the heat pump view: its four temperatures and the COP of each model. */
   onOpenHeatPump: () => void;
-  /** Temperature scale the heat pump models see. */
-  tempScale: TempScale;
-  onTempScale: (scale: TempScale) => void;
 }
-
-const TEMP_SCALES: TempScale[] = ['shifted', 'real', 'double'];
 
 /** A dropdown of checkboxes; nothing ticked means all. Closes on a click
  *  anywhere outside it. */
@@ -470,34 +465,6 @@ export default function HPIOptimizationFilters(p: Props) {
         <summary style={{ ...labelStyle, cursor: 'pointer' }}>
           {t('optimization.panel.filters.more_options')}
         </summary>
-        <div className="cf-trigger-head" style={{ marginTop: '0.5rem' }}>
-          <label style={labelStyle}>{t('optimization.panel.filters.temp_scale')}</label>
-          <ChartHelpButton
-            inline
-            title={t('optimization.panel.filters.temp_scale')}
-            description={
-              <>
-                {TEMP_SCALES.map((s) => (
-                  <p key={s}>
-                    <strong>{t(`optimization.panel.filters.temp_scale_${s}`)}:</strong>{' '}
-                    {t(`optimization.panel.filters.temp_scale_${s}_help`)}
-                  </p>
-                ))}
-              </>
-            }
-          />
-        </div>
-        <select
-          style={selectStyle}
-          value={p.tempScale}
-          onChange={(e) => p.onTempScale(e.target.value as TempScale)}
-        >
-          {TEMP_SCALES.map((s) => (
-            <option key={s} value={s}>
-              {t(`optimization.panel.filters.temp_scale_${s}`)}
-            </option>
-          ))}
-        </select>
         {/* Which points the chart shows: rarely changed, so kept here. */}
         <div
           className="pa-opt-toggles"

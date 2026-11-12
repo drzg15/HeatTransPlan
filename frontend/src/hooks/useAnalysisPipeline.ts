@@ -41,7 +41,6 @@ export function useAnalysisPipeline() {
   const customCopModel = useAnalysisStore((s) => s.customCopModel);
   const copModel = useAnalysisStore((s) => s.copModel);
   const searchTemps = useAnalysisStore((s) => s.searchTemps);
-  const tempScale = useAnalysisStore((s) => s.tempScale);
 
   const [pinchError, setPinchError] = useState<string | null>(null);
   const [, setHPIError] = useState<string | null>(null);
@@ -170,7 +169,7 @@ export function useAnalysisPipeline() {
     if (!pinchResult) return;
     runHPIOptimizationAnalysis(pinchResult);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [copFormula, customCopModel, copModel, recoveryPct, searchTemps, tempScale]);
+  }, [copFormula, customCopModel, copModel, recoveryPct, searchTemps]);
 
   // The newest request of each kind. The server answers them in parallel, so an
   // older one can come back last; only the newest may change the page.
@@ -231,7 +230,6 @@ export function useAnalysisPipeline() {
           cop_model: copModel,
           recovery_pct: recoveryPct,
           search_temps: searchTemps,
-          temp_scale: tempScale,
           lang: i18n.language,
         });
         if (run === latest.current.opt) setHPIOptimizationResult(result);
@@ -243,7 +241,7 @@ export function useAnalysisPipeline() {
       }
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [profileMode, copFormula, customCopModel, copModel, recoveryPct, searchTemps, tempScale, i18n.language]
+    [profileMode, copFormula, customCopModel, copModel, recoveryPct, searchTemps, i18n.language]
   );
 
   // Run status-quo analysis

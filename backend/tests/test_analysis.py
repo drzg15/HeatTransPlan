@@ -182,7 +182,7 @@ def test_search_temps_choose_what_follows_the_search():
 
     carnot = {a["name"]: a for a in _carnot_reference(_theoretical_alternatives(), pinch, ("source_in", "sink_out"))}
     cop = carnot["Carnot"]["cop_fn"](np.array([58.2]), np.array([113.0]))[0]
-    assert cop == pytest.approx(0.5 * (113.0 + 273.15) / (113.0 - 58.2))
+    assert cop == pytest.approx(0.5 * (108.0 + 273.15) / (108.0 - 63.2))
 
 
 def test_cop_point_rates_one_pump_every_way(client):
@@ -190,10 +190,12 @@ def test_cop_point_rates_one_pump_every_way(client):
     optimization gave it, plus the 2-temperature model and Carnot. Spreads
     the training data never had are named, not hidden."""
     body = dict(refrigerant="Butane_2", medium_sink="Water", T_source_in=68.0,
-                T_source_out=58.2, T_sink_in=78.0, T_sink_out=113.0)
+                T_source_out=58.2, T_sink_in=78.0, T_sink_out=113.0, delta_t_min=10.0)
     r = client.post("/api/analysis/cop-point", json=body).json()
     assert r["cop_4t"] == pytest.approx(4.75, abs=0.01)
-    assert r["carnot_ideal"] == pytest.approx(8.58, abs=0.01) and r["carnot_50"] == pytest.approx(4.29, abs=0.01)
+    # Carnot at the real sink out and source out: 108.0 and 63.2.
+    assert r["carnot_50"] == pytest.approx(0.5 * (108.0 + 273.15) / (108.0 - 63.2))
+    assert r["carnot_ideal"] == pytest.approx(2 * r["carnot_50"])
     assert 1 < r["cop_2t"] < 10 and r["checks"] == []
 
     far = client.post("/api/analysis/cop-point", json={**body, "T_source_in": 50.0, "T_source_out": 23.2,
@@ -207,24 +209,30 @@ def test_cop_point_rates_one_pump_every_way(client):
         o for o in options if o["name"] == "Butane_2" and o["medium_sink"] == "Water").items()
 
 
-def test_carnot_uses_the_shifted_sink_out_and_the_source_in():
-    """Example 1 (pinch 73, ΔTmin 10): T_sink,out 113.0 (shifted), T_source,in
-    = 73 − 5 = 68.0, whatever the searched source: 8.58 ideal, 4.29 at 50 %.
-    An archetype stays only where it beats that line."""
+def test_carnot_uses_the_real_sink_out_and_source_out():
+    """Example 1 (pinch 73, ΔTmin 10): shifted sink 113.0 and source 58.6 are
+    real 108.0 and 63.6, so 0.5 × 381.15 / 44.4 = 4.29, on any scale the
+    models see. An archetype stays only where it beats that line."""
     import numpy as np
     from types import SimpleNamespace
-    from app.services.optimization.alternatives import _carnot_reference, _theoretical_alternatives
+    from app.services.optimization.alternatives import (
+        _carnot_reference, _theoretical_alternatives, grid_offset,
+    )
 
     pinch = SimpleNamespace(pinch_temperature=73.0, T_min=10.0)
+    expected = 0.5 * (108.0 + 273.15) / (108.0 - 63.6)
+    for scale in ("double", "shifted", "real"):
+        gs = grid_offset(pinch, scale)
+        alts = {a["name"]: a for a in _carnot_reference(_theoretical_alternatives(), pinch, scale=scale)}
+        assert alts["Carnot"]["cop_fn"](np.array([58.6 + gs]), np.array([113.0 - gs]))[0] == pytest.approx(expected)
+        assert "(108.0 - 63.6)" in alts["Carnot"]["formula_fn"](113.0 - gs, 113.0 - 58.6 - 2 * gs)
+
     alts = {a["name"]: a for a in _carnot_reference(_theoretical_alternatives(), pinch)}
-    src, snk = np.array([58.2, 40.0]), np.array([113.0, 113.0])
+    src, snk = np.array([58.6, 40.0]), np.array([113.0, 113.0])
     carnot = alts["Carnot"]["cop_fn"](src, snk)
-    assert carnot == pytest.approx([4.29, 4.29], abs=0.005)
-    assert carnot[0] == pytest.approx(0.5 * (113.0 + 273.15) / (113.0 - 68.0))
-    assert "(113.0 - 68.0)" in alts["Carnot"]["formula_fn"](113.0, 113.0 - 58.2)
     for name, alt in alts.items():
         cop = alt["cop_fn"](src, snk)
-        assert all(c == -1.0 or c >= carnot[0] for c in cop), name
+        assert all(c == -1.0 or c >= k for c, k in zip(cop, carnot)), name
 
 
 def test_unrecovered_heat_scales_with_recovery_share():

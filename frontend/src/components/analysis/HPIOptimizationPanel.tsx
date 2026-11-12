@@ -40,8 +40,6 @@ export default function HPIOptimizationPanel() {
   const setCopModel = useAnalysisStore((s) => s.setCopModel);
   const searchTemps = useAnalysisStore((s) => s.searchTemps);
   const setSearchTemps = useAnalysisStore((s) => s.setSearchTemps);
-  const tempScale = useAnalysisStore((s) => s.tempScale);
-  const setTempScale = useAnalysisStore((s) => s.setTempScale);
   const setCopFormula = useAnalysisStore((s) => s.setCopFormula);
   const [formulaOpen, setFormulaOpen] = useState(false);
   // Trained COP model (COP training module).
@@ -230,8 +228,6 @@ export default function HPIOptimizationPanel() {
               customModel={customCopModel}
               onOpenTraining={() => setTrainingOpen(true)}
               onOpenHeatPump={() => setHeatPumpOpen(true)}
-              tempScale={tempScale}
-              onTempScale={setTempScale}
               onToggleCustomModel={(enabled) =>
                 customCopModel && setCustomCopModel({ ...customCopModel, enabled })
               }
@@ -263,11 +259,10 @@ export default function HPIOptimizationPanel() {
       {heatPumpOpen && boxedPoint && (
         <HeatPumpView
           // A new search gives a new point: start the view from it.
-          key={`${boxedPoint.refrigerant}|${boxedPoint.T_source}|${boxedPoint.T_sink}|${searchTemps.join()}|${tempScale}`}
+          key={`${boxedPoint.refrigerant}|${boxedPoint.T_source}|${boxedPoint.T_sink}|${searchTemps.join()}`}
           point={boxedPoint}
           pinchTemperature={pinchResult.pinch_temperature}
           tMin={tMin}
-          tempScale={tempScale}
           pumps={realPumps}
           sourceProfile={hpiOptimizationResult.pocketless_source}
           sinkProfile={hpiOptimizationResult.pocketless_sink}

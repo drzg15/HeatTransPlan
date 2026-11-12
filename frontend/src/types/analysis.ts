@@ -226,6 +226,8 @@ export interface CopPointRequest {
   T_source_out: number;
   T_sink_in: number;
   T_sink_out: number;
+  /** ΔTmin: Carnot reads the real temperatures, ΔTmin/2 off these. */
+  delta_t_min?: number;
 }
 
 export interface CopPointResult {
@@ -243,10 +245,6 @@ export type CopModel = '2t' | '4t';
 
 /** A heat pump temperature the optimization can search along its profile. */
 export type SearchTemp = 'source_in' | 'source_out' | 'sink_in' | 'sink_out';
-/** double: fixed at pinch ∓ ΔTmin/2 on the shifted grid (ΔTmin/2 counted
- *  twice); shifted: fixed at the pinch (literature); real: process temperatures
- *  (source + ΔTmin/2, sink − ΔTmin/2). */
-export type TempScale = 'double' | 'shifted' | 'real';
 
 export interface HPIOptimizationRequest {
   pinch_result: PinchResult;
@@ -260,8 +258,6 @@ export interface HPIOptimizationRequest {
   lang?: string;
   /** The temperatures searched along the profiles; the rest sit at the pinch. */
   search_temps?: SearchTemp[];
-  /** Temperature scale the heat pump models see. */
-  temp_scale?: TempScale;
 }
 
 export interface HPIOptimizationResult {
