@@ -6,8 +6,8 @@ from typing import Dict, List, Literal, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
-# What a column can stand for. The two outlet temperatures and the COP are
-# required; with both inlet temperatures the model sees all four.
+# The temperatures a model can read. Training maps only the two outlets (the
+# 2-temperature model); the inlets stay accepted for models trained earlier.
 # In the order the network sees them, the same as the shipped models
 # (Vorlauf Quelle, Rücklauf Quelle, Rücklauf Senke, Vorlauf Senke), so the
 # same data trains the same network.
@@ -24,17 +24,9 @@ class ColumnMapping(BaseModel):
     T_source_out: str  # source return: heat source leaving the evaporator, °C
     T_sink_out: str  # sink supply: heat leaving the condenser, °C
     COP: str
-    T_source_in: Optional[str] = None  # source supply, °C
-    T_sink_in: Optional[str] = None  # sink return, °C
     medium: Optional[str] = None  # sink medium (water, steam, ...)
     refrigerant: Optional[str] = None
     stages: Optional[str] = None  # number of compressors / stages
-
-    @model_validator(mode="after")
-    def _both_inlets_or_none(self):
-        if (self.T_source_in is None) != (self.T_sink_in is None):
-            raise ValueError("Map both inlet temperatures (source supply and sink return) or neither.")
-        return self
 
 
 class Layer(BaseModel):

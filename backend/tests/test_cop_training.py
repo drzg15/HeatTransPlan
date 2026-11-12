@@ -34,7 +34,6 @@ def german_csv(df) -> bytes:
 
 
 MAP4 = {"T_source_out": "T Rücklauf Quelle", "T_sink_out": "T Vorlauf Senke", "COP": "COP",
-        "T_source_in": "T Vorlauf Quelle", "T_sink_in": "T Rücklauf Senke",
         "refrigerant": "Kältemittel", "stages": "Stufen", "medium": "Medium"}
 
 
@@ -58,7 +57,8 @@ def test_inspect_guesses_the_columns(client):
     assert out["rows"] == 50 and out["max_rows"] == MAX_ROWS
     assert out["guess"]["COP"] == "COP"
     assert out["guess"]["T_source_out"] == "T Rücklauf Quelle"
-    assert out["guess"]["T_sink_in"] == "T Rücklauf Senke"
+    assert out["guess"]["T_sink_out"] == "T Vorlauf Senke"
+    assert "T_source_in" not in out["guess"] and "T_sink_in" not in out["guess"]
     assert "T Vorlauf Senke" in out["numeric_columns"]
 
 
@@ -68,7 +68,8 @@ def test_trains_a_good_model_from_a_german_csv(client):
     out = r.json()
     m = out["spec"]["metrics"]
     assert m["r2"] > 0.95 and m["mae"] < 0.3
-    assert out["spec"]["temps"] == ["T_source_in", "T_source_out", "T_sink_in", "T_sink_out"]
+    # The inlet columns in the data are not used: the model reads two temperatures.
+    assert out["spec"]["temps"] == ["T_source_out", "T_sink_out"]
     assert len(out["spec"]["combos"]) == 4  # 2 refrigerants × 2 stage counts, one medium
     assert len(out["parity"]["actual"]) == len(out["parity"]["predicted"]) > 0
 
@@ -88,7 +89,6 @@ def test_large_files_are_sampled_and_bad_input_is_explained(client):
     assert out["rows_used"] == MAX_ROWS and out["sampled_from"] == MAX_ROWS + 500
     assert train(client, synthetic(10), two).status_code == 400  # too few rows
     assert train(client, synthetic(100), {**two, "COP": "nope"}).status_code == 400
-    assert train(client, synthetic(100), {**two, "T_source_in": "T Vorlauf Quelle"}).status_code == 422
     bad = client.post("/api/analysis/cop-model/train", files={"file": ("d.pdf", b"x")},
                       data={"mapping": json.dumps(two)})
     assert bad.status_code == 400
@@ -111,7 +111,7 @@ def test_the_trained_model_joins_the_optimization(client, monkeypatch):
 
     pts = custom_points(spec)
     assert pts and {p["refrigerant"].split(": ")[0] for p in pts} == {"Test model"}
-    assert all(p["T_vorlauf_quelle"] is not None for p in pts)  # four temperatures: pinch-filled
+    assert all(p["T_vorlauf_quelle"] is None for p in pts)  # two temperatures: no inlets
     assert "Your trained model" in pts[0]["calculation_details"]
     assert custom_points({**spec, "enabled": False}) == []
     monkeypatch.setattr(cop_training, "ENABLED", False)

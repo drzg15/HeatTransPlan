@@ -18,7 +18,6 @@ import {
 import { distanceCsv, projectCsv } from '../utils/csvExport';
 import type {
   CopFormulaSpec,
-  CopModel,
   OptimizedIntegrationPoint,
   ProfileMode,
 } from '../types/analysis';
@@ -344,12 +343,6 @@ const BUILT_IN: Record<string, Handler> = {
   },
 
   // ── Heat pumps ──────────────────────────────────────────────────────────
-  set_cop_model: (args) => {
-    if (args.model !== '2t' && args.model !== '4t')
-      throw new CommandError('model must be "2t" or "4t"');
-    analysis().setCopModel(args.model as CopModel);
-    return { model: args.model };
-  },
   set_cop_formula: (args) => {
     analysis().setCopFormula((args.formula as CopFormulaSpec | null) ?? null);
     return { formula: analysis().copFormula };

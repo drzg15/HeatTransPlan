@@ -369,19 +369,11 @@
         "hp_stages": "ANZ. VERDICHTER",
         "cop_source": "COP-QUELLE",
         "cop_model": "COP-MODELL",
-        "cop_model_2t": "Modell 2 Temperaturen",
-        "cop_model_4t": "Modell 4 Temperaturen (Standard)",
-        "cop_model_desc": "2 Temperaturen: Rücklauf Quelle und Vorlauf Senke. 4 Temperaturen: zusätzlich Vorlauf Quelle und Rücklauf Senke, beide aus dem Pinch (siehe Weitere Optionen).",
         "more_options": "Weitere Optionen",
         "custom_cop_btn": "Eigene COP-Formel verwenden",
         "custom_cop_desc": "Hier kann eine eigene COP-Formel eingefügt werden, um Integration und Optimierung mit einer bestimmten Wärmepumpe durchzuführen.",
         "show_theoretical": "Theoretische Wärmepumpen anzeigen",
-        "show_theoretical_desc": "Carnot und der beste Technologie-Archetyp als Referenzpunkte zu den modellierten Maschinen.",
-        "cop_model_help_title": "Wie die COP-Modelle arbeiten",
-        "cop_model_help_1": "Beide Modelle sind neuronale Netze (MLP), trainiert auf 3.468 simulierten Betriebspunkten aus der Parameterstudie eines Herstellers: 24 Kombinationen aus Kältemittel und Verdichterstufen, auf der Senkenseite Wasser oder Dampf. Aus den Temperaturen, dem Senkenmedium und dem Kältemittel sagen sie den COP voraus, den eine reale Maschine erreicht.",
-        "cop_model_help_4t": "nutzt alle vier Temperaturen: Vorlauf und Rücklauf der Quelle, Rücklauf und Vorlauf der Senke. Die Suche variiert Rücklauf Quelle und Vorlauf Senke; Vorlauf Quelle und Rücklauf Senke kommen aus dem Pinch, so gelegt wie unter Weitere Optionen → Wärmepumpen-Temperaturen eingestellt. Auf Testdaten weicht es im Mittel um 0,06 vom simulierten COP ab (R² 0,990).",
-        "cop_model_help_2t": "nutzt nur Rücklauf Quelle und Vorlauf Senke und weiß daher nicht, wie weit die Quelle abkühlt oder wie stark sich die Senke aufheizt. Mittlere Abweichung 0,22 (R² 0,945). Der Standard: es braucht keine Annahme über die Eintrittstemperaturen.",
-        "cop_model_help_2": "Testdaten: die 20 % der Punkte, die beim Training zurückgehalten wurden. Ein Kältemittel wird nur in dem Temperaturbereich angeboten, in dem es simuliert wurde. Die theoretischen Referenzen (Carnot und die anderen) nutzen diese Modelle nicht."
+        "show_theoretical_desc": "Carnot und der beste Technologie-Archetyp als Referenzpunkte zu den modellierten Maschinen."
       }
     },
     "title_actual_source_temp": "Tatsächliche Quellentemperatur",
@@ -509,14 +501,11 @@
         "T_source_out": "Quelle Austritt (Rücklauf), °C",
         "T_sink_out": "Senke Austritt (Vorlauf), °C",
         "COP": "COP",
-        "T_source_in": "Quelle Eintritt (Vorlauf), °C",
-        "T_sink_in": "Senke Eintritt (Rücklauf), °C",
         "medium": "Senkenmedium",
         "refrigerant": "Kältemittel",
         "stages": "Anzahl Verdichter"
       },
       "none": "— nicht in den Daten —",
-      "inlets_hint": "Es werden entweder beide Eintrittstemperaturen zugeordnet oder keine. Mit beiden nimmt die Optimierung Vorlauf Quelle und Rücklauf Senke aus dem Pinch, wie beim 4-Temperaturen-Modell.",
       "name": "Modellname",
       "train": "Trainieren",
       "training": "Trainiert…",
@@ -541,7 +530,7 @@
       "need_title": "Nötig",
       "need": "Ein Betriebspunkt pro Zeile mit der Austrittstemperatur der Quelle, der Austrittstemperatur der Senke und dem COP.",
       "optional_title": "Optional",
-      "optional": "Beide Eintrittstemperaturen (dann nutzt das Modell vier), das Senkenmedium, das Kältemittel und die Anzahl der Verdichter.",
+      "optional": "Das Senkenmedium, das Kältemittel und die Anzahl der Verdichter.",
       "limits_title": "Grenzen",
       "limits": "CSV, Excel oder Parquet, bis 20 MB. Mindestens 30 Zeilen, besser 200 oder mehr; verwendet werden höchstens 10.000, größere Dateien werden zufällig ausgedünnt.",
       "model": "Modell",
@@ -1174,8 +1163,8 @@
   },
   "hp_view": {
     "title": "Temperaturen der Wärmepumpe",
-    "open": "Temperaturen der Wärmepumpe",
-    "open_hint": "Die Wärmepumpe mit ihren vier Temperaturen: Werte lassen sich ausprobieren, der COP wird angezeigt",
+    "open": "Modell 2 Temperaturen",
+    "open_hint": "Das COP-Modell mit 2 Temperaturen (Quelle aus, Senke aus): die Wärmepumpe gezeichnet, Werte lassen sich ausprobieren, der COP wird angezeigt",
     "pump": "Wärmepumpe",
     "scale": "Temperaturen auf der verschobenen Skala, wie die Optimierung sie nutzt (ΔTmin/2 = {{half}} K).",
     "circuit1": "Kreis 1 · Abwärme",
@@ -1199,12 +1188,8 @@
       "sinkIn": "Eintrittstemperatur der Senke",
       "sinkOut": "Austrittstemperatur der Senke"
     },
-    "case": "Berechnung",
-    "case_4t": "4-Temperaturen-Modell",
     "case_2t": "2-Temperaturen-Modell",
-    "case_carnot": "Carnot (50 %)",
-    "ideal": "(ideal {{value}})",
-    "optimization_note": "Angehakte Temperaturen folgen der Suche entlang ihres Profils: die der Quelle der Quellenposition, die der Senke der Senkenposition. Nicht angehakte bleiben am Pinch: Quellenseite Pinch − ΔTmin/2, Senkenseite Pinch + ΔTmin/2. Ein geänderter Haken lässt die Optimierung neu laufen. Q Senke wird am Senkenprofil abgelesen; P el und Q Quelle folgen aus dem gewählten COP.",
+    "optimization_note": "Angehakte Temperaturen folgen der Suche entlang ihres Profils: die der Quelle der Quellenposition, die der Senke der Senkenposition. Nicht angehakte bleiben am Pinch. Ein geänderter Haken lässt die Optimierung neu laufen. Q Senke wird am Senkenprofil abgelesen; P el und Q Quelle folgen aus dem COP.",
     "check": {
       "source_spread": "Die Quelle kühlt um {{value}} K ab; die Trainingsdaten haben nur {{min}} bis {{max}} K, das 4-Temperaturen-Modell extrapoliert.",
       "sink_spread": "Die Senke erwärmt sich um {{value}} K; die Trainingsdaten haben {{min}} bis {{max}} K, das 4-Temperaturen-Modell extrapoliert.",
@@ -1234,23 +1219,6 @@
     "search_source": "Quellenprofil bei",
     "search_sink": "Senkenprofil bei",
     "follows": "bewegt {{names}}",
-    "follows_none": "keine Temperatur folgt",
-    "tab_pump": "Wärmepumpe",
-    "tab_model": "COP-Modell",
-    "model": {
-      "inputs": "Eingaben des Modells",
-      "refrigerant": "Kältemittel",
-      "stages": "Verdichterstufen",
-      "medium": "Senkenmedium",
-      "T_source_in": "Quelle Eintritt",
-      "T_source_out": "Quelle Austritt",
-      "T_sink_in": "Senke Eintritt",
-      "T_sink_out": "Senke Austritt",
-      "range": "Trainierter Bereich dieser Wärmepumpe: Quelle Austritt {{src}} °C, Senke Austritt {{sink}} °C.",
-      "prediction": "Vorhersage",
-      "spreads": "Quelle abgekühlt / Senke erwärmt",
-      "row": "Die Zeile, die das Modell bekommt",
-      "unknown": "Das Modell kennt diese Wärmepumpe nicht."
-    }
+    "follows_none": "keine Temperatur folgt"
   }
 }

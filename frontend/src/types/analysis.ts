@@ -205,19 +205,6 @@ export interface CopFormulaValidateResult {
   functions: string[];
 }
 
-/** A heat pump the trained models know: refrigerant with its stage count
- *  (name, e.g. Butane_2), sink medium and the range it was trained on. */
-export interface CopPointOption {
-  name: string;
-  medium_sink: string;
-  refrigerant_type: string;
-  hp_level: string;
-  T_src_min: number;
-  T_src_max: number;
-  T_sink_min: number;
-  T_sink_max: number;
-}
-
 /** One trained heat pump at four chosen temperatures (°C, shifted scale). */
 export interface CopPointRequest {
   refrigerant: string;

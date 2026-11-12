@@ -29,7 +29,7 @@ interface Props {
 }
 
 const REQUIRED: CopRole[] = ['T_source_out', 'T_sink_out', 'COP'];
-const OPTIONAL: CopRole[] = ['T_source_in', 'T_sink_in', 'medium', 'refrigerant', 'stages'];
+const OPTIONAL: CopRole[] = ['medium', 'refrigerant', 'stages'];
 
 // The range the backend offers by default: the data's, the sink capped.
 const SINK_CAP = 180;
@@ -80,8 +80,7 @@ export default function CopModelTrainModal({ initial, onCancel, onApply }: Props
   const rangeOk =
     !ownRange ||
     (ownRange.T_source_min <= ownRange.T_source_max && ownRange.T_sink_min <= ownRange.T_sink_max);
-  const inletsOk = !mapping.T_source_in === !mapping.T_sink_in;
-  const canTrain = !!file && REQUIRED.every((r) => mapping[r]) && inletsOk && !busy;
+  const canTrain = !!file && REQUIRED.every((r) => mapping[r]) && !busy;
 
   const choose = async (f: File | undefined, chosenSheet?: string) => {
     if (!f) return;
@@ -235,9 +234,6 @@ export default function CopModelTrainModal({ initial, onCancel, onApply }: Props
               <p className="cf-muted">{t('optimization.train.mapping_hint')}</p>
               <div className="cf-grid">{REQUIRED.map(select)}</div>
               <div className="cf-grid">{OPTIONAL.map(select)}</div>
-              <p className={inletsOk ? 'cf-muted' : 'cf-verdict bad'}>
-                {t('optimization.train.inlets_hint')}
-              </p>
               <div className="cf-section-title">{t('optimization.train.model')}</div>
               <div className="cf-grid">
                 <label className="cf-field">

@@ -13,7 +13,7 @@
   font-size: 0.85rem;
   margin-bottom: 8px;
 }
-.hpv-toolbar select {
+.hpv-search select {
   padding: 4px 6px;
   border: 1px solid var(--border);
   border-radius: 6px;
@@ -69,9 +69,6 @@
   font-size: 13px;
   line-height: 1.25;
   transition: opacity 0.15s;
-}
-.hpv-unused {
-  opacity: 0.35;
 }
 .hpv-name {
   font-weight: 700;
@@ -150,12 +147,6 @@ label.hpv-badge {
 .hpv-cases tbody tr:hover {
   background: var(--surface-hover);
 }
-.hpv-chosen {
-  background: var(--surface-active);
-}
-.hpv-mark {
-  text-align: center !important;
-}
 .hpv-num {
   font-weight: 700;
   white-space: nowrap;
@@ -232,77 +223,3 @@ label.hpv-badge {
   background: rgba(217, 119, 6, 0.12);
 }
 
-/* The two pages of the window: the heat pump, and the COP model alone. */
-.hpv-tabs {
-  display: flex;
-  gap: 4px;
-  margin-left: auto;
-  margin-right: 8px;
-}
-.hpv-tabs button {
-  padding: 5px 12px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--text-main);
-  font-size: 0.8rem;
-  font-weight: 600;
-  cursor: pointer;
-}
-.hpv-tabs button.active {
-  background: var(--primary);
-  border-color: var(--primary);
-  color: var(--text-on-primary);
-}
-.hpv-model {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 16px;
-}
-@media (max-width: 720px) {
-  .hpv-model {
-    grid-template-columns: 1fr;
-  }
-}
-.hpv-model-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin-bottom: 12px;
-}
-.hpv-model-field {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-.hpv-model-field select {
-  padding: 4px 6px;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  background: var(--surface);
-  color: var(--text-main);
-}
-.hpv-model-temp {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-.hpv-model-temp input[type='range'] {
-  flex: 1;
-}
-.hpv-model-temp input[type='number'] {
-  width: 76px;
-  padding: 2px 4px;
-  border: 1px solid var(--border);
-  border-radius: 4px;
-  background: var(--surface);
-  color: var(--text-main);
-}
-.hpv-model-cop {
-  font-size: 1.8rem;
-  font-weight: 800;
-  color: #7e3fa8;
-  margin: 0 0 6px;
-}

@@ -36,8 +36,6 @@ export default function HPIOptimizationPanel() {
   // Custom COP formula. Lives in the store so the page can send it with the
   // optimisation request and re-run when it changes.
   const copFormula = useAnalysisStore((s) => s.copFormula);
-  const copModel = useAnalysisStore((s) => s.copModel);
-  const setCopModel = useAnalysisStore((s) => s.setCopModel);
   const searchTemps = useAnalysisStore((s) => s.searchTemps);
   const setSearchTemps = useAnalysisStore((s) => s.setSearchTemps);
   const setCopFormula = useAnalysisStore((s) => s.setCopFormula);
@@ -220,8 +218,6 @@ export default function HPIOptimizationPanel() {
               onShowDemandLimited={setShowDemandLimited}
               feasibleCount={feasible_points.length}
               shownCount={chartPoints.length}
-              copModel={copModel}
-              onCopModel={setCopModel}
               copFormula={copFormula}
               onOpenFormula={() => setFormulaOpen(true)}
               trainingAvailable={trainingAvailable}
@@ -266,7 +262,6 @@ export default function HPIOptimizationPanel() {
           pumps={realPumps}
           sourceProfile={hpiOptimizationResult.pocketless_source}
           sinkProfile={hpiOptimizationResult.pocketless_sink}
-          copModel={copModel}
           searchTemps={searchTemps}
           onSearchTemps={setSearchTemps}
           onClose={() => setHeatPumpOpen(false)}

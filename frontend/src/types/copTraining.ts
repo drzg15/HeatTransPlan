@@ -4,8 +4,6 @@ export type CopRole =
   | 'T_source_out'
   | 'T_sink_out'
   | 'COP'
-  | 'T_source_in'
-  | 'T_sink_in'
   | 'medium'
   | 'refrigerant'
   | 'stages';

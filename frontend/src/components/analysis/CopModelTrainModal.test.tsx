@@ -170,7 +170,7 @@ describe('COP training module', () => {
     });
     await waitFor(() => within(dialog).getByText(/1512 rows/));
     const selects = dialog.querySelectorAll('select');
-    fireEvent.change(selects[3], { target: { value: 'T src' } }); // only one inlet
+    fireEvent.change(selects[0], { target: { value: '' } }); // a required column unset
     expect((within(dialog).getByText('Train') as HTMLButtonElement).disabled).toBe(true);
   });
 });

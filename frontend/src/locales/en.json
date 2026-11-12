@@ -369,19 +369,11 @@
         "hp_stages": "NR. COMPRESSORS",
         "cop_source": "COP SOURCE",
         "cop_model": "COP MODEL",
-        "cop_model_2t": "Model 2 temps",
-        "cop_model_4t": "Model 4 temps (standard)",
-        "cop_model_desc": "2 temperatures: source return and sink supply. 4 temperatures: also source supply and sink return, both taken from the pinch (see More options).",
         "more_options": "More options",
         "custom_cop_btn": "Use my own COP formula",
         "custom_cop_desc": "A custom COP formula can be pasted here to run the integration and optimization with a specific heat pump.",
         "show_theoretical": "Show theoretical heat pumps",
-        "show_theoretical_desc": "Carnot and the best technology archetype, as reference points against the modelled machines.",
-        "cop_model_help_title": "How the COP models work",
-        "cop_model_help_1": "Both models are neural networks (MLP) trained on 3,468 simulated operating points from a manufacturer parameter study: 24 refrigerant and stage combinations, with water or steam on the sink side. From the temperatures, the sink medium and the refrigerant they predict the COP a real machine reaches.",
-        "cop_model_help_4t": "uses all four temperatures: source supply and return, sink return and supply. The search varies source return and sink supply; source supply and sink return come from the pinch, placed as set under More options → heat pump temperatures. On test data it misses the simulated COP by 0.06 on average (R² 0.990).",
-        "cop_model_help_2t": "uses only source return and sink supply, so it cannot tell how far the source cools down or how much the sink heats up. Average miss 0.22 (R² 0.945). The standard: it needs no assumption about the inlet temperatures.",
-        "cop_model_help_2": "Test data: the 20 % of the points held back from training. A refrigerant is only offered inside the temperature range it was simulated in. The theoretical references (Carnot and the others) do not use these models."
+        "show_theoretical_desc": "Carnot and the best technology archetype, as reference points against the modelled machines."
       }
     },
     "title_actual_source_temp": "Actual source temperature",
@@ -509,14 +501,11 @@
         "T_source_out": "Source outlet (return), °C",
         "T_sink_out": "Sink outlet (supply), °C",
         "COP": "COP",
-        "T_source_in": "Source inlet (supply), °C",
-        "T_sink_in": "Sink inlet (return), °C",
         "medium": "Sink medium",
         "refrigerant": "Refrigerant",
         "stages": "Number of compressors"
       },
       "none": "— not in the data —",
-      "inlets_hint": "Either both inlet temperatures are mapped or neither. With both, the optimization takes source inlet and sink return from the pinch, as for the 4-temperature model.",
       "name": "Model name",
       "train": "Train",
       "training": "Training…",
@@ -541,7 +530,7 @@
       "need_title": "Needed",
       "need": "One operating point per row with the source outlet temperature, the sink outlet temperature and the COP.",
       "optional_title": "Optional",
-      "optional": "Both inlet temperatures (then the model uses four), the sink medium, the refrigerant and the number of compressors.",
+      "optional": "The sink medium, the refrigerant and the number of compressors.",
       "limits_title": "Limits",
       "limits": "CSV, Excel or Parquet, up to 20 MB. At least 30 rows, better 200 or more; at most 10,000 are used, larger files are sampled at random.",
       "model": "Model",
@@ -1174,8 +1163,8 @@
   },
   "hp_view": {
     "title": "Heat pump temperatures",
-    "open": "Heat pump temperatures",
-    "open_hint": "The heat pump drawn with its four temperatures: values can be tried and the COP is shown",
+    "open": "Model 2 temps",
+    "open_hint": "The 2-temperature COP model (source out, sink out): the heat pump drawn, values can be tried and the COP is shown",
     "pump": "Heat pump",
     "scale": "Temperatures on the shifted scale, as the optimization uses them (ΔTmin/2 = {{half}} K).",
     "circuit1": "Circuit 1 · waste heat",
@@ -1199,12 +1188,8 @@
       "sinkIn": "Sink inlet temperature",
       "sinkOut": "Sink outlet temperature"
     },
-    "case": "Calculation",
-    "case_4t": "4-temperature model",
     "case_2t": "2-temperature model",
-    "case_carnot": "Carnot (50 %)",
-    "ideal": "(ideal {{value}})",
-    "optimization_note": "Ticked temperatures follow the search along their profile: the source ones the source position, the sink ones the sink position. Unticked ones stay at the pinch: source side pinch − ΔTmin/2, sink side pinch + ΔTmin/2. Changing a tick re-runs the optimization. Q sink is read off the sink profile; P el and Q source follow from the chosen COP.",
+    "optimization_note": "Ticked temperatures follow the search along their profile: the source one the source position, the sink one the sink position. Unticked ones stay at the pinch. Changing a tick re-runs the optimization. Q sink is read off the sink profile; P el and Q source follow from the COP.",
     "check": {
       "source_spread": "The source cools by {{value}} K; the training data only has {{min}} to {{max}} K, so the 4-temperature model extrapolates.",
       "sink_spread": "The sink heats by {{value}} K; the training data has {{min}} to {{max}} K, so the 4-temperature model extrapolates.",
@@ -1234,23 +1219,6 @@
     "search_source": "Source profile at",
     "search_sink": "Sink profile at",
     "follows": "moves {{names}}",
-    "follows_none": "no temperature follows it",
-    "tab_pump": "Heat pump",
-    "tab_model": "COP model",
-    "model": {
-      "inputs": "Model inputs",
-      "refrigerant": "Refrigerant",
-      "stages": "Compressor stages",
-      "medium": "Sink medium",
-      "T_source_in": "Source inlet",
-      "T_source_out": "Source outlet",
-      "T_sink_in": "Sink inlet",
-      "T_sink_out": "Sink outlet",
-      "range": "Trained range of this heat pump: source outlet {{src}} °C, sink outlet {{sink}} °C.",
-      "prediction": "Prediction",
-      "spreads": "Source cooled / sink heated",
-      "row": "The row the model receives",
-      "unknown": "The model does not know this heat pump."
-    }
+    "follows_none": "no temperature follows it"
   }
 }
