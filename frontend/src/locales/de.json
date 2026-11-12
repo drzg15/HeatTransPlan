@@ -1111,7 +1111,7 @@
     "docs_title": "Dokumentation",
     "docs_text": "Die vollständige Methode mit allen Gleichungen und wie die App aufgebaut ist.",
     "good_title": "Gut zu wissen",
-    "good_data": "Ihre Daten bleiben in Ihrem Browser. Gespeichert werden sie nur, wenn Sie eine Projektdatei speichern.",
+    "good_data": "Ihre Daten bleiben lokal. Der Server rechnet nur, er speichert nichts. Sie können Ihre Arbeit auch lokal als Projektdatei speichern.",
     "integration_text": "Ermittelt, wie viel Wärme der Standort selbst austauschen könnte (Pinch-Analyse) und was die Wärmepumpe liefern soll.",
     "integration_need_label": "Sie wählen:",
     "integration_need": "welche Prozessströme einbezogen werden, den heutigen Bedarf, ΔTmin",

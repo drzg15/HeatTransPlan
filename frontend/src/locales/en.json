@@ -1111,7 +1111,7 @@
     "docs_title": "Documentation",
     "docs_text": "The full method with every equation, and how the app is built.",
     "good_title": "Good to know",
-    "good_data": "Your data stays in your browser. It is saved only when you save a project file.",
+    "good_data": "Your data stays local. The server only calculates, it stores nothing. You can also save your work locally as a project file.",
     "integration_text": "Finds how much heat the site could exchange itself (pinch analysis), and what the heat pump should supply.",
     "integration_need_label": "You choose:",
     "integration_need": "which streams are to be included, today's demand, ΔTmin",
