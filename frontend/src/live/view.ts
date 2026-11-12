@@ -59,7 +59,6 @@ export function buildView() {
       recovery_pct: a.recoveryPct,
       profile_mode: a.profileMode,
       energy_demands: a.energyDemands,
-      cop_model: a.copModel,
       cop_formula: a.copFormula,
       custom_cop_model: a.customCopModel && {
         name: a.customCopModel.name,

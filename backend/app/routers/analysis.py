@@ -76,7 +76,8 @@ def cop_point(request: CopPointRequest):
     pump view, where the temperatures are tried out by hand."""
     try:
         return cop_at(request.refrigerant, request.medium_sink, request.T_source_in,
-                      request.T_source_out, request.T_sink_in, request.T_sink_out)
+                      request.T_source_out, request.T_sink_in, request.T_sink_out,
+                      request.delta_t_min)
     except KeyError as exc:
         raise HTTPException(404, str(exc.args[0]))
 

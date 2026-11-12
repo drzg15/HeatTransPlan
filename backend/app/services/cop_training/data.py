@@ -83,8 +83,6 @@ _GUESS = {
     "COP": [r"^cop$", r"\bcop\b"],
     "T_source_out": [r"r(ü|ue)cklauf.*quelle", r"source.*(out|return)", r"evap.*out", r"t_?src"],
     "T_sink_out": [r"vorlauf.*senke", r"sink.*(out|supply)", r"cond.*out", r"t_?sink"],
-    "T_source_in": [r"vorlauf.*quelle", r"source.*(in|supply)", r"evap.*in"],
-    "T_sink_in": [r"r(ü|ue)cklauf.*senke", r"sink.*(in|return)", r"cond.*in"],
     "medium": [r"medium", r"senke.*medium"],
     "refrigerant": [r"k(ä|ae)ltemittel", r"refrigerant", r"fluid"],
     "stages": [r"stufe", r"stage", r"compressor", r"verdichter"],

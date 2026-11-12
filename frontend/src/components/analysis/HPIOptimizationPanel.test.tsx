@@ -57,7 +57,6 @@ function setup(theme: 'light' | 'dark' = 'light', res = result) {
     tMin: 10,
     selectedHPPoints: [],
     copFormula: null,
-    copModel: '2t',
   });
   return render(<HPIOptimizationPanel />);
 }
@@ -132,10 +131,6 @@ describe('HPIOptimizationPanel', () => {
 
     fireEvent.click(within(view.container).getByTestId('chart-pick'));
     steps.chart_pick = snap();
-
-    const copModel = view.container.querySelector('select[title]') as HTMLSelectElement;
-    fireEvent.change(copModel, { target: { value: '4t' } });
-    steps.cop_model = `${useAnalysisStore.getState().copModel}\n${snap()}`;
 
     fireEvent.click(view.container.querySelector('.cf-trigger')!);
     steps.formula_modal = snap();

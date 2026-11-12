@@ -635,7 +635,7 @@ def _econ_summary(e: Dict[str, Any]) -> Dict[str, Any]:
 async def analyse_project(project_id: str, selected_streams: Optional[List[str]] = None,
                           t_min: Optional[float] = None,
                           profile_mode: Literal["net_load", "composite"] = "net_load",
-                          heat_recovery_pct: float = 100, cop_model: Literal["2t", "4t"] = "4t",
+                          heat_recovery_pct: float = 100,
                           cop_formula: Optional[Dict[str, Any]] = None,
                           economics_inputs: Optional[Dict[str, float]] = None,
                           reference_heater: Literal["gas", "oil", "eboiler"] = "gas",
@@ -647,8 +647,8 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
     selected_streams: stream keys (stream_<subprocess>_<stream>, see
     get_project); default the project's selection, or all streams.
     heat_recovery_pct: share of the possible heat recovery already in place
-    (0–100, net_load only). cop_model "4t" (standard) scores pumps with all
-    four temperatures, "2t" with source return and sink supply only. cop_formula: {"name", "expression", ...} adds a custom COP
+    (0–100, net_load only). Pumps are scored with the 2-temperature COP model
+    (source return and sink supply). cop_formula: {"name", "expression", ...} adds a custom COP
     correlation (check it first with validate_cop_formula). custom_model: the
     name of a model from train_cop_model, offered next to the shipped one.
     economics_inputs: see economics_defaults; the reference heater's own
@@ -669,7 +669,7 @@ async def analyse_project(project_id: str, selected_streams: Optional[List[str]]
     economics_inputs = {**await _preset(reference_heater), **(economics_inputs or {})}
     out = await api.post("/api/analysis/project", json={
         "state": state, "selected_streams": sel, "t_min": t_min, "profile_mode": profile_mode,
-        "recovery_pct": heat_recovery_pct, "cop_model": cop_model, "cop_formula": cop_formula,
+        "recovery_pct": heat_recovery_pct, "cop_formula": cop_formula,
         "custom_cop_model": _model(custom_model) if custom_model else None,
         "economics_form": economics_inputs, "ref_type": reference_heater,
     })
@@ -725,8 +725,8 @@ async def train_cop_model(file_path: str, mapping: Dict[str, str], name: str = "
     first with a COP column) or Parquet, one operating point per row; with
     content (the file, base64) file_path only names it. mapping: role → column name. Required: T_source_out
     (source outlet / return), T_sink_out (sink outlet / supply), COP.
-    Optional: T_source_in and T_sink_in (both or neither: four-temperature
-    model), medium, refrigerant, stages (number of compressors). Up to 10,000
+    Optional: medium, refrigerant, stages (number of compressors); inlet
+    temperatures are not used (2-temperature model). Up to 10,000
     rows are used; 20 % are held back for the test metrics. The model is
     offered over the data's range with the sink capped at 180 °C; valid_range
     ({"T_source_min", "T_source_max", "T_sink_min", "T_sink_max"}) sets it. Use the model by

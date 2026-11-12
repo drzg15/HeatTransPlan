@@ -260,6 +260,8 @@ class CopPointRequest(BaseModel):
     T_source_out: float
     T_sink_in: float
     T_sink_out: float
+    # ΔTmin of the pinch: Carnot reads the real temperatures, ΔTmin/2 off these.
+    delta_t_min: float = Field(0.0, ge=0)
 
 
 class CopPointCheck(BaseModel):

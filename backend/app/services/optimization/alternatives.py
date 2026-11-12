@@ -200,12 +200,13 @@ SOURCE_SPREAD = (5.0, 10.0)
 SINK_SPREAD = (10.0, 60.0)
 
 
-def cop_at(refrigerant, medium_sink, t_source_in, t_source_out, t_sink_in, t_sink_out):
+def cop_at(refrigerant, medium_sink, t_source_in, t_source_out, t_sink_in, t_sink_out, delta_t_min=0.0):
     """One operating point rated every way the optimization can: both trained
     models and the Carnot reference, with what falls outside the training data.
 
-    Temperatures in °C on the scale the optimization uses (shifted). Raises
-    KeyError for a refrigerant/medium the models do not know.
+    Temperatures in °C on the scale the optimization uses (shifted). Carnot
+    reads sink out and source out at the real temperatures, ΔTmin/2 off them.
+    Raises KeyError for a refrigerant/medium the models do not know.
     """
     from app.modules.heat_pump_integration.heat_pump_integration import carnot_cop
 
@@ -217,8 +218,9 @@ def cop_at(refrigerant, medium_sink, t_source_in, t_source_out, t_sink_in, t_sin
     cop_2t = float(alt["cop_fn"]([t_source_out], [t_sink_out])[0])
     cop_4t = float(_model_4t().predict(
         _four_t_frame(alt, [t_source_in], [t_source_out], [t_sink_in], [t_sink_out]))[0])
-    lift = t_sink_out - t_source_in
-    carnot = float(carnot_cop(t_sink_out, lift)) if lift > 0 else None
+    real_sink, real_source = t_sink_out - delta_t_min / 2.0, t_source_out + delta_t_min / 2.0
+    lift = real_sink - real_source
+    carnot = float(carnot_cop(real_sink, lift)) if lift > 0 else None
 
     checks = []
     for side, cooled_or_heated, (lo, hi) in (
@@ -333,29 +335,27 @@ def _theoretical_alternatives():
 
 
 def _carnot_reference(alternatives, pinch, search=SEARCH_DEFAULT, scale="double"):
-    """The Carnot reference: 50 % of T_sink,out / (T_sink,out − T_source,in).
-
-    Both as the 4-temperature model sees them (model_inputs). By default
-    T_sink,out is the point's sink on the shifted scale and T_source,in the
-    fixed pinch − ΔTmin/2. Example 1: 0.5 × (113.0 + 273.15) / (113.0 − 68.0)
-    = 4.29. The other archetypes stay only where they beat that line;
-    elsewhere -1 makes the optimiser drop them.
+    """The Carnot reference: 50 % of T_sink,out / (T_sink,out − T_source,out),
+    both at the process streams' real temperatures (shifted ∓ ΔTmin/2), whatever
+    the models see. Example 1: 0.5 × (108.0 + 273.15) / (108.0 − 63.6) = 4.29.
+    The other archetypes stay only where they beat that line; elsewhere -1
+    makes the optimiser drop them.
     """
     from app.modules.heat_pump_integration.heat_pump_integration import (
         HP_COP_FORMULAS, carnot_cop,
     )
 
-    inputs = model_inputs(pinch, search, scale)
+    # The grid reaches cop_fn grid_offset off the shifted scale; real sits ΔTmin/2 off it.
+    off = float(pinch.T_min) / 2.0 - grid_offset(pinch, scale)
 
     def carnot(t_src, t_snk):
-        e = inputs(t_src, t_snk)
-        t_snk, lift = e["sink_out"], e["sink_out"] - e["source_in"]
+        t_snk = np.asarray(t_snk, dtype=float) - off
+        lift = t_snk - (np.asarray(t_src, dtype=float) + off)
         with np.errstate(all="ignore"):
             return np.where(lift > 0, carnot_cop(t_snk, lift), -1.0)
 
     def formula(t_sink, dt):
-        e = inputs([t_sink - dt], [t_sink])
-        sink, source = float(e["sink_out"][0]), float(e["source_in"][0])
+        sink, source = t_sink - off, t_sink - dt + off
         return HP_COP_FORMULAS["Carnot"](sink, sink - source)
 
     def beats_carnot(fn):

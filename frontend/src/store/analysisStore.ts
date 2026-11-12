@@ -3,9 +3,7 @@
 import { create } from 'zustand';
 import type {
   CopFormulaSpec,
-  CopModel,
   SearchTemp,
-  TempScale,
   EnergyDemandLocal,
   OptimizedIntegrationPoint,
   HPIOptimizationResult,
@@ -54,11 +52,8 @@ interface AnalysisStore {
   copFormula: CopFormulaSpec | null;
   // A COP network trained on the user's data (COP training module).
   customCopModel: CustomCopModelSpec | null;
-  copModel: CopModel;
   /** The heat pump temperatures the optimization searches (heat pump view). */
   searchTemps: SearchTemp[];
-  /** Temperature scale the heat pump models see (TempScale). */
-  tempScale: TempScale;
 
   // Results from backend
   pinchResult: PinchResult | null;
@@ -108,9 +103,7 @@ interface AnalysisStore {
   setRecoveryPct: (pct: number) => void;
   setCopFormula: (formula: CopFormulaSpec | null) => void;
   setCustomCopModel: (model: CustomCopModelSpec | null) => void;
-  setCopModel: (model: CopModel) => void;
   setSearchTemps: (temps: SearchTemp[]) => void;
-  setTempScale: (scale: TempScale) => void;
   setPinchResult: (result: PinchResult | null) => void;
   setHPIResult: (result: HPIResult | null) => void;
   setHPIOptimizationResult: (result: HPIOptimizationResult | null) => void;
@@ -177,11 +170,9 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
   copFormula: null,
   customCopModel: null,
   // The 2-temperature model is the standard; the 4-temperature one is offered next to it.
-  copModel: '4t',
   // Source out and sink out follow the search; source in and sink in sit at the pinch.
   searchTemps: ['source_out', 'sink_out'],
   // Shifted once, the literature's convention for utilities on the GCC.
-  tempScale: 'shifted',
   pinchResult: null,
   hpiResult: null,
   hpiOptimizationResult: null,
@@ -275,9 +266,7 @@ export const useAnalysisStore = create<AnalysisStore>((set) => ({
     set({ recoveryPct: pct, profileMode: pct === 0 ? 'composite' : 'net_load' }),
   setCopFormula: (formula) => set({ copFormula: formula }),
   setCustomCopModel: (model) => set({ customCopModel: model }),
-  setCopModel: (model) => set({ copModel: model }),
   setSearchTemps: (temps) => set({ searchTemps: temps }),
-  setTempScale: (scale) => set({ tempScale: scale }),
 
   setPinchResult: (result) => {
     set((s) => {
