@@ -1027,7 +1027,7 @@
   },
   "live": {
     "connect": "KI verbinden",
-    "connect_hint": "Einen KI-Agenten (über den HeatTransPlan-MCP-Server) diese Seite sehen und steuern lassen. Während der Verbindung liegt das Projekt auch auf dem Server.",
+    "connect_hint": "Einen KI-Agenten (über den HeatTransPlan-MCP-Server) diese Seite sehen und steuern lassen. Ihr Projekt bleibt auf dieser Seite; auf dem Server wird nichts davon gespeichert.",
     "code": "Sitzungscode für die KI",
     "copy": "Code kopieren",
     "disconnect": "KI trennen",

@@ -1,18 +1,16 @@
-"""Live sessions: a page subscribes, the AI edits the project and runs
-commands, the page answers."""
+"""Live sessions: a page subscribes, the AI runs commands on it, the page
+answers. The server keeps nothing of the project."""
 
 import asyncio
 import json
 
 import pytest
 
-from app.models.project import ProjectState
-from app.services import live, project_service
+from app.services import live
 
 
 @pytest.fixture(autouse=True)
-def _isolated(tmp_path, monkeypatch):
-    monkeypatch.setattr(project_service, "_projects", {})
+def _isolated(monkeypatch):
     monkeypatch.setattr(live, "_sessions", {})
 
 
@@ -24,8 +22,7 @@ def _parse(chunk: str) -> dict:
 
 def test_a_command_reaches_the_page_and_its_answer_comes_back():
     async def scenario():
-        pid, _ = project_service.create_project()
-        session = live.create(pid)
+        session = live.create()
         stream = live.events(session)
         assert _parse(await stream.__anext__())["event"] == "hello"
 
@@ -46,41 +43,19 @@ def test_a_command_reaches_the_page_and_its_answer_comes_back():
     asyncio.run(scenario())
 
 
-def test_project_edits_reach_other_pages_but_not_their_origin():
-    async def scenario():
-        pid, state = project_service.create_project()
-        a, b = live.create(pid), live.create(pid)
-        sa, sb = live.events(a), live.events(b)
-        await sa.__anext__(), await sb.__anext__()
-        state.project_notes = "from the AI"
-        project_service.update_project(pid, state, origin=a.id)
-        got = _parse(await asyncio.wait_for(sb.__anext__(), 1))
-        assert got["event"] == "project" and got["state"]["project_notes"] == "from the AI"
-        with pytest.raises(asyncio.TimeoutError):
-            await asyncio.wait_for(sa.__anext__(), 0.2)
-        await sb.aclose()
-
-    asyncio.run(scenario())
-
-
 def test_a_command_without_a_page_fails_fast(client):
-    pid = client.post("/api/projects", json=ProjectState().model_dump()).json()["project_id"]
-    sid = client.post("/api/live/sessions", json={"project_id": pid}).json()["session_id"]
+    sid = client.post("/api/live/sessions").json()["session_id"]
     # Sessions are not listed: the code is the user's key to their page. (Without
     # a built frontend the answer is a JSON 404, with one its page: neither lists it.)
     assert sid not in client.get("/api/live/sessions").text
     r = client.post(f"/api/live/sessions/{sid}/commands", json={"name": "navigate", "args": {"page": "home"}})
     assert r.status_code == 409
-    assert client.post("/api/live/sessions", json={"project_id": "nope"}).status_code == 404
-    created = client.post("/api/live/sessions", json={"state": {"project_notes": "x"}}).json()
-    assert client.get(f"/api/projects/{created['project_id']}").json()["project_notes"] == "x"
-    assert client.put(f"/api/live/sessions/{sid}/view", json={"page": "home"}).status_code == 200
-    assert client.get(f"/api/live/sessions/{sid}").json()["view"] == {"page": "home"}
+    assert client.get(f"/api/live/sessions/{sid}").json()["session_id"] == sid
 
 
 def test_ai_switched_off_leaves_the_rest():
     """AI off, as it is without AI_ENABLED: no Connect AI, no live endpoints,
-    no /mcp; projects still work."""
+    no /mcp; the rest still works."""
     import subprocess
     import sys
     code = (
@@ -89,73 +64,58 @@ def test_ai_switched_off_leaves_the_rest():
         "with TestClient(app) as c:\n"
         "    f = c.get('/api/features').json()\n"
         "    print(f['ai'], f['mcp'], c.post('/api/live/sessions', json={}).status_code,\n"
-        "          c.post('/mcp', json={}).status_code, c.post('/api/projects').status_code)"
+        "          c.post('/mcp', json={}).status_code, c.post('/api/io/import-json-body', json={}).status_code)"
     )
     out = subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, check=True).stdout.split()
     assert out[:2] == ["False", "False"]
     assert out[2] in ("404", "405") and out[3] in ("404", "405") and out[4] == "200"
 
 
-def test_projects_do_not_stay_on_the_server(client, monkeypatch):
-    """Disconnecting deletes the page's project; any other project goes once
-    nobody has touched it for the retention time. Open sessions keep theirs.
-    Nothing is written to disk."""
-    import time
-    from app.services import live, project_service
-    monkeypatch.setattr(project_service, "_projects", {})
-    monkeypatch.setattr(live, "_sessions", {})
-
-    sid = client.post("/api/live/sessions", json={"state": {}}).json()["session_id"]
-    pid = live.get(sid).project_id
+def test_the_server_keeps_no_project(client):
+    """Starting a session sends nothing of the project and stores nothing:
+    there is no project store and no endpoint to put one in."""
+    import app.services as services
+    assert not hasattr(services, "project_service")
+    created = client.post("/api/live/sessions").json()
+    sid, pid = created["session_id"], created["project_id"]
+    for method, path in (("POST", "/api/projects"), ("PUT", f"/api/projects/{pid}"),
+                         ("PUT", f"/api/live/sessions/{sid}/view")):
+        assert client.request(method, path, json={}).status_code in (404, 405)
+    assert set(vars(live.get(sid))) == {"id", "project_id", "created", "last_seen", "subscribers",
+                                        "pending", "paused", "log"}
     assert client.delete(f"/api/live/sessions/{sid}").status_code == 200
-    assert client.get(f"/api/projects/{pid}").status_code == 404
-
-    old = client.post("/api/projects").json()["project_id"]
-    kept = client.post("/api/live/sessions", json={"state": {}}).json()["session_id"]
-    kept_pid = live.get(kept).project_id
-    live.get(kept).subscribers.append(object())  # its page is open
-    hour_ago = time.time() - 3600
-    for p in (old, kept_pid):
-        data, _ = project_service._projects[p]
-        project_service._projects[p] = (data, hour_ago)
-    client.post("/api/projects")  # any project call runs the cleanup
-    assert client.get(f"/api/projects/{old}").status_code == 404
-    assert client.get(f"/api/projects/{kept_pid}").status_code == 200
+    assert live.get(sid) is None
 
 
-def test_a_closed_page_takes_its_project_with_it(monkeypatch):
+def test_a_closed_page_ends_its_session(monkeypatch):
     """When the page's stream closes and it does not come back within the
-    grace time, the session ends and its project is deleted."""
+    grace time, the session ends."""
     monkeypatch.setattr(live, "DISCONNECT_GRACE_SECONDS", 0.05)
 
     async def scenario():
-        pid, _ = project_service.create_project()
-        session = live.create(pid)
+        session = live.create()
         stream = live.events(session)
         await stream.__anext__()  # hello: the page is connected
         await stream.aclose()  # the page closed
-        assert project_service.get_project(pid) is not None  # a reload may follow
+        assert live.get(session.id) is not None  # a reload may follow
         await asyncio.sleep(0.2)
-        return pid, session.id
+        return session.id
 
-    pid, sid = asyncio.run(scenario())
-    assert live.get(sid) is None
-    assert project_service.get_project(pid) is None
+    assert live.get(asyncio.run(scenario())) is None
 
 
-def test_a_reloaded_page_keeps_its_project(monkeypatch):
+def test_a_reloaded_page_keeps_its_session(monkeypatch):
     monkeypatch.setattr(live, "DISCONNECT_GRACE_SECONDS", 0.1)
 
     async def scenario():
-        pid, _ = project_service.create_project()
-        session = live.create(pid)
+        session = live.create()
         first = live.events(session)
         await first.__anext__()
         await first.aclose()
         second = live.events(session)  # reconnected within the grace time
         await second.__anext__()
         await asyncio.sleep(0.25)
-        alive = live.get(session.id) is not None and project_service.get_project(pid) is not None
+        alive = live.get(session.id) is not None
         await second.aclose()
         return alive
 
@@ -165,7 +125,7 @@ def test_a_reloaded_page_keeps_its_project(monkeypatch):
 def test_pausing_stops_the_ai_and_the_log_reaches_the_page(client, monkeypatch):
     from app.services import live
     monkeypatch.setattr(live, "_sessions", {})
-    sid = client.post("/api/live/sessions", json={"state": {}}).json()["session_id"]
+    sid = client.post("/api/live/sessions").json()["session_id"]
     monkeypatch.setattr(live.Session, "connected", property(lambda s: True))
     assert client.get(f"/api/live/pages/{sid}").json()["session_id"] == sid
 

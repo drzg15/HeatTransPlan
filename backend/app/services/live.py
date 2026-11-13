@@ -8,10 +8,11 @@ pump, ...). It runs each command with the same functions its own buttons
 call, then posts the result back, which is what the command call returns.
 
 A session carries an id the AI addresses the page by (project_id, a random
-id with no data behind it), what the page shows (view, as the page reports
-it) and the AI's activity list, all in memory. When the page's stream closes
-and it does not reconnect within DISCONNECT_GRACE_SECONDS (a reload does),
-the session ends and all of it is gone.
+id with no data behind it) and the AI's activity list, in memory. What the
+page shows, the AI asks the page for (the get_view command). When the
+page's stream closes and it does not reconnect within
+DISCONNECT_GRACE_SECONDS (a reload does), the session ends and all of it is
+gone.
 
 Held in memory: the backend runs as one process (see the Dockerfile).
 ponytail: one process only; a shared broker (e.g. Redis) when it runs on more.
@@ -51,8 +52,6 @@ class Session:
     project_id: str
     created: float = field(default_factory=time.time)
     last_seen: float = field(default_factory=time.time)
-    # What the page shows right now, as it last reported it.
-    view: Dict[str, Any] = field(default_factory=dict)
     subscribers: List[asyncio.Queue] = field(default_factory=list)
     pending: Dict[str, asyncio.Future] = field(default_factory=dict)
     # Set by the user on the page; the AI then can do nothing until resumed.
@@ -69,7 +68,6 @@ class Session:
             "session_id": self.id,
             "project_id": self.project_id,
             "connected": self.connected,
-            "page": self.view.get("page"),
             "last_seen": self.last_seen,
             "paused": self.paused,
         }
@@ -127,11 +125,6 @@ def record(session: Session, tool: str, detail: str, fields: Optional[List[str]]
     names = [f for f in fields or [] if f.isidentifier()]
     activity_log.write("ai", tool, ", ".join(names))
     return entry
-
-
-def set_view(session: Session, view: Dict[str, Any]) -> None:
-    session.view = view
-    session.last_seen = time.time()
 
 
 def _publish(session: Session, event: Dict[str, Any]) -> None:

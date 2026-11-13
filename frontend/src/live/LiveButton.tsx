@@ -13,7 +13,6 @@ import AiControls from './AiControls';
 import {
   connectLive,
   disconnectLive,
-  liveViewChanged,
   resumeLive,
   useLiveStore,
 } from './liveClient';
@@ -35,7 +34,6 @@ export default function LiveButton() {
 
   useEffect(() => {
     setCurrentPage(pathname);
-    liveViewChanged();
   }, [pathname]);
 
   useEffect(() => resumeLive(), []);

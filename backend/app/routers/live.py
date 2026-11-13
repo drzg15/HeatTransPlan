@@ -87,9 +87,8 @@ async def pause(session_id: str, body: Pause):
 
 @router.get("/sessions/{session_id}")
 async def get_session(session_id: str):
-    """The session and what its page shows right now."""
-    session = _session(session_id)
-    return {**session.summary(), "view": session.view}
+    """The session (a reloaded page uses it to reconnect)."""
+    return _session(session_id).summary()
 
 
 @router.delete("/sessions/{session_id}")
@@ -110,13 +109,6 @@ async def session_events(session_id: str):
         media_type="text/event-stream",
         headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"},
     )
-
-
-@router.put("/sessions/{session_id}/view")
-async def put_view(session_id: str, view: Dict[str, Any]):
-    """The page reports what it shows (page, selections, results)."""
-    live.set_view(_session(session_id), view)
-    return {"ok": True}
 
 
 @router.post("/sessions/{session_id}/commands")

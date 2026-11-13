@@ -15,12 +15,10 @@ The backend is a FastAPI application. Its interactive reference, with every endp
 
 ### Endpoints
 
-**Projects** — a project is the JSON the page's Save button writes; the backend holds projects by id, in memory only (never on disk), while they are in use.
+**Projects** — a project is the JSON the page's Save button writes. The backend keeps no projects: the page holds the only copy, every endpoint gets what it needs in the request and answers with the result. An AI edits the project on the open page (see [Live control](#live-control-of-the-open-page)).
 
 | Method | Path | What it does |
 |---|---|---|
-| POST | `/api/projects` | Create a project, optionally from a project JSON |
-| GET / PUT / DELETE | `/api/projects/{id}` | Read, replace or delete a project. Edits replace the whole project, as the page does; for one step at a time use the MCP tools (add_process, add_stream, ...) |
 | POST | `/api/geo/search` | Address search (OpenStreetMap Nominatim) |
 
 **Analysis** — stateless: send the inputs, get the results.
@@ -45,9 +43,9 @@ The backend is a FastAPI application. Its interactive reference, with every endp
 
 | Method | Path | What it does |
 |---|---|---|
-| POST | `/api/io/import-json`, `/api/io/import-json-body` | Load a project file |
-| GET | `/api/io/export-json/{id}`, `/api/io/export-csv/{id}` | Export a project |
-| POST | `/api/io/import-csv/{id}` | Load streams from CSV |
+| POST | `/api/io/import-json`, `/api/io/import-json-body` | Check a project file and return it as a project |
+| POST | `/api/io/export-json`, `/api/io/export-csv` | The project sent, as a JSON or CSV download |
+| POST | `/api/io/import-csv` | Read streams from CSV and return them as processes |
 | GET | `/api/assets/examples[/{name}]` | The example projects |
 | GET | `/api/assets/models` | The process model hierarchy |
 
@@ -56,9 +54,8 @@ The backend is a FastAPI application. Its interactive reference, with every endp
 | Method | Path | What it does |
 |---|---|---|
 | POST | `/api/live/sessions` | Start a session for a page (sessions are never listed: the code is the key) |
-| GET / DELETE | `/api/live/sessions/{sid}` | A session and what its page shows / end it |
+| GET / DELETE | `/api/live/sessions/{sid}` | A session / end it |
 | GET | `/api/live/sessions/{sid}/events` | The page's event stream (server-sent events) |
-| PUT | `/api/live/sessions/{sid}/view` | The page reports what it shows |
 | POST | `/api/live/sessions/{sid}/commands` | Run a command on the page and wait for its answer |
 | POST | `/api/live/sessions/{sid}/commands/{cid}/result` | The page's answer |
 | PUT | `/api/live/sessions/{sid}/pause` | The user pauses or resumes the AI |
@@ -82,26 +79,26 @@ The answer holds the streams used, the pinch result, the integration and optimiz
 
 Clicking **Connect AI** in the header connects the open page to the backend. The page then
 
-1. keeps its project on the backend, so changes made through the project endpoints appear on the page at once, and edits made on the page reach the backend;
-2. reports what it shows (page, every analysis input, key results) after each change;
-3. listens for **commands** and runs each one with the same functions its own buttons, sliders and fields call, then answers.
+1. listens for **commands** and runs each one with the same functions its own buttons, sliders and fields call, then answers;
+2. that is how the AI reads the project (`get_project`), what the page shows (`get_view`) and the results, and how it edits: the page holds the only copy of the project.
 
-The header shows the session code, which is what an AI needs to address the page; the × next to it ends the session. Until **Connect AI** is clicked nothing is sent. While connected, the backend holds the project in memory, never on disk. When the page disconnects (the ×, or the tab closed and not reopened within 2 minutes) the project is deleted from the server.
+The backend only relays commands and answers; it keeps nothing of the project, not even in memory. A session is a code, the AI's activity list and whether the user paused it. The header shows the code, which is what an AI needs to address the page; the × next to it ends the session, as does closing the tab (unless it is reopened within 2 minutes, as a reload does). Until **Connect AI** is clicked nothing is sent.
 
 ```{mermaid}
 sequenceDiagram
     participant AI as AI assistant (MCP)
     participant B as Backend
     participant P as Open page
-    P->>B: POST /live/sessions (project)
+    P->>B: POST /live/sessions (no project, only a code back)
     P->>B: GET /live/sessions/{sid}/events (stream stays open)
     AI->>B: POST /live/sessions/{sid}/commands {set_t_min: 15}
     B-->>P: event: command
     P->>P: same action as the ΔTmin field
     P->>B: POST .../commands/{cid}/result
     B-->>AI: result
-    AI->>B: PUT /projects/{project_id} (an edit)
-    B-->>P: event: project
+    AI->>B: POST /live/sessions/{sid}/commands {edit_project: one step}
+    B-->>P: event: command
+    P->>P: applies the step to its project
 ```
 
 **Commands.** `list_commands` returns the ones available at the moment; some exist only while their page is open.
@@ -142,7 +139,7 @@ Claude, ChatGPT and Le Chat connect from the internet, so they need the app at a
 
 If the backend sets `API_KEYS`, the agent sends one as `X-API-Key` or `Authorization: Bearer <key>`. `AI_ENABLED=0` (in `.env`) switches all of this off and hides Connect AI; the rest of the app stays as it is. Reports made by an AI say so on their first page.
 
-Online the server never opens files on its own disk for a caller: files come in as their content (base64, or text for CSV and JSON), and what the tools write (report, project, CSV) comes back as a download link, valid for an hour. Sessions and projects are not listed: the Connect AI code is what gives access to a page, and only while it is open.
+Online the server never opens files on its own disk for a caller: files come in as their content (base64, or text for CSV and JSON), and what the tools write (report, project, CSV) comes back as a download link that works once and for 10 minutes: the file leaves the server's memory when it is downloaded. Sessions and projects are not listed: the Connect AI code is what gives access to a page, and only while it is open.
 
 **Locally (stdio)**, for an agent on your own computer that should read and write your files by path: `pip install -e mcp_server`, then run `heattransplan-mcp` with these variables:
 

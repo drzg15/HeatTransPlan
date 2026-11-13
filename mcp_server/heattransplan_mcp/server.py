@@ -145,8 +145,8 @@ def _label(state: Dict[str, Any], process: Optional[int] = None, subprocess: Opt
 
 
 async def _load(project_id: str) -> Dict[str, Any]:
-    """The open page's project as it is now: while a page is connected it,
-    not the backend's copy, is the truth."""
+    """The open page's project as it is now: the page holds the only copy,
+    the backend keeps none."""
     return await _live((await _page_info(project_id))["session_id"], "get_project")
 
 
@@ -534,12 +534,8 @@ async def export_csv(project_id: str, file_path: Optional[str] = None) -> str:
     """Write the project's streams as CSV (the backend's export). Online: a
     download link for the user."""
     project_id = await _page(project_id)
-    # The page is the truth and syncs to the backend with a delay: hand the
-    # backend the page's project first, so the export has the last edits.
-    session_id = (await _page_info(project_id))["session_id"]
-    await api.put(f"/api/projects/{project_id}", json=await _load(project_id),
-                  headers={"X-Live-Session": session_id})
-    text = await api.get(f"/api/io/export-csv/{project_id}")
+    # The page holds the project; the backend converts it and keeps nothing.
+    text = await api.post("/api/io/export-csv", json=await _load(project_id))
     return _deliver(file_path, "streams.csv", text.encode("utf-8"), "text/csv")
 
 
@@ -552,11 +548,15 @@ async def import_csv(project_id: str, file_path: Optional[str] = None,
     project_id = await _page(project_id)
     name, data = _read_input(file_path, content)
     await _confirm(project_id, "import_csv", name)
-    await api.request("POST", f"/api/io/import-csv/{project_id}",
-                      files={"file": (name, data, "text/csv")})
+    # The backend reads the file and returns the processes; they go into the
+    # page's project, the only copy.
+    out = await api.request("POST", "/api/io/import-csv",
+                            files={"file": (name, data, "text/csv")})
+    state = await _load(project_id)
+    state["processes"] = out["processes"]
     _analysis.pop(project_id, None)
     session_id = (await _page_info(project_id))["session_id"]
-    await _live(session_id, "set_project", {"state": await api.get(f"/api/projects/{project_id}")})
+    await _live(session_id, "set_project", {"state": state})
     return edit.overview(await _load(project_id))
 
 

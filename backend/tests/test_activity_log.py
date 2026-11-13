@@ -7,28 +7,28 @@ from app.services import activity_log, live
 
 
 def test_use_is_logged_without_who_or_data(client):
-    pid = client.post("/api/projects", json={}).json()["project_id"]
-    state = client.get(f"/api/projects/{pid}").json()
-    client.put(f"/api/projects/{pid}", json={**state, "project_notes": "Brewery Smith, 95 °C"})
-    client.put(f"/api/projects/{pid}", json={**state, "project_notes": "x"}, headers={"X-Actor": "ai"})
-    client.put(f"/api/projects/{pid}", json=state, headers={"X-Actor": "root"})  # unknown → human
-    client.get(f"/api/projects/{pid}")  # reads are not logged
-    session = live.create(pid)
+    state = {"project_notes": "Brewery Smith, 95 °C"}
+    client.post("/api/io/export-csv", json=state)
+    client.post("/api/io/export-csv", json=state, headers={"X-Actor": "ai"})
+    client.post("/api/io/export-csv", json=state, headers={"X-Actor": "root"})  # unknown → human
+    sid = client.post("/api/live/sessions").json()["session_id"]
+    client.get(f"/api/live/sessions/{sid}")  # reads are not logged
+    session = live.get(sid)
     live.record(session, "add_stream", 'name=Wort cooler, t_in=95, notes="a, b=c"',
                 ["name", "t_in", "notes", "Wort cooler 95"])  # a value as a name is dropped
 
     rows = activity_log.last(10)
     assert [(r[1], r[2]) for r in rows] == [
-        ("human", "POST /api/projects"),
-        ("human", "PUT /api/projects/{project_id}"),
-        ("ai", "PUT /api/projects/{project_id}"),
-        ("human", "PUT /api/projects/{project_id}"),
+        ("human", "POST /api/io/export-csv"),
+        ("ai", "POST /api/io/export-csv"),
+        ("human", "POST /api/io/export-csv"),
+        ("human", "POST /api/live/sessions"),
         ("ai", "add_stream"),
     ]
-    assert rows[1][5] == "changed: project_notes" and rows[1][3] == 200
+    assert rows[0][3] == 200
     assert rows[4][5] == "name, t_in, notes"
     everything = repr(rows)
-    for secret in (pid, session.id, "Brewery", "Smith", "95", "Wort"):
+    for secret in (sid, session.project_id, "Brewery", "Smith", "95", "Wort"):
         assert secret not in everything
 
 

@@ -1,21 +1,14 @@
 /** Connects the page to a live session on the backend, so an AI can watch and
  *  drive it (see backend/app/services/live.py).
  *
- *  Off until the user switches it on: the project then lives on the backend
- *  too. While connected the page
- *    - keeps its project on the backend, so the AI's project edits apply here
- *      and the user's edits reach the AI;
- *    - reports what it shows (buildView) after every change;
- *    - runs the commands the AI sends and answers each one. */
+ *  Off until the user switches it on. Nothing of the project is kept on the
+ *  server: the page holds the only copy. While connected the page runs the
+ *  commands the AI sends (reading the project or what the page shows,
+ *  applying an edit, ...) and answers each one. */
 
 import { create } from 'zustand';
 import client, { API_BASE, API_KEY } from '../api/client';
-import { useAnalysisStore } from '../store/analysisStore';
-import { useProjectStore } from '../store/projectStore';
-import { useUIStore } from '../store/uiStore';
-import type { ProjectState } from '../types/project';
 import { runCommand } from './commands';
-import { buildView } from './view';
 
 type Status = 'off' | 'connecting' | 'on' | 'error';
 
@@ -49,17 +42,11 @@ export const useLiveStore = create<LiveState>(() => ({
 }));
 
 const SAVED = 'heattransplan_live_session';
-const PROJECT_DEBOUNCE_MS = 600;
-const VIEW_DEBOUNCE_MS = 400;
 
 let abort: AbortController | null = null;
-let unsubscribers: Array<() => void> = [];
-// Set while a project from the backend is being applied, so it is not sent back.
-let applyingRemote = false;
-// AI commands running now, and who changed the project since the last sync:
-// the server's activity log (X-Actor) tells the AI's changes from the user's.
+// AI commands running now: the server's activity log (X-Actor) tells the
+// requests they make from the user's.
 let aiCommands = 0;
-const changedBy = new Set<'ai' | 'human'>();
 client.interceptors.request.use((cfg) => {
   if (aiCommands > 0 && !cfg.headers['X-Actor']) cfg.headers['X-Actor'] = 'ai';
   return cfg;
@@ -67,34 +54,22 @@ client.interceptors.request.use((cfg) => {
 
 const set = (patch: Partial<LiveState>) => useLiveStore.setState(patch);
 
-function debounce(fn: () => void, ms: number) {
-  let timer: ReturnType<typeof setTimeout> | undefined;
-  return () => {
-    clearTimeout(timer);
-    timer = setTimeout(fn, ms);
-  };
-}
-
 async function openSession(): Promise<{
   session_id: string;
   project_id: string;
   paused?: boolean;
 }> {
-  const state = useProjectStore.getState().state;
   // A reload of the same tab keeps its session, and with it the AI's link.
   const saved = sessionStorage.getItem(SAVED);
   if (saved) {
     try {
       const { data } = await client.get(`/api/live/sessions/${saved}`);
-      await client.put(`/api/projects/${data.project_id}`, state, {
-        headers: { 'X-Live-Session': data.session_id },
-      });
       return data;
     } catch {
       sessionStorage.removeItem(SAVED);
     }
   }
-  const { data } = await client.post('/api/live/sessions', { state });
+  const { data } = await client.post('/api/live/sessions');
   return data;
 }
 
@@ -111,13 +86,6 @@ function handleEvent(sessionId: string, type: string, data: Record<string, unkno
   else if (type === 'ai_log') {
     const entry = data as unknown as AiLogEntry;
     set({ log: [...useLiveStore.getState().log, entry].slice(-LOG_LENGTH) });
-  } else if (type === 'project') {
-    applyingRemote = true;
-    try {
-      useProjectStore.getState().setState(data.state as ProjectState);
-    } finally {
-      applyingRemote = false;
-    }
   } else if (type === 'command') {
     const id = String(data.id);
     aiCommands++;
@@ -172,38 +140,6 @@ async function listen(sessionId: string, signal: AbortSignal) {
   }
 }
 
-function startSync(sessionId: string, projectId: string) {
-  const pushProject = debounce(() => {
-    const actor = [...changedBy].sort().join('+') || 'human';
-    changedBy.clear();
-    client
-      .put(`/api/projects/${projectId}`, useProjectStore.getState().state, {
-        headers: { 'X-Live-Session': sessionId, 'X-Actor': actor },
-      })
-      .catch(() => {});
-  }, PROJECT_DEBOUNCE_MS);
-  const pushView = debounce(() => {
-    client.put(`/api/live/sessions/${sessionId}/view`, buildView()).catch(() => {});
-  }, VIEW_DEBOUNCE_MS);
-
-  unsubscribers = [
-    useProjectStore.subscribe((s, prev) => {
-      if (s.state !== prev.state && !applyingRemote) {
-        changedBy.add(aiCommands > 0 ? 'ai' : 'human');
-        pushProject();
-      }
-      pushView();
-    }),
-    useAnalysisStore.subscribe(pushView),
-    useUIStore.subscribe(pushView),
-  ];
-  liveViewChanged = pushView;
-  pushView();
-}
-
-/** Called by the router bridge when the page changes. */
-export let liveViewChanged: () => void = () => {};
-
 export async function connectLive() {
   if (useLiveStore.getState().status !== 'off' && useLiveStore.getState().status !== 'error')
     return;
@@ -213,7 +149,6 @@ export async function connectLive() {
     sessionStorage.setItem(SAVED, session_id);
     set({ sessionId: session_id, projectId: project_id, paused: Boolean(paused) });
     abort = new AbortController();
-    startSync(session_id, project_id);
     void listen(session_id, abort.signal);
   } catch (e) {
     set({ status: 'error', error: e instanceof Error ? e.message : String(e) });
@@ -224,9 +159,6 @@ export async function disconnectLive() {
   const { sessionId } = useLiveStore.getState();
   abort?.abort();
   abort = null;
-  unsubscribers.forEach((u) => u());
-  unsubscribers = [];
-  liveViewChanged = () => {};
   sessionStorage.removeItem(SAVED);
   set({ status: 'off', sessionId: null, projectId: null, error: null, paused: false, log: [] });
   if (sessionId) await client.delete(`/api/live/sessions/${sessionId}`).catch(() => {});

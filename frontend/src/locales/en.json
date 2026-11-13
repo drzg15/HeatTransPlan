@@ -1027,7 +1027,7 @@
   },
   "live": {
     "connect": "Connect AI",
-    "connect_hint": "Let an AI agent (through the HeatTransPlan MCP server) see and control this page. While connected, your project is also stored on the server.",
+    "connect_hint": "Let an AI agent (through the HeatTransPlan MCP server) see and control this page. Your project stays in this page; nothing of it is stored on the server.",
     "code": "Session code for the AI",
     "copy": "Copy code",
     "disconnect": "Disconnect AI",

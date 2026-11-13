@@ -16,7 +16,6 @@ from pathlib import Path
 import pytest
 
 from app.config import EXAMPLES_DIR
-from app.services import project_service
 
 GOLDEN_DIR = Path(__file__).parent / "golden"
 UPDATE = os.getenv("GOLDEN_UPDATE") == "1"
@@ -70,11 +69,6 @@ def _pinch_streams(state: dict) -> list:
 def _post(client, url: str, body: dict):
     r = client.post(url, json=body)
     return {"status": r.status_code, "body": r.json() if "json" in r.headers.get("content-type", "") else r.text}
-
-
-@pytest.fixture(autouse=True)
-def _isolated_state(tmp_path, monkeypatch):
-    monkeypatch.setattr(project_service, "_projects", {})
 
 
 @pytest.mark.parametrize("example", EXAMPLES)
@@ -170,27 +164,21 @@ def test_default_pump_is_a_real_machine_on_the_profiles(client):
 
 
 @pytest.mark.parametrize("example", EXAMPLES)
-def test_project_editing(client, example):
-    """Walk the project endpoints: create, read, files in and out, replace, delete."""
+def test_project_files(client, example):
+    """Files in and out. Stateless: each call gets the project or the file and
+    answers with the result; the server keeps nothing."""
     stem = Path(example).stem
     log = []
 
     def rec(label, r):
         log.append({"step": label, "status": r.status_code,
                     "body": r.json() if "json" in r.headers.get("content-type", "") else r.text})
+        return r
 
-    r = client.post("/api/projects", json=_example(example))
-    rec("create", r)
-    pid = r.json()["project_id"] if "project_id" in r.json() else r.json()["id"]
-    rec("get", client.get(f"/api/projects/{pid}"))
-    rec("export_json", client.get(f"/api/io/export-json/{pid}"))
-    csv = client.get(f"/api/io/export-csv/{pid}")
-    rec("export_csv", csv)
-    rec("import_csv", client.post(f"/api/io/import-csv/{pid}", files={"file": ("data.csv", csv.content, "text/csv")}))
-    rec("after_edits", client.get(f"/api/projects/{pid}"))
-    rec("import_json_body", client.post("/api/io/import-json-body", json=_example(example)))
-    rec("import_json_file", client.post("/api/io/import-json", files={"file": ("p.json", json.dumps(_example(example)), "application/json")}))
-    rec("put_project", client.put(f"/api/projects/{pid}", json=_example(example)))
-    rec("delete_project", client.delete(f"/api/projects/{pid}"))
-    rec("get_deleted", client.get(f"/api/projects/{pid}"))
-    _check(f"{stem}_project_editing", log)
+    project = _example(example)
+    rec("import_json_body", client.post("/api/io/import-json-body", json=project))
+    rec("import_json_file", client.post("/api/io/import-json", files={"file": ("p.json", json.dumps(project), "application/json")}))
+    rec("export_json", client.post("/api/io/export-json", json=project))
+    csv = rec("export_csv", client.post("/api/io/export-csv", json=project))
+    rec("import_csv", client.post("/api/io/import-csv", files={"file": ("data.csv", csv.content, "text/csv")}))
+    _check(f"{stem}_project_files", log)

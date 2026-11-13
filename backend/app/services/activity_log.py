@@ -3,7 +3,7 @@
 A row says which feature was used, by whom in kind only ("human" on the page,
 "ai" through the MCP server or a page command, "system" for errors), whether
 it worked and how long it took. Never who: no address, page code or project
-id (paths keep their pattern, e.g. /api/projects/{project_id}). Never the
+id (paths keep their pattern, e.g. /api/live/sessions/{session_id}). Never the
 data: no values, names or error messages, only which fields an AI set, which
 parts of a project changed and where in the code an error was raised.
 

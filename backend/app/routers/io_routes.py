@@ -1,5 +1,9 @@
 """
-I/O router — import/export JSON state, CSV, and HTML report.
+I/O router — import/export JSON state and CSV.
+
+Stateless, like the analysis endpoints: each call gets the project (or the
+file) in the request and answers with the result. Nothing is kept on the
+server.
 """
 
 from fastapi import APIRouter, HTTPException, UploadFile, File
@@ -11,7 +15,6 @@ import json
 import csv
 
 from app.models.project import ProjectState
-from app.services import project_service
 
 router = APIRouter()
 
@@ -21,35 +24,27 @@ router = APIRouter()
 @router.post("/import-json")
 async def import_json(file: UploadFile = File(...)):
     """
-    Import a project state from a JSON file (same format as save_app_state()).
-    Creates a new project and returns its ID.
+    Read a project file (same format as save_app_state()) and return it as a
+    checked project state. Nothing is kept.
     """
     try:
         content = await file.read()
         data = json.loads(content.decode("utf-8"))
-        state = ProjectState(**data)
-        project_id, project = project_service.create_project(state)
-        return {"project_id": project_id, "state": project}
+        return {"state": ProjectState(**data)}
     except Exception as e:
         raise HTTPException(400, f"Failed to import JSON: {e}")
 
 
 @router.post("/import-json-body")
 async def import_json_body(state: ProjectState):
-    """
-    Import a project state from JSON body (for example loading).
-    Creates a new project and returns its ID.
-    """
-    project_id, project = project_service.create_project(state)
-    return {"project_id": project_id, "state": project}
+    """Check a project state sent as the JSON body and return it. Nothing is
+    kept."""
+    return {"state": state}
 
 
-@router.get("/export-json/{project_id}")
-async def export_json(project_id: str):
-    """Export the full project state as a JSON download."""
-    project = project_service.get_project(project_id)
-    if project is None:
-        raise HTTPException(404, "Project not found")
+@router.post("/export-json")
+async def export_json(project: ProjectState):
+    """The project sent, as a JSON download."""
     data = project.model_dump()
     content = json.dumps(data, indent=2).encode("utf-8")
     buf = BytesIO(content)
@@ -63,16 +58,12 @@ async def export_json(project_id: str):
 
 # ---- CSV Export ----
 
-@router.get("/export-csv/{project_id}")
-async def export_csv(project_id: str):
+@router.post("/export-csv")
+async def export_csv(project: ProjectState):
     """
-    Export all process data as CSV (one row per stream).
+    The process data of the project sent, as CSV (one row per stream).
     Mirrors export_to_csv() from data_collection.py.
     """
-    project = project_service.get_project(project_id)
-    if project is None:
-        raise HTTPException(404, "Project not found")
-
     output = StringIO()
     writer = csv.writer(output)
 
@@ -145,13 +136,10 @@ async def export_csv(project_id: str):
 
 # ---- CSV Import ----
 
-@router.post("/import-csv/{project_id}")
-async def import_csv(project_id: str, file: UploadFile = File(...)):
-    """Import process data from CSV."""
-    project = project_service.get_project(project_id)
-    if project is None:
-        raise HTTPException(404, "Project not found")
-
+@router.post("/import-csv")
+async def import_csv(file: UploadFile = File(...)):
+    """Read process data from CSV and return the processes; the caller puts
+    them into its project. Nothing is kept."""
     try:
         import pandas as pd
         import io as _io
@@ -192,9 +180,8 @@ async def import_csv(project_id: str, file: UploadFile = File(...)):
                     cp=str(row.get("cp", "")),
                 ))
 
-        project.processes = procs
-        project_service.update_project(project_id, project)
-        return {"imported_processes": len(procs)}
+        return {"imported_processes": len(procs),
+                "processes": [p.model_dump() for p in procs]}
     except HTTPException:
         raise
     except Exception as e:

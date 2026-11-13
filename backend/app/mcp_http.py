@@ -27,9 +27,9 @@ router = APIRouter()
 
 @router.get("/files/{token}/{name}")
 async def download(token: str, name: str):
-    found = files.download(token)
-    if not found or found[0] != name:
-        raise HTTPException(404, "This download link has expired; ask the assistant for a new one.")
+    found = files.download(token, name)
+    if not found:
+        raise HTTPException(404, "This download link has expired or was used; ask the assistant for a new one.")
     filename, data, media_type, _ = found
     return Response(data, media_type=media_type,
                     headers={"Content-Disposition": f'attachment; filename="{filename}"'})

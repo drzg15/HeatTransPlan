@@ -19,12 +19,13 @@ from heattransplan_mcp.api import ApiError
 # Run locally (stdio) the tools read and write files on the user's computer.
 # Served online (the backend's /mcp, see backend/app/mcp_http.py) the server
 # must never touch its own disk for a caller: files come in as content and go
-# out as download links.
+# out as download links. A link works once: the file leaves the server's
+# memory when it is downloaded, or when the link expires unused.
 
 HOSTED = False
 # Public address of the app, for download links; set per request when hosted.
 BASE_URL: ContextVar[str] = ContextVar("BASE_URL", default=os.getenv("PUBLIC_URL", ""))
-DOWNLOAD_SECONDS = 3600
+DOWNLOAD_SECONDS = 600
 # token → (file name, bytes, media type, expiry). ponytail: in memory, one process (as live sessions).
 _downloads: Dict[str, tuple] = {}
 
@@ -62,16 +63,25 @@ def _deliver(file_path: Optional[str], default_name: str, data: bytes, media_typ
         path.write_bytes(data)
         return f"Saved to {path}"
     now = time.time()
-    for token in [t for t, f in _downloads.items() if f[3] < now]:
-        del _downloads[token]
+    _forget_expired(now)
     token = secrets.token_urlsafe(16)
     name = re.sub(r"[^\w.-]", "_", Path(file_path).name) if file_path else default_name
     _downloads[token] = (name, data, media_type, now + DOWNLOAD_SECONDS)
-    return (f"Download link for the user (valid for an hour): "
+    return (f"Download link for the user (works once, valid for 10 minutes): "
             f"{BASE_URL.get().rstrip('/')}/api/mcp/files/{token}/{name}")
 
 
-def download(token: str) -> Optional[tuple]:
-    """A file handed out by _deliver, while its link is valid."""
+def _forget_expired(now: float) -> None:
+    for token in [t for t, f in _downloads.items() if f[3] < now]:
+        _downloads.pop(token, None)
+
+
+def download(token: str, name: str) -> Optional[tuple]:
+    """A file handed out by _deliver, once: it is removed as it is taken.
+    None when the link expired, was used, or names another file."""
+    now = time.time()
+    _forget_expired(now)
     found = _downloads.get(token)
-    return found if found and found[3] >= time.time() else None
+    if not found or found[0] != name:
+        return None
+    return _downloads.pop(token)

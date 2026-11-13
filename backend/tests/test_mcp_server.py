@@ -10,7 +10,7 @@ import pytest
 
 from app.main import app
 from app.models.project import ProjectState
-from app.services import live, project_service
+from app.services import live
 
 mcp_server = pytest.importorskip("heattransplan_mcp.server")
 from heattransplan_mcp.api import Api, ApiError  # noqa: E402
@@ -20,8 +20,7 @@ S = mcp_server
 
 
 @pytest.fixture(autouse=True)
-def _isolated(tmp_path, monkeypatch):
-    monkeypatch.setattr(project_service, "_projects", {})
+def _isolated(monkeypatch):
     monkeypatch.setattr(live, "_sessions", {})
 
 
@@ -74,12 +73,11 @@ def page_command(page: dict, name: str, args: dict, allow: bool = True):
 async def open_page(example=None, allow=True):
     """A page the user has open and connected, with an empty project or an
     example: returns its Connect AI code, all the AI works with. It holds the
-    project as the browser does and keeps the backend's copy in step; the
+    project as the browser does, the only copy (the backend keeps none); the
     user there answers every "may the AI ...?" with allow."""
-    state = await S.api.get(f"/api/assets/examples/{example}") if example else None
-    created = await S.api.post("/api/projects", json=state)
-    session = live.create(created["project_id"])
-    page = {"state": await S.api.get(f"/api/projects/{created['project_id']}"), "steps": []}
+    state = await S.api.get(f"/api/assets/examples/{example}") if example else {}
+    session = live.create()
+    page = {"state": ProjectState(**state).model_dump(), "steps": []}
 
     async def listen():
         async for chunk in live.events(session):
@@ -88,8 +86,6 @@ async def open_page(example=None, allow=True):
                 if event.get("type") != "command":
                     continue
                 result = page_command(page, event["name"], event["args"], allow)
-                project_service.update_project(session.project_id, ProjectState(**page["state"]),
-                                               origin=session.id)
                 live.resolve(session, event["id"], True, result)
 
     _pages.append(asyncio.create_task(listen()))
@@ -191,9 +187,8 @@ def test_examples_site_plan_and_formula(tmp_path):
 
 def test_driving_a_connected_page(tmp_path):
     async def body():
-        example = await S.api.get(f"/api/assets/examples/{(await S.list_examples())[0]}")
-        pid = (await S.api.post("/api/projects", json=example))["project_id"]
-        session = live.create(pid)
+        session = live.create()
+        pid = session.project_id
         seen = []
 
         async def page():
@@ -355,7 +350,7 @@ def test_only_on_an_open_page():
     """The AI works only on a page that is open and connected: without one,
     or once it closes, every project tool refuses."""
     async def body():
-        stored = (await S.api.post("/api/projects", json=None))["project_id"]
+        stored = "4f1c2a9e-0000-4000-8000-000000000000"  # an id no open page has
         for call in (lambda: S.get_project(stored), lambda: S.add_process(stored),
                      lambda: S.analyse_project(stored), lambda: S.export_csv(stored, "x.csv"),
                      lambda: S.list_heat_pumps("nocode12")):
@@ -446,18 +441,20 @@ def test_served_online_at_mcp(monkeypatch):
     assert files.HOSTED is False  # the local tools are themselves again
 
 
-def test_csv_export_has_the_pages_latest_edits(tmp_path):
-    """The page syncs with a delay; the export must not miss its last edit."""
+def test_csv_goes_through_the_page_and_nothing_stays(tmp_path):
+    """Export converts the page's project as it is now; import puts the
+    file's processes into the page's project. The backend keeps neither."""
     async def body():
         code = await open_page((await S.list_examples())[0])
-        pid = live.get(code).project_id
-        stale = project_service.get_project(pid)
-        stale.processes[0].streams[0].name = "Not synced yet"
-        project_service.update_project(pid, stale, origin=code)  # the backend lags behind
+        await S.update_stream(code, 0, 0, name="Edited just now")
         out = tmp_path / "streams.csv"
         await S.export_csv(code, str(out))
-        text = out.read_text(encoding="utf-8")
-        assert "Not synced yet" not in text and "Stream" in text
+        assert "Edited just now" in out.read_text(encoding="utf-8")
+
+        csv = ("name,next,conntemp,product_tout,connm,conncp,stream_no,mdot,temp_in,temp_out,cp\n"
+               "Kiln,,,,,,1,2,120,40,1.1\n")
+        await S.import_csv(code, content=csv)
+        assert (await S.get_project(code, full=True))["processes"][0]["name"] == "Kiln"
 
     run(body)
 
@@ -500,3 +497,15 @@ def test_one_step_at_a_time(tmp_path, monkeypatch):
         assert out.read_text() == "quantity,presentation,app\n"
 
     run(body)
+
+
+def test_a_download_link_works_once(monkeypatch):
+    """Online, a file the AI hands out leaves the server's memory as it is
+    downloaded; a second try, or another name, finds nothing."""
+    monkeypatch.setattr(files, "HOSTED", True)
+    monkeypatch.setattr(files, "_downloads", {})
+    link = files._deliver(None, "streams.csv", b"a,b\n1,2", "text/csv")
+    token, name = link.rsplit("/", 2)[-2:]
+    assert files.download(token, "other.csv") is None
+    assert files.download(token, name)[1] == b"a,b\n1,2"
+    assert files.download(token, name) is None and files._downloads == {}

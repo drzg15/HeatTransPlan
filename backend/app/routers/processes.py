@@ -1,8 +1,8 @@
 """
 Processes router — the address search for placing processes on the map.
 
-Projects are edited as a whole (PUT /api/projects/{id}), as the page does, or
-one step at a time through the MCP server's tools. The per-item edit routes
+Projects live in the page, never on the server; the MCP server's tools edit
+them there, one step at a time. The per-item edit routes
 that used to live here were unused and left the stream selection wrong after a
 delete; they are in scratch/unused_code/backend/app/routers/.
 """
