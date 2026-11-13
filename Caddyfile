@@ -32,6 +32,13 @@
     handle /api/* {
         reverse_proxy backend:8000
     }
+    # The MCP server needs no login: an AI client asking where to log in
+    # (OAuth discovery) must get a plain 404, not the app's page, or it
+    # takes the HTML as a login it cannot use and refuses to connect.
+    @oauth path /.well-known/oauth-protected-resource* /.well-known/oauth-authorization-server* /.well-known/openid-configuration* /register /authorize /token
+    handle @oauth {
+        respond 404
+    }
     # The MCP server for AI agents (backend/app/mcp_http.py).
     handle /mcp {
         reverse_proxy backend:8000
