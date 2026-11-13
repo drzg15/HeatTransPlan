@@ -15,7 +15,7 @@ The backend is a FastAPI application. Its interactive reference, with every endp
 
 ### Endpoints
 
-**Projects** — a project is the JSON the page's Save button writes; the backend keeps projects by id.
+**Projects** — a project is the JSON the page's Save button writes; the backend holds projects by id, in memory only (never on disk), while they are in use.
 
 | Method | Path | What it does |
 |---|---|---|
@@ -86,7 +86,7 @@ Clicking **Connect AI** in the header connects the open page to the backend. The
 2. reports what it shows (page, every analysis input, key results) after each change;
 3. listens for **commands** and runs each one with the same functions its own buttons, sliders and fields call, then answers.
 
-The header shows the session code, which is what an AI needs to address the page; the × next to it ends the session. Until **Connect AI** is clicked nothing is sent: while connected, the project is also stored on the server.
+The header shows the session code, which is what an AI needs to address the page; the × next to it ends the session. Until **Connect AI** is clicked nothing is sent. While connected, the backend holds the project in memory, never on disk. When the page disconnects (the ×, or the tab closed and not reopened within 2 minutes) the project is deleted from the server.
 
 ```{mermaid}
 sequenceDiagram

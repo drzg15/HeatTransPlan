@@ -21,7 +21,7 @@ S = mcp_server
 
 @pytest.fixture(autouse=True)
 def _isolated(tmp_path, monkeypatch):
-    monkeypatch.setattr(project_service, "STATE_DIR", tmp_path)
+    monkeypatch.setattr(project_service, "_projects", {})
     monkeypatch.setattr(live, "_sessions", {})
 
 

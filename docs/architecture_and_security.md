@@ -107,7 +107,7 @@ There is no login: the app is public, so each layer has to hold on its own.
 | **Upload size** | Requests over 50 MB. | `Caddyfile` |
 | **Browser protections** | Framing by other sites, plugins, form tricks; HTTPS only, once on a domain. No script policy on purpose: maps, charts and docs load from several sites. | `Caddyfile` |
 | **Text, never markup** | A name or note like `<script>` running when someone opens a report. | `backend/app/services/report/` |
-| **Data leaves** | A site's process data staying on the server: a page's project goes at Disconnect, any other after 24 hours untouched. | `backend/app/services/project_service.py` |
+| **Data leaves** | A site's process data staying on the server: projects are held in memory only, never on disk; a page's project goes at Disconnect or 2 minutes after its page closed, any other after 10 minutes untouched. | `backend/app/services/project_service.py` |
 | **Hardened containers** | A flaw in a library taking over the machine: read-only files (only `/tmp` and the activity log's folder writable), no root rights (the backend runs as an ordinary user), no way to gain any. | `docker-compose.yml`, `backend/Dockerfile` |
 | **Anonymous activity log** | Recording people while debugging: the log keeps only which feature was used, whether by a person (`human`) or an AI (`ai`), whether it worked (`system` for errors) and how long it took. No addresses, page codes or project ids (paths keep their pattern, `/api/projects/{project_id}`), no values or names: for a project only which parts changed, for an AI tool only the names of the fields it set, for an error its type and where in the code. The server keeps no access log either. It stays in the container's volume and deletes its older half past 20 MB. Read it with `docker compose exec backend python -m app.services.activity_log [rows] [actor]`. | `backend/app/services/activity_log.py` |
 | **Known flaws in libraries** | Outdated dependencies: Dependabot checks them weekly and opens a pull request for each fix. Plotly is kept below 7, the version the report is tested with. | `.github/dependabot.yml`, `backend/pyproject.toml` |
@@ -151,7 +151,7 @@ The same repository runs on a laptop and on a server; what differs is in a `.env
 | `SITE_ADDRESS` | `:80` (any address, plain http) | The server's domain; Caddy then gets its HTTPS certificate |
 | `AI_ENABLED` | `1` | `0` switches AI access off |
 | `RATE_LIMIT` | `1` | `0` switches the limits off |
-| `PROJECT_RETENTION_HOURS` | `24` | How long an unused project stays on the server |
+| `PROJECT_RETENTION_MINUTES` | `10` | How long a project no open page uses stays in the server's memory |
 | `API_KEYS` | – | Keys every API request (and agent) must send; unset: open |
 | `COP_TRAINING_ENABLED` | `1` | `0` switches the COP training module off |
 

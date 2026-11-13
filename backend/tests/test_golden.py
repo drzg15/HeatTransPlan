@@ -74,7 +74,7 @@ def _post(client, url: str, body: dict):
 
 @pytest.fixture(autouse=True)
 def _isolated_state(tmp_path, monkeypatch):
-    monkeypatch.setattr(project_service, "STATE_DIR", tmp_path)
+    monkeypatch.setattr(project_service, "_projects", {})
 
 
 @pytest.mark.parametrize("example", EXAMPLES)

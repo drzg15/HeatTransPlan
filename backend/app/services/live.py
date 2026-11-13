@@ -1,12 +1,17 @@
 """Live sessions: an open page that an AI (through the MCP server) can watch
 and drive.
 
-The page registers a session and keeps its project on the backend. It
-listens on an event stream for two things: project changes made by someone
-else (the AI editing through the project endpoints), and commands to run
-(navigate, select streams, pick a heat pump, ...). It runs each command with
-the same functions its own buttons call, then posts the result back, which
-is what the command call returns.
+The server never holds the project: the page does. A session is only a
+relay. The page registers one and listens on an event stream for commands
+(read the project, apply an edit, navigate, select streams, pick a heat
+pump, ...). It runs each command with the same functions its own buttons
+call, then posts the result back, which is what the command call returns.
+
+A session carries an id the AI addresses the page by (project_id, a random
+id with no data behind it), what the page shows (view, as the page reports
+it) and the AI's activity list, all in memory. When the page's stream closes
+and it does not reconnect within DISCONNECT_GRACE_SECONDS (a reload does),
+the session ends and all of it is gone.
 
 Held in memory: the backend runs as one process (see the Dockerfile).
 ponytail: one process only; a shared broker (e.g. Redis) when it runs on more.
@@ -24,8 +29,10 @@ from typing import Any, AsyncIterator, Dict, List, Optional
 
 from app.services import activity_log
 
-# A session nobody has listened to for this long is dropped.
-IDLE_SECONDS = 3600
+# A page that closed its stream has this long to reconnect (a reload) before
+# its session ends. Also the limit for a session
+# no page ever connected to.
+DISCONNECT_GRACE_SECONDS = 120
 # Keeps proxies from closing a quiet stream.
 HEARTBEAT_SECONDS = 15
 
@@ -71,15 +78,28 @@ class Session:
 _sessions: Dict[str, Session] = {}
 
 
+def end(session_id: str) -> bool:
+    """End a session. False when there was no such session."""
+    return _sessions.pop(session_id, None) is not None
+
+
 def _prune() -> None:
     now = time.time()
-    for sid in [s.id for s in _sessions.values() if not s.connected and now - s.last_seen > IDLE_SECONDS]:
-        del _sessions[sid]
+    for sid in [s.id for s in _sessions.values()
+                if not s.connected and now - s.last_seen > DISCONNECT_GRACE_SECONDS]:
+        end(sid)
 
 
-def create(project_id: str) -> Session:
+async def _end_unless_back(session: Session) -> None:
+    """After the page's stream closed: end the session unless it reconnected."""
+    await asyncio.sleep(DISCONNECT_GRACE_SECONDS)
+    if not session.connected and time.time() - session.last_seen >= DISCONNECT_GRACE_SECONDS - 1:
+        end(session.id)
+
+
+def create() -> Session:
     _prune()
-    session = Session(id=uuid.uuid4().hex[:8], project_id=project_id)
+    session = Session(id=uuid.uuid4().hex[:8], project_id=str(uuid.uuid4()))
     _sessions[session.id] = session
     return session
 
@@ -109,15 +129,6 @@ def record(session: Session, tool: str, detail: str, fields: Optional[List[str]]
     return entry
 
 
-def project_ids() -> set:
-    """The projects open sessions use."""
-    return {s.project_id for s in _sessions.values()}
-
-
-def remove(session_id: str) -> bool:
-    return _sessions.pop(session_id, None) is not None
-
-
 def set_view(session: Session, view: Dict[str, Any]) -> None:
     session.view = view
     session.last_seen = time.time()
@@ -126,15 +137,6 @@ def set_view(session: Session, view: Dict[str, Any]) -> None:
 def _publish(session: Session, event: Dict[str, Any]) -> None:
     for q in session.subscribers:
         q.put_nowait(event)
-
-
-def notify_project(project_id: str, state: Any, origin: Optional[str] = None) -> None:
-    """Tell every page showing this project that it changed, except the one
-    the change came from (it already has it)."""
-    payload = state.model_dump() if hasattr(state, "model_dump") else state
-    for session in _sessions.values():
-        if session.project_id == project_id and session.id != origin:
-            _publish(session, {"type": "project", "state": payload})
 
 
 async def send_command(session: Session, name: str, args: Dict[str, Any], timeout: float = 30.0) -> Any:
@@ -183,3 +185,5 @@ async def events(session: Session) -> AsyncIterator[str]:
     finally:
         session.subscribers.remove(queue)
         session.last_seen = time.time()
+        if not session.connected:
+            asyncio.get_running_loop().create_task(_end_unless_back(session))

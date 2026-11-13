@@ -12,7 +12,7 @@ from app.services import live, project_service
 
 @pytest.fixture(autouse=True)
 def _isolated(tmp_path, monkeypatch):
-    monkeypatch.setattr(project_service, "STATE_DIR", tmp_path)
+    monkeypatch.setattr(project_service, "_projects", {})
     monkeypatch.setattr(live, "_sessions", {})
 
 
@@ -96,13 +96,13 @@ def test_ai_switched_off_leaves_the_rest():
     assert out[2] in ("404", "405") and out[3] in ("404", "405") and out[4] == "200"
 
 
-def test_projects_do_not_stay_on_the_server(client, monkeypatch, tmp_path):
+def test_projects_do_not_stay_on_the_server(client, monkeypatch):
     """Disconnecting deletes the page's project; any other project goes once
-    nobody has changed it for the retention time. Open sessions keep theirs."""
-    import os
+    nobody has touched it for the retention time. Open sessions keep theirs.
+    Nothing is written to disk."""
     import time
     from app.services import live, project_service
-    monkeypatch.setattr(project_service, "STATE_DIR", tmp_path)
+    monkeypatch.setattr(project_service, "_projects", {})
     monkeypatch.setattr(live, "_sessions", {})
 
     sid = client.post("/api/live/sessions", json={"state": {}}).json()["session_id"]
@@ -113,13 +113,53 @@ def test_projects_do_not_stay_on_the_server(client, monkeypatch, tmp_path):
     old = client.post("/api/projects").json()["project_id"]
     kept = client.post("/api/live/sessions", json={"state": {}}).json()["session_id"]
     kept_pid = live.get(kept).project_id
-    week_ago = time.time() - 7 * 24 * 3600
+    live.get(kept).subscribers.append(object())  # its page is open
+    hour_ago = time.time() - 3600
     for p in (old, kept_pid):
-        os.utime(tmp_path / f"{p}.json", (week_ago, week_ago))
-    monkeypatch.setattr(project_service, "_last_cleanup", 0.0)
-    client.post("/api/projects")  # creating a project runs the cleanup
+        data, _ = project_service._projects[p]
+        project_service._projects[p] = (data, hour_ago)
+    client.post("/api/projects")  # any project call runs the cleanup
     assert client.get(f"/api/projects/{old}").status_code == 404
     assert client.get(f"/api/projects/{kept_pid}").status_code == 200
+
+
+def test_a_closed_page_takes_its_project_with_it(monkeypatch):
+    """When the page's stream closes and it does not come back within the
+    grace time, the session ends and its project is deleted."""
+    monkeypatch.setattr(live, "DISCONNECT_GRACE_SECONDS", 0.05)
+
+    async def scenario():
+        pid, _ = project_service.create_project()
+        session = live.create(pid)
+        stream = live.events(session)
+        await stream.__anext__()  # hello: the page is connected
+        await stream.aclose()  # the page closed
+        assert project_service.get_project(pid) is not None  # a reload may follow
+        await asyncio.sleep(0.2)
+        return pid, session.id
+
+    pid, sid = asyncio.run(scenario())
+    assert live.get(sid) is None
+    assert project_service.get_project(pid) is None
+
+
+def test_a_reloaded_page_keeps_its_project(monkeypatch):
+    monkeypatch.setattr(live, "DISCONNECT_GRACE_SECONDS", 0.1)
+
+    async def scenario():
+        pid, _ = project_service.create_project()
+        session = live.create(pid)
+        first = live.events(session)
+        await first.__anext__()
+        await first.aclose()
+        second = live.events(session)  # reconnected within the grace time
+        await second.__anext__()
+        await asyncio.sleep(0.25)
+        alive = live.get(session.id) is not None and project_service.get_project(pid) is not None
+        await second.aclose()
+        return alive
+
+    assert asyncio.run(scenario())
 
 
 def test_pausing_stops_the_ai_and_the_log_reaches_the_page(client, monkeypatch):

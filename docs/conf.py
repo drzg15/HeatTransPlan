@@ -54,4 +54,4 @@ copybutton_prompt_is_regexp = True
 
 # Don't complain about missing includes from backend source
 # _generated/ is not a page of the site (no page links or includes it).
-exclude_patterns = ["_build", "_generated", "api_and_mcp.md", "Thumbs.db", ".DS_Store"]
+exclude_patterns = ["_build", "_generated", "Thumbs.db", ".DS_Store"]

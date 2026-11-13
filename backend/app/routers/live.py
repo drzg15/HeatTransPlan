@@ -10,16 +10,9 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 
-from app.models.project import ProjectState
-from app.services import live, project_service
+from app.services import live
 
 router = APIRouter()
-
-
-class SessionCreate(BaseModel):
-    """The page's project, or the id of a backend project to show."""
-    state: Optional[ProjectState] = None
-    project_id: Optional[str] = None
 
 
 class Command(BaseModel):
@@ -53,16 +46,11 @@ def _session(session_id: str) -> live.Session:
 
 
 @router.post("/sessions")
-async def create_session(body: SessionCreate):
-    """Start a session for a page. Its project is kept on the backend under
-    project_id, where the project endpoints (and so the AI) can edit it."""
-    if body.project_id:
-        if project_service.get_project(body.project_id) is None:
-            raise HTTPException(404, "Project not found")
-        project_id = body.project_id
-    else:
-        project_id, _ = project_service.create_project(body.state)
-    session = live.create(project_id)
+async def create_session():
+    """Start a session for a page. Nothing of its project is sent or kept:
+    the AI reads and edits it through commands the page runs. project_id is
+    only a second name the AI can address the page by."""
+    session = live.create()
     return session.summary()
 
 
@@ -106,20 +94,16 @@ async def get_session(session_id: str):
 
 @router.delete("/sessions/{session_id}")
 async def delete_session(session_id: str):
-    """Disconnect: the session ends and its project leaves the server (the
-    page keeps its own copy), unless another session still shows it."""
-    session = live.get(session_id)
-    if session is None or not live.remove(session_id):
+    """Disconnect: the session ends."""
+    if not live.end(session_id):
         raise HTTPException(404, "Live session not found")
-    if session.project_id not in live.project_ids():
-        project_service.delete_project(session.project_id)
     return {"deleted": True}
 
 
 @router.get("/sessions/{session_id}/events")
 async def session_events(session_id: str):
-    """Server-sent events for the page: `project` when someone else changed
-    the project, `command` when it should run one."""
+    """Server-sent events for the page: `command` when it should run one,
+    `ai_log` when the AI did something."""
     session = _session(session_id)
     return StreamingResponse(
         live.events(session),

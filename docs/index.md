@@ -72,4 +72,5 @@ economic_analysis
 :caption: Architecture
 
 architecture_and_security
+api_and_mcp
 ```

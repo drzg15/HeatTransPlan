@@ -1,66 +1,41 @@
 """
 Project store. Each project gets a UUID.
 
-Backed by one JSON file per project on disk rather than a process-local dict.
-The server runs uvicorn with one worker per CPU, and workers do not share
-memory: with an in-memory dict a client that created a project on worker 1 got
-a 404 as soon as the next request landed on worker 2. The heavy endpoints
-(pinch, HPI, optimization) are stateless — they take everything they need in
-the request body — so the workers stay useful and only this small amount of
-CRUD state has to be shared.
+Held in memory only, never written to disk: a project exists while a page or
+an API client works with it and is gone when the backend restarts. The heavy
+endpoints (pinch, HPI, optimization) are stateless — they take everything
+they need in the request body — so only this small amount of CRUD state is
+kept, and only for as long as it is in use.
 
-Set HEATTRANSPLAN_STATE_DIR to control where the files live.
+A page's project goes when its live session ends (app/services/live.py). A
+project no open page uses is deleted once nobody has touched it for
+RETENTION_SECONDS.
+
+Held in one process: the backend runs as one (see the Dockerfile and
+app/services/live.py, which relies on the same).
 """
 
 from __future__ import annotations
-import json
 import os
-import tempfile
 import time
 import uuid
 from datetime import datetime
-from pathlib import Path
-from typing import Optional
+from typing import Dict, Optional, Tuple
 
 from app.models.project import ProjectState
 from app.services import live
 
 
-STATE_DIR = Path(
-    os.getenv("HEATTRANSPLAN_STATE_DIR", Path(tempfile.gettempdir()) / "heattransplan_projects")
-)
-# Projects hold a site's process data: one nobody has changed for this long,
-# and no open session uses, is deleted. The page keeps its own copy.
-RETENTION_SECONDS = float(os.getenv("PROJECT_RETENTION_HOURS", "24")) * 3600
-_last_cleanup = 0.0
+# A project no open page uses is deleted once nobody touched it for this long.
+RETENTION_SECONDS = float(os.getenv("PROJECT_RETENTION_MINUTES", "10")) * 60
+
+# project_id -> (state as plain data, last touched). Stored as a copy so a
+# caller changing its object afterwards does not change the stored project.
+_projects: Dict[str, Tuple[dict, float]] = {}
 
 
-def _ensure_dir() -> Path:
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
-    return STATE_DIR
-
-
-def _path_for(project_id: str) -> Path:
-    # uuid4() only ever produces hex and dashes; reject anything else so a
-    # crafted id cannot walk out of the state directory.
-    if not project_id or not all(c.isalnum() or c == "-" for c in project_id):
-        raise ValueError(f"Invalid project id: {project_id!r}")
-    return _ensure_dir() / f"{project_id}.json"
-
-
-def _write(project_id: str, state: ProjectState) -> None:
-    """Serialize atomically so a concurrent reader never sees a half-written file."""
-    path = _path_for(project_id)
-    fd, tmp_name = tempfile.mkstemp(dir=str(path.parent), suffix=".tmp")
-    try:
-        with os.fdopen(fd, "w", encoding="utf-8") as fh:
-            json.dump(state.model_dump(), fh)
-        os.replace(tmp_name, path)
-    except BaseException:
-        # os.replace() consumes the temp file on success; only clean up on failure.
-        if os.path.exists(tmp_name):
-            os.unlink(tmp_name)
-        raise
+def _store(project_id: str, state: ProjectState) -> None:
+    _projects[project_id] = (state.model_dump(), time.time())
 
 
 def create_project(state: Optional[ProjectState] = None) -> tuple[str, ProjectState]:
@@ -70,63 +45,41 @@ def create_project(state: Optional[ProjectState] = None) -> tuple[str, ProjectSt
     if state is None:
         state = ProjectState()
     state.timestamp = datetime.now().isoformat()
-    _write(project_id, state)
+    _store(project_id, state)
     return project_id, state
 
 
 def get_project(project_id: str) -> Optional[ProjectState]:
     """Retrieve a project by ID."""
-    try:
-        path = _path_for(project_id)
-    except ValueError:
+    forget_old_projects()
+    entry = _projects.get(project_id)
+    if entry is None:
         return None
-    if not path.exists():
-        return None
-    try:
-        with path.open(encoding="utf-8") as fh:
-            return ProjectState(**json.load(fh))
-    except (OSError, json.JSONDecodeError, ValueError):
-        return None
+    data, _ = entry
+    _projects[project_id] = (data, time.time())
+    return ProjectState(**data)
 
 
 def update_project(project_id: str, state: ProjectState, origin: Optional[str] = None) -> Optional[ProjectState]:
     """Replace the full project state. Pages showing the project live are told,
     except `origin`, the live session the change came from."""
-    try:
-        if not _path_for(project_id).exists():
-            return None
-    except ValueError:
+    if project_id not in _projects:
         return None
     state.timestamp = datetime.now().isoformat()
-    _write(project_id, state)
+    _store(project_id, state)
     live.notify_project(project_id, state, origin)
     return state
 
 
 def delete_project(project_id: str) -> bool:
     """Delete a project."""
-    try:
-        path = _path_for(project_id)
-    except ValueError:
-        return False
-    if not path.exists():
-        return False
-    path.unlink()
-    return True
+    return _projects.pop(project_id, None) is not None
 
 
 def forget_old_projects() -> None:
-    """Delete projects untouched for RETENTION_SECONDS that no session uses.
-    Runs at most once a minute, when a project is created."""
-    global _last_cleanup
+    """Delete projects untouched for RETENTION_SECONDS that no session uses."""
     now = time.time()
-    if now - _last_cleanup < 60:
-        return
-    _last_cleanup = now
     in_use = live.project_ids()
-    for path in _ensure_dir().glob("*.json"):
-        try:
-            if path.stem not in in_use and now - path.stat().st_mtime > RETENTION_SECONDS:
-                path.unlink()
-        except FileNotFoundError:
-            pass  # another request removed it first
+    for pid in [p for p, (_, touched) in _projects.items()
+                if p not in in_use and now - touched > RETENTION_SECONDS]:
+        _projects.pop(pid, None)
